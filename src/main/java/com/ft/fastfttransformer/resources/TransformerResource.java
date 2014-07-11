@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.ft.contentstoreapi.model.Content;
 import com.ft.fastfttransformer.response.FastFTResponse;
+import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -36,6 +37,10 @@ public class TransformerResource {
 	public final Content getByUuid(@PathParam("id") Integer postId) {
 
 		Map<String, Object> result = doRequest(postId);
+
+		if (result == null) {
+			throw new NotFoundException();
+		}
 
 		String title = result.get("title").toString();
 		String body = result.get("content").toString();
