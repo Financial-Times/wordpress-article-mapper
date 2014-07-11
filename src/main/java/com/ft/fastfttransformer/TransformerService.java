@@ -30,7 +30,7 @@ public class TransformerService extends Application<TransformerConfiguration> {
     @Override
     public void run(final TransformerConfiguration configuration, final Environment environment) throws Exception {
         environment.jersey().register(new BuildInfoResource());
-        environment.jersey().register(new TransformerResource());
+        environment.jersey().register(new TransformerResource(configuration.getClamoBaseURL()));
 
         environment.servlets().addFilter(
                 "Slow Servlet Filter",

@@ -1,6 +1,8 @@
 slowRequestPattern: '*.html'
 slowRequestTimeout: 1000  #1 second
 
+clamoBaseURL : "http://clamo.ftdata.co.uk/api/"
+
 server:
 
   applicationConnectors:

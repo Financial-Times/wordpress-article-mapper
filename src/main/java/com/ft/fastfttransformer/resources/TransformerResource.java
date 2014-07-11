@@ -1,5 +1,6 @@
 package com.ft.fastfttransformer.resources;
 
+import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -21,6 +22,12 @@ import com.yammer.metrics.annotation.Timed;
 public class TransformerResource {
 
 	private static final String CHARSET_UTF_8 = ";charset=utf-8";
+
+	private final String clamoBaseURL;
+
+	public TransformerResource(URL clamoBaseURL) {
+		this.clamoBaseURL = clamoBaseURL.toString();
+	}
 
 	@GET
 	@Timed
@@ -52,8 +59,7 @@ public class TransformerResource {
 				+ "%7D%2C%22action%22%3A%20%22getPost%22%20%7D%5D%0A";
 
 		// TODO: parameterise this url
-		WebResource webResource = client
-				.resource("http://clamo.ftdata.co.uk/api/");
+		WebResource webResource = client.resource(clamoBaseURL);
 
 		ClientResponse response = webResource.queryParam("request", eq)
 				.accept("application/json").get(ClientResponse.class);
