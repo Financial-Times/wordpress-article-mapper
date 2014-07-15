@@ -43,14 +43,15 @@ public class TransformerResource {
 		}
 
 		String title = result.get("title").toString();
-		String body = result.get("content").toString();
+		String body = "<body>" + result.get("content").toString() + "</body>";
 		UUID uuid = UUID.fromString(result.get("uuidv3").toString());
 		Date datePublished = new Date(1000 * Long.parseLong(result.get(
 				"datepublished").toString()));
 
 		return Content.builder().withHeadline(title)
 				.withLastPublicationDate(datePublished).withXmlBody(body)
-				.withSource("FT").withUuid(uuid).build();
+				.withSource("FT").withByline("By FastFT")//TODO - make byline optional in writer/find a good alternative byline
+				.withUuid(uuid).build();
 
 	}
 
