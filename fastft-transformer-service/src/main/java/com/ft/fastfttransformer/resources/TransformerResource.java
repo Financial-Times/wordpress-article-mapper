@@ -11,13 +11,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
+import com.codahale.metrics.annotation.Timed;
 import com.ft.contentstoreapi.model.Content;
 import com.ft.fastfttransformer.response.FastFTResponse;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.yammer.metrics.annotation.Timed;
 
 @Path("/content")
 public class TransformerResource {
@@ -43,16 +45,26 @@ public class TransformerResource {
 		}
 
 		String title = result.get("title").toString();
-		String body = "<body>" + result.get("content").toString() + "</body>";
+		String body = transformBody(result.get("content").toString());
 		UUID uuid = UUID.fromString(result.get("uuidv3").toString());
 		Date datePublished = new Date(1000 * Long.parseLong(result.get(
 				"datepublished").toString()));
 
 		return Content.builder().withHeadline(title)
-				.withLastPublicationDate(datePublished).withXmlBody(body)
+				.withLastPublicationDate(datePublished)
+				.withXmlBody(tidiedUpBody(body))
 				.withSource("FT").withByline("By FastFT")//TODO - make byline optional in writer/find a good alternative byline
 				.withUuid(uuid).build();
 
+	}
+
+	private String tidiedUpBody(String body) {
+		// TODO - temporary fix?? use to tidy up problem characters
+		return body.replaceAll("&", "&amp;");
+	}
+
+	private String transformBody(String originalBody) {
+		return "<body>" + originalBody + "</body>";
 	}
 
 	private Map<String, Object> doRequest(Integer postId) {
