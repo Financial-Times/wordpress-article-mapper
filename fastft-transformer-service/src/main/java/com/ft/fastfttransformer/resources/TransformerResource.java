@@ -1,5 +1,6 @@
 package com.ft.fastfttransformer.resources;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Date;
 import java.util.Map;
@@ -10,26 +11,29 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.codahale.metrics.annotation.Timed;
 import com.ft.contentstoreapi.model.Content;
+import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.FastFTResponse;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jndi.toolkit.url.Uri;
 
 @Path("/content")
 public class TransformerResource {
 
 	private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
-	private final String clamoBaseURL;
+	private final ClamoConnection clamoConnection;
 
-	public TransformerResource(URL clamoBaseURL) {
-		this.clamoBaseURL = clamoBaseURL.toString();
+	public TransformerResource(ClamoConnection clamoConnection) {
+		this.clamoConnection = clamoConnection;
 	}
 
 	@GET
@@ -76,8 +80,7 @@ public class TransformerResource {
 				+ Integer.toString(postId)
 				+ "%7D%2C%22action%22%3A%20%22getPost%22%20%7D%5D%0A";
 
-		// TODO: parameterise this url
-		WebResource webResource = client.resource(clamoBaseURL);
+		WebResource webResource = client.resource(getClamoBaseUrl(postId));
 
 		ClientResponse response = webResource.queryParam("request", eq)
 				.accept("application/json").get(ClientResponse.class);
@@ -96,6 +99,15 @@ public class TransformerResource {
 
 		return output[0].getData().getAdditionalProperties();
 
+	}
+
+	private URI getClamoBaseUrl(int id) {
+		return UriBuilder.fromPath(clamoConnection.getPath())
+                .path("{uuid}")
+                .scheme("http")
+                .host(clamoConnection.getHostName())
+                .port(clamoConnection.getPort())
+                .build(id);
 	}
 
 }

@@ -1,7 +1,9 @@
-slowRequestPattern: '*.html'
-slowRequestTimeout: 1000  #1 second
-
-clamoBaseURL : "http://clamo.ftdata.co.uk/api/"
+clamoConnection:
+    hostName: "clamo.ftdata.co.uk"
+    port: 80
+    path: /api/
+    jerseyClient:
+        timeout: 2000ms
 
 server:
 
