@@ -55,8 +55,8 @@ public class TransformerResource {
 
 		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
 
-		return Content.builder().withHeadline(title)
-				.withLastPublicationDate(datePublished)
+		return Content.builder().withTitle(title)
+				.withPublicationDate(datePublished)
 				.withXmlBody(tidiedUpBody(body))
 				.withSource("FT").withByline("By FastFT")//TODO - make byline optional in writer/find a good alternative byline
 				.withUuid(uuid).build();
