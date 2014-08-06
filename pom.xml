@@ -1,40 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <modules>
-        <module>fastft-transformer-service</module>
-        <module>fastft-transformer-pkg</module>
-    </modules>
 
     <parent>
-        <groupId>com.ft.parent</groupId>
-        <artifactId>parentPom</artifactId>
-        <version>2.12</version>
+        <groupId>com.ft</groupId>
+        <artifactId>ft-dropwizard-parent</artifactId>
+        <version>0.3.6</version>
     </parent>
 
     <groupId>com.ft.fastfttransformer</groupId>
     <artifactId>fastft-transformer</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
-    <url>http://www.ft.com</url>
-    <inceptionYear>2014</inceptionYear>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.4</version>
-                    <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dw.version>0.7.0</dw.version>
+        <advanced-dropwizard-healthcheck.version>2.3</advanced-dropwizard-healthcheck.version>
+        <jaxrs-build-info-resource.version>1.1</jaxrs-build-info-resource.version>
+        <junit.version>4.11</junit.version>
+        <mockito-core.version>1.9.5</mockito-core.version>
+        <jersey-version>1.18.1</jersey-version>
+        <!-- Plugins -->
+        <findbugs.version>2.5.2</findbugs.version>
+        <checkstyle.version>2.10</checkstyle.version>
+        <surefire.reportplugin.version>2.12.4</surefire.reportplugin.version>
+        <maven-pmd-plugin.version>3.0.1</maven-pmd-plugin.version>
+        <jacoco-maven-plugin.version>0.6.3.201306030806</jacoco-maven-plugin.version>
+        <maven-jxr-plugin.version>2.3</maven-jxr-plugin.version>
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
+        <maven-shade-plugin.version>.</maven-shade-plugin.version>
+        <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
+        <ft-build-info-maven-plugin.version>1.0</ft-build-info-maven-plugin.version>
+        <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
+        <jaxrs.transaction-id-handling.version>1.9</jaxrs.transaction-id-handling.version>
+        <target-jdk>1.7</target-jdk>
+        <ft.content-model.version>0.1.10</ft.content-model.version>
+    </properties>
+    
+    
+    <modules>
+        <module>fastft-transformer-service</module>
+        <module>fastft-transformer-pkg</module>
+    </modules>
+    
+    <repositories>
+        <repository>
+            <id>ft-pipeline-sandbox</id>
+            <url>http://anthill.svc.ft.com:8081/nexus/content/repositories/pipeline-sandbox/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>ft-snapshots</id>
+            <url>http://anthill.svc.ft.com:8081/nexus/content/groups/public-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>ft-releases</id>
+            <url>http://anthill.svc.ft.com:8081/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>ft-releases</id>
+            <url>http://anthill.svc.ft.com:8081/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>fastft-transformer-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+            <version>${dw.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-views</artifactId>
+            <version>${dw.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-assets</artifactId>
+            <version>${dw.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-client</artifactId>
+            <version>${dw.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>advanced-dropwizard-healthcheck</artifactId>
+            <version>${advanced-dropwizard-healthcheck.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>jaxrs-build-info-resource</artifactId>
+            <version>${jaxrs-build-info-resource.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>content-model</artifactId>
+            <version>0.1.8</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-annotations</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.17.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>jaxrs-transaction-id-handling</artifactId>
+            <version>${jaxrs.transaction-id-handling.version}</version>
+        </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
