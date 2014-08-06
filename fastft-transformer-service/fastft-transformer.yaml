@@ -1,5 +1,5 @@
 clamoConnection:
-    hostName: "clamo.ftdata.co.uk"
+    hostName: clamo.ftdata.co.uk
     port: 80
     path: /api/
     jerseyClient:

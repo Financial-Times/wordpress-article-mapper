@@ -1,57 +1,63 @@
-http:
-  port: 8080
-  adminPort: 8081
-  requestLog:
-    file:
-      enabled: true
-      timeZone: UTC
-      currentLogFilename: /var/log/apps/fastft-transformer-dw-access.log
-      archive: true
-      archivedLogFilenamePattern: /var/log/apps/fastft-transformer-dw-access-%d.log.gz
-      archivedFileCount: 5
-    console:
-      enabled: false
-methodeConnection:
-  hostName: <%=scope.function_hiera('methodeHostName')%>
-  nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
-  userName: <%=scope.function_hiera('methodeUsername')%>
-  password: <%=scope.function_hiera('methodePassword')%>
-  connectTimeout: 2000
-  maxPingMillis: 2000
-  pool:
-    size: 10
-    timeout: 1900ms
-methodeTestConnection:
-  hostName: <%=scope.function_hiera('methodeHostName')%>
-  nsPort: <%=scope.function_hiera('methodeNameServicePort')%>
-  userName: <%=scope.function_hiera('methodeTestUsername', 'app-methodeAPI')%>
-  password: <%=scope.function_hiera('methodeTestPassword', 'methodeapi')%>
-  connectTimeout: 2000
-  maxPingMillis: 2000
-  pool:
-    size: 2
-    timeout: 4000ms
+clamoConnection:
+    hostName: <%=scope.function_hiera('clamoHostName')%>
+    port: <%=scope.function_hiera('clamoPort')%>
+    path: /api/
+    jerseyClient:
+        timeout: 2000ms
 
-atc:
-    iAm: <%=scope.function_hiera('localDataCentre')%>
-    hostnames:
-    <% if 'null' != scope.function_hiera('watfordDataCentreHostname','null') %>  WATFORD: <%=scope.function_hiera('watfordDataCentreHostname','null')%><% end %>
-    <% if 'null' != scope.function_hiera('parkRoyalDataCentreHostname','null') %>  PARK_ROYAL: <%=scope.function_hiera('parkRoyalDataCentreHostname','null')%><% end %>
-      ACTIVE: <%=scope.function_hiera('activeDataCentreHostname')%>
+server:
+
+  applicationConnectors:
+    - type: http
+      port: 11080
+
+  adminConnectors:
+      - type: http
+        port: 11081
+
+  requestLog:
+
+    appenders:
+
+      - type: file
+
+        # The file to which current statements will be logged.
+        currentLogFilename: /var/log/apps/fastfttransformer-dw-access.log
+
+        # When the log file rotates, the archived log will be renamed to this and gzipped. The
+        # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+        # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+        archivedLogFilenamePattern: /var/log/apps/fastfttransformer-dw-access-%d.log.gz
+
+        # The number of archived files to keep.
+        archivedFileCount: 6
+
+        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+        timeZone: UTC
 
 logging:
-  file:
-    threshold: INFO
-    enabled: true
-    timeZone: UTC
-    currentLogFilename: /var/log/apps/fastft-transformer-dw-app.log
-    archive: true
-    archivedLogFilenamePattern: /var/log/apps/fastft-transformer-dw-app-%d.log.gz
-    archivedFileCount: 5
-    logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
-  console:
-    enabled: false
+
+  level: INFO
+
   loggers:
-    "com.sun.jersey.spi.container.ContainerResponse": OFF
-    "com.ft.methodeapi.service.methode.connection.MethodeConnectionAllocator" : DEBUG
-    "com.ft.methodeapi.service.methode.connection.PoolingMethodeObjectFactory" : DEBUG
+    io.dropwizard: DEBUG
+
+  appenders:
+
+    - type: file
+      # Do not write log statements below this threshold to the file.
+      threshold: ALL
+
+      # The file to which current statements will be logged.
+      currentLogFilename: /var/log/apps/fastfttransformer-dw-app.log
+
+      # When the log file rotates, the archived log will be renamed to this and gzipped. The
+      # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+      # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+      archivedLogFilenamePattern: /var/log/apps/fastfttransformer-dw-app-%d.log.gz
+
+      # The number of archived files to keep.
+      archivedFileCount: 5
+
+      # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+      timeZone: UTC
