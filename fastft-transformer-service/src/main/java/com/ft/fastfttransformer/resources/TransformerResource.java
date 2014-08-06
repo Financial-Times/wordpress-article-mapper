@@ -76,6 +76,8 @@ public class TransformerResource {
 		Client client = Client.create();
 
 		// FIXME: build this properly.
+		// NB: the string below is the equivalent of this:
+		// [{"arguments": {"outputfields": {"title": true,"content" : "text"},"id": <postID>},"action": "getPost" }]
 		String eq = "%5B%7B%22arguments%22%3A%20%7B%22outputfields%22%3A%20%7B%22title%22%3A%20true%2C%22content%22%20%3A%20%22text%22%7D%2C%22id%22%3A%20"
 				+ Integer.toString(postId)
 				+ "%7D%2C%22action%22%3A%20%22getPost%22%20%7D%5D%0A";
