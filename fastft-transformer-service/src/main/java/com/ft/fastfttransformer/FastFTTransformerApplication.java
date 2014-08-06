@@ -1,5 +1,6 @@
 package com.ft.fastfttransformer;
 
+import com.ft.api.util.buildinfo.VersionResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ public class FastFTTransformerApplication extends Application<FastFTTransformerC
     public void run(final FastFTTransformerConfiguration configuration, final Environment environment) throws Exception {
     	LOGGER.info("running with configuration: {}", configuration);
         environment.jersey().register(new BuildInfoResource());
+		environment.jersey().register(new VersionResource());
         environment.jersey().register(new TransformerResource(configuration.getClamoConnection()));
 
         environment.healthChecks().register("My Health", new TransformerHealthCheck("replace me"));
