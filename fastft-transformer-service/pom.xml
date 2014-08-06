@@ -32,6 +32,7 @@
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <ft-build-info-maven-plugin.version>1.0</ft-build-info-maven-plugin.version>
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
+        <jaxrs.transaction-id-handling.version>1.9</jaxrs.transaction-id-handling.version>
         <target-jdk>1.7</target-jdk>
     </properties>
 
@@ -83,9 +84,9 @@
             <version>${jersey-version}</version>
         </dependency>
         <dependency>
-            <groupId>com.ft.content-store-api</groupId>
-            <artifactId>content-store-api-model</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>com.ft</groupId>
+            <artifactId>content-model</artifactId>
+            <version>0.1.8</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jackson-databind</artifactId>
@@ -101,6 +102,11 @@
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
             <version>1.17.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>jaxrs-transaction-id-handling</artifactId>
+            <version>${jaxrs.transaction-id-handling.version}</version>
         </dependency>
     </dependencies>
 

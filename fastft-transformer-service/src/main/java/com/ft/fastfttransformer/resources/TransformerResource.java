@@ -1,11 +1,9 @@
 package com.ft.fastfttransformer.resources;
 
 import java.net.URI;
-import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -13,20 +11,21 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import com.codahale.metrics.annotation.Timed;
-import com.ft.contentstoreapi.model.Content;
+import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.FastFTResponse;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jndi.toolkit.url.Uri;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/content")
 public class TransformerResource {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
 
 	private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
@@ -53,6 +52,8 @@ public class TransformerResource {
 		UUID uuid = UUID.fromString(result.get("uuidv3").toString());
 		Date datePublished = new Date(1000 * Long.parseLong(result.get(
 				"datepublished").toString()));
+
+		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
 
 		return Content.builder().withHeadline(title)
 				.withLastPublicationDate(datePublished)
