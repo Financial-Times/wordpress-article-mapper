@@ -19,9 +19,13 @@ import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/content")
 public class TransformerResource {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
 
 	private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
@@ -48,6 +52,8 @@ public class TransformerResource {
 		UUID uuid = UUID.fromString(result.get("uuidv3").toString());
 		Date datePublished = new Date(1000 * Long.parseLong(result.get(
 				"datepublished").toString()));
+
+		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
 
 		return Content.builder().withHeadline(title)
 				.withLastPublicationDate(datePublished)
