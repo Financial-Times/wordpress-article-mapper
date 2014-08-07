@@ -5,6 +5,8 @@ clamoConnection:
     jerseyClient:
         timeout: 2000ms
 
+clamoContentId: 186672
+
 server:
 
   applicationConnectors:

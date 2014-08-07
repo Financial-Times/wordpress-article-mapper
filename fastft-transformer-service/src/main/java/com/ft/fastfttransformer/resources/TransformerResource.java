@@ -29,9 +29,11 @@ public class TransformerResource {
 
 	private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
+	private final Client client;
 	private final ClamoConnection clamoConnection;
 
-	public TransformerResource(ClamoConnection clamoConnection) {
+	public TransformerResource(Client client, ClamoConnection clamoConnection) {
+		this.client = client;
 		this.clamoConnection = clamoConnection;
 	}
 
@@ -73,8 +75,6 @@ public class TransformerResource {
 	}
 
 	private Map<String, Object> doRequest(Integer postId) {
-
-		Client client = Client.create();
 
 		// FIXME: build this properly.
 		// NB: the string below is the equivalent of this:

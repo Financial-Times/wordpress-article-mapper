@@ -11,16 +11,25 @@ import com.google.common.base.Objects;
 public class FastFTTransformerConfiguration extends Configuration {
 
 	private final ClamoConnection clamoConnection;
-	
-	public FastFTTransformerConfiguration(@JsonProperty("clamoConnection") ClamoConnection clamoConnection) {
+	private final int clamoContentId;
+
+	public FastFTTransformerConfiguration(@JsonProperty("clamoConnection") ClamoConnection clamoConnection,
+										  @JsonProperty("clamoContentId") int clamoContentId) {
 		super();
 		this.clamoConnection = clamoConnection;
+		this.clamoContentId = clamoContentId;
 	}
 
 	@Valid
 	@NotNull
 	public ClamoConnection getClamoConnection() {
 		return clamoConnection;
+	}
+
+	@Valid
+	@NotNull
+	public int getClamoContentId() {
+		return clamoContentId;
 	}
 
     protected Objects.ToStringHelper toStringHelper() {
@@ -33,6 +42,4 @@ public class FastFTTransformerConfiguration extends Configuration {
     public String toString() {
         return toStringHelper().toString();
     }
-
-	
 }

@@ -72,6 +72,14 @@
             <groupId>com.ft</groupId>
             <artifactId>jaxrs-transaction-id-handling</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.ft</groupId>
+            <artifactId>ft-async-message</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ft.dropwizard</groupId>
+            <artifactId>api-hamcrest-matchers</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
