@@ -35,7 +35,8 @@ public class FastFTTransformerConfiguration extends Configuration {
     protected Objects.ToStringHelper toStringHelper() {
         return Objects.toStringHelper(this)
                 .add("super", super.toString())
-                .add("clamoConnection", clamoConnection);
+                .add("clamoConnection", clamoConnection)
+				.add("clamoContentId", clamoContentId);
     }
     
     @Override

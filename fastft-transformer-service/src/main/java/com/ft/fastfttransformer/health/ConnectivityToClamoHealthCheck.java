@@ -50,7 +50,7 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 				return AdvancedResult.error(this, String.format("Status code [%d] received when receiving content from Clamo.", response.getStatus()));
 			}
 		} catch (Throwable e) {
-			LOGGER.warn(getName() + ": " + "Exception during ping", e);
+			LOGGER.warn(getName() + ": " + "Exception during getting sample content from Clamo", e);
 			return AdvancedResult.error(this, e);
 		} finally {
 			if (response != null) {
