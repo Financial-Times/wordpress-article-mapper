@@ -36,7 +36,7 @@
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
         <jaxrs.transaction-id-handling.version>1.9</jaxrs.transaction-id-handling.version>
         <target-jdk>1.7</target-jdk>
-        <ft.content-model.version>0.1.10</ft.content-model.version>
+        <ft.content-model.version>0.1.11</ft.content-model.version>
     </properties>
     
     
