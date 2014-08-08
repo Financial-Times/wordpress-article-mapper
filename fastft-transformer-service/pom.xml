@@ -79,6 +79,7 @@
         <dependency>
             <groupId>com.ft.dropwizard</groupId>
             <artifactId>api-hamcrest-matchers</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
