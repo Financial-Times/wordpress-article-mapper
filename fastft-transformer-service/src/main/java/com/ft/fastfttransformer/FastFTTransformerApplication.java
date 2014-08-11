@@ -1,5 +1,6 @@
 package com.ft.fastfttransformer;
 
+import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.fastfttransformer.health.ConnectivityToClamoHealthCheck;
@@ -52,6 +53,8 @@ public class FastFTTransformerApplication extends Application<FastFTTransformerC
 						configuration.getClamoConnection(),
 						configuration.getClamoContentId()
 				));
+
+		environment.jersey().register(new RuntimeExceptionMapper());
 
 		environment.servlets().addFilter("Transaction ID Filter", new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
     }

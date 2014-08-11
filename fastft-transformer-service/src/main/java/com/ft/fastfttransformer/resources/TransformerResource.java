@@ -12,6 +12,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.codahale.metrics.annotation.Timed;
+import com.ft.api.jaxrs.errors.ClientError;
+import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.FastFTResponse;
@@ -29,6 +31,11 @@ public class TransformerResource {
 
 	private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
+	private static final String CLAMO_OK = "ok";
+	private static final String CLAMO_ERROR = "error";
+	private static final String CLAMO_FIELD_TITLE = "title";
+
+	private static final String CLAMO_RECORD_NOT_FOUND = "Record not found";
 	private final Client client;
 	private final ClamoConnection clamoConnection;
 
@@ -49,7 +56,7 @@ public class TransformerResource {
 			throw new NotFoundException();
 		}
 
-		String title = result.get("title").toString();
+		String title = result.get(CLAMO_FIELD_TITLE).toString();
 		String body = transformBody(result.get("content").toString());
 		UUID uuid = UUID.fromString(result.get("uuidv3").toString());
 		Date datePublished = new Date(1000 * Long.parseLong(result.get(
@@ -88,20 +95,49 @@ public class TransformerResource {
 		ClientResponse response = webResource.queryParam("request", eq)
 				.accept("application/json").get(ClientResponse.class);
 
-		if (response.getStatus() != 200) {
-			// FIXME: handle this better.
-			throw new RuntimeException("Failed : HTTP error code : "
-					+ response.getStatus());
+		int responseStatusCode = response.getStatus();
+		int responseStatusFamily = responseStatusCode / 100;
+
+		if (responseStatusFamily == 2) {
+			FastFTResponse[] output = response.getEntity(FastFTResponse[].class);
+
+			if (okReturned(output)) {
+				return output[0].getData().getAdditionalProperties();
+			} else  if (errorReturned(output)) {
+				if (CLAMO_RECORD_NOT_FOUND.equals(title(output))) {
+					throw ClientError.status(404).exception();
+				} else {
+					// It says it's an error, but we do not understand this kind of error.
+					throw ServerError.status(500).error(title(output)).exception();
+				}
+			} else {
+				// We do not understand this response.
+				throw ServerError.status(500).error(
+						String.format("Invalid response received from Clamo, title [%s], output.length [%d]", title(output), output.length)
+				).exception();
+			}
+
+		} else if (responseStatusFamily == 4) {
+			throw ClientError.status(responseStatusCode).exception();
+		} else {
+			throw ServerError.status(responseStatusCode).exception();
 		}
+	}
 
-		FastFTResponse[] output = response.getEntity(FastFTResponse[].class);
+	private boolean okReturned(FastFTResponse[] output) {
+		return output.length > 0 && output[0].getStatus().equals(CLAMO_OK);
+	}
 
-		if (output.length != 1 || !output[0].getStatus().equals("ok")) {
+	private boolean errorReturned(FastFTResponse[] output) {
+		return output.length > 0 && output[0].getStatus().equals(CLAMO_ERROR);
+	}
+
+	private String title(FastFTResponse[] output) {
+		if (output.length > 0 && output[0].getAdditionalProperties().get(CLAMO_FIELD_TITLE) != null) {
+			return output[0].getAdditionalProperties().get(CLAMO_FIELD_TITLE).toString();
+		} else {
 			return null;
 		}
-
-		return output[0].getData().getAdditionalProperties();
-
 	}
 
 	private URI getClamoBaseUrl(int id) {
