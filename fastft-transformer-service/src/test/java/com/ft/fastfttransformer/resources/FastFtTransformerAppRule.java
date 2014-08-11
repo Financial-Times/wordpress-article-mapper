@@ -2,7 +2,6 @@ package com.ft.fastfttransformer.resources;
 
 import com.ft.fastfttransformer.FastFTTransformerApplication;
 import com.ft.fastfttransformer.configuration.FastFTTransformerConfiguration;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import io.dropwizard.testing.junit.DropwizardAppRule;

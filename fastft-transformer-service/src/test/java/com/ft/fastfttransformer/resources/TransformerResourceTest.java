@@ -2,6 +2,7 @@ package com.ft.fastfttransformer.resources;
 
 import com.ft.content.model.Content;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.junit.After;
@@ -23,9 +24,10 @@ public class TransformerResourceTest {
 	public static FastFtTransformerAppRule fastFtTransformerAppRule = new FastFtTransformerAppRule("fastft-transformer-test.yaml");
 
 	private static final int CONTENT_ID = 186672;
+	private static final int CONTENT_ID_WILL_RETURN_404 = 186673;
 
 	@Test
-	public void shouldReturnValidResponseWhenContentFoundInClamo() {
+	public void shouldReturn200AndCompleteResponseWhenContentFoundInClamo() {
 		final Client client = Client.create();
 		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(CONTENT_ID);
@@ -42,9 +44,14 @@ public class TransformerResourceTest {
 		assertThat("published date", receivedContent.getPublishedDate(), is(new Date(1406291632000L)));
 	}
 
-	@After
-	public void reset() {
-		WireMock.reset();
+	@Test
+	public void shouldReturn503When404ReturnedFromClamo() {
+		final Client client = Client.create();
+		client.setReadTimeout(5000);
+		final URI uri = buildTransformerUrl(CONTENT_ID_WILL_RETURN_404);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
 	}
 
 	private URI buildTransformerUrl(int contentId) {

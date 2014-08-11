@@ -118,7 +118,10 @@ public class TransformerResource {
 			}
 
 		} else if (responseStatusFamily == 4) {
-			throw ClientError.status(responseStatusCode).exception();
+			// We do not expect this behaviour, we always expect a 200, and an 'error' status in the title.
+			// If 404 is returned, then either the behaviour of Clamo has changed, or it isn't deployed correctly.
+			LOGGER.error("Unexpected status returned by Clamo: [{}].", responseStatusCode);
+			throw ServerError.status(503).exception();
 		} else {
 			throw ServerError.status(responseStatusCode).exception();
 		}
