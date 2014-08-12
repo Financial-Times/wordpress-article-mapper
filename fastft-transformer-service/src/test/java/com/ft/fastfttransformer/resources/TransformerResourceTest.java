@@ -38,12 +38,14 @@ public class TransformerResourceTest {
 
 	@Before
 	public void setup() {
+		System.out.println("MAX: " + Integer.MAX_VALUE);
 		client = Client.create();
 		client.setReadTimeout(5000);
 	}
 
 	@Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInClamo() {
+		System.out.println("Test: shouldReturn200AndCompleteResponseWhenContentFoundInClamo");
 		final URI uri = buildTransformerUrl(SAMPLE_CONTENT_ID);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -60,6 +62,7 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn503When404ReturnedFromClamo() {
+		System.out.println("Test: shouldReturn503When404ReturnedFromClamo");
 		final URI uri = buildTransformerUrl(WILL_RETURN_404);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -71,6 +74,7 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn503When503ReturnedFromClamo() {
+		System.out.println("Test: shouldReturn503When503ReturnedFromClamo");
 		final URI uri = buildTransformerUrl(WILL_RETURN_503);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -79,6 +83,7 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn500When500ReturnedFromClamo() {
+		System.out.println("Test: shouldReturn500When500ReturnedFromClamo");
 		final URI uri = buildTransformerUrl(WILL_RETURN_500);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -86,7 +91,18 @@ public class TransformerResourceTest {
 	}
 
 	@Test
+	public void shouldReturn503WhenCannotConnectToClamo() {
+		System.out.println("Test: shouldReturn503WhenCannotConnectToClamo");
+		WireMock.stubFor(WireMock.get(WireMock.urlMatching("/api/186676.*")).willReturn(WireMock.aResponse().withFault(Fault.EMPTY_RESPONSE)));
+		final URI uri = buildTransformerUrl(WILL_RETURN_CANT_CONNECT);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+	}
+
+	@Test
 	public void shouldReturn404WhenContentNotFoundInClamo() {
+		System.out.println("Test: shouldReturn404WhenContentNotFoundInClamo");
 		final URI uri = buildTransformerUrl(WILL_RETURN_200_NOT_FOUND);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -95,6 +111,7 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn500WhenUnexpectedStatus() {
+		System.out.println("Test: shouldReturn500WhenUnexpectedStatus");
 		final URI uri = buildTransformerUrl(WILL_RETURN_200_UNEXPECTED_STATUS);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -106,6 +123,7 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn500WhenUnexpectedTitle() {
+		System.out.println("Test: shouldReturn500WhenUnexpectedTitle");
 		final URI uri = buildTransformerUrl(WILL_RETURN_200_UNEXPECTED_TITLE);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
