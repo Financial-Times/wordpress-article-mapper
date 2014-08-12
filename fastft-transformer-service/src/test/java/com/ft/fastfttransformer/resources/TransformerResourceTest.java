@@ -23,6 +23,7 @@ public class TransformerResourceTest {
 	private static final int SAMPLE_CONTENT_ID = 186672;
 	private static final int WILL_RETURN_404 = 186673;
 	private static final int WILL_RETURN_503 = 186674;
+	private static final int WILL_RETURN_500 = 186675;
 
 	@Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInClamo() {
@@ -60,6 +61,16 @@ public class TransformerResourceTest {
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+	}
+
+	@Test
+	public void shouldReturn500When500ReturnedFromClamo() {
+		final Client client = Client.create();
+		client.setReadTimeout(5000);
+		final URI uri = buildTransformerUrl(WILL_RETURN_500);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
 	}
 
 	private URI buildTransformerUrl(int contentId) {
