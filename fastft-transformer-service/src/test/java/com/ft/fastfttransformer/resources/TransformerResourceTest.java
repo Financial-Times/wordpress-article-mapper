@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -32,10 +33,16 @@ public class TransformerResourceTest {
 	private static final int WILL_RETURN_200_UNEXPECTED_STATUS = 186677;
 	private static final int WILL_RETURN_200_UNEXPECTED_TITLE = 186678;
 
+	private Client client;
+
+	@Before
+	public void setup() {
+		client = Client.create();
+		client.setReadTimeout(5000);
+	}
+
 	@Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInClamo() {
-		final Client client = Client.create();
-		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(SAMPLE_CONTENT_ID);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -52,8 +59,6 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn503When404ReturnedFromClamo() {
-		final Client client = Client.create();
-		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(WILL_RETURN_404);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -62,8 +67,6 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn503When503ReturnedFromClamo() {
-		final Client client = Client.create();
-		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(WILL_RETURN_503);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -72,8 +75,6 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn500When500ReturnedFromClamo() {
-		final Client client = Client.create();
-		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(WILL_RETURN_500);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -82,8 +83,6 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn503WhenCannotConnectToClamo() {
-		final Client client = Client.create();
-		client.setReadTimeout(5000);
 		WireMock.stubFor(WireMock.get(WireMock.urlMatching("/api/186676.*")).willReturn(WireMock.aResponse().withFault(Fault.EMPTY_RESPONSE)));
 		final URI uri = buildTransformerUrl(WILL_RETURN_CANT_CONNECT);
 
@@ -93,8 +92,6 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn404WhenContentNotFoundInClamo() {
-		final Client client = Client.create();
-		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(WILL_RETURN_200_NOT_FOUND);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -103,8 +100,6 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn500WhenUnexpectedStatus() {
-		final Client client = Client.create();
-		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(WILL_RETURN_200_UNEXPECTED_STATUS);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -116,8 +111,6 @@ public class TransformerResourceTest {
 
 	@Test
 	public void shouldReturn500WhenUnexpectedTitle() {
-		final Client client = Client.create();
-		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(WILL_RETURN_200_UNEXPECTED_TITLE);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
