@@ -1,11 +1,8 @@
 package com.ft.fastfttransformer.resources;
 
 import com.ft.content.model.Content;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.http.Fault;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -23,15 +20,15 @@ public class TransformerResourceTest {
 	@ClassRule
 	public static FastFtTransformerAppRule fastFtTransformerAppRule = new FastFtTransformerAppRule("fastft-transformer-test.yaml");
 
-	private static final int CONTENT_ID = 186672;
-	private static final int CONTENT_ID_WILL_RETURN_404 = 186673;
-	private static final int CONTENT_ID_WILL_RETURN_503 = 186674;
+	private static final int SAMPLE_CONTENT_ID = 186672;
+	private static final int WILL_RETURN_404 = 186673;
+	private static final int WILL_RETURN_503 = 186674;
 
 	@Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInClamo() {
 		final Client client = Client.create();
 		client.setReadTimeout(5000);
-		final URI uri = buildTransformerUrl(CONTENT_ID);
+		final URI uri = buildTransformerUrl(SAMPLE_CONTENT_ID);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -49,7 +46,7 @@ public class TransformerResourceTest {
 	public void shouldReturn503When404ReturnedFromClamo() {
 		final Client client = Client.create();
 		client.setReadTimeout(5000);
-		final URI uri = buildTransformerUrl(CONTENT_ID_WILL_RETURN_404);
+		final URI uri = buildTransformerUrl(WILL_RETURN_404);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
@@ -59,7 +56,7 @@ public class TransformerResourceTest {
 	public void shouldReturn503When503ReturnedFromClamo() {
 		final Client client = Client.create();
 		client.setReadTimeout(5000);
-		final URI uri = buildTransformerUrl(CONTENT_ID_WILL_RETURN_503);
+		final URI uri = buildTransformerUrl(WILL_RETURN_503);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
