@@ -87,7 +87,6 @@ public class TransformerResourceTest {
 	}
 
 	@Test
-	@Ignore
 	public void shouldReturn503WhenCannotConnectToClamo() {
 		WireMock.stubFor(WireMock.get(WireMock.urlMatching("/api/186676.*")).willReturn(WireMock.aResponse().withFault(Fault.EMPTY_RESPONSE)));
 		final URI uri = buildTransformerUrl(WILL_RETURN_CANT_CONNECT);
@@ -97,6 +96,7 @@ public class TransformerResourceTest {
 	}
 
 	@Test
+	@Ignore
 	public void shouldReturn404WhenContentNotFoundInClamo() {
 		final URI uri = buildTransformerUrl(WILL_RETURN_200_NOT_FOUND);
 
