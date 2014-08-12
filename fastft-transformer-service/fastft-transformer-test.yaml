@@ -11,11 +11,11 @@ server:
 
   applicationConnectors:
     - type: http
-      port: 11080
+      port: 11280
 
   adminConnectors:
       - type: http
-        port: 11081
+        port: 11281
 
   requestLog:
 
