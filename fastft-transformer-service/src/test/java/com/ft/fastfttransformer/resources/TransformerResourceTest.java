@@ -1,5 +1,15 @@
 package com.ft.fastfttransformer.resources;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertThat;
+
+import java.net.URI;
+import java.util.Date;
+import javax.ws.rs.core.UriBuilder;
+
 import com.ft.content.model.Content;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Fault;
@@ -9,16 +19,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.util.Date;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertThat;
 
 public class TransformerResourceTest {
 
@@ -124,11 +124,27 @@ public class TransformerResourceTest {
 		assertThat("responseJson", responseJson, containsString("Record manually removed by Jin"));
 	}
 
-	@After
+    @Test
+    public void shouldReturnErrorWhenIdIsNull(){
+        final Client client = Client.create();
+        URI uri = UriBuilder
+                .fromPath("content")
+                .path("{contentId}")
+                .scheme("http")
+                .host("localhost")
+                .port(fastFtTransformerAppRule.getFastFtTransformerLocalPort()).build();
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+    }
+
+
+    @After
 	public void reset() {
 		WireMock.resetToDefault();
 	}
 
+    
+    
 	private URI buildTransformerUrl(int contentId) {
 		return UriBuilder
 				.fromPath("content")

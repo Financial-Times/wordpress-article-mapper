@@ -1,7 +1,9 @@
 package com.ft.fastfttransformer.resources;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +35,7 @@ public class TransformerResource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
 
 	private static final String CHARSET_UTF_8 = ";charset=utf-8";
+    private static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"text\"},\"id\":<postId>},\"action\":\"getPost\"}]";
 
 	private static final String CLAMO_OK = "ok";
 	private static final String CLAMO_ERROR = "error";
@@ -76,7 +79,7 @@ public class TransformerResource {
 	}
 
 	private String tidiedUpBody(String body) {
-		// TODO - temporary fix?? use to tidy up problem characters
+		// TODO - temporary fix until business rules are defined for Body processing
 		return body.replaceAll("&", "&amp;");
 	}
 
@@ -85,13 +88,19 @@ public class TransformerResource {
 	}
 
 	private Map<String, Object> doRequest(Integer postId) {
+        if(postId == null){
+            ClientError.status(400)
+                    .error("no data sent; postId is required")
+                    .exception();
+        }
 
-		// FIXME: build this properly.
-		// NB: the string below is the equivalent of this:
-		// [{"arguments": {"outputfields": {"title": true,"content" : "text"},"id": <postID>},"action": "getPost" }]
-		String eq = "%5B%7B%22arguments%22%3A%20%7B%22outputfields%22%3A%20%7B%22title%22%3A%20true%2C%22content%22%20%3A%20%22text%22%7D%2C%22id%22%3A%20"
-				+ Integer.toString(postId)
-				+ "%7D%2C%22action%22%3A%20%22getPost%22%20%7D%5D%0A";
+        String eq = null;
+        try {
+            String queryStringValue = CLAMO_QUERY_JSON_STRING.replace("<postId>", postId.toString());
+            eq = URLEncoder.encode(queryStringValue, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            ClientError.status(404).exception();
+        }
 
 		URI fastFtContentByIdUri = getClamoBaseUrl(postId);
 		WebResource webResource = client.resource(fastFtContentByIdUri);
