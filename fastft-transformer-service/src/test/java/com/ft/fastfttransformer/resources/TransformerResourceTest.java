@@ -8,7 +8,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.UriBuilder;
@@ -96,7 +95,6 @@ public class TransformerResourceTest {
 	}
 
 	@Test
-	@Ignore
 	public void shouldReturn404WhenContentNotFoundInClamo() {
 		final URI uri = buildTransformerUrl(WILL_RETURN_200_NOT_FOUND);
 
