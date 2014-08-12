@@ -1,6 +1,8 @@
 package com.ft.fastfttransformer.resources;
 
 import com.ft.content.model.Content;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.junit.ClassRule;
@@ -24,6 +26,7 @@ public class TransformerResourceTest {
 	private static final int WILL_RETURN_404 = 186673;
 	private static final int WILL_RETURN_503 = 186674;
 	private static final int WILL_RETURN_500 = 186675;
+	private static final int WILL_RETURN_CANT_CONNECT = 186676;
 
 	@Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInClamo() {
@@ -68,6 +71,17 @@ public class TransformerResourceTest {
 		final Client client = Client.create();
 		client.setReadTimeout(5000);
 		final URI uri = buildTransformerUrl(WILL_RETURN_500);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+	}
+
+	@Test
+	public void shouldReturn503WhenCannotConnectToClamo() {
+		final Client client = Client.create();
+		client.setReadTimeout(5000);
+		WireMock.stubFor(WireMock.get(WireMock.urlMatching("/api/186676.*")).willReturn(WireMock.aResponse().withFault(Fault.EMPTY_RESPONSE)));
+		final URI uri = buildTransformerUrl(WILL_RETURN_CANT_CONNECT);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));

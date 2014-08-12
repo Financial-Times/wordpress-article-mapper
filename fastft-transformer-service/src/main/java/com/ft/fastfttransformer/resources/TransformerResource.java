@@ -1,5 +1,6 @@
 package com.ft.fastfttransformer.resources;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.Map;
@@ -12,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.codahale.metrics.annotation.Timed;
+import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.content.model.Content;
@@ -19,6 +21,7 @@ import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.FastFTResponse;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import org.slf4j.Logger;
@@ -90,10 +93,20 @@ public class TransformerResource {
 				+ Integer.toString(postId)
 				+ "%7D%2C%22action%22%3A%20%22getPost%22%20%7D%5D%0A";
 
-		WebResource webResource = client.resource(getClamoBaseUrl(postId));
+		URI fastFtContentByIdUri = getClamoBaseUrl(postId);
+		WebResource webResource = client.resource(fastFtContentByIdUri);
 
-		ClientResponse response = webResource.queryParam("request", eq)
-				.accept("application/json").get(ClientResponse.class);
+		ClientResponse response;
+		try {
+			response = webResource.queryParam("request", eq)
+					.accept("application/json").get(ClientResponse.class);
+		} catch (ClientHandlerException che) {
+			Throwable cause = che.getCause();
+			if(cause instanceof IOException) {
+				throw new ApiNetworkingException(fastFtContentByIdUri, "GET", che);
+			}
+			throw che;
+		}
 
 		int responseStatusCode = response.getStatus();
 		int responseStatusFamily = responseStatusCode / 100;
