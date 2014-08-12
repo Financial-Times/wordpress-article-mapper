@@ -30,7 +30,7 @@ public class TransformerResourceTest {
 	private static final int WILL_RETURN_503 = 186674;
 	private static final int WILL_RETURN_500 = 186675;
 	private static final int WILL_RETURN_CANT_CONNECT = 186676;
-	private static final int WILL_RETURN_200_NOT_FOUND = 186672999;
+	private static final int WILL_RETURN_200_NOT_FOUND = 18667999;
 	private static final int WILL_RETURN_200_UNEXPECTED_STATUS = 186677;
 	private static final int WILL_RETURN_200_UNEXPECTED_TITLE = 186678;
 
