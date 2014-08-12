@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -123,6 +124,11 @@ public class TransformerResourceTest {
 		assertThat("responseJson", responseJson, containsString("Record manually removed by Jin"));
 	}
 
+	@After
+	public void reset() {
+		WireMock.resetToDefault();
+	}
+
 	private URI buildTransformerUrl(int contentId) {
 		return UriBuilder
 				.fromPath("content")
@@ -132,6 +138,7 @@ public class TransformerResourceTest {
 				.port(fastFtTransformerAppRule.getFastFtTransformerLocalPort())
 				.build(contentId);
 	}
+
 	private final static String EXPECTED_BODY = "<body>The question of why corporate America isn't investing much has become one of the most vexed as everyone scours for a potential catalyst to unlock faster economic growth.<!--more-->\n" +
 			"\n" +
 			"It's why the monthly report from the Commerce Department on durable goods, which are taken as a proxy for business spending, garners some attention from investors.\n" +
