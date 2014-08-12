@@ -63,6 +63,9 @@ public class TransformerResourceTest {
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+		String responseJson = clientResponse.getEntity(String.class);
+		assertThat("responseJson", responseJson, containsString("Unexpected HTTP status"));
+		assertThat("responseJson", responseJson, containsString("404"));
 	}
 
 	@Test
