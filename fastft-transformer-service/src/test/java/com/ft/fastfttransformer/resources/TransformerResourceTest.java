@@ -12,6 +12,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Date;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
@@ -28,6 +29,8 @@ public class TransformerResourceTest {
 	private static final int WILL_RETURN_500 = 186675;
 	private static final int WILL_RETURN_CANT_CONNECT = 186676;
 	private static final int WILL_RETURN_200_NOT_FOUND = 186672999;
+	private static final int WILL_RETURN_200_UNEXPECTED_STATUS = 186677;
+	private static final int WILL_RETURN_200_UNEXPECTED_TITLE = 186678;
 
 	@Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInClamo() {
@@ -96,6 +99,32 @@ public class TransformerResourceTest {
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+	}
+
+	@Test
+	public void shouldReturn500WhenUnexpectedStatus() {
+		final Client client = Client.create();
+		client.setReadTimeout(5000);
+		final URI uri = buildTransformerUrl(WILL_RETURN_200_UNEXPECTED_STATUS);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+		String responseJson = clientResponse.getEntity(String.class);
+		assertThat("responseJson", responseJson, containsString("Unexpected status"));
+		assertThat("responseJson", responseJson, containsString("errour"));
+	}
+
+	@Test
+	public void shouldReturn500WhenUnexpectedTitle() {
+		final Client client = Client.create();
+		client.setReadTimeout(5000);
+		final URI uri = buildTransformerUrl(WILL_RETURN_200_UNEXPECTED_TITLE);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+		String responseJson = clientResponse.getEntity(String.class);
+		assertThat("responseJson", responseJson, containsString("Unexpected title"));
+		assertThat("responseJson", responseJson, containsString("Record manually removed by Jin"));
 	}
 
 	private URI buildTransformerUrl(int contentId) {

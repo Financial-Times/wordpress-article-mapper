@@ -114,38 +114,54 @@ public class TransformerResource {
 		if (responseStatusFamily == 2) {
 			FastFTResponse[] output = response.getEntity(FastFTResponse[].class);
 
-			if (okReturned(output)) {
+			// Status can be "ok" or "error".
+			if (statusIsOk(output)) {
 				return output[0].getData().getAdditionalProperties();
-			} else  if (errorReturned(output)) {
-				if (CLAMO_RECORD_NOT_FOUND.equals(title(output))) {
+			} else  if (statusIsError(output)) {
+				// Title specifies what is wrong exactly.
+				if (titleIsRecordNotFound(output)) {
 					throw ClientError.status(404).exception();
 				} else {
-					// It says it's an error, but we do not understand this kind of error.
-					throw ServerError.status(500).error(title(output)).exception();
+					// It says it's an error, but from the title we do not understand this kind of error.
+					throw ServerError.status(500).error(
+							String.format("Unexpected title returned by Clamo: [%s].", title(output))).exception();
 				}
 			} else {
-				// We do not understand this response.
+				// We do not understand this status.
 				throw ServerError.status(500).error(
-						String.format("Invalid response received from Clamo, title [%s], output.length [%d]", title(output), output.length)
+						String.format("Unexpected status (status field; not HTTP status) returned by Clamo, status [%s], title [%s], output.length [%d].",
+								status(output), title(output), output.length)
 				).exception();
 			}
 
 		} else if (responseStatusFamily == 4) {
-			// We do not expect this behaviour, we always expect a 200, and an 'error' status in the title.
+			// We do not expect this behaviour, we always expect a 200, and an 'error' status with more info in the title.
 			// If 404 is returned, then either the behaviour of Clamo has changed, or it isn't deployed correctly.
-			LOGGER.error("Unexpected status returned by Clamo: [{}].", responseStatusCode);
-			throw ServerError.status(503).exception();
+			throw ServerError.status(503).error(
+					String.format("Unexpected HTTP status returned by Clamo: [%d].", responseStatusCode)).exception();
 		} else {
 			throw ServerError.status(responseStatusCode).exception();
 		}
 	}
 
-	private boolean okReturned(FastFTResponse[] output) {
-		return output.length > 0 && output[0].getStatus().equals(CLAMO_OK);
+	private boolean statusIsOk(FastFTResponse[] output) {
+		return CLAMO_OK.equals(status(output));
 	}
 
-	private boolean errorReturned(FastFTResponse[] output) {
-		return output.length > 0 && output[0].getStatus().equals(CLAMO_ERROR);
+	private boolean statusIsError(FastFTResponse[] output) {
+		return CLAMO_ERROR.equals(status(output));
+	}
+
+	private String status(FastFTResponse[] output) {
+		if (output.length > 0) {
+			return output[0].getStatus();
+		} else {
+			return null;
+		}
+	}
+
+	private boolean titleIsRecordNotFound(FastFTResponse[] output) {
+		return CLAMO_RECORD_NOT_FOUND.equals(title(output));
 	}
 
 	private String title(FastFTResponse[] output) {
