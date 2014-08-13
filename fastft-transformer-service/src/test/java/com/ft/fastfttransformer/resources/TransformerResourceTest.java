@@ -3,6 +3,7 @@ package com.ft.fastfttransformer.resources;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 
@@ -52,7 +53,7 @@ public class TransformerResourceTest {
 		Content receivedContent = clientResponse.getEntity(Content.class);
 		assertThat("title", receivedContent.getTitle(), is(equalTo("US durable goods jump in June")));
 		assertThat("body", receivedContent.getBody(), is(equalTo(EXPECTED_BODY)));
-		assertThat("byline", receivedContent.getByline(), is(equalTo("By FastFT")));
+		assertThat("byline", receivedContent.getByline(), is(nullValue()));
 		assertThat("source", receivedContent.getSource(), is(equalTo("FT")));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo("ca93067c-6b1d-3b6f-bd54-f4cd5598961a")));
 		assertThat("published date", receivedContent.getPublishedDate(), is(new Date(1406291632000L)));
