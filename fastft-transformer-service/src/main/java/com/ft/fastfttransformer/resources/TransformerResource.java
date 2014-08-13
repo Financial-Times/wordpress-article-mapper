@@ -88,8 +88,8 @@ public class TransformerResource {
 	}
 
 	private Map<String, Object> doRequest(Integer postId) {
-        if(postId == null){
-            ClientError.status(400)
+        if(postId == null) {
+            throw ClientError.status(400)
                     .error("no data sent; postId is required")
                     .exception();
         }
@@ -99,7 +99,8 @@ public class TransformerResource {
             String queryStringValue = CLAMO_QUERY_JSON_STRING.replace("<postId>", postId.toString());
             eq = URLEncoder.encode(queryStringValue, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            ClientError.status(404).exception();
+            // should never happen, UTF-8 is part of the Java spec
+            throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
         }
 
 		URI fastFtContentByIdUri = getClamoBaseUrl(postId);

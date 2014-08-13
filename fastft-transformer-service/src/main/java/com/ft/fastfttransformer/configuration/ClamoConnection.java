@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import io.dropwizard.validation.PortRange;
 
 public class ClamoConnection {
 	
@@ -35,7 +36,7 @@ public class ClamoConnection {
 		return path;
 	}
 
-	@NotNull
+	@NotNull @PortRange
 	public int getPort() {
 		return port;
 	}
