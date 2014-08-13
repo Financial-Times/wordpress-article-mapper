@@ -73,7 +73,7 @@ public class TransformerResource {
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
 				.withXmlBody(tidiedUpBody(body))
-				.withSource("FT").withByline("By FastFT")//TODO - make byline optional in writer/find a good alternative byline
+				.withSource("FT")
 				.withUuid(uuid).build();
 
 	}
