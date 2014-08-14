@@ -1,4 +1,3 @@
-
 package com.ft.fastfttransformer.response;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class Data {
     @JsonProperty("resultsummarytext")
     private String resultsummarytext;
     @JsonProperty("srh")
-    private Srh srh;
+    private Search srh;
     @JsonProperty("results")
     private List<Result> results = new ArrayList<Result>();
     @JsonIgnore
@@ -56,12 +55,12 @@ public class Data {
     }
 
     @JsonProperty("srh")
-    public Srh getSrh() {
+    public Search getSrh() {
         return srh;
     }
 
     @JsonProperty("srh")
-    public void setSrh(Srh srh) {
+    public void setSrh(Search srh) {
         this.srh = srh;
     }
 

@@ -34,8 +34,8 @@ public class TransformerResource {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
 
-	private static final String CHARSET_UTF_8 = ";charset=utf-8";
-    private static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"text\"},\"id\":<postId>},\"action\":\"getPost\"}]";
+    public static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"text\"},\"id\":<postId>},\"action\":\"getPost\"}]";
+    private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
 	private static final String CLAMO_OK = "ok";
 	private static final String CLAMO_ERROR = "error";
@@ -73,7 +73,7 @@ public class TransformerResource {
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
 				.withXmlBody(tidiedUpBody(body))
-				.withSource("FT").withByline("By FastFT")//TODO - make byline optional in writer/find a good alternative byline
+				.withSource("FT")
 				.withUuid(uuid).build();
 
 	}
@@ -88,8 +88,8 @@ public class TransformerResource {
 	}
 
 	private Map<String, Object> doRequest(Integer postId) {
-        if(postId == null){
-            ClientError.status(400)
+        if(postId == null) {
+            throw ClientError.status(400)
                     .error("no data sent; postId is required")
                     .exception();
         }
@@ -99,7 +99,8 @@ public class TransformerResource {
             String queryStringValue = CLAMO_QUERY_JSON_STRING.replace("<postId>", postId.toString());
             eq = URLEncoder.encode(queryStringValue, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            ClientError.status(404).exception();
+            // should never happen, UTF-8 is part of the Java spec
+            throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
         }
 
 		URI fastFtContentByIdUri = getClamoBaseUrl(postId);

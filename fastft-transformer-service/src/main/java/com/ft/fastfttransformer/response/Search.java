@@ -1,4 +1,3 @@
-
 package com.ft.fastfttransformer.response;
 
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "sort",
     "query"
 })
-public class Srh {
+public class Search {
 
     @JsonProperty("dispopts")
     private List<Object> dispopts = new ArrayList<Object>();

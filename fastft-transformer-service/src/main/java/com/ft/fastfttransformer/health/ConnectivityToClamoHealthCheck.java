@@ -1,6 +1,13 @@
 package com.ft.fastfttransformer.health;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import javax.ws.rs.core.UriBuilder;
+
+import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
+import com.ft.fastfttransformer.resources.TransformerResource;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
@@ -8,9 +15,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 
 public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
@@ -34,10 +38,15 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
     @Override
     protected AdvancedResult checkAdvanced() throws Exception {
-		// TODO this can be done nicer.
-		String eq = "%5B%7B%22arguments%22%3A%20%7B%22outputfields%22%3A%20%7B%22title%22%3A%20true%2C%22content%22%20%3A%20%22text%22%7D%2C%22id%22%3A%20"
-				+ Integer.toString(contentId)
-				+ "%7D%2C%22action%22%3A%20%22getPost%22%20%7D%5D%0A";
+
+        String eq = null;
+        try {
+            String queryStringValue = TransformerResource.CLAMO_QUERY_JSON_STRING.replace("<postId>", Integer.toString(contentId));
+            eq = URLEncoder.encode(queryStringValue, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // should never happen, UTF-8 is part of the Java spec
+            throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
+        }
 
 		ClientResponse response = null;
 		try {
@@ -47,7 +56,9 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 			if (response.getStatus() == 200) {
 				return AdvancedResult.healthy("All is ok");
 			} else {
-				return AdvancedResult.error(this, String.format("Status code [%d] received when receiving content from Clamo.", response.getStatus()));
+                String message = String.format("Status code [%d] received when receiving content from Clamo.", response.getStatus());
+                LOGGER.warn(message);
+				return AdvancedResult.error(this, message);
 			}
 		} catch (Throwable e) {
 			LOGGER.warn(getName() + ": " + "Exception during getting sample content from Clamo", e);
