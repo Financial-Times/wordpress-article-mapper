@@ -20,6 +20,7 @@ import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
+import com.ft.fastfttransformer.response.Data;
 import com.ft.fastfttransformer.response.FastFTResponse;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
@@ -94,7 +95,7 @@ public class TransformerResource {
                     .exception();
         }
 
-        String eq = null;
+        String eq;
         try {
             String queryStringValue = CLAMO_QUERY_JSON_STRING.replace("<postId>", postId.toString());
             eq = URLEncoder.encode(queryStringValue, "UTF-8");
@@ -126,7 +127,12 @@ public class TransformerResource {
 
 			// Status can be "ok" or "error".
 			if (statusIsOk(output)) {
-				return output[0].getData().getAdditionalProperties();
+				Data data = output[0].getData();
+				if (data == null) {
+					LOGGER.error("Data node is missing from return JSON for ID [{}]", postId);
+					return null;
+				}
+				return data.getAdditionalProperties();
 			} else  if (statusIsError(output)) {
 				// Title specifies what is wrong exactly.
 				if (titleIsRecordNotFound(output)) {
@@ -134,13 +140,13 @@ public class TransformerResource {
 				} else {
 					// It says it's an error, but from the title we do not understand this kind of error.
 					throw ServerError.status(500).error(
-							String.format("Unexpected title returned by Clamo: [%s].", title(output))).exception();
+							String.format("Unexpected title returned by Clamo: [%s] for ID [%d].", title(output), postId)).exception();
 				}
 			} else {
 				// We do not understand this status.
 				throw ServerError.status(500).error(
-						String.format("Unexpected status (status field; not HTTP status) returned by Clamo, status [%s], title [%s], output.length [%d].",
-								status(output), title(output), output.length)
+						String.format("Unexpected status (status field; not HTTP status) returned by Clamo, status [%s], title [%s], output.length [%d] for ID [%d].",
+								status(output), title(output), output.length, postId)
 				).exception();
 			}
 
@@ -148,7 +154,7 @@ public class TransformerResource {
 			// We do not expect this behaviour, we always expect a 200, and an 'error' status with more info in the title.
 			// If 404 is returned, then either the behaviour of Clamo has changed, or it isn't deployed correctly.
 			throw ServerError.status(503).error(
-					String.format("Unexpected HTTP status returned by Clamo: [%d].", responseStatusCode)).exception();
+					String.format("Unexpected HTTP status returned by Clamo: [%d] for ID [%d].", responseStatusCode, postId)).exception();
 		} else {
 			throw ServerError.status(responseStatusCode).exception();
 		}

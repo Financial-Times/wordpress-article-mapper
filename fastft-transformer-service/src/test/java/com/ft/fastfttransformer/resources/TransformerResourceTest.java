@@ -27,6 +27,7 @@ public class TransformerResourceTest {
 	public static FastFtTransformerAppRule fastFtTransformerAppRule = new FastFtTransformerAppRule("fastft-transformer-test.yaml");
 
 	private static final int SAMPLE_CONTENT_ID = 186672;
+	private static final int WILL_RETURN_404_AS_NO_DATA_IN_JSON = 1866711;
 	private static final int WILL_RETURN_404 = 186673;
 	private static final int WILL_RETURN_503 = 186674;
 	private static final int WILL_RETURN_500 = 186675;
@@ -57,6 +58,14 @@ public class TransformerResourceTest {
 		assertThat("source", receivedContent.getSource(), is(equalTo("FT")));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo("ca93067c-6b1d-3b6f-bd54-f4cd5598961a")));
 		assertThat("published date", receivedContent.getPublishedDate(), is(new Date(1406291632000L)));
+	}
+
+	@Test
+	public void shouldReturn404WhenNoDataReturnedFromClamo() {
+		final URI uri = buildTransformerUrl(WILL_RETURN_404_AS_NO_DATA_IN_JSON);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
 	}
 
 	@Test
