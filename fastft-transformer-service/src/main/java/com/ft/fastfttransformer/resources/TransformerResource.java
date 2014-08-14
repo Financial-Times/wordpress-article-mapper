@@ -89,12 +89,6 @@ public class TransformerResource {
 	}
 
 	private Map<String, Object> doRequest(Integer postId) {
-        if(postId == null) {
-            throw ClientError.status(400)
-                    .error("no data sent; postId is required")
-                    .exception();
-        }
-
         String eq;
         try {
             String queryStringValue = CLAMO_QUERY_JSON_STRING.replace("<postId>", postId.toString());

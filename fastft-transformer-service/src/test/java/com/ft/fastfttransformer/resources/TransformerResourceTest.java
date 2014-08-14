@@ -78,6 +78,14 @@ public class TransformerResourceTest {
 	}
 
 	@Test
+	public void shouldReturn405WhenNoIdSupplied() {
+		final URI uri = buildTransformerUrlWithIdMissing();
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
+	}
+
+	@Test
 	public void shouldReturn503When404ReturnedFromClamo() {
 		final URI uri = buildTransformerUrl(WILL_RETURN_404);
 
@@ -156,13 +164,10 @@ public class TransformerResourceTest {
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
     }
 
-
     @After
 	public void reset() {
 		WireMock.resetToDefault();
 	}
-
-    
     
 	private URI buildTransformerUrl(int contentId) {
 		return UriBuilder
@@ -172,6 +177,15 @@ public class TransformerResourceTest {
 				.host("localhost")
 				.port(fastFtTransformerAppRule.getFastFtTransformerLocalPort())
 				.build(contentId);
+	}
+
+	private URI buildTransformerUrlWithIdMissing() {
+		return UriBuilder
+				.fromPath("content")
+				.scheme("http")
+				.host("localhost")
+				.port(fastFtTransformerAppRule.getFastFtTransformerLocalPort())
+				.build();
 	}
 
 	private final static String EXPECTED_BODY = "<body>The question of why corporate America isn't investing much has become one of the most vexed as everyone scours for a potential catalyst to unlock faster economic growth.<!--more-->\n" +
