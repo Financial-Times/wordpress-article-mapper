@@ -132,6 +132,10 @@ public class TransformerResource {
 					LOGGER.error("Data node is missing from return JSON for ID [{}]", postId);
 					return null;
 				}
+				if (data.getAdditionalProperties().size() == 0) {
+					LOGGER.error("Data node is empty in return JSON for ID [{}]", postId);
+					return null;
+				}
 				return data.getAdditionalProperties();
 			} else  if (statusIsError(output)) {
 				// Title specifies what is wrong exactly.

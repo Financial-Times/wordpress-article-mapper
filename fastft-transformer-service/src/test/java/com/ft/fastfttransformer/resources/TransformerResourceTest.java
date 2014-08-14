@@ -27,7 +27,8 @@ public class TransformerResourceTest {
 	public static FastFtTransformerAppRule fastFtTransformerAppRule = new FastFtTransformerAppRule("fastft-transformer-test.yaml");
 
 	private static final int SAMPLE_CONTENT_ID = 186672;
-	private static final int WILL_RETURN_404_AS_NO_DATA_IN_JSON = 1866711;
+	private static final int WILL_RETURN_404_AS_NO_DATA_NODE_IN_JSON = 1866711;
+	private static final int WILL_RETURN_404_AS_DATA_NODE_EMPTY_IN_JSON = 1866712;
 	private static final int WILL_RETURN_404 = 186673;
 	private static final int WILL_RETURN_503 = 186674;
 	private static final int WILL_RETURN_500 = 186675;
@@ -61,8 +62,16 @@ public class TransformerResourceTest {
 	}
 
 	@Test
-	public void shouldReturn404WhenNoDataReturnedFromClamo() {
-		final URI uri = buildTransformerUrl(WILL_RETURN_404_AS_NO_DATA_IN_JSON);
+	public void shouldReturn404WhenNoDataNodeReturnedFromClamo() {
+		final URI uri = buildTransformerUrl(WILL_RETURN_404_AS_NO_DATA_NODE_IN_JSON);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+	}
+
+	@Test
+	public void shouldReturn404WhenEmptyDataNodeReturnedFromClamo() {
+		final URI uri = buildTransformerUrl(WILL_RETURN_404_AS_DATA_NODE_EMPTY_IN_JSON);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
