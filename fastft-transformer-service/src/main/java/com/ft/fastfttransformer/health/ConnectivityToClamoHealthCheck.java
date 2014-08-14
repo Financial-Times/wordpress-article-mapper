@@ -56,7 +56,9 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 			if (response.getStatus() == 200) {
 				return AdvancedResult.healthy("All is ok");
 			} else {
-				return AdvancedResult.error(this, String.format("Status code [%d] received when receiving content from Clamo.", response.getStatus()));
+                String message = String.format("Status code [%d] received when receiving content from Clamo.", response.getStatus());
+                LOGGER.warn(message);
+				return AdvancedResult.error(this, message);
 			}
 		} catch (Throwable e) {
 			LOGGER.warn(getName() + ": " + "Exception during getting sample content from Clamo", e);
