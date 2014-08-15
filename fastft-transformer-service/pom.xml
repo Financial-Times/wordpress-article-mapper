@@ -92,6 +92,16 @@
             <artifactId>ft-async-message</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.ft.bodyprocessing</groupId>
+            <artifactId>body-processing</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml.stream</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>com.ft.dropwizard</groupId>
             <artifactId>api-hamcrest-matchers</artifactId>
             <scope>test</scope>
@@ -119,6 +129,11 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>xmlunit</groupId>
+            <artifactId>xmlunit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.ft.jaxrs-error-handling</groupId>
@@ -288,6 +303,28 @@
                     </archive>
                 </configuration>
             </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-enforcer-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>enforce-versions</id>-->
+                        <!--<goals>-->
+                            <!--<goal>enforce</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<rules>-->
+                                <!--<requireReleaseDeps>-->
+                                    <!--<excludes>-->
+                                        <!--<exclude>${project.groupId}:*</exclude>-->
+                                        <!--<exclude>com.ft.bodyprocessing:*</exclude>&lt;!&ndash; TODO remove &ndash;&gt;-->
+                                    <!--</excludes>-->
+                                <!--</requireReleaseDeps>-->
+                            <!--</rules>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
     </build>
     <reporting>

@@ -184,6 +184,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>xmlunit</groupId>
+                <artifactId>xmlunit</artifactId>
+                <version>1.5</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.ft</groupId>
                 <artifactId>jaxrs-transaction-id-handling</artifactId>
                 <version>${jaxrs.transaction-id-handling.version}</version>
@@ -192,6 +198,11 @@
                 <groupId>com.ft</groupId>
                 <artifactId>ft-async-message</artifactId>
                 <version>1.0.13</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ft.bodyprocessing</groupId>
+                <artifactId>body-processing</artifactId>
+                <version>0.0.6</version>
             </dependency>
             <dependency>
                 <groupId>com.ft.dropwizard</groupId>

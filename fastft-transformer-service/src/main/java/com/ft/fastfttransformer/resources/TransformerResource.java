@@ -21,6 +21,7 @@ import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.FastFTResponse;
+import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -44,10 +45,12 @@ public class TransformerResource {
 	private static final String CLAMO_RECORD_NOT_FOUND = "Record not found";
 	private final Client client;
 	private final ClamoConnection clamoConnection;
+    private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 
-	public TransformerResource(Client client, ClamoConnection clamoConnection) {
+	public TransformerResource(Client client, ClamoConnection clamoConnection, BodyProcessingFieldTransformer bodyProcessingFieldTransformer) {
 		this.client = client;
 		this.clamoConnection = clamoConnection;
+        this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 	}
 
 	@GET
@@ -79,8 +82,7 @@ public class TransformerResource {
 	}
 
 	private String tidiedUpBody(String body) {
-		// TODO - temporary fix until business rules are defined for Body processing
-		return body.replaceAll("&", "&amp;");
+		return bodyProcessingFieldTransformer.transform(body, "testtest"); //TODO transactionId
 	}
 
 	private String transformBody(String originalBody) {

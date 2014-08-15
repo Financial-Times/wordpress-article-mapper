@@ -156,7 +156,7 @@ public class TransformerResourceTest {
 				.build(contentId);
 	}
 
-	private final static String EXPECTED_BODY = "<body>The question of why corporate America isn't investing much has become one of the most vexed as everyone scours for a potential catalyst to unlock faster economic growth.<!--more-->\n" +
+	private final static String EXPECTED_BODY = "<body>The question of why corporate America isn't investing much has become one of the most vexed as everyone scours for a potential catalyst to unlock faster economic growth.\n" +
 			"\n" +
 			"It's why the monthly report from the Commerce Department on durable goods, which are taken as a proxy for business spending, garners some attention from investors.\n" +
 			"\n" +
