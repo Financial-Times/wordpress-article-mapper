@@ -132,7 +132,7 @@ public class TransformerResource {
 			} else  if (statusIsError(output)) {
 				// Title specifies what is wrong exactly.
 				if (titleIsRecordNotFound(output)) {
-					throw ClientError.status(404).exception();
+					throw ClientError.status(404).error("Not found").exception();
 				} else {
 					// It says it's an error, but from the title we do not understand this kind of error.
 					throw ServerError.status(500).error(
