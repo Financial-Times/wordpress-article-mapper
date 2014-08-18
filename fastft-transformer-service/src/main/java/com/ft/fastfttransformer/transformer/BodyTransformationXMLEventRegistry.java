@@ -31,18 +31,6 @@ public class BodyTransformationXMLEventRegistry extends XMLEventHandlerRegistry 
                 "s", "script", "select", "source", "strike", "style", "table", "tbody",
                 "td", "textarea", "tfoot", "th", "thead", "tr", "track", "video", "wbr"
         );
-        // strip methode tags whose bodies we don't want
-        registerStartElementEventHandler(new StripElementAndContentsXMLEventHandler(),
-                "byline", "editor-choice", "headline", "inlineDwc", "interactive-chart",
-                "lead-body", "lead-text", "ln", "photo", "photo-caption", "photo-group",
-                "plainHtml", "promo-box", "promo-headline", "promo-image", "promo-intro",
-                "promo-link", "promo-title", "promobox-body", "pull-quote", "pull-quote-header",
-                "pull-quote-text", "readthrough", "short-body", "skybox-body", "stories",
-                "story", "strap", "videoObject", "videoPlayer", "web-alt-picture", "web-background-news",
-                "web-background-news-header", "web-background-news-text", "web-inline-picture",
-                "web-picture", "web-pull-quote", "web-pull-quote-source", "web-pull-quote-text",
-                "web-skybox-picture", "web-subhead", "web-thumbnail", "xref", "xrefs"
-        );
 
         registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("strong"), "b");
         registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("em"), "i");
