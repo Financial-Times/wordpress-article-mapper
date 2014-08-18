@@ -2,6 +2,7 @@ package com.ft.fastfttransformer.transformer;
 
 import static com.ft.bodyprocessing.xml.eventhandlers.RemoveElementEventHandler.attributeNameMatcher;
 
+import com.ft.bodyprocessing.xml.eventhandlers.LinkTagXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.PlainTextHtmlEntityReferenceEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.RemoveElementEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.RetainWithoutAttributesXMLEventHandler;
@@ -34,6 +35,7 @@ public class BodyTransformationXMLEventRegistry extends XMLEventHandlerRegistry 
 
         registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("strong"), "b");
         registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("em"), "i");
+        registerStartAndEndElementEventHandler(new LinkTagXMLEventHandler("title","alt"),"a");
         registerStartAndEndElementEventHandler(new RetainWithoutAttributesXMLEventHandler(),
                 "strong", "em", "sub", "sup", "br",
                 "h1", "h2", "h3", "h4", "h5", "h6",
