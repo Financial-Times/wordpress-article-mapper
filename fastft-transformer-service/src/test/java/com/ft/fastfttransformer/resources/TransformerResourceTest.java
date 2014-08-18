@@ -13,7 +13,6 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.ft.content.model.Content;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.http.Fault;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.junit.After;
@@ -92,7 +91,7 @@ public class TransformerResourceTest {
 		final URI uri = buildTransformerUrl(WILL_RETURN_CANT_CONNECT);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
 	}
 
 	@Test

@@ -15,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.codahale.metrics.annotation.Timed;
-import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.content.model.Content;
@@ -112,7 +111,8 @@ public class TransformerResource {
 		} catch (ClientHandlerException che) {
 			Throwable cause = che.getCause();
 			if(cause instanceof IOException) {
-				throw new ApiNetworkingException(fastFtContentByIdUri, "GET", che);
+				throw ServerError.status(503).context(webResource).error(
+						String.format("Cannot connect to Clamo for url: [%s]", fastFtContentByIdUri)).exception(cause);
 			}
 			throw che;
 		}
