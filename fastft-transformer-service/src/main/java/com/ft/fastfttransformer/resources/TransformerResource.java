@@ -15,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.codahale.metrics.annotation.Timed;
-import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.content.model.Content;
@@ -35,7 +34,6 @@ public class TransformerResource {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
 
-    public static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"text\"},\"id\":<postId>},\"action\":\"getPost\"}]";
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
 	private static final String CLAMO_OK = "ok";
@@ -91,7 +89,7 @@ public class TransformerResource {
 	private Map<String, Object> doRequest(Integer postId) {
         String eq;
         try {
-            String queryStringValue = CLAMO_QUERY_JSON_STRING.replace("<postId>", postId.toString());
+            String queryStringValue = Clamo.buildPostRequest(postId);
             eq = URLEncoder.encode(queryStringValue, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             // should never happen, UTF-8 is part of the Java spec
@@ -108,7 +106,8 @@ public class TransformerResource {
 		} catch (ClientHandlerException che) {
 			Throwable cause = che.getCause();
 			if(cause instanceof IOException) {
-				throw new ApiNetworkingException(fastFtContentByIdUri, "GET", che);
+				throw ServerError.status(503).context(webResource).error(
+						String.format("Cannot connect to Clamo for url: [%s]", fastFtContentByIdUri)).exception(cause);
 			}
 			throw che;
 		}
@@ -188,7 +187,6 @@ public class TransformerResource {
 
 	private URI getClamoBaseUrl(int id) {
 		return UriBuilder.fromPath(clamoConnection.getPath())
-                .path("{uuid}")
                 .scheme("http")
                 .host(clamoConnection.getHostName())
                 .port(clamoConnection.getPort())

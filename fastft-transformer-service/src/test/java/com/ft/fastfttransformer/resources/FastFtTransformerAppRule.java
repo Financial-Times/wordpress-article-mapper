@@ -14,7 +14,7 @@ public class FastFtTransformerAppRule implements TestRule {
 
 	private static final int CLAMO_PORT = 11180;
 
-	private WireMockClassRule methodeApiWireMockRule = new WireMockClassRule(WireMockConfiguration.wireMockConfig()
+	private WireMockClassRule fastFTWireMockRule = new WireMockClassRule(WireMockConfiguration.wireMockConfig()
 			.withRootDirectory("src/test/resources/clamo")
 			.port(CLAMO_PORT)
 	);
@@ -36,7 +36,7 @@ public class FastFtTransformerAppRule implements TestRule {
 		appRule = new DropwizardAppRule<>(FastFTTransformerApplication.class, configurationPath);
 
 		ruleChain = RuleChain
-				.outerRule(methodeApiWireMockRule)
+				.outerRule(fastFTWireMockRule)
 				.around(appRule);
 	}
 }
