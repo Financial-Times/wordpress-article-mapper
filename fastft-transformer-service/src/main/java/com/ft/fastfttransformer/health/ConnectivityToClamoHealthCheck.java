@@ -92,7 +92,6 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
 	private URI getClamoBaseUrl(int id) {
 		return UriBuilder.fromPath(clamoConnection.getPath())
-				.path("{uuid}")
 				.scheme("http")
 				.host(clamoConnection.getHostName())
 				.port(clamoConnection.getPort())

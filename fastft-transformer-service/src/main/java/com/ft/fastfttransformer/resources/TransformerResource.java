@@ -34,7 +34,7 @@ public class TransformerResource {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
 
-    public static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"text\"},\"id\":<postId>},\"action\":\"getPost\"}]";
+    public static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"html\"},\"id\":<postId>},\"action\":\"getPost\"}]";
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
 	private static final String CLAMO_OK = "ok";
@@ -184,7 +184,6 @@ public class TransformerResource {
 
 	private URI getClamoBaseUrl(int id) {
 		return UriBuilder.fromPath(clamoConnection.getPath())
-                .path("{uuid}")
                 .scheme("http")
                 .host(clamoConnection.getHostName())
                 .port(clamoConnection.getPort())
