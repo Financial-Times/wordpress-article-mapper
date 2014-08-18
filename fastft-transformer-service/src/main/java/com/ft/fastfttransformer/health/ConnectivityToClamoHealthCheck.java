@@ -3,24 +3,26 @@ package com.ft.fastfttransformer.health;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+
 import javax.ws.rs.core.UriBuilder;
 
-import com.ft.api.jaxrs.errors.ServerError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ft.fastfttransformer.configuration.ClamoConnection;
-import com.ft.fastfttransformer.resources.TransformerResource;
+import com.ft.fastfttransformer.resources.Clamo;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConnectivityToClamoHealthCheck.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectivityToClamoHealthCheck.class);
 
-	private final String panicGuideUrl;
+
+    private final String panicGuideUrl;
 	private final ClamoConnection clamoConnection;
 	private int contentId;
 	private final Client client;
@@ -41,11 +43,12 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
         String eq = null;
         try {
-            String queryStringValue = TransformerResource.CLAMO_QUERY_JSON_STRING.replace("<postId>", Integer.toString(contentId));
+            String queryStringValue = Clamo.buildPostRequest(contentId);
             eq = URLEncoder.encode(queryStringValue, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             // should never happen, UTF-8 is part of the Java spec
-            throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
+            LOGGER.error(IMPOSSIBLE_MISSING_ENCODING_ERROR_MSG);
+            return AdvancedResult.error(this, IMPOSSIBLE_MISSING_ENCODING_ERROR_MSG);
         }
 
 		ClientResponse response = null;
@@ -97,5 +100,8 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 				.port(clamoConnection.getPort())
 				.build(id);
 	}
+
+    // #boring
+    private static final String IMPOSSIBLE_MISSING_ENCODING_ERROR_MSG = "JVM Capability missing: UTF-8 encoding";
 
 }

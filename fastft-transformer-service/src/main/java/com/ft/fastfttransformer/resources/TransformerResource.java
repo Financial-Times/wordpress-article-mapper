@@ -34,7 +34,6 @@ public class TransformerResource {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
 
-    public static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"html\"},\"id\":<postId>},\"action\":\"getPost\"}]";
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
 	private static final String CLAMO_OK = "ok";
@@ -96,7 +95,7 @@ public class TransformerResource {
 
         String eq = null;
         try {
-            String queryStringValue = CLAMO_QUERY_JSON_STRING.replace("<postId>", postId.toString());
+            String queryStringValue = Clamo.buildPostRequest(postId);
             eq = URLEncoder.encode(queryStringValue, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             // should never happen, UTF-8 is part of the Java spec
