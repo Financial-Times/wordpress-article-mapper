@@ -1,9 +1,11 @@
 package com.ft.fastfttransformer;
 
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 import javax.xml.namespace.QName;
 
@@ -37,17 +39,29 @@ public class BodyProcessingStepDefs {
         bodyTransformer = new BodyProcessingFieldTransformerFactory().newInstance();
     }
 
-    @Given("^I have (.+)$")
-    public void I_have_html(String html) throws Throwable {
+    /*
+    @Given("^I have html (.+?) hosted at location (.+?)$")
+    public void I_have_html(String html, String base) throws Throwable {
+        fastFTBodyText = html;
+        baseUri = URI.create(base);
+    } */
+
+    @Given("^I have html (.+?)$")
+         public void I_have_html(String html) throws Throwable {
         fastFTBodyText = html;
     }
 
+
+
     @When("^I transform it$")
-    public void I_transform_it() throws Throwable {
+    public void I_transform_it() {
         transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
     }
 
-
+    @Then("^it is left unmodified$")
+    public void it_is_left_unmodified() {
+        assertThat(transformedBodyText,equalToIgnoringCase(fastFTBodyText));
+    }
 
     @Given("^Tag name is (.+) is assigned to rule (.+)$")
     public void tag_name_is_assigned_to_rule(String name, String rule) throws Throwable {

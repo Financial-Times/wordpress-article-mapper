@@ -2,28 +2,37 @@
 Feature: Body processing links
 
 #  separate scenarios of one generic scenario with internal/external/relative etc examples
-
+#  NOTE: do not merge. This is not the final specification - internal links will eventually be processed down to UUIDs
   Scenario Outline:
-    When I have <internal link html>
+    Given I have html <internal link html>
+    When I transform it
     Then it is left unmodified
 
   Examples:
   | internal link html                                                               |
   | <p>Good stories <a href="http://on.ft.com/1v6P55X">link to</a> other stories</p> |
 
+
   Scenario Outline:
-    When I have <external link html>
+    Given I have html <external link html>
+    When I transform it
     Then it is left unmodified
 
   Examples:
     | external link html                                                                                    |
     | <p>Better stories <a href="http://example.com/fascinating-insights.html">link to other</a> sites</p>  |
-#
+
+
 #  Scenario Outline:
-#    When I have a relative link
-#    Then it is retained as is
+#    When I have html <relative link html> at hosted at location http://example.com/article/1
+#    When I transform it
+#    Then I have the absolute URL <absolute url>
 #
 #  Examples:
+#    | relative link html                                                                       | absolute url                                         |
+#    | <p>Good stories <a href="/path/fascinating-insights.html">link to other</a> stories</p>  | http://example.com/path/fascinating-insights.html    |
+#    | <p>Good stories <a href="fascinating-insights.html">link to other</a> stories</p>        | http://example.com/article/fascinating-insights.html |
+
 #
 #  Scenario Outline:
 #    When I have a mailto link
