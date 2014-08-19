@@ -17,6 +17,7 @@ import javax.ws.rs.core.UriBuilder;
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
+import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.Data;
@@ -56,7 +57,7 @@ public class TransformerResource {
 	@Timed
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Content getByUuid(@PathParam("id") Integer postId) {
+	public final Content getByPostId(@PathParam("id") Integer postId) {
 
 		Map<String, Object> result = doRequest(postId);
 
@@ -81,7 +82,12 @@ public class TransformerResource {
 	}
 
 	private String tidiedUpBody(String body) {
-		return bodyProcessingFieldTransformer.transform(body, "testtest"); //TODO transactionId
+        try {
+		    return bodyProcessingFieldTransformer.transform(body, "testtest"); //TODO transactionId
+        } catch (BodyProcessingException bpe) {
+            LOGGER.error("Failed to transform body",bpe);
+            throw ServerError.status(500).error("article has invalid body").exception(bpe);
+        }
 	}
 
 	private String transformBody(String originalBody) {
