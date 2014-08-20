@@ -46,11 +46,12 @@ public class BodyProcessingStepDefs {
         bodyTransformer = new BodyProcessingFieldTransformerFactory().newInstance();
         registry = new BodyTransformationXMLEventRegistry();
         rulesAndHandlers = new HashMap<String, String>();
-        rulesAndHandlers.put( "strip element and contents" , "StripElementAndContentsXMLEventHandler");
-        rulesAndHandlers.put( "strip and leave content", "StripXMLEventHandler");
-        rulesAndHandlers.put( "retain element and remove attributes", "RetainWithoutAttributesXMLEventHandler");
-        rulesAndHandlers.put( "transform one tag into another", "SimpleTransformTagXmlEventHandler");
-        rulesAndHandlers.put( "convert HTML entities to unicode", "SimpleTransformTagXmlEventHandler");
+        rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS" , "StripElementAndContentsXMLEventHandler");
+        rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
+        rulesAndHandlers.put( "RETAIN ELEMENT AND REMOVE ATTRIBUTES", "RetainWithoutAttributesXMLEventHandler");
+        rulesAndHandlers.put( "TRANSFORM THE TAG", "SimpleTransformTagXmlEventHandler");
+        rulesAndHandlers.put( "CONVERT HTML ENTITY TO UNICODE", "SimpleTransformTagXmlEventHandler");
+        rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS BY DEFAULT", "StripXMLEventHandler");
     }
 
     @Given("^I have html (.+?)$")
@@ -66,7 +67,7 @@ public class BodyProcessingStepDefs {
 
     @Given("^I have a rule to (.+) and an entity (.+)$")
     public void I_have_a_rule_and_an_entity(String rule, String entity) throws Throwable {
-        fastFTBodyText = "<body>" + TEXT + " " + entity + "</body>";
+        fastFTBodyText = "<body>" + TEXT +  entity + "</body>";
     }
 
     @Then("^it is left unmodified$")
@@ -156,5 +157,23 @@ public class BodyProcessingStepDefs {
         assertThat("handler incorrect", eventHandler.getClass().getSimpleName(), equalTo(handler) );
         return eventHandler;
     }
+
+    @Given("^the fastFt body contains (.+) the transformer will (.+)$")
+    public void the_fastFT_body_contains(String tagname, String rule) throws Throwable {
+        assertTagIsRegistered(tagname,rule);
+    }
+
+
+    @Given("^the fastFt body contains (.+) the transformer will then (.+) into (.+)$")
+    public void the_fastFT_body_contains_transforms_into(String tagname, String rule, String replacement) throws Throwable {
+        assertTagIsRegisteredToTransform(rule, tagname, replacement);
+    }
+
+    @Given("^the fastFt body contains <tagname> the transformer will strip the tag and contents(.+)$")
+    public void the_fastFT_body_contains_transforms_into(String tagname, String rule) throws Throwable {
+        assertTagIsRegistered(tagname,rule);
+    }
+
+
 
 }
