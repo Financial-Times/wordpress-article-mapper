@@ -57,6 +57,12 @@ public class ConnectivityToClamoHealthCheckTest {
 	}
 
 	@Test
+	public void shouldReturnUnhealthyWhenClamoStatus503() throws Exception {
+		when(response.getStatus()).thenReturn(503);
+		assertThat(healthCheck.checkAdvanced(), is(unhealthy("Status code [503] received when receiving content from Clamo.")));
+	}
+
+	@Test
 	public void shouldReturnUnhealthyWhenClamoStatus400() throws Exception {
 		when(response.getStatus()).thenReturn(400);
 		assertThat(healthCheck.checkAdvanced(), is(unhealthy("Status code [400] received when receiving content from Clamo.")));

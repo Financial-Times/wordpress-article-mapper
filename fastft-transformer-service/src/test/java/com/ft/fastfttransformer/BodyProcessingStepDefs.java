@@ -1,10 +1,12 @@
 package com.ft.fastfttransformer;
 
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +69,10 @@ public class BodyProcessingStepDefs {
         fastFTBodyText = "<body>" + TEXT + " " + entity + "</body>";
     }
 
+    @Then("^it is left unmodified$")
+    public void it_is_left_unmodified() {
+        assertThat(transformedBodyText,equalToIgnoringCase(fastFTBodyText));
+    }
 
     @Given("^Tag name is (.+) is assigned to rule (.+)$")
     public void tag_name_is_assigned_to_rule(String name, String rule) throws Throwable {

@@ -1,5 +1,6 @@
 package com.ft.fastfttransformer.resources;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -13,7 +14,6 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.ft.content.model.Content;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.http.Fault;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.junit.After;
@@ -27,6 +27,8 @@ public class TransformerResourceTest {
 	public static FastFtTransformerAppRule fastFtTransformerAppRule = new FastFtTransformerAppRule("fastft-transformer-test.yaml");
 
 	private static final int SAMPLE_CONTENT_ID = 186672;
+	private static final int WILL_RETURN_404_AS_NO_DATA_NODE_IN_JSON = 1866711;
+	private static final int WILL_RETURN_404_AS_DATA_NODE_EMPTY_IN_JSON = 1866712;
 	private static final int WILL_RETURN_404 = 186673;
 	private static final int WILL_RETURN_503 = 186674;
 	private static final int WILL_RETURN_500 = 186675;
@@ -34,6 +36,7 @@ public class TransformerResourceTest {
 	private static final int WILL_RETURN_200_NOT_FOUND = 18667999;
 	private static final int WILL_RETURN_200_UNEXPECTED_STATUS = 186677;
 	private static final int WILL_RETURN_200_UNEXPECTED_TITLE = 186678;
+    private static final int WILL_RETURN_BROKEN_HTML = 37707001; // that's leet speak for error 1
 
 	private Client client;
 
@@ -57,6 +60,30 @@ public class TransformerResourceTest {
 		assertThat("source", receivedContent.getSource(), is(equalTo("FT")));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo("ca93067c-6b1d-3b6f-bd54-f4cd5598961a")));
 		assertThat("published date", receivedContent.getPublishedDate(), is(new Date(1406291632000L)));
+	}
+
+	@Test
+	public void shouldReturn404WhenNoDataNodeReturnedFromClamo() {
+		final URI uri = buildTransformerUrl(WILL_RETURN_404_AS_NO_DATA_NODE_IN_JSON);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+	}
+
+	@Test
+	public void shouldReturn404WhenEmptyDataNodeReturnedFromClamo() {
+		final URI uri = buildTransformerUrl(WILL_RETURN_404_AS_DATA_NODE_EMPTY_IN_JSON);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+	}
+
+	@Test
+	public void shouldReturn405WhenNoIdSupplied() {
+		final URI uri = buildTransformerUrlWithIdMissing();
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
 	}
 
 	@Test
@@ -86,13 +113,25 @@ public class TransformerResourceTest {
 		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
 	}
 
-	@Test
+    @Test
+    public void shouldReturn500When500ReturnedHtmlIsNotFixable() {
+        final URI uri = buildTransformerUrl(WILL_RETURN_BROKEN_HTML);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+
+        verify(getRequestedFor(urlMatching("/api/\\?request\\=.*"+WILL_RETURN_BROKEN_HTML+".*")));
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+        assertThat("message keywords",clientResponse.getEntity(String.class), containsString("invalid body"));
+    }
+
+    @Test
 	public void shouldReturn503WhenCannotConnectToClamo() {
-		WireMock.stubFor(WireMock.get(WireMock.urlMatching("/api/186676.*")).willReturn(WireMock.aResponse().withFault(Fault.EMPTY_RESPONSE)));
+		WireMock.stubFor(WireMock.get(WireMock.urlMatching("/api/.*186676.*")).willReturn(WireMock.aResponse().withFixedDelay(3000)));
 		final URI uri = buildTransformerUrl(WILL_RETURN_CANT_CONNECT);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
 	}
 
 	@Test
@@ -138,13 +177,10 @@ public class TransformerResourceTest {
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
     }
 
-
     @After
 	public void reset() {
 		WireMock.resetToDefault();
 	}
-
-    
     
 	private URI buildTransformerUrl(int contentId) {
 		return UriBuilder
@@ -154,6 +190,15 @@ public class TransformerResourceTest {
 				.host("localhost")
 				.port(fastFtTransformerAppRule.getFastFtTransformerLocalPort())
 				.build(contentId);
+	}
+
+	private URI buildTransformerUrlWithIdMissing() {
+		return UriBuilder
+				.fromPath("content")
+				.scheme("http")
+				.host("localhost")
+				.port(fastFtTransformerAppRule.getFastFtTransformerLocalPort())
+				.build();
 	}
 
 	private final static String EXPECTED_BODY = "<body>The question of why corporate America isn't investing much has become one of the most vexed as everyone scours for a potential catalyst to unlock faster economic growth.\n" +
