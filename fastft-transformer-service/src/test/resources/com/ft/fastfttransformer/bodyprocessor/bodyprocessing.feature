@@ -1,13 +1,13 @@
 @BodyProcessing
 Feature: Body processing
 
-#  Scenario Outline:
-#    Given the fastFt body contains <tagname> the transformer will then TRANSFORM THE TAG into <replacement>
-#
-#  Examples:
-#    | tagname | replacement |
-#    | b       | strong      |
-#    | i       | em          |
+  Scenario Outline:
+    Given a replacement tag <replacement> and the fastFt body contains <tagname> the transformer will TRANSFORM THE TAG
+
+  Examples:
+    | tagname | replacement |
+    | b       | strong      |
+    | i       | em          |
 
   Scenario Outline:
     Given the fastFt body contains <tagname> the transformer will RETAIN ELEMENT AND REMOVE ATTRIBUTES
