@@ -164,16 +164,10 @@ public class BodyProcessingStepDefs {
     }
 
 
-    @Given("^the fastFt body contains (.+) the transformer will then (.+) into (.+)$")
-    public void the_fastFT_body_contains_transforms_into(String tagname, String rule, String replacement) throws Throwable {
+    @Given("^a replacement tag (.+) and the fastFt body contains (.+) the transformer will (.+)$")
+    public void the_fastFT_body_contains_transforms_into(String replacement, String tagname, String rule) throws Throwable {
         assertTagIsRegisteredToTransform(rule, tagname, replacement);
     }
-
-    @Given("^the fastFt body contains <tagname> the transformer will strip the tag and contents(.+)$")
-    public void the_fastFT_body_contains_transforms_into(String tagname, String rule) throws Throwable {
-        assertTagIsRegistered(tagname,rule);
-    }
-
 
 
 }
