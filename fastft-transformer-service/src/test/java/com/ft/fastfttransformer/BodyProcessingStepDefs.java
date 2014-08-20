@@ -3,11 +3,15 @@ package com.ft.fastfttransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.namespace.QName;
 
 import com.ft.bodyprocessing.transformer.FieldTransformer;
+import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformerFactory;
 import com.ft.fastfttransformer.transformer.BodyTransformationXMLEventRegistry;
@@ -27,6 +31,9 @@ public class BodyProcessingStepDefs {
 
     private static final String TRANSACTION_ID = randomChars(10);
     private static final String TEXT = "Some text in between tags";
+    private BodyTransformationXMLEventRegistry registry;
+
+    private Map <String, String> rulesAndHandlers;
 
     private static String randomChars(int howMany) {
         return RandomStringUtils.randomAlphanumeric(howMany).toLowerCase();
@@ -35,33 +42,53 @@ public class BodyProcessingStepDefs {
     @Before
     public void setup() {
         bodyTransformer = new BodyProcessingFieldTransformerFactory().newInstance();
+        registry = new BodyTransformationXMLEventRegistry();
+        rulesAndHandlers = new HashMap<String, String>();
+        rulesAndHandlers.put( "strip element and contents" , "StripElementAndContentsXMLEventHandler");
+        rulesAndHandlers.put( "strip and leave content", "StripXMLEventHandler");
+        rulesAndHandlers.put( "retain element and remove attributes", "RetainWithoutAttributesXMLEventHandler");
+        rulesAndHandlers.put( "transform one tag into another", "SimpleTransformTagXmlEventHandler");
+        rulesAndHandlers.put( "convert HTML entities to unicode", "SimpleTransformTagXmlEventHandler");
     }
 
-    @Given("^I have (.+)$")
+    @Given("^I have html (.+?)$")
     public void I_have_html(String html) throws Throwable {
         fastFTBodyText = html;
     }
+
+    @Given("^I have start tag (.+) and end tag (.+)$")
+    public void I_have_start_and_end_tags(String start, String end) throws Throwable {
+        fastFTBodyText = start + TEXT + end;
+    }
+
+
+    @Given("^I have a rule to (.+) and an entity (.+)$")
+    public void I_have_a_rule_and_an_entity(String rule, String entity) throws Throwable {
+        fastFTBodyText = "<body>" + TEXT + " " + entity + "</body>";
+    }
+
+
+    @Given("^Tag name is (.+) is assigned to rule (.+)$")
+    public void tag_name_is_assigned_to_rule(String name, String rule) throws Throwable {
+        assertTagIsRegistered(name, rule);
+    }
+
+    @And("^the tag (.+) adheres to the (.+) rule$")
+    public void tag_name_adheres_to_rule(String name, String rule) throws Throwable {
+        assertTagIsRegistered(name, rule);
+    }
+
+    @And("^the before tag (.+) and the after tag (.+) adheres to the (.+) rule$")
+    public void before_and_after_tag_name_adheres_to_rule(String name, String aftername, String rule) throws Throwable {
+        assertTagIsRegisteredToTransform(rule, name, aftername);
+    }
+
 
     @When("^I transform it$")
     public void I_transform_it() throws Throwable {
         transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
     }
 
-
-
-    @Given("^Tag name is (.+) is assigned to rule (.+)$")
-    public void tag_name_is_assigned_to_rule(String name, String rule) throws Throwable {
-        BodyTransformationXMLEventRegistry registry = new BodyTransformationXMLEventRegistry();
-        StartElementEventImpl startElement = StartElementEventImpl.construct(null, new QName(name), null, null, null);
-        XMLEventHandler eventHandler = registry.getEventHandler(startElement);
-        assertThat("handler incorrect", eventHandler.getClass().getSimpleName(), equalTo(rule) );
-    }
-
-    @When("^I have a StripElementAndContent tag type and a tag called (.+)$")
-    public void I_have_a_strip_element_and_content_tag_type(String tagname) throws Throwable {
-        fastFTBodyText = "<"+ tagname + ">" + TEXT + "</"+ tagname + ">";
-        transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
-    }
 
     @Then("^the start tag (.+) should have been removed$")
         public void the_start_tag_should_have_been_removed(String tagname) throws Throwable {
@@ -78,14 +105,50 @@ public class BodyProcessingStepDefs {
         assertThat("Text was removed", transformedBodyText, not(containsString(TEXT)));
     }
 
-    @When("^I have a Strip tag type and a tag called (.+)$")
-    public void I_have_a_Strip_tag_type_and_a_tag_called(String tagname) throws Throwable {
-        fastFTBodyText = "<"+ tagname + ">" + TEXT + "</"+ tagname + ">";
-        transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
-    }
-
     @Then("^the text inside should not have been removed$")
     public void the_text_inside_should_not_have_been_removed() throws Throwable {
         assertThat("Text was removed", transformedBodyText, containsString(TEXT));
     }
+
+    @And("^the attributes inside the (.+) tag should be removed$")
+    public void the_attributes_inside_the_tag_should_be_removed(String start) throws Throwable {
+        String [] splitTag = start.split("\\s");
+        String tagWithoutAttributes = splitTag[0] + ">";
+        assertThat("closed start tag without attributes not found", transformedBodyText, containsString(tagWithoutAttributes));
+    }
+
+    @Then("^the tag should be replaced with the tag (.+)$")
+    public void the_before_tag_should_be_replaced_with_the_after_tag(String tagname) throws Throwable {
+        String expected = "<" + tagname + ">" + TEXT + "</" + tagname + ">" ;
+        assertThat(transformedBodyText, is(expected));
+    }
+
+    @Then("^the entity should be replaced by the unicode codepoint (.+)$")
+    public void the_entity_should_be_replace_by_unicode_codepoint(String codepoint) throws Throwable {
+        int codePointInt = Integer.decode(codepoint);
+        char[] chars = Character.toChars(codePointInt);
+        String expected = "<body>" + TEXT  + new String(chars) + "</body>";
+        assertThat(transformedBodyText, is(expected));
+    }
+
+    private void assertTagIsRegisteredToTransform(String rule, String before, String after){
+        SimpleTransformTagXmlEventHandler eventHandler = null;
+        try{
+            eventHandler = (SimpleTransformTagXmlEventHandler)assertTagIsRegistered(before, rule);
+        }
+        catch (ClassCastException cce){
+            assertThat("The transformer is not SimpleTransformTagXmlEventHandler", false);
+        }
+        assertThat("The replacement tag is not registered properly", eventHandler.getNewElement(), equalTo(after));
+
+    }
+
+    private XMLEventHandler assertTagIsRegistered( String name, String rule ){
+        String handler = rulesAndHandlers.get(rule);
+        StartElementEventImpl startElement = StartElementEventImpl.construct(null, new QName(name), null, null, null);
+        XMLEventHandler eventHandler = registry.getEventHandler(startElement);
+        assertThat("handler incorrect", eventHandler.getClass().getSimpleName(), equalTo(handler) );
+        return eventHandler;
+    }
+
 }
