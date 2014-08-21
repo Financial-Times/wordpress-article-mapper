@@ -1,6 +1,6 @@
 package com.ft.fastfttransformer.transformer;
 
-import static com.ft.fastfttransformer.transformer.XmlMatcher.identicalXmlTo;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
@@ -89,7 +89,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
 
 
-        assertThat(actualTransformedBody, is(identicalXmlTo(expectedTransformedBody)));
+        assertThat(actualTransformedBody, equalTo(expectedTransformedBody));
     }
 
 
