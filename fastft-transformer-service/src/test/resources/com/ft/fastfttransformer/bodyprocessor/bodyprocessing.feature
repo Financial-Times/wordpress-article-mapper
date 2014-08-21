@@ -27,6 +27,7 @@ Feature: Body processing
     | ol      |
     | ul      |
     | li      |
+    | p       |
 
   Scenario Outline:
     Given the fastFt body contains <tagname> the transformer will STRIP ELEMENT AND CONTENTS

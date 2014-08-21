@@ -1,10 +1,7 @@
 package com.ft.fastfttransformer.transformer;
 
-import static com.ft.bodyprocessing.xml.eventhandlers.RemoveElementEventHandler.attributeNameMatcher;
-
 import com.ft.bodyprocessing.xml.eventhandlers.LinkTagXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.PlainTextHtmlEntityReferenceEventHandler;
-import com.ft.bodyprocessing.xml.eventhandlers.RemoveElementEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.RetainWithoutAttributesXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.RetainXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
@@ -39,13 +36,8 @@ public class BodyTransformationXMLEventRegistry extends XMLEventHandlerRegistry 
         registerStartAndEndElementEventHandler(new RetainWithoutAttributesXMLEventHandler(),
                 "strong", "em", "sub", "sup", "br",
                 "h1", "h2", "h3", "h4", "h5", "h6",
-                "ol", "ul", "li"
+                "ol", "ul", "li", "p"
         );
-
-        // Handle strikeouts, i.e. where have <p channel="!"> or <span channel="!">
-        // For these elements if the attribute is missing use the fallback handler
-        registerStartAndEndElementEventHandler(new RemoveElementEventHandler(new RetainWithoutAttributesXMLEventHandler(), attributeNameMatcher("channel")), "p");
-        registerStartAndEndElementEventHandler(new RemoveElementEventHandler(new StripXMLEventHandler(), attributeNameMatcher("channel")), "span");
 
     }
 }
