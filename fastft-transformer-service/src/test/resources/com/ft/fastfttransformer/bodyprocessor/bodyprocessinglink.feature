@@ -22,26 +22,3 @@ Feature: Body processing links
     | external link html                                                                                    |
     | <p>Better stories <a href="http://example.com/fascinating-insights.html">link to other</a> sites</p>  |
 
-
-#  Scenario Outline:
-#    When I have html <relative link html> at hosted at location http://example.com/article/1
-#    When I transform it
-#    Then I have the absolute URL <absolute url>
-#
-#  Examples:
-#    | relative link html                                                                       | absolute url                                         |
-#    | <p>Good stories <a href="/path/fascinating-insights.html">link to other</a> stories</p>  | http://example.com/path/fascinating-insights.html    |
-#    | <p>Good stories <a href="fascinating-insights.html">link to other</a> stories</p>        | http://example.com/article/fascinating-insights.html |
-
-#
-#  Scenario Outline:
-#    When I have a mailto link
-#    Then
-#
-#  Examples:
-#
-#  Scenario Outline:
-#    When I have an anchor
-#    Then it is removed
-#
-#  Examples:

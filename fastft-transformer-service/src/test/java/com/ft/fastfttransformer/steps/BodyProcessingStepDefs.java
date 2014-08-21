@@ -1,4 +1,4 @@
-package com.ft.fastfttransformer;
+package com.ft.fastfttransformer.steps;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;
