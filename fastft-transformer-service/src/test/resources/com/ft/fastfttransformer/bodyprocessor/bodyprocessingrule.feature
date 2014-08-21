@@ -1,4 +1,4 @@
-@BodyProcessingHello
+@BodyProcessing
 Feature: Body processing rules
 
   Scenario Outline:
