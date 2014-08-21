@@ -11,12 +11,15 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
+import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
@@ -57,7 +60,7 @@ public class TransformerResource {
 	@Timed
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Content getByPostId(@PathParam("id") Integer postId) {
+	public final Content getByPostId(@PathParam("id") Integer postId, @Context HttpHeaders httpHeaders) {
 
 		Map<String, Object> result = doRequest(postId);
 
@@ -72,18 +75,19 @@ public class TransformerResource {
 				"datepublished").toString()));
 
 		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
+        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
 
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
-				.withXmlBody(tidiedUpBody(body))
+				.withXmlBody(tidiedUpBody(body, transactionId))
 				.withSource("FT")
 				.withUuid(uuid).build();
 
 	}
 
-	private String tidiedUpBody(String body) {
+	private String tidiedUpBody(String body, String transactionId) {
         try {
-		    return bodyProcessingFieldTransformer.transform(body, "testtest"); //TODO transactionId
+		    return bodyProcessingFieldTransformer.transform(body, transactionId);
         } catch (BodyProcessingException bpe) {
             LOGGER.error("Failed to transform body",bpe);
             throw ServerError.status(500).error("article has invalid body").exception(bpe);
