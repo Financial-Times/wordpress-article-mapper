@@ -2,10 +2,8 @@ package com.ft.fastfttransformer;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 import java.util.HashMap;
@@ -23,6 +21,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.apache.commons.lang.RandomStringUtils;
+import org.codehaus.stax2.ri.evt.EntityReferenceEventImpl;
 import org.codehaus.stax2.ri.evt.StartElementEventImpl;
 
 public class BodyProcessingStepDefs {
@@ -50,7 +49,7 @@ public class BodyProcessingStepDefs {
         rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
         rulesAndHandlers.put( "RETAIN ELEMENT AND REMOVE ATTRIBUTES", "RetainWithoutAttributesXMLEventHandler");
         rulesAndHandlers.put( "TRANSFORM THE TAG", "SimpleTransformTagXmlEventHandler");
-        rulesAndHandlers.put( "CONVERT HTML ENTITY TO UNICODE", "SimpleTransformTagXmlEventHandler");
+        rulesAndHandlers.put( "CONVERT HTML ENTITY TO UNICODE", "PlainTextHtmlEntityReferenceEventHandler");
         rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS BY DEFAULT", "StripXMLEventHandler");
     }
 
@@ -59,15 +58,14 @@ public class BodyProcessingStepDefs {
         fastFTBodyText = html;
     }
 
-    @Given("^I have start tag (.+) and end tag (.+)$")
-    public void I_have_start_and_end_tags(String start, String end) throws Throwable {
-        fastFTBodyText = start + TEXT + end;
-    }
-
 
     @Given("^I have a rule to (.+) and an entity (.+)$")
     public void I_have_a_rule_and_an_entity(String rule, String entity) throws Throwable {
-        fastFTBodyText = "<body>" + TEXT +  entity + "</body>";
+        String handler = rulesAndHandlers.get(rule);
+        String entitybasic = entity.substring(1, entity.length()-1);
+        EntityReferenceEventImpl event = new EntityReferenceEventImpl(null, entitybasic);
+        XMLEventHandler eventHandler = registry.getEventHandler(event);
+        assertThat("The handler is incorrect", eventHandler.getClass().getSimpleName(), equalTo(handler));
     }
 
     @Then("^it is left unmodified$")
@@ -75,12 +73,7 @@ public class BodyProcessingStepDefs {
         assertThat(transformedBodyText,equalToIgnoringCase(fastFTBodyText));
     }
 
-    @Given("^Tag name is (.+) is assigned to rule (.+)$")
-    public void tag_name_is_assigned_to_rule(String name, String rule) throws Throwable {
-        assertTagIsRegistered(name, rule);
-    }
-
-    @And("^the tag (.+) adheres to the (.+) rule$")
+    @And("^the tag (.+) adheres to the (.+)$")
     public void tag_name_adheres_to_rule(String name, String rule) throws Throwable {
         assertTagIsRegistered(name, rule);
     }
@@ -97,44 +90,20 @@ public class BodyProcessingStepDefs {
     }
 
 
-    @Then("^the start tag (.+) should have been removed$")
-        public void the_start_tag_should_have_been_removed(String tagname) throws Throwable {
-        assertThat("start tag wasn't removed", transformedBodyText, not(containsString("<" + tagname + ">")));
+    @Then("^it is transformed, (.+) becomes (.+)$")
+    public void the_before_becomes_after(String before, String after) throws Throwable {
+        transformedBodyText = bodyTransformer.transform(before, TRANSACTION_ID);
+        assertThat("before and after do not match", transformedBodyText, equalTo(after));
     }
 
-    @Then("^the end tag (.+) should have be removed$")
-    public void the_end_tag_should_have_been_removed(String tagname) throws Throwable {
-        assertThat("end tag wasn't removed", transformedBodyText, not(containsString("</" + tagname + ">")));
-    }
 
-    @And("^the text inside should have been removed$")
-    public void the_text_inside_should_have_been_removed() throws Throwable {
-        assertThat("Text was removed", transformedBodyText, not(containsString(TEXT)));
-    }
-
-    @Then("^the text inside should not have been removed$")
-    public void the_text_inside_should_not_have_been_removed() throws Throwable {
-        assertThat("Text was removed", transformedBodyText, containsString(TEXT));
-    }
-
-    @And("^the attributes inside the (.+) tag should be removed$")
-    public void the_attributes_inside_the_tag_should_be_removed(String start) throws Throwable {
-        String [] splitTag = start.split("\\s");
-        String tagWithoutAttributes = splitTag[0] + ">";
-        assertThat("closed start tag without attributes not found", transformedBodyText, containsString(tagWithoutAttributes));
-    }
-
-    @Then("^the tag should be replaced with the tag (.+)$")
-    public void the_before_tag_should_be_replaced_with_the_after_tag(String tagname) throws Throwable {
-        String expected = "<" + tagname + ">" + TEXT + "</" + tagname + ">" ;
-        assertThat(transformedBodyText, is(expected));
-    }
-
-    @Then("^the entity should be replaced by the unicode codepoint (.+)$")
-    public void the_entity_should_be_replace_by_unicode_codepoint(String codepoint) throws Throwable {
+    @Then("^it is transformed the entity (.+) should be replaced by the unicode codepoint (.+)$")
+    public void the_entity_should_be_replace_by_unicode_codepoint(String entity, String codepoint) throws Throwable {
         int codePointInt = Integer.decode(codepoint);
         char[] chars = Character.toChars(codePointInt);
         String expected = "<body>" + TEXT  + new String(chars) + "</body>";
+        fastFTBodyText = "<body>" + TEXT  +  entity + "</body>";
+        transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
         assertThat(transformedBodyText, is(expected));
     }
 
