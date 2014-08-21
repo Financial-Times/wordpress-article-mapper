@@ -67,7 +67,8 @@ public class BodyTagAnalyser {
 		Client client = Client.create();
 		
 		DateTime latest = DateTime.now(); // start now, we're going back through the content
-		//DateTime latest = DateTime.now().minusYears(1).minusMonths(2).minusDays(19); //back to around 20130529, which is the start of FastFT content
+		// if you want to test just a small subset, need to set latest to around 20130530 so leaving this line here to save time :)
+		//DateTime latest = new DateTime().withYear(2013).withMonthOfYear(5).withDayOfMonth(30);
 		
 		int i = 0; // just to avoid an infinite loop...
 		while(latest != null && i < 100) {
