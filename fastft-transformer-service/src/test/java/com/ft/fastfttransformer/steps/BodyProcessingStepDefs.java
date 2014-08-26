@@ -57,6 +57,11 @@ public class BodyProcessingStepDefs {
     public void I_have_html(String html) throws Throwable {
         fastFTBodyText = html;
     }
+    
+    @Given("^there are empty paragraphs in the body$")
+    public void there_are_empty_paragraphs() throws Throwable {
+    	// no op!
+    }
 
 
     @Given("^I have a rule to (.+) and an entity (.+)$")

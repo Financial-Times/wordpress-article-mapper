@@ -63,10 +63,44 @@ public class BodyProcessingFieldTransformerFactoryTest {
     }
 
     @Test
+    public void emptyBodyShouldBeReturnedAsEmptyBody() {
+    	checkTransformationToEmpty("");
+    }
+
+    @Test
     public void shouldThrowExceptionIfBodyNull() {
         expectedException.expect(BodyProcessingException.class);
         expectedException.expect(hasProperty("message", equalTo("Body is null")));
         checkTransformation(null, "");
+    }
+
+    @Test
+    public void emptyParagraphOnlyShouldBeRemoved() {
+        checkTransformationToEmpty("<p></p>");
+        checkTransformationToEmpty("<p/>");
+    }
+
+    @Test
+    public void checkLinkBreaksAreNotCorrupted() {
+        String properLineBreak =  "<p>Blah<br/>Blah</p>";
+        checkTransformation(properLineBreak,properLineBreak); // not changed!
+    }
+
+    @Test
+    public void commentsShouldBeRemoved() {
+        checkTransformation("<body>Sentence <!--...-->ending. Next sentence</body>",
+                "<body>Sentence ending. Next sentence</body>");
+    }
+ 
+    @Test
+    public void nameSpacesShouldBeIgnored() {
+        checkTransformation("<p v:vs=\"|1|\" v:n=\"15\" v:idx=\"11\">Text</p>", "<p>Text</p>");
+    }
+
+    @Test
+    public void nbspShouldBeReplacedWithSpace() {
+        checkTransformation("<body>This is a sentence&nbsp;.</body>",
+                String.format("<body>This is a sentence%s.</body>", String.valueOf('\u00A0')));
     }
 
     @Test
@@ -83,6 +117,12 @@ public class BodyProcessingFieldTransformerFactoryTest {
     public void encodedNbspShouldBeReplacedWithSpace() {
         checkTransformation("<body>This is a sentence .</body>",
                 String.format("<body>This is a sentence%s.</body>", String.valueOf('\u00A0')));
+    }
+
+    @Test
+    public void htmlEntityReferencesShouldBeUnescaped() {
+        String expectedSentence = String.format("<body>This is a sentence%s.</body>", String.valueOf('\u20AC'));
+        checkTransformation("<body>This is a sentence&euro;.</body>",expectedSentence);
     }
 
     private void checkTransformation(String originalBody, String expectedTransformedBody) {

@@ -1,10 +1,14 @@
 @BodyProcessing
 Feature: Body processing
 
+This shows how particular tags are processed.
+
+For details of how tags will look before and after for particular processing rules, see bodyprocessingrule.feature.
+
   Scenario Outline:
     Given a replacement tag <replacement> and the fastFt body contains <tagname> the transformer will TRANSFORM THE TAG
 
-  Examples:
+  Examples: Transform to html5-compliant tags
     | tagname | replacement |
     | b       | strong      |
     | i       | em          |
@@ -12,7 +16,7 @@ Feature: Body processing
   Scenario Outline:
     Given the fastFt body contains <tagname> the transformer will RETAIN ELEMENT AND REMOVE ATTRIBUTES
 
-  Examples: Retain Elements Without Attributes
+  Examples: Tidy up tags to remove attributes that probably relate to formatting
     | tagname |
     | strong  |
     | em      |
@@ -32,7 +36,7 @@ Feature: Body processing
   Scenario Outline:
     Given the fastFt body contains <tagname> the transformer will STRIP ELEMENT AND CONTENTS
 
-  Examples: Strip Element And Content
+  Examples: Remove tags completely, including content, for html5 tags that we cannot support currently
     | tagname                    |
     | applet                     |
     | audio                      |
@@ -95,7 +99,7 @@ Feature: Body processing
   Scenario Outline:
     Given the fastFt body contains <tagname> the transformer will STRIP ELEMENT AND CONTENTS BY DEFAULT
 
-  Examples: Strip by default
+  Examples: Remove tag but leave any content - these are just some examples, by default anything not specified separately will be treated like this
     | tagname                                            |
     | <img src="abc.jpg"/>                               |
     | <!-- comments -->                                  |

@@ -1,6 +1,10 @@
 @BodyProcessing
 Feature: Body processing rules
 
+This is an overview of how the various configuration rules work. 
+
+For details of which rules apply for particular tags, see bodyprocessing.feature
+
   Scenario Outline:
     Given the tag <name> adheres to the <rule>
     When it is transformed, <before> becomes <after>
@@ -28,4 +32,12 @@ Feature: Body processing rules
     | &euro; | 0x20AC    |
     | &nbsp; | 0x00A0    |
 
+  Scenario Outline: Remove empty paragraphs
+    Given there are empty paragraphs in the body
+    When it is transformed, <before> becomes <after>
+    
+  Examples: Remove empty paragraphs
+    | before                                          | after                                  |
+    | <p>Some text</p><p></p><p>Some more text</p>    | <p>Some text</p><p>Some more text</p>  |
+    
 
