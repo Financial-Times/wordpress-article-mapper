@@ -50,7 +50,7 @@ public class BodyProcessingStepDefs {
         rulesAndHandlers.put( "RETAIN ELEMENT AND REMOVE ATTRIBUTES", "RetainWithoutAttributesXMLEventHandler");
         rulesAndHandlers.put( "TRANSFORM THE TAG", "SimpleTransformTagXmlEventHandler");
         rulesAndHandlers.put( "CONVERT HTML ENTITY TO UNICODE", "PlainTextHtmlEntityReferenceEventHandler");
-        rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS BY DEFAULT", "StripXMLEventHandler");
+        rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT", "StripXMLEventHandler");
     }
 
     @Given("^I have html (.+?)$")

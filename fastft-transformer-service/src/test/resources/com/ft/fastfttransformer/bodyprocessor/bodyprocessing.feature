@@ -97,7 +97,7 @@ For details of how tags will look before and after for particular processing rul
     | wbr                        |
 
   Scenario Outline:
-    Given the fastFt body contains <tagname> the transformer will STRIP ELEMENT AND CONTENTS BY DEFAULT
+    Given the fastFt body contains <tagname> the transformer will STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT
 
   Examples: Remove tag but leave any content - these are just some examples, by default anything not specified separately will be treated like this
     | tagname   | html                                               |
