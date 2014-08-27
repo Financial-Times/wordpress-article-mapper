@@ -100,10 +100,10 @@ For details of how tags will look before and after for particular processing rul
     Given the fastFt body contains <tagname> the transformer will STRIP ELEMENT AND CONTENTS BY DEFAULT
 
   Examples: Remove tag but leave any content - these are just some examples, by default anything not specified separately will be treated like this
-    | tagname                                            |
-    | <img src="abc.jpg"/>                               |
-    | <!-- comments -->                                  |
-    | <weird>text surrounded by unknown tags</weird>     |
+    | tagname   | html                                               |
+    | img       | <img src="abc.jpg"/>                               |
+    | !--       | <!-- comments -->                                  |
+    | weird     | <weird>text surrounded by unknown tags</weird>     |
 
 
 
