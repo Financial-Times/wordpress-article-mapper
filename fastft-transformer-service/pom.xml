@@ -92,6 +92,16 @@
             <artifactId>ft-async-message</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.ft.bodyprocessing</groupId>
+            <artifactId>body-processing</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml.stream</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>com.ft.dropwizard</groupId>
             <artifactId>api-hamcrest-matchers</artifactId>
             <scope>test</scope>
@@ -121,12 +131,27 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>xmlunit</groupId>
+            <artifactId>xmlunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.ft.jaxrs-error-handling</groupId>
             <artifactId>jaxrs-error-handling-builder</artifactId>
         </dependency>
         <dependency>
             <groupId>com.ft.jaxrs-error-handling</groupId>
             <artifactId>jaxrs-error-handling-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>info.cukes</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>info.cukes</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -332,6 +357,22 @@
             </plugin>
         </plugins>
     </reporting>
-
+    <profiles>
+        <profile>
+            <id>acceptance-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>com/ft/fastfttransformer/BodyProcessingTest.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

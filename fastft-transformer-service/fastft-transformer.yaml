@@ -1,11 +1,11 @@
 clamoConnection:
-    hostName: clamo.ftdata.co.uk
+    hostName: v9.uat.clamo.ftdata.co.uk
     port: 80
     path: /api/
     jerseyClient:
         timeout: 2000ms
 
-clamoContentId: 186672
+clamoContentId: 22568
 
 server:
 

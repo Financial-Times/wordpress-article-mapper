@@ -11,16 +11,21 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
+import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.Data;
 import com.ft.fastfttransformer.response.FastFTResponse;
+import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -43,17 +48,19 @@ public class TransformerResource {
 	private static final String CLAMO_RECORD_NOT_FOUND = "Record not found";
 	private final Client client;
 	private final ClamoConnection clamoConnection;
+    private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 
-	public TransformerResource(Client client, ClamoConnection clamoConnection) {
+	public TransformerResource(Client client, ClamoConnection clamoConnection, BodyProcessingFieldTransformer bodyProcessingFieldTransformer) {
 		this.client = client;
 		this.clamoConnection = clamoConnection;
+        this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 	}
 
 	@GET
 	@Timed
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Content getByUuid(@PathParam("id") Integer postId) {
+	public final Content getByPostId(@PathParam("id") Integer postId, @Context HttpHeaders httpHeaders) {
 
 		Map<String, Object> result = doRequest(postId);
 
@@ -68,18 +75,23 @@ public class TransformerResource {
 				"datepublished").toString()));
 
 		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
+        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
 
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
-				.withXmlBody(tidiedUpBody(body))
+				.withXmlBody(tidiedUpBody(body, transactionId))
 				.withSource("FT")
 				.withUuid(uuid).build();
 
 	}
 
-	private String tidiedUpBody(String body) {
-		// TODO - temporary fix until business rules are defined for Body processing
-		return body.replaceAll("&", "&amp;");
+	private String tidiedUpBody(String body, String transactionId) {
+        try {
+		    return bodyProcessingFieldTransformer.transform(body, transactionId);
+        } catch (BodyProcessingException bpe) {
+            LOGGER.error("Failed to transform body",bpe);
+            throw ServerError.status(500).error("article has invalid body").exception(bpe);
+        }
 	}
 
 	private String transformBody(String originalBody) {
@@ -133,7 +145,7 @@ public class TransformerResource {
 			} else  if (statusIsError(output)) {
 				// Title specifies what is wrong exactly.
 				if (titleIsRecordNotFound(output)) {
-					throw ClientError.status(404).exception();
+					throw ClientError.status(404).error("Not found").exception();
 				} else {
 					// It says it's an error, but from the title we do not understand this kind of error.
 					throw ServerError.status(500).error(
