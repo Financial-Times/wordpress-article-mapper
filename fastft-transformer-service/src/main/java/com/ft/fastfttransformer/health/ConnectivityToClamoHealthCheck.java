@@ -3,19 +3,19 @@ package com.ft.fastfttransformer.health;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+
 import javax.ws.rs.core.UriBuilder;
 
-import com.ft.api.jaxrs.errors.ServerError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.resources.Clamo;
-import com.ft.fastfttransformer.resources.TransformerResource;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
@@ -95,7 +95,6 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
 	private URI getClamoBaseUrl(int id) {
 		return UriBuilder.fromPath(clamoConnection.getPath())
-				.path("{uuid}")
 				.scheme("http")
 				.host(clamoConnection.getHostName())
 				.port(clamoConnection.getPort())

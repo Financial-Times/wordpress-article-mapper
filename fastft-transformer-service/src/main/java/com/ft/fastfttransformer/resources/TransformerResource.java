@@ -11,16 +11,21 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.codahale.metrics.annotation.Timed;
-import com.ft.api.jaxrs.client.exceptions.ApiNetworkingException;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
+import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
+import com.ft.fastfttransformer.response.Data;
 import com.ft.fastfttransformer.response.FastFTResponse;
+import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -34,7 +39,6 @@ public class TransformerResource {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
 
-
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
 	private static final String CLAMO_OK = "ok";
@@ -44,17 +48,19 @@ public class TransformerResource {
 	private static final String CLAMO_RECORD_NOT_FOUND = "Record not found";
 	private final Client client;
 	private final ClamoConnection clamoConnection;
+    private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 
-	public TransformerResource(Client client, ClamoConnection clamoConnection) {
+	public TransformerResource(Client client, ClamoConnection clamoConnection, BodyProcessingFieldTransformer bodyProcessingFieldTransformer) {
 		this.client = client;
 		this.clamoConnection = clamoConnection;
+        this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 	}
 
 	@GET
 	@Timed
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Content getByUuid(@PathParam("id") Integer postId) {
+	public final Content getByPostId(@PathParam("id") Integer postId, @Context HttpHeaders httpHeaders) {
 
 		Map<String, Object> result = doRequest(postId);
 
@@ -69,18 +75,23 @@ public class TransformerResource {
 				"datepublished").toString()));
 
 		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
+        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
 
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
-				.withXmlBody(tidiedUpBody(body))
+				.withXmlBody(tidiedUpBody(body, transactionId))
 				.withSource("FT")
 				.withUuid(uuid).build();
 
 	}
 
-	private String tidiedUpBody(String body) {
-		// TODO - temporary fix until business rules are defined for Body processing
-		return body.replaceAll("&", "&amp;");
+	private String tidiedUpBody(String body, String transactionId) {
+        try {
+		    return bodyProcessingFieldTransformer.transform(body, transactionId);
+        } catch (BodyProcessingException bpe) {
+            LOGGER.error("Failed to transform body",bpe);
+            throw ServerError.status(500).error("article has invalid body").exception(bpe);
+        }
 	}
 
 	private String transformBody(String originalBody) {
@@ -88,13 +99,7 @@ public class TransformerResource {
 	}
 
 	private Map<String, Object> doRequest(Integer postId) {
-        if(postId == null) {
-            throw ClientError.status(400)
-                    .error("no data sent; postId is required")
-                    .exception();
-        }
-
-        String eq = null;
+        String eq;
         try {
             String queryStringValue = Clamo.buildPostRequest(postId);
             eq = URLEncoder.encode(queryStringValue, "UTF-8");
@@ -113,7 +118,8 @@ public class TransformerResource {
 		} catch (ClientHandlerException che) {
 			Throwable cause = che.getCause();
 			if(cause instanceof IOException) {
-				throw new ApiNetworkingException(fastFtContentByIdUri, "GET", che);
+				throw ServerError.status(503).context(webResource).error(
+						String.format("Cannot connect to Clamo for url: [%s]", fastFtContentByIdUri)).exception(cause);
 			}
 			throw che;
 		}
@@ -126,21 +132,30 @@ public class TransformerResource {
 
 			// Status can be "ok" or "error".
 			if (statusIsOk(output)) {
-				return output[0].getData().getAdditionalProperties();
+				Data data = output[0].getData();
+				if (data == null) {
+					LOGGER.error("Data node is missing from return JSON for ID [{}]", postId);
+					return null;
+				}
+				if (data.getAdditionalProperties().size() == 0) {
+					LOGGER.error("Data node is empty in return JSON for ID [{}]", postId);
+					return null;
+				}
+				return data.getAdditionalProperties();
 			} else  if (statusIsError(output)) {
 				// Title specifies what is wrong exactly.
 				if (titleIsRecordNotFound(output)) {
-					throw ClientError.status(404).exception();
+					throw ClientError.status(404).error("Not found").exception();
 				} else {
 					// It says it's an error, but from the title we do not understand this kind of error.
 					throw ServerError.status(500).error(
-							String.format("Unexpected title returned by Clamo: [%s].", title(output))).exception();
+							String.format("Unexpected title returned by Clamo: [%s] for ID [%d].", title(output), postId)).exception();
 				}
 			} else {
 				// We do not understand this status.
 				throw ServerError.status(500).error(
-						String.format("Unexpected status (status field; not HTTP status) returned by Clamo, status [%s], title [%s], output.length [%d].",
-								status(output), title(output), output.length)
+						String.format("Unexpected status (status field; not HTTP status) returned by Clamo, status [%s], title [%s], output.length [%d] for ID [%d].",
+								status(output), title(output), output.length, postId)
 				).exception();
 			}
 
@@ -148,7 +163,7 @@ public class TransformerResource {
 			// We do not expect this behaviour, we always expect a 200, and an 'error' status with more info in the title.
 			// If 404 is returned, then either the behaviour of Clamo has changed, or it isn't deployed correctly.
 			throw ServerError.status(503).error(
-					String.format("Unexpected HTTP status returned by Clamo: [%d].", responseStatusCode)).exception();
+					String.format("Unexpected HTTP status returned by Clamo: [%d] for ID [%d].", responseStatusCode, postId)).exception();
 		} else {
 			throw ServerError.status(responseStatusCode).exception();
 		}
@@ -184,7 +199,6 @@ public class TransformerResource {
 
 	private URI getClamoBaseUrl(int id) {
 		return UriBuilder.fromPath(clamoConnection.getPath())
-                .path("{uuid}")
                 .scheme("http")
                 .host(clamoConnection.getHostName())
                 .port(clamoConnection.getPort())

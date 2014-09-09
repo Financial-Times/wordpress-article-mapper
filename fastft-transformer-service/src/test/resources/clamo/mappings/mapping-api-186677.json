@@ -1,6 +1,6 @@
 {
 	"request" : {
-		"urlPattern" : "/api/186677.*",
+		"urlPattern" : "/api/.*186677.*",
 		"method" : "GET"
 	},
 	"response" : {
