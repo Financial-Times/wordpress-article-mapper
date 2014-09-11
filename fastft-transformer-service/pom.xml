@@ -29,6 +29,16 @@
             <artifactId>dropwizard-client</artifactId>
         </dependency>
         <dependency>
+          <groupId>io.dropwizard</groupId>
+          <artifactId>dropwizard-views</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.dropwizard</groupId>
+          <artifactId>dropwizard-views-freemarker</artifactId>
+          <version>${dw.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.ft</groupId>
             <artifactId>advanced-dropwizard-healthcheck</artifactId>
         </dependency>

@@ -9,6 +9,7 @@ import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.fastfttransformer.configuration.FastFTTransformerConfiguration;
 import com.ft.fastfttransformer.health.ConnectivityToClamoHealthCheck;
+import com.ft.fastfttransformer.resources.HomepageResource;
 import com.ft.fastfttransformer.resources.TransformerResource;
 import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformerFactory;
@@ -19,6 +20,7 @@ import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.views.ViewBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,7 @@ public class FastFTTransformerApplication extends Application<FastFTTransformerC
     @Override
     public void initialize(Bootstrap<FastFTTransformerConfiguration> bootstrap) {
         bootstrap.addBundle(new AdvancedHealthCheckBundle());
+        bootstrap.addBundle(new ViewBundle());
     }
 
     @Override
@@ -43,6 +46,7 @@ public class FastFTTransformerApplication extends Application<FastFTTransformerC
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());
         environment.jersey().register(new TransformerResource(client, configuration.getClamoConnection(), getBodyProcessingFieldTransformer()));
+        environment.jersey().register(new HomepageResource());
 
 		String healthCheckName = "Connectivity to Clamo";
 		environment.healthChecks().register(healthCheckName,
