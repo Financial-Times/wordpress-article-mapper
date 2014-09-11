@@ -118,7 +118,7 @@
                 $("#bodyPreview").text("NO TEXT");
             }
 
-            $("#readout").text((new Date()) + ": " + url);
+            $("#readout").text((new Date()) + ": " + url + "   [" + jqXHR.status + "]");
 
             $("#readout").show();
         }
