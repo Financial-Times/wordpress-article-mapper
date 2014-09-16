@@ -3,19 +3,20 @@ package com.ft.fastfttransformer.health;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-
+import java.util.Map;
 import javax.ws.rs.core.UriBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.resources.Clamo;
+import com.ft.fastfttransformer.response.Data;
+import com.ft.fastfttransformer.response.FastFTResponse;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
@@ -57,7 +58,19 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 					.accept("application/json").get(ClientResponse.class);
 
 			if (response.getStatus() == 200) {
-				return AdvancedResult.healthy("All is ok");
+                FastFTResponse[] output = response.getEntity(FastFTResponse[].class);
+                if(output[0] != null){
+                    Data data = output[0].getData();
+                    Map<String, Object> dataMap = data.getAdditionalProperties();
+                    if(dataMap.get("id") instanceof Integer){
+                        Integer id = (Integer)dataMap.get("id");
+                        if((Integer.valueOf(contentId)).equals(id)){
+                            return AdvancedResult.healthy("All is ok");
+                        }
+                    }
+                }
+                return AdvancedResult.error(this, "Status code 200 was received from Clamo but content id did not match");
+
 			} else {
                 String message = String.format("Status code [%d] received when receiving content from Clamo.", response.getStatus());
                 LOGGER.warn(message);

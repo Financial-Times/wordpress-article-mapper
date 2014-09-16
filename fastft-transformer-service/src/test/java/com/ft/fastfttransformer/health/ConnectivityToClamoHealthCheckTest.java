@@ -1,18 +1,5 @@
 package com.ft.fastfttransformer.health;
 
-import com.ft.fastfttransformer.configuration.ClamoConnection;
-import com.ft.messaging.standards.message.v1.SystemId;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import io.dropwizard.client.JerseyClientConfiguration;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.net.URI;
-
 import static com.ft.dropwizard.matcher.AdvancedHealthCheckResult.healthy;
 import static com.ft.dropwizard.matcher.AdvancedHealthCheckResult.unhealthy;
 import static org.hamcrest.CoreMatchers.is;
@@ -22,12 +9,33 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.ft.fastfttransformer.configuration.ClamoConnection;
+import com.ft.fastfttransformer.response.Data;
+import com.ft.fastfttransformer.response.FastFTResponse;
+import com.ft.messaging.standards.message.v1.SystemId;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import io.dropwizard.client.JerseyClientConfiguration;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
 public class ConnectivityToClamoHealthCheckTest {
 
 	private ConnectivityToClamoHealthCheck healthCheck;
 	private ClientResponse response;
 	private WebResource.Builder builder;
 	private static final int CONTENT_ID = 12345;
+
 
 	@Before
 	public void setup() {
@@ -47,8 +55,32 @@ public class ConnectivityToClamoHealthCheckTest {
 	@Test
 	public void shouldReturnHealthyWhenClamoStatus200() throws Exception {
 		when(response.getStatus()).thenReturn(200);
-		assertThat(healthCheck.checkAdvanced(), is(healthy()));
+        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
+        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
+        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
+        Data data = mock(Data.class);
+        when(fastFTResponse.getData()).thenReturn(data);
+        Map<String, Object> dataMap = new HashMap<String, Object>();
+        dataMap.put("id", CONTENT_ID);
+        when(data.getAdditionalProperties()).thenReturn(dataMap);
+
+        assertThat(healthCheck.checkAdvanced(), is(healthy()));
 	}
+
+    @Test
+    public void shouldReturnunHealthyWhenClamoStatus200ButIdNotFound() throws Exception {
+        when(response.getStatus()).thenReturn(200);
+        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
+        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
+        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
+        Data data = mock(Data.class);
+        when(fastFTResponse.getData()).thenReturn(data);
+        Map<String, Object> dataMap = new HashMap<String, Object>();
+        dataMap.put("id", "54321");
+        when(data.getAdditionalProperties()).thenReturn(dataMap);
+
+        assertThat(healthCheck.checkAdvanced(), is(unhealthy("Status code 200 was received from Clamo but content id did not match")));
+    }
 
 	@Test
 	public void shouldReturnUnhealthyWhenClamoStatus500() throws Exception {
