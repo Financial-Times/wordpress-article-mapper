@@ -3,7 +3,7 @@ clamoConnection:
     port: 11180
     path: /api/
     jerseyClient:
-        timeout: 2000ms
+        timeout: 3000ms
 
 clamoContentId: 186672
 
