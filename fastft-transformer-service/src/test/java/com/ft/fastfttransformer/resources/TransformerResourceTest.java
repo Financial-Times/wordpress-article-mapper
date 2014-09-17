@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
 import java.net.URI;
@@ -28,7 +29,7 @@ public class TransformerResourceTest {
 	@ClassRule
 	public static FastFtTransformerAppRule fastFtTransformerAppRule = new FastFtTransformerAppRule("fastft-transformer-test.yaml");
 
-	private static final int SAMPLE_CONTENT_ID = 186672;
+	private static final Integer SAMPLE_CONTENT_ID = 186672;
 	private static final int WILL_RETURN_404_AS_NO_DATA_NODE_IN_JSON = 1866711;
 	private static final int WILL_RETURN_404_AS_DATA_NODE_EMPTY_IN_JSON = 1866712;
 	private static final int WILL_RETURN_404 = 186673;
@@ -59,7 +60,9 @@ public class TransformerResourceTest {
 		assertThat("title", receivedContent.getTitle(), is(equalTo("US durable goods jump in June")));
 		assertThat("body", receivedContent.getBody(), is(equalTo(EXPECTED_BODY)));
 		assertThat("byline", receivedContent.getByline(), is(nullValue()));
-		assertThat("source", receivedContent.getSource(), is(equalTo("FT")));
+		assertThat("brands", receivedContent.getBrands(), hasItem("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54"));
+		assertThat("originating identifier", receivedContent.getContentOrigin().getOriginatingIdentifier(), is(equalTo(SAMPLE_CONTENT_ID.toString())));
+		assertThat("originating system", receivedContent.getContentOrigin().getOriginatingSystem(), is(equalTo(TransformerResource.ORIGINATING_SYSTEM_FT_CLAMO)));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo("ca93067c-6b1d-3b6f-bd54-f4cd5598961a")));
 		assertThat("published date", receivedContent.getPublishedDate(), is(new Date(1406291632000L)));
 	}

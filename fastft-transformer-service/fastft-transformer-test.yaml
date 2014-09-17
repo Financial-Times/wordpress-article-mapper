@@ -7,6 +7,8 @@ clamoConnection:
 
 clamoContentId: 186672
 
+fastFtBrandId: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
+
 server:
 
   applicationConnectors:
