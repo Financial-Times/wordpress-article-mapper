@@ -60,6 +60,7 @@ public class ConnectivityToClamoHealthCheckTest {
         when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
         Data data = mock(Data.class);
         when(fastFTResponse.getData()).thenReturn(data);
+        when(fastFTResponse.getStatus()).thenReturn("ok");
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("id", CONTENT_ID);
         when(data.getAdditionalProperties()).thenReturn(dataMap);
@@ -68,13 +69,14 @@ public class ConnectivityToClamoHealthCheckTest {
 	}
 
     @Test
-    public void shouldReturnunHealthyWhenClamoStatus200ButIdNotFound() throws Exception {
+    public void shouldReturnUnhealthyWhenClamoStatus200ButIdNotFound() throws Exception {
         when(response.getStatus()).thenReturn(200);
         FastFTResponse fastFTResponse = mock(FastFTResponse.class);
         FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
         when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
         Data data = mock(Data.class);
         when(fastFTResponse.getData()).thenReturn(data);
+        when(fastFTResponse.getStatus()).thenReturn("ok");
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("id", "54321");
         when(data.getAdditionalProperties()).thenReturn(dataMap);
@@ -104,6 +106,16 @@ public class ConnectivityToClamoHealthCheckTest {
 	public void shouldReturnUnhealthyWhenClamoTimesOut() throws Exception {
 		when(builder.get(ClientResponse.class)).thenThrow(new ClientHandlerException(new ConnectTimeoutException("timed out")));
 		assertThat(healthCheck.checkAdvanced(), is(unhealthy("timed out")));
+	}
+
+	@Test
+	public void shouldReturnUnhealthyWhenClamoStatusFieldNotOk() throws Exception {
+		when(response.getStatus()).thenReturn(200);
+        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
+        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
+        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
+        when(fastFTResponse.getStatus()).thenReturn("error");
+		assertThat(healthCheck.checkAdvanced(), is(unhealthy("status field in response not \"ok\"")));
 	}
 
 }

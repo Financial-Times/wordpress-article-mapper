@@ -22,6 +22,7 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectivityToClamoHealthCheck.class);
 
+    private static final String STATUS_OK = "ok";
 
     private final String panicGuideUrl;
 	private final ClamoConnection clamoConnection;
@@ -60,14 +61,20 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
 			if (response.getStatus() == 200) {
                 FastFTResponse[] output = response.getEntity(FastFTResponse[].class);
                 if(output[0] != null){
+                	String status = output[0].getStatus();
+                	if (!STATUS_OK.equals(status)) {
+                		return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\"");
+                	}
                     Data data = output[0].getData();
-                    Map<String, Object> dataMap = data.getAdditionalProperties();
-                    if(dataMap.get("id") instanceof Integer){
-                        Integer id = (Integer)dataMap.get("id");
-                        if((Integer.valueOf(contentId)).equals(id)){
-                            return AdvancedResult.healthy("All is ok");
+                    if (data != null) {
+                    	Map<String, Object> dataMap = data.getAdditionalProperties();
+                        if(dataMap.get("id") instanceof Integer){
+                            Integer id = (Integer)dataMap.get("id");
+                            if((Integer.valueOf(contentId)).equals(id)){
+                                return AdvancedResult.healthy("All is ok");
+                            }
                         }
-                    }
+                    }                  
                 }
                 return AdvancedResult.error(this, "Status code 200 was received from Clamo but content id did not match");
 
