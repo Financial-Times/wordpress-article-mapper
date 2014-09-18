@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.UUID;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -46,14 +48,20 @@ public class TransformerResource {
 	private static final String CLAMO_FIELD_TITLE = "title";
 
 	private static final String CLAMO_RECORD_NOT_FOUND = "Record not found";
+
+	public static final String ORIGINATING_SYSTEM_FT_CLAMO = "http://www.ft.com/ontology/origin/FT-CLAMO";
+
 	private final Client client;
 	private final ClamoConnection clamoConnection;
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
+	private final String fastFtBrand;
 
-	public TransformerResource(Client client, ClamoConnection clamoConnection, BodyProcessingFieldTransformer bodyProcessingFieldTransformer) {
+	public TransformerResource(Client client, ClamoConnection clamoConnection,
+							   BodyProcessingFieldTransformer bodyProcessingFieldTransformer, String fastFtBrand) {
 		this.client = client;
 		this.clamoConnection = clamoConnection;
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
+		this.fastFtBrand = fastFtBrand;
 	}
 
 	@GET
@@ -80,7 +88,8 @@ public class TransformerResource {
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
 				.withXmlBody(tidiedUpBody(body, transactionId))
-				.withSource("FT")
+				.withContentOrigin(ORIGINATING_SYSTEM_FT_CLAMO, postId.toString())
+				.withBrands(new TreeSet<>(Arrays.asList(fastFtBrand)))
 				.withUuid(uuid).build();
 
 	}
