@@ -43,7 +43,7 @@ public class FastFTTransformerApplication extends Application<FastFTTransformerC
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());
         environment.jersey().register(new TransformerResource(client, configuration.getClamoConnection(),
-				getBodyProcessingFieldTransformer(), configuration.getFastFtBrandId()));
+				getBodyProcessingFieldTransformer(), configuration.getFastFtBrand()));
 
 		String healthCheckName = "Connectivity to Clamo";
 		environment.healthChecks().register(healthCheckName,

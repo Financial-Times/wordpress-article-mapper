@@ -23,6 +23,7 @@ import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
+import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.Data;
@@ -54,10 +55,10 @@ public class TransformerResource {
 	private final Client client;
 	private final ClamoConnection clamoConnection;
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
-	private final String fastFtBrand;
+	private final Brand fastFtBrand;
 
 	public TransformerResource(Client client, ClamoConnection clamoConnection,
-							   BodyProcessingFieldTransformer bodyProcessingFieldTransformer, String fastFtBrand) {
+							   BodyProcessingFieldTransformer bodyProcessingFieldTransformer, Brand fastFtBrand) {
 		this.client = client;
 		this.clamoConnection = clamoConnection;
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
