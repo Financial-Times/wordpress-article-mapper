@@ -1,5 +1,6 @@
 package com.ft.fastfttransformer.configuration;
 
+import com.ft.content.model.Brand;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
@@ -12,7 +13,7 @@ public class FastFTTransformerConfiguration extends Configuration {
 
 	private final ClamoConnection clamoConnection;
 	private final int clamoContentId;
-	private final String fastFtBrandId;
+	private final Brand fastFtBrand;
 
 	public FastFTTransformerConfiguration(@JsonProperty("clamoConnection") ClamoConnection clamoConnection,
 										  @JsonProperty("clamoContentId") int clamoContentId,
@@ -20,7 +21,7 @@ public class FastFTTransformerConfiguration extends Configuration {
 		super();
 		this.clamoConnection = clamoConnection;
 		this.clamoContentId = clamoContentId;
-		this.fastFtBrandId = fastFtBrandId;
+		this.fastFtBrand = new Brand(fastFtBrandId);
 	}
 
 	@Valid
@@ -37,8 +38,8 @@ public class FastFTTransformerConfiguration extends Configuration {
 
 	@Valid
 	@NotNull
-	public String getFastFtBrandId() {
-		return fastFtBrandId;
+	public Brand getFastFtBrand() {
+		return fastFtBrand;
 	}
 
     protected Objects.ToStringHelper toStringHelper() {
@@ -46,7 +47,7 @@ public class FastFTTransformerConfiguration extends Configuration {
                 .add("super", super.toString())
                 .add("clamoConnection", clamoConnection)
 				.add("clamoContentId", clamoContentId)
-				.add("fastFtBrandId", fastFtBrandId);
+				.add("fastFtBrand", fastFtBrand);
     }
     
     @Override
