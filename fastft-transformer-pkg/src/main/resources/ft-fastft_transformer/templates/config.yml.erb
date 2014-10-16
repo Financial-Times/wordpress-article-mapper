@@ -3,7 +3,8 @@ clamoConnection:
     port: <%=scope.function_hiera('clamoPort')%>
     path: /api/
     jerseyClient:
-        timeout: 3000ms
+        timeout: <%=scope.function_hiera('clamoTimeout')%>
+    numberOfConnectionAttempts: <%=scope.function_hiera('clamoConnectionAttempts')%>
 
 clamoContentId: <%=scope.function_hiera('clamoContentId')%>
 

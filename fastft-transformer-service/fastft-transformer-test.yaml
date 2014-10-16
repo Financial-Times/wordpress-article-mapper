@@ -4,6 +4,7 @@ clamoConnection:
     path: /api/
     jerseyClient:
         timeout: 3000ms
+    numberOfConnectionAttempts: 3
 
 clamoContentId: 186672
 

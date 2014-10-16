@@ -18,6 +18,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
@@ -56,13 +59,24 @@ public class TransformerResource {
 	private final ClamoConnection clamoConnection;
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 	private final Brand fastFtBrand;
+	
+	private final Timer attempts;
+	private final Timer requests;
+	
+	private final Histogram attemptCounts;
+
 
 	public TransformerResource(Client client, ClamoConnection clamoConnection,
-							   BodyProcessingFieldTransformer bodyProcessingFieldTransformer, Brand fastFtBrand) {
+							   BodyProcessingFieldTransformer bodyProcessingFieldTransformer, 
+							   Brand fastFtBrand, MetricRegistry appMetrics) {
 		this.client = client;
 		this.clamoConnection = clamoConnection;
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 		this.fastFtBrand = fastFtBrand;
+		this.attempts = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "attemptsClamo"));
+        this.requests = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "requestToClamo"));
+		this.attemptCounts = appMetrics.histogram(MetricRegistry.name(TransformerResource.class, "attemptCountClamo"));
+
 	}
 
 	@GET
@@ -109,30 +123,11 @@ public class TransformerResource {
 	}
 
 	private Map<String, Object> doRequest(Integer postId) {
-        String eq;
-        try {
-            String queryStringValue = Clamo.buildPostRequest(postId);
-            eq = URLEncoder.encode(queryStringValue, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // should never happen, UTF-8 is part of the Java spec
-            throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
-        }
+        String queryStringValue = Clamo.buildPostRequest(postId);
 
 		URI fastFtContentByIdUri = getClamoBaseUrl(postId);
-		WebResource webResource = client.resource(fastFtContentByIdUri);
-
-		ClientResponse response;
-		try {
-			response = webResource.queryParam("request", eq)
-					.accept("application/json").get(ClientResponse.class);
-		} catch (ClientHandlerException che) {
-			Throwable cause = che.getCause();
-			if(cause instanceof IOException) {
-				throw ServerError.status(503).context(webResource).error(
-						String.format("Cannot connect to Clamo for url: [%s]", fastFtContentByIdUri)).exception(cause);
-			}
-			throw che;
-		}
+		
+		ClientResponse response = doRequest(queryStringValue, fastFtContentByIdUri);
 
 		int responseStatusCode = response.getStatus();
 		int responseStatusFamily = responseStatusCode / 100;
@@ -178,6 +173,65 @@ public class TransformerResource {
 			throw ServerError.status(responseStatusCode).exception();
 		}
 	}
+
+    private ClientResponse doRequest(String queryStringValue, URI fastFtContentByIdUri) {
+        String eq = null;
+        try {
+            eq = URLEncoder.encode(queryStringValue, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // should never happen, UTF-8 is part of the Java spec
+            throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
+        }
+
+        WebResource webResource = client.resource(fastFtContentByIdUri);
+        
+        ClientResponse lastResponse = null;
+        ClientHandlerException lastClientHandlerException = null;
+        LOGGER.info("[REQUEST STARTED] requestUri={} queryString={}", fastFtContentByIdUri, queryStringValue);
+        Timer.Context requestsTimer = requests.time();
+        
+        for (int attemptsCount = 0; attemptsCount < clamoConnection.getNumberOfConnectionAttempts(); attemptsCount++) {
+            Timer.Context attemptsTimer = attempts.time();
+            long startTime = System.currentTimeMillis();
+            
+            ClientResponse response = null;
+            
+            try {
+                LOGGER.info("[ATTEMPT STARTED] requestUri={} queryString={}", fastFtContentByIdUri, queryStringValue);
+                response = webResource.queryParam("request", eq)
+                        .accept("application/json").get(ClientResponse.class);
+                return response; 
+            } catch (ClientHandlerException che) {
+                lastClientHandlerException = che;                
+            } finally {
+                long endTime = System.currentTimeMillis();
+                attemptsTimer.stop();
+                long timeTakenMillis = (endTime - startTime);
+                LOGGER.info("[ATTEMPT FINISHED] time_ms={}", timeTakenMillis);
+                
+                requestsTimer.stop();
+                attemptCounts.update(attemptsCount);
+                lastResponse = response;
+                try {
+                    Thread.sleep(1000); // give clamo a chance to recover
+                } catch (InterruptedException e) {
+                    // Restore the interrupted status
+                    Thread.currentThread().interrupt();
+                } 
+            }
+        }
+        
+        if (lastClientHandlerException != null) {
+            Throwable cause = lastClientHandlerException.getCause();
+            if(cause instanceof IOException) {
+                throw ServerError.status(503).context(webResource).error(
+                        String.format("Cannot connect to Clamo for url: [%s] with queryString: [%s]", fastFtContentByIdUri, queryStringValue)).exception(cause);
+            }
+            throw lastClientHandlerException;
+        }
+        return lastResponse;
+        
+    }
 
 	private boolean statusIsOk(FastFTResponse[] output) {
 		return CLAMO_OK.equals(status(output));
