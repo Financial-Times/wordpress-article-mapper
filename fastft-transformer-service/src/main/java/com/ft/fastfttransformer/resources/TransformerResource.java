@@ -60,10 +60,7 @@ public class TransformerResource {
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 	private final Brand fastFtBrand;
 	
-	private final Timer attempts;
 	private final Timer requests;
-	
-	private final Histogram attemptCounts;
 
 
 	public TransformerResource(Client client, ClamoConnection clamoConnection,
@@ -73,10 +70,7 @@ public class TransformerResource {
 		this.clamoConnection = clamoConnection;
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 		this.fastFtBrand = fastFtBrand;
-		this.attempts = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "attemptsClamo"));
         this.requests = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "requestToClamo"));
-		this.attemptCounts = appMetrics.histogram(MetricRegistry.name(TransformerResource.class, "attemptCountClamo"));
-
 	}
 
 	@GET
@@ -187,37 +181,28 @@ public class TransformerResource {
         
         ClientResponse lastResponse = null;
         ClientHandlerException lastClientHandlerException = null;
-        LOGGER.info("[REQUEST STARTED] requestUri={} queryString={}", fastFtContentByIdUri, queryStringValue);
-        Timer.Context requestsTimer = requests.time();
         
         for (int attemptsCount = 0; attemptsCount < clamoConnection.getNumberOfConnectionAttempts(); attemptsCount++) {
-            Timer.Context attemptsTimer = attempts.time();
+            LOGGER.info("[REQUEST STARTED] attempt={} requestUri={} queryString={}", attemptsCount + 1, fastFtContentByIdUri, queryStringValue);
+            Timer.Context requestsTimer = requests.time();
             long startTime = System.currentTimeMillis();
             
             ClientResponse response = null;
             
             try {
-                LOGGER.info("[ATTEMPT STARTED] requestUri={} queryString={}", fastFtContentByIdUri, queryStringValue);
                 response = webResource.queryParam("request", eq)
                         .accept("application/json").get(ClientResponse.class);
                 return response; 
             } catch (ClientHandlerException che) {
-                lastClientHandlerException = che;                
+                lastClientHandlerException = che; 
+                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount + 1, che.getMessage());
             } finally {
                 long endTime = System.currentTimeMillis();
-                attemptsTimer.stop();
                 long timeTakenMillis = (endTime - startTime);
-                LOGGER.info("[ATTEMPT FINISHED] time_ms={}", timeTakenMillis);
-                
                 requestsTimer.stop();
-                attemptCounts.update(attemptsCount);
+                LOGGER.info("[REQUEST FINISHED] attempt={} time_ms={}", attemptsCount + 1, timeTakenMillis);
+                
                 lastResponse = response;
-                try {
-                    Thread.sleep(1000); // give clamo a chance to recover
-                } catch (InterruptedException e) {
-                    // Restore the interrupted status
-                    Thread.currentThread().interrupt();
-                } 
             }
         }
         
