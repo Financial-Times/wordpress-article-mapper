@@ -178,11 +178,10 @@ public class TransformerResource {
 
         WebResource webResource = client.resource(fastFtContentByIdUri);
         
-        ClientResponse lastResponse = null;
         ClientHandlerException lastClientHandlerException = null;
         
-        for (int attemptsCount = 0; attemptsCount < clamoConnection.getNumberOfConnectionAttempts(); attemptsCount++) {
-            LOGGER.info("[REQUEST STARTED] attempt={} requestUri={} queryString={}", attemptsCount + 1, fastFtContentByIdUri, queryStringValue);
+        for (int attemptsCount = 1; attemptsCount <= clamoConnection.getNumberOfConnectionAttempts(); attemptsCount++) {
+            LOGGER.info("[REQUEST STARTED] attempt={} requestUri={} queryString={}", attemptsCount, fastFtContentByIdUri, queryStringValue);
             Timer.Context requestsTimer = requests.time();
             long startTime = System.currentTimeMillis();
             
@@ -194,26 +193,22 @@ public class TransformerResource {
                 return response; 
             } catch (ClientHandlerException che) {
                 lastClientHandlerException = che; 
-                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount + 1, che.getMessage());
+                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, che.getMessage());
             } finally {
                 long endTime = System.currentTimeMillis();
                 long timeTakenMillis = (endTime - startTime);
                 requestsTimer.stop();
-                LOGGER.info("[REQUEST FINISHED] attempt={} time_ms={}", attemptsCount + 1, timeTakenMillis);
-                
-                lastResponse = response;
+                LOGGER.info("[REQUEST FINISHED] attempt={} time_ms={}", attemptsCount, timeTakenMillis);
             }
         }
         
-        if (lastClientHandlerException != null) {
-            Throwable cause = lastClientHandlerException.getCause();
-            if(cause instanceof IOException) {
-                throw ServerError.status(503).context(webResource).error(
+        Throwable cause = lastClientHandlerException.getCause();
+        if(cause instanceof IOException) {
+            throw ServerError.status(503).context(webResource).error(
                         String.format("Cannot connect to Clamo for url: [%s] with queryString: [%s]", fastFtContentByIdUri, queryStringValue)).exception(cause);
-            }
-            throw lastClientHandlerException;
         }
-        return lastResponse;
+        throw lastClientHandlerException;
+
         
     }
 
