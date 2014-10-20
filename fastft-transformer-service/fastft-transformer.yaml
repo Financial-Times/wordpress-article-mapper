@@ -3,7 +3,8 @@ clamoConnection:
     port: 80
     path: /api/
     jerseyClient:
-        timeout: 3000ms
+        timeout: 10000ms
+    numberOfConnectionAttempts: 3
 
 clamoContentId: 22568
 

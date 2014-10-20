@@ -40,7 +40,7 @@ public class ConnectivityToClamoHealthCheckTest {
 	@Before
 	public void setup() {
 		Client client = mock(Client.class);
-		ClamoConnection clamoConnection = new ClamoConnection("localhost", "/api", 8080, mock(JerseyClientConfiguration.class));
+		ClamoConnection clamoConnection = new ClamoConnection("localhost", "/api", 8080, mock(JerseyClientConfiguration.class), 2);
 		healthCheck = new ConnectivityToClamoHealthCheck("test health check", client, SystemId.systemIdFromCode("test-fastft"), "", clamoConnection, CONTENT_ID);
 
 		WebResource webResource = mock(WebResource.class);
