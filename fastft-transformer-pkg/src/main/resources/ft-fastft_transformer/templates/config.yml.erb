@@ -1,12 +1,12 @@
 clamoConnection:
-    hostName: <%=scope.function_hiera(['clamoHostName'])%>
-    port: <%=scope.function_hiera(['clamoPort'])%>
+    hostName: <%=scope.function_hiera('clamoHostName')%>
+    port: <%=scope.function_hiera('clamoPort')%>
     path: /api/
     jerseyClient:
-        timeout: <%=scope.function_hiera(['clamoTimeout'])%>
-    numberOfConnectionAttempts: <%=scope.function_hiera(['clamoConnectionAttempts'])%>
+        timeout: <%=scope.function_hiera('clamoTimeout')%>
+    numberOfConnectionAttempts: <%=scope.function_hiera('clamoConnectionAttempts')%>
 
-clamoContentId: <%=scope.function_hiera(['clamoContentId'])%>
+clamoContentId: <%=scope.function_hiera('clamoContentId')%>
 
 fastFtBrandId: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
 
