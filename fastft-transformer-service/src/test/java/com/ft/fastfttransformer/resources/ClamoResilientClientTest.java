@@ -47,9 +47,17 @@ public class ClamoResilientClientTest {
         clamoResilientClient = new ClamoResilientClient(mockClient, appMetrics, clamoConnection);
         when(clientResponse.getHeaders()).thenReturn(new MultivaluedMapImpl());
     }
+
+    @Test
+    public void shouldReturnResponseWhenCanConnectToClamo() {
+        when(handler.handle(any(ClientRequest.class)))
+            .thenReturn(clientResponse);
+        ClientResponse response = clamoResilientClient.doRequest(234567);
+        assertThat("response", response, is(equalTo(clientResponse)));
+    }
     
     @Test
-    public void shouldThrow503ErrorWhenConsistentlyCannotConnectToClamo() {
+    public void shouldThrowExceptionWhenConsistentlyCannotConnectToClamo() {
         when(handler.handle(any(ClientRequest.class)))
             .thenThrow( new ClientHandlerException(new SocketTimeoutException()));
         expectedException.expect(WebApplicationServerException.class);
@@ -57,7 +65,7 @@ public class ClamoResilientClientTest {
     }
 
     @Test
-    public void shouldReturn200WhenCanConnectToClamoOnSubsequentAttempt() {
+    public void shouldReturnResponseWhenCanConnectToClamoOnSecondAttempt() {
         when(handler.handle(any(ClientRequest.class)))
             .thenThrow( new ClientHandlerException(new SocketTimeoutException()))
             .thenReturn(clientResponse);
