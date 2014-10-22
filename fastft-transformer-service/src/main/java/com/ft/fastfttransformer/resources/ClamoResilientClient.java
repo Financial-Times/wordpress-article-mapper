@@ -24,8 +24,11 @@ import com.sun.jersey.api.client.WebResource;
 public class ClamoResilientClient {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ClamoResilientClient.class);
+    
+    public static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"html\"},\"id\":<postId>},\"action\":\"getPost\"}]";
 
     private static final String X_VARNISH_HEADER = "X-Varnish";
+    private static final String NONE_RECEIVED = "NONE_RECEIVED";
     
     private final Client client;
     private final ClamoConnection clamoConnection;
@@ -39,13 +42,13 @@ public class ClamoResilientClient {
     }
 
     public ClientResponse doRequest(int postId) {
-        String queryStringValue = Clamo.buildPostRequest(postId);
+        String queryStringValue = buildPostRequest(postId);
 
         URI fastFtContentByIdUri = getClamoBaseUrl(postId);
         
-        String eq = null;
+        String encodedQuery = null;
         try {
-            eq = URLEncoder.encode(queryStringValue, "UTF-8");
+            encodedQuery = URLEncoder.encode(queryStringValue, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             // should never happen, UTF-8 is part of the Java spec
             throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
@@ -64,7 +67,7 @@ public class ClamoResilientClient {
             String xVarnishHeaders = "NONE RECEIVED";
             
             try {
-                response = webResource.queryParam("request", eq)
+                response = webResource.queryParam("request", encodedQuery)
                         .accept("application/json").get(ClientResponse.class);
                 xVarnishHeaders = getXVarnishHeaders(response);
                 return response; 
@@ -95,7 +98,7 @@ public class ClamoResilientClient {
         if (xVarnishHeaders != null) {
             return xVarnishHeaders.toString();
         }
-        return "";
+        return NONE_RECEIVED;
     }
 
     private URI getClamoBaseUrl(int id) {
@@ -104,6 +107,10 @@ public class ClamoResilientClient {
                 .host(clamoConnection.getHostName())
                 .port(clamoConnection.getPort())
                 .build(id);
+    }
+    
+    public static String buildPostRequest(int postId) {
+        return CLAMO_QUERY_JSON_STRING.replace("<postId>", Integer.toString(postId));
     }
 
 }
