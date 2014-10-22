@@ -9,6 +9,7 @@ import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.fastfttransformer.configuration.FastFTTransformerConfiguration;
 import com.ft.fastfttransformer.health.ConnectivityToClamoHealthCheck;
+import com.ft.fastfttransformer.resources.ClamoResilientClient;
 import com.ft.fastfttransformer.resources.TransformerResource;
 import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformerFactory;
@@ -42,9 +43,11 @@ public class FastFTTransformerApplication extends Application<FastFTTransformerC
 
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());
-        environment.jersey().register(new TransformerResource(client, configuration.getClamoConnection(),
-				getBodyProcessingFieldTransformer(), configuration.getFastFtBrand(),
-				environment.metrics()));
+		
+		ClamoResilientClient clamoResilientClient = new ClamoResilientClient(client, environment.metrics(), configuration.getClamoConnection());
+		
+        environment.jersey().register(new TransformerResource(getBodyProcessingFieldTransformer(), configuration.getFastFtBrand(),
+				clamoResilientClient));
 
 		String healthCheckName = "Connectivity to Clamo";
 		environment.healthChecks().register(healthCheckName,

@@ -13,7 +13,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
@@ -21,12 +20,10 @@ import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
-import com.ft.fastfttransformer.configuration.ClamoConnection;
 import com.ft.fastfttransformer.response.Data;
 import com.ft.fastfttransformer.response.FastFTResponse;
 import com.ft.fastfttransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +48,11 @@ public class TransformerResource {
 	
 	private ClamoResilientClient clamoResilientClient;
 
-	public TransformerResource(Client client, ClamoConnection clamoConnection,
-							   BodyProcessingFieldTransformer bodyProcessingFieldTransformer, 
-							   Brand fastFtBrand, MetricRegistry appMetrics) {
+	public TransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer, 
+							   Brand fastFtBrand, ClamoResilientClient clamoResilientClient) {
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 		this.fastFtBrand = fastFtBrand;
-        this.clamoResilientClient = new ClamoResilientClient(client, appMetrics, clamoConnection);
+        this.clamoResilientClient = clamoResilientClient;
 	}
 
 	@GET
