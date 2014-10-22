@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.List;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -22,6 +24,8 @@ import com.sun.jersey.api.client.WebResource;
 public class ClamoResilientClient {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ClamoResilientClient.class);
+
+    private static final String X_VARNISH_HEADER = "X-Varnish";
     
     private final Client client;
     private final ClamoConnection clamoConnection;
@@ -57,19 +61,21 @@ public class ClamoResilientClient {
             long startTime = System.currentTimeMillis();
             
             ClientResponse response = null;
+            String xVarnishHeaders = "NONE RECEIVED";
             
             try {
                 response = webResource.queryParam("request", eq)
                         .accept("application/json").get(ClientResponse.class);
+                xVarnishHeaders = getXVarnishHeaders(response);
                 return response; 
             } catch (ClientHandlerException che) {
                 lastClientHandlerException = che; 
-                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, che.getMessage());
+                LOGGER.warn("[REQUEST FAILED] attempt={} xVarnishHeaders={} exception={}", attemptsCount, xVarnishHeaders, che.getMessage());
             } finally {
                 long endTime = System.currentTimeMillis();
                 long timeTakenMillis = (endTime - startTime);
                 requestsTimer.stop();
-                LOGGER.info("[REQUEST FINISHED] attempt={} time_ms={}", attemptsCount, timeTakenMillis);
+                LOGGER.info("[REQUEST FINISHED] attempt={} xVarnishHeaders={} time_ms={}", attemptsCount, xVarnishHeaders, timeTakenMillis);
             }
         }
         
@@ -81,6 +87,15 @@ public class ClamoResilientClient {
         throw lastClientHandlerException;
 
         
+    }
+
+    private String getXVarnishHeaders(ClientResponse response) {
+        MultivaluedMap<String, String> headers = response.getHeaders();
+        List<String> xVarnishHeaders = headers.get(X_VARNISH_HEADER);
+        if (xVarnishHeaders != null) {
+            return xVarnishHeaders.toString();
+        }
+        return "";
     }
 
     private URI getClamoBaseUrl(int id) {

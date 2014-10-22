@@ -52,10 +52,9 @@ public class FastFTTransformerApplication extends Application<FastFTTransformerC
 		String healthCheckName = "Connectivity to Clamo";
 		environment.healthChecks().register(healthCheckName,
 				new ConnectivityToClamoHealthCheck(healthCheckName,
-						client,
+				        clamoResilientClient,
 						SystemId.systemIdFromCode("fastft-transformer"), // TODO proper name
 						"https://sites.google.com/a/ft.com/dynamic-publishing-team/", // TODO proper link
-						configuration.getClamoConnection(),
 						configuration.getClamoContentId()
 				));
 

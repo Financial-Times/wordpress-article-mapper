@@ -1,19 +1,13 @@
 package com.ft.fastfttransformer.health;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
 import java.util.Map;
-import javax.ws.rs.core.UriBuilder;
 
-import com.ft.fastfttransformer.configuration.ClamoConnection;
-import com.ft.fastfttransformer.resources.Clamo;
+import com.ft.fastfttransformer.resources.ClamoResilientClient;
 import com.ft.fastfttransformer.response.Data;
 import com.ft.fastfttransformer.response.FastFTResponse;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,38 +19,25 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
     private static final String STATUS_OK = "ok";
 
     private final String panicGuideUrl;
-	private final ClamoConnection clamoConnection;
 	private int contentId;
-	private final Client client;
+	private final ClamoResilientClient clamoResilientClient;
 	private final SystemId systemId;
 
-    public ConnectivityToClamoHealthCheck(final String healthCheckName, final Client client, SystemId systemId, String panicGuideUrl, ClamoConnection clamoConnection,
-										  int contentId) {
+    public ConnectivityToClamoHealthCheck(final String healthCheckName, final ClamoResilientClient clamoResilientClient, 
+            SystemId systemId, String panicGuideUrl, int contentId) {
         super(healthCheckName);
-		this.client = client;
+		this.clamoResilientClient = clamoResilientClient;
 		this.systemId = systemId;
 		this.panicGuideUrl = panicGuideUrl;
-		this.clamoConnection = clamoConnection;
 		this.contentId = contentId;
 	}
 
     @Override
     protected AdvancedResult checkAdvanced() throws Exception {
 
-        String eq = null;
-        try {
-            String queryStringValue = Clamo.buildPostRequest(contentId);
-            eq = URLEncoder.encode(queryStringValue, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // should never happen, UTF-8 is part of the Java spec
-            LOGGER.error(IMPOSSIBLE_MISSING_ENCODING_ERROR_MSG);
-            return AdvancedResult.error(this, IMPOSSIBLE_MISSING_ENCODING_ERROR_MSG);
-        }
-
 		ClientResponse response = null;
 		try {
-			response = client.resource(getClamoBaseUrl(contentId)).queryParam("request", eq)
-					.accept("application/json").get(ClientResponse.class);
+		    response = clamoResilientClient.doRequest(contentId);
 
 			if (response.getStatus() == 200) {
                 FastFTResponse[] output = response.getEntity(FastFTResponse[].class);
@@ -112,14 +93,6 @@ public class ConnectivityToClamoHealthCheck extends AdvancedHealthCheck {
     protected String panicGuideUrl() {
         return panicGuideUrl;
     }
-
-	private URI getClamoBaseUrl(int id) {
-		return UriBuilder.fromPath(clamoConnection.getPath())
-				.scheme("http")
-				.host(clamoConnection.getHostName())
-				.port(clamoConnection.getPort())
-				.build(id);
-	}
 
     // #boring
     private static final String IMPOSSIBLE_MISSING_ENCODING_ERROR_MSG = "JVM Capability missing: UTF-8 encoding";

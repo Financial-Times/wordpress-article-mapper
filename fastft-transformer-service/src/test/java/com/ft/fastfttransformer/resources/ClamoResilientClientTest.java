@@ -11,6 +11,8 @@ import io.dropwizard.client.JerseyClientConfiguration;
 
 import java.net.SocketTimeoutException;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +26,7 @@ import com.sun.jersey.api.client.ClientHandler;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class ClamoResilientClientTest {
     
@@ -42,6 +45,7 @@ public class ClamoResilientClientTest {
     public void setup() {
         clamoConnection = new ClamoConnection("http://localhost", "8080", 0, new JerseyClientConfiguration(), 3);
         clamoResilientClient = new ClamoResilientClient(mockClient, appMetrics, clamoConnection);
+        when(clientResponse.getHeaders()).thenReturn(new MultivaluedMapImpl());
     }
     
     @Test
