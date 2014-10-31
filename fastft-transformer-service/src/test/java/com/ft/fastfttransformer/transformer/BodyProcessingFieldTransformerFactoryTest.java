@@ -47,12 +47,12 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
         //Does include some strange extra spaces in the output file
         final String expectedTransformedBody = "<body>\n<p>In Paris in the late 1940s, a publicity-hungry gallerist invited a young, beautiful, unknown Lebanese artist to pose for a photograph " +
-                "alongside Picasso, “before death overtakes him”. Without hesitation, Saloua Raouda Choucair said, “As far as I’m concerned, he’s already dead.”</p>\n" +
+                "alongside Picasso, “before death overtakes him”. Without hesitation, Saloua Raouda Choucair said, “As far as I’m concerned, he’s already dead.”</p>" +
                 "<p>Did she protest too much? Tate’s poster image for the retrospective <em>Saloua Raouda Choucair</em> is a classic post-cubist self-portrait. " +
                 "The artist has simplified her features into a mask-like countenance; her clothes – white turban, green sweater, " +
                 "ochre jacket – are composed of angular, geometric elements; a background of interlocking jagged shapes underlines the formality of the endeavour. " +
                 "It is an engaging image, dominated by the fierce, unswerving gaze of the almond-eyes and the delicately painted turban, enclosing " +
-                "the head as if to announce self-reliance, the containment of an inner life. Daring you to want to know more, it also keeps you at a distance.</p>\n" +
+                "the head as if to announce self-reliance, the containment of an inner life. Daring you to want to know more, it also keeps you at a distance.</p>" +
                 "<p>Raouda Choucair is still unknown, and you can see why Tate Modern selected this image to advertise her first western retrospective, " +
                 "which opened this week. But it is a disingenuous choice: the painting is the sole portrait in the show, and a rare figurative work. " +
                 "The only others are nudes, made while Raouda Choucair studied with “tubist” painter Fernand Léger; they subvert his muscly female figures into awkwardly " +
@@ -123,6 +123,12 @@ public class BodyProcessingFieldTransformerFactoryTest {
     public void htmlEntityReferencesShouldBeUnescaped() {
         String expectedSentence = String.format("<body>This is a sentence%s.</body>", String.valueOf('\u20AC'));
         checkTransformation("<body>This is a sentence&euro;.</body>",expectedSentence);
+    }
+
+    @Test
+    public void removeSpacesBetweenParagraphBlocks() {
+        String expectedSentence = String.format("<body><p>Hello</p><p>Hello</p><p>Hello</p></body>");
+        checkTransformation("<body><p>Hello</p>\n<p>Hello</p>\n<p>Hello</p></body>",expectedSentence);
     }
 
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
