@@ -65,7 +65,7 @@ public class TransformerResourceTest {
 		assertThat("byline", receivedContent.getByline(), is(nullValue()));
 		assertThat("brands", receivedContent.getBrands(), hasItem(new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54")));
 		assertThat("originating identifier", receivedContent.getContentOrigin().getOriginatingIdentifier(), is(equalTo(SAMPLE_CONTENT_ID.toString())));
-		assertThat("originating system", receivedContent.getContentOrigin().getOriginatingSystem(), is(equalTo(TransformerResource.ORIGINATING_SYSTEM_FT_WORDPRESS)));
+		assertThat("originating system", receivedContent.getContentOrigin().getOriginatingSystem(), is(equalTo(TransformerResource.ORIGINATING_SYSTEM_WORDPRESS)));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo("ca93067c-6b1d-3b6f-bd54-f4cd5598961a")));
 		assertThat("published date", receivedContent.getPublishedDate(), is(new Date(1406291632000L)));
 	}

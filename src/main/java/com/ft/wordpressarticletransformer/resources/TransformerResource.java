@@ -40,7 +40,7 @@ public class TransformerResource {
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
-	public static final String ORIGINATING_SYSTEM_FT_WORDPRESS = "http://www.ft.com/ontology/origin/TODO_USE_CORRECT_VALUE";
+	public static final String ORIGINATING_SYSTEM_WORDPRESS = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-242";
 
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 	private final Brand fastFtBrand;//TODO replace with brand lookup
@@ -81,7 +81,7 @@ public class TransformerResource {
 				.withPublishedDate(datePublished.toDate())
 				.withXmlBody(tidiedUpBody(body, transactionId))
 				.withByline(wordPressResponse.getPost().getAuthor().getName())
-				.withContentOrigin(ORIGINATING_SYSTEM_FT_WORDPRESS, uuid.toString())
+				.withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, uuid.toString())
 				.withBrands(new TreeSet<>(Arrays.asList(brand)))
 				.withUuid(UUID.fromString(uuid)).build();
 
