@@ -19,7 +19,7 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 	private final JerseyClientConfiguration jerseyClientConfiguration;
 	private final int numberOfConnectionAttempts;
 
-	public WordPressArticleTransformerConfiguration(@JsonProperty("clamoConnection") List<WordPressConnection> wordPressConnections,
+	public WordPressArticleTransformerConfiguration(@JsonProperty("healthCheckWordPressConnections") List<WordPressConnection> wordPressConnections,
 													@JsonProperty("fastFtBrandId") String fastFtBrandId,
 													@JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
 													@JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts) {

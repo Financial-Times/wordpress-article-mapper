@@ -20,7 +20,6 @@ import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
-import com.ft.wordpressarticletransformer.response.Data;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
@@ -110,25 +109,26 @@ public class TransformerResource {
 
 			// Status can be "ok" or "error".
 			if (statusIsOk(output)) {
-				Data data = output[0].getData();
-				if (data == null) {
-					LOGGER.error("Data node is missing from return JSON for ID [{}]", postId);
-					return null;
-				}
-				if (data.getAdditionalProperties().size() == 0) {
-					LOGGER.error("Data node is empty in return JSON for ID [{}]", postId);
-					return null;
-				}
-				return data.getAdditionalProperties();
-			} else  if (statusIsError(output)) {
-				// Title specifies what is wrong exactly.
-				if (titleIsRecordNotFound(output)) {
-					throw ClientError.status(404).error("Not found").exception();
-				} else {
-					// It says it's an error, but from the title we do not understand this kind of error.
-					throw ServerError.status(500).error(
-							String.format("Unexpected title returned by Clamo: [%s] for ID [%d].", title(output), postId)).exception();
-				}
+//				Data data = output[0].getData();
+//				if (data == null) {
+//					LOGGER.error("Data node is missing from return JSON for ID [{}]", postId);
+//					return null;
+//				}
+//				if (data.getAdditionalProperties().size() == 0) {
+//					LOGGER.error("Data node is empty in return JSON for ID [{}]", postId);
+//					return null;
+//				}
+//				return data.getAdditionalProperties();
+//			} else  if (statusIsError(output)) {
+//				// Title specifies what is wrong exactly.
+//				if (titleIsRecordNotFound(output)) {
+//					throw ClientError.status(404).error("Not found").exception();
+//				} else {
+//					// It says it's an error, but from the title we do not understand this kind of error.
+//					throw ServerError.status(500).error(
+//							String.format("Unexpected title returned by Clamo: [%s] for ID [%d].", title(output), postId)).exception();
+//				}
+				return null;
 			} else {
 				// We do not understand this status.
 				throw ServerError.status(500).error(

@@ -1,10 +1,10 @@
-healthCheckBlogConnections:
+healthCheckWordPressConnections:
     - hostName: uat.ftalphaville.ft.com
       port: 80
-      path: /api/get_recent_posts/?count=1
+      path: /api/get_recent_posts/
     - hostName: uat.ftalphaville.ft.com
       port: 80
-      path: /api/get_recent_posts/?count=1
+      path: /api/get_recent_posts/
 
 jerseyClient:
     timeout: 3000ms
