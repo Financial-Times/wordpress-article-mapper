@@ -39,7 +39,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
     @Override
     public void run(final WordPressArticleTransformerConfiguration configuration, final Environment environment) throws Exception {
     	LOGGER.info("running with configuration: {}", configuration);
-		Client client = new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration()).build("Health check connection to Clamo");
+		Client client = new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration()).build("Health check connection to WordPress");
 
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());
@@ -50,18 +50,19 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
         environment.jersey().register(new TransformerResource(getBodyProcessingFieldTransformer(), configuration.getFastFtBrand(),
 				wordPressResilientClient));
 
-		String healthCheckName = "Connectivity to Clamo";
+		String healthCheckName = "Connectivity to WordPress";
 		environment.healthChecks().register(healthCheckName,
 				new ConnectivityToWordPressHealthCheck(healthCheckName,
 						wordPressResilientClient,
-						SystemId.systemIdFromCode("fastft-transformer"), // TODO proper name
+						SystemId.systemIdFromCode("wordpress"), // TODO proper name
 						"https://sites.google.com/a/ft.com/dynamic-publishing-team/", // TODO proper link
 						configuration.getWordPressConnections()
 				));
 
 		environment.jersey().register(new RuntimeExceptionMapper());
 
-		environment.servlets().addFilter("Transaction ID Filter", new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
+		environment.servlets().addFilter("Transaction ID Filter",
+				new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
     }
 
     private BodyProcessingFieldTransformer getBodyProcessingFieldTransformer() {

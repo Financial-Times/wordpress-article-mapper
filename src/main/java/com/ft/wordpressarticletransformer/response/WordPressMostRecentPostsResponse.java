@@ -15,27 +15,17 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
-    "data",
-    "status"
+    "status",
+    "count"
 })
 public class WordPressMostRecentPostsResponse {
 
-    @JsonProperty("data")
-    private Data data;
     @JsonProperty("status")
     private String status;
+	@JsonProperty("count")
+	private Integer count;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-    @JsonProperty("data")
-    public Data getData() {
-        return data;
-    }
-
-    @JsonProperty("data")
-    public void setData(Data data) {
-        this.data = data;
-    }
 
     @JsonProperty("status")
     public String getStatus() {
@@ -47,7 +37,17 @@ public class WordPressMostRecentPostsResponse {
         this.status = status;
     }
 
-    @Override
+	@JsonProperty("count")
+	public Integer getCount() {
+		return count;
+	}
+
+	@JsonProperty("count")
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+
+	@Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
