@@ -106,6 +106,16 @@ For details of how tags will look before and after for particular processing rul
     | weird     | <weird>text surrounded by unknown tags</weird>     |
 
 
+  Scenario Outline: Remove inline images
+    Given I have html <with inline images>
+    When I transform it
+    Then I get the html <without inline images>
+
+  Examples:
+    | with inline images                                                      | without inline images                                                    |
+    | <p>Check this chart out!</p><p><a href="http://uat.ftalphaville.ft.com/files/2014/10/Chart5.png" target="_blank"><img class="aligncenter size-full wp-image-2012992" src="http://uat.ftalphaville.ft.com/files/2014/10/Chart5-e1413767777269.png" alt="" width="300" height="660" /></a></p><p>Profit!</p> | <p>Check this chart out!</p><p>Profit!</p> |
+
+
   Scenario Outline: Fix markup problems
     Given I have html <with errors>
     When I transform it
