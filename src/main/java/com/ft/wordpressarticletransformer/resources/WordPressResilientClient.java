@@ -1,12 +1,8 @@
 package com.ft.wordpressarticletransformer.resources;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.util.List;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -25,9 +21,6 @@ public class WordPressResilientClient {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(WordPressResilientClient.class);
 
-    private static final String X_VARNISH_HEADER = "X-Varnish";
-    private static final String NONE_RECEIVED = "NONE_RECEIVED";
-    
     private final Client client;
 	private int numberOfConnectionAttempts;
 
@@ -53,20 +46,18 @@ public class WordPressResilientClient {
             long startTime = System.currentTimeMillis();
             
             ClientResponse response = null;
-            String xVarnishHeaders = "NONE RECEIVED";
             
             try {
                 response = webResource.accept("application/json").get(ClientResponse.class);
-                xVarnishHeaders = getXVarnishHeaders(response);
                 return response; 
             } catch (ClientHandlerException che) {
                 lastClientHandlerException = che; 
-                LOGGER.warn("[REQUEST FAILED] attempt={} xVarnishHeaders={} exception={}", attemptsCount, xVarnishHeaders, che.getMessage());
+                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, che.getMessage());
             } finally {
                 long endTime = System.currentTimeMillis();
                 long timeTakenMillis = (endTime - startTime);
                 requestsTimer.stop();
-                LOGGER.info("[REQUEST FINISHED] attempt={} xVarnishHeaders={} time_ms={}", attemptsCount, xVarnishHeaders, timeTakenMillis);
+                LOGGER.info("[REQUEST FINISHED] attempt={} time_ms={}", attemptsCount, timeTakenMillis);
             }
         }
         
@@ -80,14 +71,6 @@ public class WordPressResilientClient {
         
     }
 
-    private String getXVarnishHeaders(ClientResponse response) {
-        MultivaluedMap<String, String> headers = response.getHeaders();
-        List<String> xVarnishHeaders = headers.get(X_VARNISH_HEADER);
-        if (xVarnishHeaders != null) {
-            return xVarnishHeaders.toString();
-        }
-        return NONE_RECEIVED;
-    }
 
     private URI getWordPressRecentPostsUrl(WordPressConnection wordPressConnection) {
         return UriBuilder.fromPath(wordPressConnection.getPath())
@@ -98,7 +81,39 @@ public class WordPressResilientClient {
     }
 
 
-	public ClientResponse getContent(Integer postId) {
-		return null; // TODO Sarah
+	public ClientResponse getContent(URI requestUri) {
+
+	    WebResource webResource = client.resource(requestUri);
+        
+        ClientHandlerException lastClientHandlerException = null;
+        
+        for (int attemptsCount = 1; attemptsCount <= numberOfConnectionAttempts; attemptsCount++) {
+            LOGGER.info("[REQUEST STARTED] attempt={} requestUri={}", attemptsCount, requestUri);
+            Timer.Context requestsTimer = requests.time();
+            long startTime = System.currentTimeMillis();
+            
+            ClientResponse response = null;
+            
+            try {
+                response = webResource.accept("application/json").get(ClientResponse.class);
+                return response; 
+            } catch (ClientHandlerException che) {
+                lastClientHandlerException = che; 
+                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, che.getMessage());
+            } finally {
+                long endTime = System.currentTimeMillis();
+                long timeTakenMillis = (endTime - startTime);
+                requestsTimer.stop();
+                LOGGER.info("[REQUEST FINISHED] attempt={} time_ms={}", attemptsCount, timeTakenMillis);
+            }
+        }
+        
+        Throwable cause = lastClientHandlerException.getCause();
+        if(cause instanceof IOException) {
+            throw ServerError.status(503).context(webResource).error(
+                        String.format("Cannot connect to WordPress for url: [%s]", requestUri)).exception(cause);
+        }
+        throw lastClientHandlerException;
+
 	}
 }
