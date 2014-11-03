@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.UUID;
 import javax.ws.rs.GET;
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
@@ -29,7 +27,6 @@ import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
-import com.google.common.collect.Maps;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.ClientResponse;
 import org.slf4j.Logger;
@@ -42,7 +39,7 @@ public class TransformerResource {
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
-	public static final String ORIGINATING_SYSTEM_FT_CLAMO = "http://www.ft.com/ontology/origin/TODO_USE_CORRECT_VALUE";
+	public static final String ORIGINATING_SYSTEM_WORDPRESS = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-242";
 
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 	private final Brand fastFtBrand;//TODO replace with brand lookup
@@ -81,7 +78,7 @@ public class TransformerResource {
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
 				.withXmlBody(tidiedUpBody(body, transactionId))
-				.withContentOrigin(ORIGINATING_SYSTEM_FT_CLAMO, uuid.toString())
+				.withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, uuid.toString())
 				.withBrands(new TreeSet<>(Arrays.asList(brand)))
 				.withUuid(uuid).build();
 
