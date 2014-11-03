@@ -1,9 +1,5 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -13,7 +9,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -26,13 +21,10 @@ import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.wordpressarticletransformer.response.Data;
-import com.ft.wordpressarticletransformer.response.FastFTResponse;
+import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,27 +43,25 @@ public class TransformerResource {
 
 	public static final String ORIGINATING_SYSTEM_FT_CLAMO = "http://www.ft.com/ontology/origin/FT-CLAMO";
 
-	private final Client client;
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 	private final Brand fastFtBrand;
+	
+	private WordPressResilientClient wordPressResilientClient;
 
-	public TransformerResource(Client client, BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
-							   Brand fastFtBrand) {
-		this.client = client;
+	public TransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer, 
+							   Brand fastFtBrand, WordPressResilientClient wordPressResilientClient) {
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 		this.fastFtBrand = fastFtBrand;
+        this.wordPressResilientClient = wordPressResilientClient;
 	}
 
 	@GET
 	@Timed
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Content getByPostId(@PathParam("uuid") String uuid, @QueryParam("url") String url,
-									 @Context HttpHeaders httpHeaders) {
+	public final Content getByPostId(@PathParam("id") Integer postId, @Context HttpHeaders httpHeaders) {
 
-		// TODO Roddam-proof validation.
-
-		Map<String, Object> result = doRequest(url);
+		Map<String, Object> result = doRequest(postId);
 
 		if (result == null) {
 			throw new NotFoundException();
@@ -83,15 +73,13 @@ public class TransformerResource {
 		Date datePublished = new Date(1000 * Long.parseLong(result.get(
 				"datepublished").toString()));
 
-		String postId = uuid.toString();
-
 		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
         String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
 
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
 				.withXmlBody(tidiedUpBody(body, transactionId))
-				.withContentOrigin(ORIGINATING_SYSTEM_FT_CLAMO, postId)
+				.withContentOrigin(ORIGINATING_SYSTEM_FT_CLAMO, postId.toString())
 				.withBrands(new TreeSet<>(Arrays.asList(fastFtBrand)))
 				.withUuid(uuid).build();
 
@@ -110,37 +98,15 @@ public class TransformerResource {
 		return "<body>" + originalBody + "</body>";
 	}
 
-	private Map<String, Object> doRequest(String url) {
-        String eq;
-        try {
-            String queryStringValue = Clamo.buildPostRequest(postId);
-            eq = URLEncoder.encode(queryStringValue, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // should never happen, UTF-8 is part of the Java spec
-            throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
-        }
-
-		URI fastFtContentByIdUri = getClamoBaseUrl(postId);
-		WebResource webResource = client.resource(fastFtContentByIdUri);
-
-		ClientResponse response;
-		try {
-			response = webResource.queryParam("request", eq)
-					.accept("application/json").get(ClientResponse.class);
-		} catch (ClientHandlerException che) {
-			Throwable cause = che.getCause();
-			if(cause instanceof IOException) {
-				throw ServerError.status(503).context(webResource).error(
-						String.format("Cannot connect to Clamo for url: [%s]", fastFtContentByIdUri)).exception(cause);
-			}
-			throw che;
-		}
+	private Map<String, Object> doRequest(Integer postId) {
+		
+		ClientResponse response = wordPressResilientClient.getContent(postId);
 
 		int responseStatusCode = response.getStatus();
 		int responseStatusFamily = responseStatusCode / 100;
 
 		if (responseStatusFamily == 2) {
-			FastFTResponse[] output = response.getEntity(FastFTResponse[].class);
+			WordPressMostRecentPostsResponse[] output = response.getEntity(WordPressMostRecentPostsResponse[].class);
 
 			// Status can be "ok" or "error".
 			if (statusIsOk(output)) {
@@ -181,15 +147,15 @@ public class TransformerResource {
 		}
 	}
 
-	private boolean statusIsOk(FastFTResponse[] output) {
+	private boolean statusIsOk(WordPressMostRecentPostsResponse[] output) {
 		return CLAMO_OK.equals(status(output));
 	}
 
-	private boolean statusIsError(FastFTResponse[] output) {
+	private boolean statusIsError(WordPressMostRecentPostsResponse[] output) {
 		return CLAMO_ERROR.equals(status(output));
 	}
 
-	private String status(FastFTResponse[] output) {
+	private String status(WordPressMostRecentPostsResponse[] output) {
 		if (output.length > 0) {
 			return output[0].getStatus();
 		} else {
@@ -197,11 +163,11 @@ public class TransformerResource {
 		}
 	}
 
-	private boolean titleIsRecordNotFound(FastFTResponse[] output) {
+	private boolean titleIsRecordNotFound(WordPressMostRecentPostsResponse[] output) {
 		return CLAMO_RECORD_NOT_FOUND.equals(title(output));
 	}
 
-	private String title(FastFTResponse[] output) {
+	private String title(WordPressMostRecentPostsResponse[] output) {
 		if (output.length > 0 && output[0].getAdditionalProperties().get(CLAMO_FIELD_TITLE) != null) {
 			return output[0].getAdditionalProperties().get(CLAMO_FIELD_TITLE).toString();
 		} else {

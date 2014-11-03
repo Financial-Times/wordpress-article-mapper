@@ -18,7 +18,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "data",
     "status"
 })
-public class FastFTResponse {
+public class WordPressMostRecentPostsResponse {
 
     @JsonProperty("data")
     private Data data;

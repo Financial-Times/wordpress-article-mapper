@@ -9,6 +9,7 @@ import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
+import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.resources.TransformerResource;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
@@ -38,18 +39,22 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
     @Override
     public void run(final WordPressArticleTransformerConfiguration configuration, final Environment environment) throws Exception {
     	LOGGER.info("running with configuration: {}", configuration);
-		Client client = new JerseyClientBuilder(environment).using(configuration.getWordPressConnections().get(0).getJerseyClientConfiguration()).build("Health check connection to Clamo");
+		Client client = new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration()).build("Health check connection to Clamo");
 
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());
-        environment.jersey().register(new TransformerResource(client, getBodyProcessingFieldTransformer(),
-				configuration.getFastFtBrand()));
+		
+		WordPressResilientClient wordPressResilientClient = new WordPressResilientClient(client, environment.metrics(),
+				configuration.getNumberOfConnectionAttempts());
+		
+        environment.jersey().register(new TransformerResource(getBodyProcessingFieldTransformer(), configuration.getFastFtBrand(),
+				wordPressResilientClient));
 
 		String healthCheckName = "Connectivity to Clamo";
 		environment.healthChecks().register(healthCheckName,
 				new ConnectivityToWordPressHealthCheck(healthCheckName,
-						client,
-						SystemId.systemIdFromCode("wordpress"), // TODO proper name
+						wordPressResilientClient,
+						SystemId.systemIdFromCode("fastft-transformer"), // TODO proper name
 						"https://sites.google.com/a/ft.com/dynamic-publishing-team/", // TODO proper link
 						configuration.getWordPressConnections()
 				));

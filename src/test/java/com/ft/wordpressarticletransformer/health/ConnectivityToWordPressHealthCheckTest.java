@@ -4,25 +4,21 @@ import static com.ft.dropwizard.matcher.AdvancedHealthCheckResult.healthy;
 import static com.ft.dropwizard.matcher.AdvancedHealthCheckResult.unhealthy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
+import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.response.Data;
-import com.ft.wordpressarticletransformer.response.FastFTResponse;
+import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import com.ft.messaging.standards.message.v1.SystemId;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import io.dropwizard.client.JerseyClientConfiguration;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,35 +28,29 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class ConnectivityToWordPressHealthCheckTest {
 
 	private ConnectivityToWordPressHealthCheck healthCheck;
-	private ClientResponse response;
+	
+	private WordPressResilientClient wordPressResilientClient = mock(WordPressResilientClient.class);
+	private ClientResponse response = mock(ClientResponse.class);
 	private WebResource.Builder builder;
 	private static final int CONTENT_ID = 12345;
 
 
 	@Before
 	public void setup() {
-		Client client = mock(Client.class);
-		WordPressConnection wordPressConnection = new WordPressConnection("localhost", "/api", 8080, mock(JerseyClientConfiguration.class));
-		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", client, SystemId.systemIdFromCode("test-fastft"), "", wordPressConnection, CONTENT_ID);
-
-		WebResource webResource = mock(WebResource.class);
-		response = mock(ClientResponse.class);
-		when(client.resource(any(URI.class))).thenReturn(webResource);
-		when(webResource.queryParam(anyString(), anyString())).thenReturn(webResource);
-		builder = mock(WebResource.Builder.class);
-		when(webResource.accept(anyString())).thenReturn(builder);
-		when(builder.get(ClientResponse.class)).thenReturn(response);
+		when(wordPressResilientClient.getContent(CONTENT_ID)).thenReturn(response);
+		List<WordPressConnection> list = null;
+		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", wordPressResilientClient, SystemId.systemIdFromCode("test-fastft"), "", list);
 	}
 
 	@Test
 	public void shouldReturnHealthyWhenClamoStatus200() throws Exception {
 		when(response.getStatus()).thenReturn(200);
-        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
-        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
-        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
+        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
+        WordPressMostRecentPostsResponse[] wordPressMostRecentPostsResponses = new WordPressMostRecentPostsResponse[]{wordPressMostRecentPostsResponse};
+        when(response.getEntity(WordPressMostRecentPostsResponse[].class)).thenReturn(wordPressMostRecentPostsResponses);
         Data data = mock(Data.class);
-        when(fastFTResponse.getData()).thenReturn(data);
-        when(fastFTResponse.getStatus()).thenReturn("ok");
+        when(wordPressMostRecentPostsResponse.getData()).thenReturn(data);
+        when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("ok");
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("id", CONTENT_ID);
         when(data.getAdditionalProperties()).thenReturn(dataMap);
@@ -71,12 +61,12 @@ public class ConnectivityToWordPressHealthCheckTest {
     @Test
     public void shouldReturnUnhealthyWhenClamoStatus200ButIdNotFound() throws Exception {
         when(response.getStatus()).thenReturn(200);
-        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
-        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
-        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
+        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
+        WordPressMostRecentPostsResponse[] wordPressMostRecentPostsResponses = new WordPressMostRecentPostsResponse[]{wordPressMostRecentPostsResponse};
+        when(response.getEntity(WordPressMostRecentPostsResponse[].class)).thenReturn(wordPressMostRecentPostsResponses);
         Data data = mock(Data.class);
-        when(fastFTResponse.getData()).thenReturn(data);
-        when(fastFTResponse.getStatus()).thenReturn("ok");
+        when(wordPressMostRecentPostsResponse.getData()).thenReturn(data);
+        when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("ok");
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("id", "54321");
         when(data.getAdditionalProperties()).thenReturn(dataMap);
@@ -104,17 +94,17 @@ public class ConnectivityToWordPressHealthCheckTest {
 
 	@Test
 	public void shouldReturnUnhealthyWhenClamoTimesOut() throws Exception {
-		when(builder.get(ClientResponse.class)).thenThrow(new ClientHandlerException(new ConnectTimeoutException("timed out")));
-		assertThat(healthCheck.checkAdvanced(), is(unhealthy("timed out")));
+	    when(wordPressResilientClient.getContent(CONTENT_ID)).thenThrow(ServerError.status(503).error("timed out").exception());
+		assertThat(healthCheck.checkAdvanced(), is(unhealthy("com.ft.api.jaxrs.errors.WebApplicationServerException")));
 	}
 
 	@Test
 	public void shouldReturnUnhealthyWhenClamoStatusFieldNotOk() throws Exception {
 		when(response.getStatus()).thenReturn(200);
-        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
-        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
-        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
-        when(fastFTResponse.getStatus()).thenReturn("error");
+        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
+        WordPressMostRecentPostsResponse[] wordPressMostRecentPostsResponses = new WordPressMostRecentPostsResponse[]{wordPressMostRecentPostsResponse};
+        when(response.getEntity(WordPressMostRecentPostsResponse[].class)).thenReturn(wordPressMostRecentPostsResponses);
+        when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("error");
 		assertThat(healthCheck.checkAdvanced(), is(unhealthy("status field in response not \"ok\"")));
 	}
 
