@@ -1,0 +1,16 @@
+{
+	"request" : {
+		"urlPattern" : "/api/.*186678.*",
+		"method" : "GET"
+	},
+	"response" : {
+		"status" : 200,
+		"bodyFileName" : "body-api-186678.json",
+		"headers" : {
+			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
+			"Content-Type" : "application/json",
+			"Vary" : "Accept-Encoding, User-Agent",
+			"Transfer-Encoding" : "chunked"
+		}
+	}
+}

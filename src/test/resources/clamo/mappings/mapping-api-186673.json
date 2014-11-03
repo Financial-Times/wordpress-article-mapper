@@ -1,0 +1,15 @@
+{
+	"request" : {
+		"urlPattern" : "/api/.*186673.*",
+		"method" : "GET"
+	},
+	"response" : {
+		"status" : 404,
+		"headers" : {
+			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
+			"Content-Type" : "application/json",
+			"Vary" : "Accept-Encoding, User-Agent",
+			"Transfer-Encoding" : "chunked"
+		}
+	}
+}
