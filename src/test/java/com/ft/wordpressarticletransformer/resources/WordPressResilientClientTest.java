@@ -7,9 +7,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import io.dropwizard.client.JerseyClientConfiguration;
-
 import java.net.SocketTimeoutException;
+import java.net.URI;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,8 +30,9 @@ public class WordPressResilientClientTest {
     private ClientHandler handler = mock(ClientHandler.class);
     private Client mockClient = new Client(handler);
     private ClientResponse clientResponse = mock(ClientResponse.class);
-    private WordPressConnection wordPressConnection;
     private MetricRegistry appMetrics = new MetricRegistry();
+    
+    private URI requestUri = URI.create("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/?json=1");
 
     private WordPressResilientClient wordPressResilientClient;
     
@@ -41,7 +41,6 @@ public class WordPressResilientClientTest {
     
     @Before
     public void setup() {
-        wordPressConnection = new WordPressConnection("http://localhost", "api", 8080);
         wordPressResilientClient = new WordPressResilientClient(mockClient, appMetrics, 3);
         when(clientResponse.getHeaders()).thenReturn(new MultivaluedMapImpl());
     }
@@ -50,7 +49,7 @@ public class WordPressResilientClientTest {
     public void shouldReturnResponseWhenCanConnectToClamo() {
         when(handler.handle(any(ClientRequest.class)))
             .thenReturn(clientResponse);
-        ClientResponse response = wordPressResilientClient.getContent(234567);
+        ClientResponse response = wordPressResilientClient.getContent(requestUri);
         assertThat("response", response, is(equalTo(clientResponse)));
     }
     
@@ -59,7 +58,7 @@ public class WordPressResilientClientTest {
         when(handler.handle(any(ClientRequest.class)))
             .thenThrow( new ClientHandlerException(new SocketTimeoutException()));
         expectedException.expect(WebApplicationServerException.class);
-        wordPressResilientClient.getContent(234567);
+        wordPressResilientClient.getContent(requestUri);
     }
 
     @Test
@@ -67,7 +66,7 @@ public class WordPressResilientClientTest {
         when(handler.handle(any(ClientRequest.class)))
             .thenThrow( new ClientHandlerException(new SocketTimeoutException()))
             .thenReturn(clientResponse);
-        ClientResponse response = wordPressResilientClient.getContent(234567);
+        ClientResponse response = wordPressResilientClient.getContent(requestUri);
         assertThat("response", response, is(equalTo(clientResponse)));
     }
 }

@@ -1,5 +1,7 @@
 package com.ft.wordpressarticletransformer.resources;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -9,19 +11,25 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
-import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
+import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
+import com.google.common.collect.Maps;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.ClientResponse;
 import org.slf4j.Logger;
@@ -34,16 +42,10 @@ public class TransformerResource {
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
-	private static final String CLAMO_OK = "ok";
-	private static final String CLAMO_ERROR = "error";
-	private static final String CLAMO_FIELD_TITLE = "title";
-
-	private static final String CLAMO_RECORD_NOT_FOUND = "Record not found";
-
-	public static final String ORIGINATING_SYSTEM_FT_CLAMO = "http://www.ft.com/ontology/origin/FT-CLAMO";
+	public static final String ORIGINATING_SYSTEM_FT_CLAMO = "http://www.ft.com/ontology/origin/TODO_USE_CORRECT_VALUE";
 
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
-	private final Brand fastFtBrand;
+	private final Brand fastFtBrand;//TODO replace with brand lookup
 	
 	private WordPressResilientClient wordPressResilientClient;
 
@@ -56,35 +58,40 @@ public class TransformerResource {
 
 	@GET
 	@Timed
-	@Path("/{id}")
+	@Path("/{uuid}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Content getByPostId(@PathParam("id") Integer postId, @Context HttpHeaders httpHeaders) {
+	public final Content getByPostId(@PathParam("uuid") UUID uuid, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
 
-		Map<String, Object> result = doRequest(postId);
+	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
+	    
+	    WordPressResponse wordPressResponse = doRequest(requestUri);
 
-		if (result == null) {
+		if (wordPressResponse == null) {
 			throw new NotFoundException();
 		}
 
-		String title = result.get(CLAMO_FIELD_TITLE).toString();
-		String body = transformBody(result.get("content").toString());
-		UUID uuid = UUID.fromString(result.get("uuidv3").toString());
-		Date datePublished = new Date(1000 * Long.parseLong(result.get(
-				"datepublished").toString()));
+		String title = "title";
+		String body = transformBody("<p>Hard coded body</p>");
+		Date datePublished = new Date();
 
-		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
-        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
+		LOGGER.info("Returning content for uuid [{}].", uuid);
+		
+		Brand brand = getBrand(requestUri);        
 
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
 				.withXmlBody(tidiedUpBody(body, transactionId))
-				.withContentOrigin(ORIGINATING_SYSTEM_FT_CLAMO, postId.toString())
-				.withBrands(new TreeSet<>(Arrays.asList(fastFtBrand)))
+				.withContentOrigin(ORIGINATING_SYSTEM_FT_CLAMO, uuid.toString())
+				.withBrands(new TreeSet<>(Arrays.asList(brand)))
 				.withUuid(uuid).build();
 
 	}
 
-	private String tidiedUpBody(String body, String transactionId) {
+	private Brand getBrand(URI requestUri) {
+	    return new Brand("http://replace_with_actual_brand");
+    }
+
+    private String tidiedUpBody(String body, String transactionId) {
         try {
 		    return bodyProcessingFieldTransformer.transform(body, transactionId);
         } catch (BodyProcessingException bpe) {
@@ -97,82 +104,44 @@ public class TransformerResource {
 		return "<body>" + originalBody + "</body>";
 	}
 
-	private Map<String, Object> doRequest(Integer postId) {
+	private WordPressResponse doRequest(URI requestUri) {
 		
-		ClientResponse response = wordPressResilientClient.getContent(postId);
+		ClientResponse response = wordPressResilientClient.getContent(requestUri);
 
 		int responseStatusCode = response.getStatus();
 		int responseStatusFamily = responseStatusCode / 100;
 
 		if (responseStatusFamily == 2) {
-			WordPressMostRecentPostsResponse[] output = response.getEntity(WordPressMostRecentPostsResponse[].class);
+		    return getJsonFields(response);
 
-			// Status can be "ok" or "error".
-			if (statusIsOk(output)) {
-//				Data data = output[0].getData();
-//				if (data == null) {
-//					LOGGER.error("Data node is missing from return JSON for ID [{}]", postId);
-//					return null;
-//				}
-//				if (data.getAdditionalProperties().size() == 0) {
-//					LOGGER.error("Data node is empty in return JSON for ID [{}]", postId);
-//					return null;
-//				}
-//				return data.getAdditionalProperties();
-//			} else  if (statusIsError(output)) {
-//				// Title specifies what is wrong exactly.
-//				if (titleIsRecordNotFound(output)) {
-//					throw ClientError.status(404).error("Not found").exception();
-//				} else {
-//					// It says it's an error, but from the title we do not understand this kind of error.
-//					throw ServerError.status(500).error(
-//							String.format("Unexpected title returned by Clamo: [%s] for ID [%d].", title(output), postId)).exception();
-//				}
-				return null;
-			} else {
-				// We do not understand this status.
-				throw ServerError.status(500).error(
-						String.format("Unexpected status (status field; not HTTP status) returned by Clamo, status [%s], title [%s], output.length [%d] for ID [%d].",
-								status(output), title(output), output.length, postId)
-				).exception();
-			}
-
-		} else if (responseStatusFamily == 4) {
-			// We do not expect this behaviour, we always expect a 200, and an 'error' status with more info in the title.
-			// If 404 is returned, then either the behaviour of Clamo has changed, or it isn't deployed correctly.
-			throw ServerError.status(503).error(
-					String.format("Unexpected HTTP status returned by Clamo: [%d] for ID [%d].", responseStatusCode, postId)).exception();
-		} else {
+		} else { //TODO - handle 404 etc
 			throw ServerError.status(responseStatusCode).exception();
 		}
 	}
 
-	private boolean statusIsOk(WordPressMostRecentPostsResponse[] output) {
-		return CLAMO_OK.equals(status(output));
-	}
+    private WordPressResponse getJsonFields(ClientResponse response) {   
+        String rawOutput = response.getEntity(String.class);
+        
+        String json = rawOutput.substring(rawOutput.indexOf("{"));
+        
+        final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+        WordPressResponse wordPressResponse = null;
+        
+        try {
+            wordPressResponse = objectMapper.readValue(json, WordPressResponse.class);
+        } catch (JsonParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	private boolean statusIsError(WordPressMostRecentPostsResponse[] output) {
-		return CLAMO_ERROR.equals(status(output));
-	}
+        return wordPressResponse;
+    }
 
-	private String status(WordPressMostRecentPostsResponse[] output) {
-		if (output.length > 0) {
-			return output[0].getStatus();
-		} else {
-			return null;
-		}
-	}
-
-	private boolean titleIsRecordNotFound(WordPressMostRecentPostsResponse[] output) {
-		return CLAMO_RECORD_NOT_FOUND.equals(title(output));
-	}
-
-	private String title(WordPressMostRecentPostsResponse[] output) {
-		if (output.length > 0 && output[0].getAdditionalProperties().get(CLAMO_FIELD_TITLE) != null) {
-			return output[0].getAdditionalProperties().get(CLAMO_FIELD_TITLE).toString();
-		} else {
-			return null;
-		}
-	}
 
 }

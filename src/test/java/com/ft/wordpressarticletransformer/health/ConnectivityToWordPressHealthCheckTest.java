@@ -31,12 +31,10 @@ public class ConnectivityToWordPressHealthCheckTest {
 	private WordPressResilientClient wordPressResilientClient = mock(WordPressResilientClient.class);
 	private ClientResponse response = mock(ClientResponse.class);
 	private WebResource.Builder builder;
-	private static final int CONTENT_ID = 12345;
 
 
 	@Before
 	public void setup() {
-		when(wordPressResilientClient.getContent(CONTENT_ID)).thenReturn(response);
 		List<WordPressConnection> list = null;
 		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", wordPressResilientClient, SystemId.systemIdFromCode("test-fastft"), "", list);
 	}
