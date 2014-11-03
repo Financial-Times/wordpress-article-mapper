@@ -21,7 +21,7 @@ import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.wordpressarticletransformer.response.Data;
-import com.ft.wordpressarticletransformer.response.FastFTResponse;
+import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.ClientResponse;
@@ -46,13 +46,13 @@ public class TransformerResource {
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 	private final Brand fastFtBrand;
 	
-	private ClamoResilientClient clamoResilientClient;
+	private WordPressResilientClient wordPressResilientClient;
 
 	public TransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer, 
-							   Brand fastFtBrand, ClamoResilientClient clamoResilientClient) {
+							   Brand fastFtBrand, WordPressResilientClient wordPressResilientClient) {
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 		this.fastFtBrand = fastFtBrand;
-        this.clamoResilientClient = clamoResilientClient;
+        this.wordPressResilientClient = wordPressResilientClient;
 	}
 
 	@GET
@@ -100,13 +100,13 @@ public class TransformerResource {
 
 	private Map<String, Object> doRequest(Integer postId) {
 		
-		ClientResponse response = clamoResilientClient.doRequest(postId);
+		ClientResponse response = wordPressResilientClient.getContent(postId);
 
 		int responseStatusCode = response.getStatus();
 		int responseStatusFamily = responseStatusCode / 100;
 
 		if (responseStatusFamily == 2) {
-			FastFTResponse[] output = response.getEntity(FastFTResponse[].class);
+			WordPressMostRecentPostsResponse[] output = response.getEntity(WordPressMostRecentPostsResponse[].class);
 
 			// Status can be "ok" or "error".
 			if (statusIsOk(output)) {
@@ -147,15 +147,15 @@ public class TransformerResource {
 		}
 	}
 
-	private boolean statusIsOk(FastFTResponse[] output) {
+	private boolean statusIsOk(WordPressMostRecentPostsResponse[] output) {
 		return CLAMO_OK.equals(status(output));
 	}
 
-	private boolean statusIsError(FastFTResponse[] output) {
+	private boolean statusIsError(WordPressMostRecentPostsResponse[] output) {
 		return CLAMO_ERROR.equals(status(output));
 	}
 
-	private String status(FastFTResponse[] output) {
+	private String status(WordPressMostRecentPostsResponse[] output) {
 		if (output.length > 0) {
 			return output[0].getStatus();
 		} else {
@@ -163,11 +163,11 @@ public class TransformerResource {
 		}
 	}
 
-	private boolean titleIsRecordNotFound(FastFTResponse[] output) {
+	private boolean titleIsRecordNotFound(WordPressMostRecentPostsResponse[] output) {
 		return CLAMO_RECORD_NOT_FOUND.equals(title(output));
 	}
 
-	private String title(FastFTResponse[] output) {
+	private String title(WordPressMostRecentPostsResponse[] output) {
 		if (output.length > 0 && output[0].getAdditionalProperties().get(CLAMO_FIELD_TITLE) != null) {
 			return output[0].getAdditionalProperties().get(CLAMO_FIELD_TITLE).toString();
 		} else {

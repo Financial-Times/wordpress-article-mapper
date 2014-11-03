@@ -8,32 +8,32 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import io.dropwizard.client.JerseyClientConfiguration;
+
+import java.util.List;
 
 public class WordPressArticleTransformerConfiguration extends Configuration {
 
-	private final ClamoConnection clamoConnection;
-	private final int clamoContentId;
+	private final List<WordPressConnection> wordPressConnections;
 	private final Brand fastFtBrand;
+	private final JerseyClientConfiguration jerseyClientConfiguration;
+	private final int numberOfConnectionAttempts;
 
-	public WordPressArticleTransformerConfiguration(@JsonProperty("clamoConnection") ClamoConnection clamoConnection,
-													@JsonProperty("clamoContentId") int clamoContentId,
-													@JsonProperty("fastFtBrandId") String fastFtBrandId) {
+	public WordPressArticleTransformerConfiguration(@JsonProperty("clamoConnection") List<WordPressConnection> wordPressConnections,
+													@JsonProperty("fastFtBrandId") String fastFtBrandId,
+													@JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
+													@JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts) {
 		super();
-		this.clamoConnection = clamoConnection;
-		this.clamoContentId = clamoContentId;
+		this.wordPressConnections = wordPressConnections;
 		this.fastFtBrand = new Brand(fastFtBrandId);
+		this.jerseyClientConfiguration = jerseyClientConfiguration;
+		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
 	}
 
 	@Valid
 	@NotNull
-	public ClamoConnection getClamoConnection() {
-		return clamoConnection;
-	}
-
-	@Valid
-	@NotNull
-	public int getClamoContentId() {
-		return clamoContentId;
+	public List<WordPressConnection> getWordPressConnections() {
+		return wordPressConnections;
 	}
 
 	@Valid
@@ -42,12 +42,23 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 		return fastFtBrand;
 	}
 
+	@NotNull
+	public JerseyClientConfiguration getJerseyClientConfiguration() {
+		return jerseyClientConfiguration;
+	}
+
+	@NotNull
+	public int getNumberOfConnectionAttempts() {
+		return numberOfConnectionAttempts;
+	}
+
     protected Objects.ToStringHelper toStringHelper() {
         return Objects.toStringHelper(this)
                 .add("super", super.toString())
-                .add("clamoConnection", clamoConnection)
-				.add("clamoContentId", clamoContentId)
-				.add("fastFtBrand", fastFtBrand);
+                .add("wordPressConnections", wordPressConnections)
+				.add("fastFtBrand", fastFtBrand)
+				.add("jerseyClient", jerseyClientConfiguration)
+				.add("numberOfConnectionAttempts", numberOfConnectionAttempts);
     }
     
     @Override

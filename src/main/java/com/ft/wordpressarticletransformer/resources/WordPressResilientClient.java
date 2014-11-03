@@ -15,51 +15,40 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.ft.api.jaxrs.errors.ServerError;
-import com.ft.wordpressarticletransformer.configuration.ClamoConnection;
+import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-public class ClamoResilientClient {
+public class WordPressResilientClient {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClamoResilientClient.class);
-    
-    public static final String CLAMO_QUERY_JSON_STRING = "[{\"arguments\":{\"outputfields\":{\"title\":true,\"content\":\"html\"},\"id\":<postId>},\"action\":\"getPost\"}]";
+    private static final Logger LOGGER = LoggerFactory.getLogger(WordPressResilientClient.class);
 
     private static final String X_VARNISH_HEADER = "X-Varnish";
     private static final String NONE_RECEIVED = "NONE_RECEIVED";
     
     private final Client client;
-    private final ClamoConnection clamoConnection;
+	private int numberOfConnectionAttempts;
 
-    private final Timer requests;
+	private final Timer requests;
 
-    public ClamoResilientClient(Client client, MetricRegistry appMetrics, ClamoConnection clamoConnection) {
+    public WordPressResilientClient(Client client, MetricRegistry appMetrics, int numberOfConnectionAttempts) {
         this.client = client;
-        this.clamoConnection = clamoConnection;
-        this.requests = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "requestToClamo"));
+		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
+		this.requests = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "requestToClamo"));
     }
 
-    public ClientResponse doRequest(int postId) {
-        String queryStringValue = buildPostRequest(postId);
+    public ClientResponse getRecentPosts(WordPressConnection wordPressConnection) {
 
-        URI fastFtContentByIdUri = getClamoBaseUrl(postId);
-        
-        String encodedQuery = null;
-        try {
-            encodedQuery = URLEncoder.encode(queryStringValue, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // should never happen, UTF-8 is part of the Java spec
-            throw ServerError.status(503).error("JVM Capability missing: UTF-8 encoding").exception();
-        }
+        URI fastFtContentByIdUri = getWordPressRecentPostsUrl(wordPressConnection);
 
         WebResource webResource = client.resource(fastFtContentByIdUri);
         
         ClientHandlerException lastClientHandlerException = null;
         
-        for (int attemptsCount = 1; attemptsCount <= clamoConnection.getNumberOfConnectionAttempts(); attemptsCount++) {
-            LOGGER.info("[REQUEST STARTED] attempt={} requestUri={} queryString={}", attemptsCount, fastFtContentByIdUri, queryStringValue);
+        for (int attemptsCount = 1; attemptsCount <= numberOfConnectionAttempts; attemptsCount++) {
+            LOGGER.info("[REQUEST STARTED] attempt={} requestUri={}", attemptsCount, fastFtContentByIdUri);
             Timer.Context requestsTimer = requests.time();
             long startTime = System.currentTimeMillis();
             
@@ -67,8 +56,7 @@ public class ClamoResilientClient {
             String xVarnishHeaders = "NONE RECEIVED";
             
             try {
-                response = webResource.queryParam("request", encodedQuery)
-                        .accept("application/json").get(ClientResponse.class);
+                response = webResource.accept("application/json").get(ClientResponse.class);
                 xVarnishHeaders = getXVarnishHeaders(response);
                 return response; 
             } catch (ClientHandlerException che) {
@@ -85,7 +73,7 @@ public class ClamoResilientClient {
         Throwable cause = lastClientHandlerException.getCause();
         if(cause instanceof IOException) {
             throw ServerError.status(503).context(webResource).error(
-                        String.format("Cannot connect to Clamo for url: [%s] with queryString: [%s]", fastFtContentByIdUri, queryStringValue)).exception(cause);
+                        String.format("Cannot connect to Clamo for url: [%s]", fastFtContentByIdUri)).exception(cause);
         }
         throw lastClientHandlerException;
 
@@ -101,16 +89,16 @@ public class ClamoResilientClient {
         return NONE_RECEIVED;
     }
 
-    private URI getClamoBaseUrl(int id) {
-        return UriBuilder.fromPath(clamoConnection.getPath())
+    private URI getWordPressRecentPostsUrl(WordPressConnection wordPressConnection) {
+        return UriBuilder.fromPath(wordPressConnection.getPath())
                 .scheme("http")
-                .host(clamoConnection.getHostName())
-                .port(clamoConnection.getPort())
-                .build(id);
-    }
-    
-    public static String buildPostRequest(int postId) {
-        return CLAMO_QUERY_JSON_STRING.replace("<postId>", Integer.toString(postId));
+                .host(wordPressConnection.getHostName())
+                .port(wordPressConnection.getPort())
+                .queryParam("count", 1).build();
     }
 
+
+	public ClientResponse getContent(Integer postId) {
+		return null; // TODO Sarah
+	}
 }

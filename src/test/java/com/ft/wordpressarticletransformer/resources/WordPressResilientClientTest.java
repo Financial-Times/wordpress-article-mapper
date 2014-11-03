@@ -18,7 +18,7 @@ import org.junit.rules.ExpectedException;
 
 import com.codahale.metrics.MetricRegistry;
 import com.ft.api.jaxrs.errors.WebApplicationServerException;
-import com.ft.wordpressarticletransformer.configuration.ClamoConnection;
+import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandler;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -26,23 +26,23 @@ import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-public class ClamoResilientClientTest {
+public class WordPressResilientClientTest {
     
     private ClientHandler handler = mock(ClientHandler.class);
     private Client mockClient = new Client(handler);
     private ClientResponse clientResponse = mock(ClientResponse.class);
-    private ClamoConnection clamoConnection;
+    private WordPressConnection wordPressConnection;
     private MetricRegistry appMetrics = new MetricRegistry();
 
-    private ClamoResilientClient clamoResilientClient;
+    private WordPressResilientClient wordPressResilientClient;
     
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     
     @Before
     public void setup() {
-        clamoConnection = new ClamoConnection("http://localhost", "8080", 0, new JerseyClientConfiguration(), 3);
-        clamoResilientClient = new ClamoResilientClient(mockClient, appMetrics, clamoConnection);
+        wordPressConnection = new WordPressConnection("http://localhost", "api", 8080);
+        wordPressResilientClient = new WordPressResilientClient(mockClient, appMetrics, 3);
         when(clientResponse.getHeaders()).thenReturn(new MultivaluedMapImpl());
     }
 
@@ -50,7 +50,7 @@ public class ClamoResilientClientTest {
     public void shouldReturnResponseWhenCanConnectToClamo() {
         when(handler.handle(any(ClientRequest.class)))
             .thenReturn(clientResponse);
-        ClientResponse response = clamoResilientClient.doRequest(234567);
+        ClientResponse response = wordPressResilientClient.getContent(234567);
         assertThat("response", response, is(equalTo(clientResponse)));
     }
     
@@ -59,7 +59,7 @@ public class ClamoResilientClientTest {
         when(handler.handle(any(ClientRequest.class)))
             .thenThrow( new ClientHandlerException(new SocketTimeoutException()));
         expectedException.expect(WebApplicationServerException.class);
-        clamoResilientClient.doRequest(234567);
+        wordPressResilientClient.getContent(234567);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class ClamoResilientClientTest {
         when(handler.handle(any(ClientRequest.class)))
             .thenThrow( new ClientHandlerException(new SocketTimeoutException()))
             .thenReturn(clientResponse);
-        ClientResponse response = clamoResilientClient.doRequest(234567);
+        ClientResponse response = wordPressResilientClient.getContent(234567);
         assertThat("response", response, is(equalTo(clientResponse)));
     }
 }

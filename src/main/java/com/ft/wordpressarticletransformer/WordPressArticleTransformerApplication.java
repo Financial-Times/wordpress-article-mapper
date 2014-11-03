@@ -8,8 +8,8 @@ import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
-import com.ft.wordpressarticletransformer.health.ConnectivityToClamoHealthCheck;
-import com.ft.wordpressarticletransformer.resources.ClamoResilientClient;
+import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
+import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.resources.TransformerResource;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
@@ -39,23 +39,24 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
     @Override
     public void run(final WordPressArticleTransformerConfiguration configuration, final Environment environment) throws Exception {
     	LOGGER.info("running with configuration: {}", configuration);
-		Client client = new JerseyClientBuilder(environment).using(configuration.getClamoConnection().getJerseyClientConfiguration()).build("Health check connection to Clamo");
+		Client client = new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration()).build("Health check connection to Clamo");
 
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());
 		
-		ClamoResilientClient clamoResilientClient = new ClamoResilientClient(client, environment.metrics(), configuration.getClamoConnection());
+		WordPressResilientClient wordPressResilientClient = new WordPressResilientClient(client, environment.metrics(),
+				configuration.getNumberOfConnectionAttempts());
 		
         environment.jersey().register(new TransformerResource(getBodyProcessingFieldTransformer(), configuration.getFastFtBrand(),
-				clamoResilientClient));
+				wordPressResilientClient));
 
 		String healthCheckName = "Connectivity to Clamo";
 		environment.healthChecks().register(healthCheckName,
-				new ConnectivityToClamoHealthCheck(healthCheckName,
-				        clamoResilientClient,
+				new ConnectivityToWordPressHealthCheck(healthCheckName,
+						wordPressResilientClient,
 						SystemId.systemIdFromCode("fastft-transformer"), // TODO proper name
 						"https://sites.google.com/a/ft.com/dynamic-publishing-team/", // TODO proper link
-						configuration.getClamoContentId()
+						configuration.getWordPressConnections()
 				));
 
 		environment.jersey().register(new RuntimeExceptionMapper());

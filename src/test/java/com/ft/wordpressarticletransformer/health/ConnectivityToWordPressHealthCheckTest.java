@@ -8,12 +8,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ft.api.jaxrs.errors.ServerError;
-import com.ft.wordpressarticletransformer.resources.ClamoResilientClient;
+import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
+import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.response.Data;
-import com.ft.wordpressarticletransformer.response.FastFTResponse;
+import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -23,11 +25,11 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectivityToClamoHealthCheckTest {
+public class ConnectivityToWordPressHealthCheckTest {
 
-	private ConnectivityToClamoHealthCheck healthCheck;
+	private ConnectivityToWordPressHealthCheck healthCheck;
 	
-	private ClamoResilientClient clamoResilientClient = mock(ClamoResilientClient.class);
+	private WordPressResilientClient wordPressResilientClient = mock(WordPressResilientClient.class);
 	private ClientResponse response = mock(ClientResponse.class);
 	private WebResource.Builder builder;
 	private static final int CONTENT_ID = 12345;
@@ -35,19 +37,20 @@ public class ConnectivityToClamoHealthCheckTest {
 
 	@Before
 	public void setup() {
-		when(clamoResilientClient.doRequest(CONTENT_ID)).thenReturn(response);
-		healthCheck = new ConnectivityToClamoHealthCheck("test health check", clamoResilientClient, SystemId.systemIdFromCode("test-fastft"), "", CONTENT_ID);
+		when(wordPressResilientClient.getContent(CONTENT_ID)).thenReturn(response);
+		List<WordPressConnection> list = null;
+		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", wordPressResilientClient, SystemId.systemIdFromCode("test-fastft"), "", list);
 	}
 
 	@Test
 	public void shouldReturnHealthyWhenClamoStatus200() throws Exception {
 		when(response.getStatus()).thenReturn(200);
-        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
-        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
-        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
+        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
+        WordPressMostRecentPostsResponse[] wordPressMostRecentPostsResponses = new WordPressMostRecentPostsResponse[]{wordPressMostRecentPostsResponse};
+        when(response.getEntity(WordPressMostRecentPostsResponse[].class)).thenReturn(wordPressMostRecentPostsResponses);
         Data data = mock(Data.class);
-        when(fastFTResponse.getData()).thenReturn(data);
-        when(fastFTResponse.getStatus()).thenReturn("ok");
+        when(wordPressMostRecentPostsResponse.getData()).thenReturn(data);
+        when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("ok");
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("id", CONTENT_ID);
         when(data.getAdditionalProperties()).thenReturn(dataMap);
@@ -58,12 +61,12 @@ public class ConnectivityToClamoHealthCheckTest {
     @Test
     public void shouldReturnUnhealthyWhenClamoStatus200ButIdNotFound() throws Exception {
         when(response.getStatus()).thenReturn(200);
-        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
-        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
-        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
+        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
+        WordPressMostRecentPostsResponse[] wordPressMostRecentPostsResponses = new WordPressMostRecentPostsResponse[]{wordPressMostRecentPostsResponse};
+        when(response.getEntity(WordPressMostRecentPostsResponse[].class)).thenReturn(wordPressMostRecentPostsResponses);
         Data data = mock(Data.class);
-        when(fastFTResponse.getData()).thenReturn(data);
-        when(fastFTResponse.getStatus()).thenReturn("ok");
+        when(wordPressMostRecentPostsResponse.getData()).thenReturn(data);
+        when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("ok");
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("id", "54321");
         when(data.getAdditionalProperties()).thenReturn(dataMap);
@@ -91,17 +94,17 @@ public class ConnectivityToClamoHealthCheckTest {
 
 	@Test
 	public void shouldReturnUnhealthyWhenClamoTimesOut() throws Exception {
-	    when(clamoResilientClient.doRequest(CONTENT_ID)).thenThrow(ServerError.status(503).error("timed out").exception());
+	    when(wordPressResilientClient.getContent(CONTENT_ID)).thenThrow(ServerError.status(503).error("timed out").exception());
 		assertThat(healthCheck.checkAdvanced(), is(unhealthy("com.ft.api.jaxrs.errors.WebApplicationServerException")));
 	}
 
 	@Test
 	public void shouldReturnUnhealthyWhenClamoStatusFieldNotOk() throws Exception {
 		when(response.getStatus()).thenReturn(200);
-        FastFTResponse fastFTResponse = mock(FastFTResponse.class);
-        FastFTResponse[] fastFTResponses = new FastFTResponse[]{fastFTResponse};
-        when(response.getEntity(FastFTResponse[].class)).thenReturn(fastFTResponses);
-        when(fastFTResponse.getStatus()).thenReturn("error");
+        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
+        WordPressMostRecentPostsResponse[] wordPressMostRecentPostsResponses = new WordPressMostRecentPostsResponse[]{wordPressMostRecentPostsResponse};
+        when(response.getEntity(WordPressMostRecentPostsResponse[].class)).thenReturn(wordPressMostRecentPostsResponses);
+        when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("error");
 		assertThat(healthCheck.checkAdvanced(), is(unhealthy("status field in response not \"ok\"")));
 	}
 
