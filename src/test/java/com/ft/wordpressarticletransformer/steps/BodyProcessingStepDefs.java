@@ -3,6 +3,7 @@ package com.ft.wordpressarticletransformer.steps;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
@@ -143,5 +144,9 @@ public class BodyProcessingStepDefs {
         assertTagIsRegisteredToTransform(rule, tagname, replacement);
     }
 
+	@Then("^I get the html (.+?)$")
+	public void then_I_get_the_html(String html) throws Throwable {
+		assertThat(transformedBodyText,equalToIgnoringWhiteSpace(html));
+	}
 
 }

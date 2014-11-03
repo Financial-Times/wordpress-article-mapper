@@ -17,7 +17,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
 
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ClientError;
@@ -26,7 +25,6 @@ import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
-import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.response.Data;
 import com.ft.wordpressarticletransformer.response.FastFTResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
@@ -85,13 +83,15 @@ public class TransformerResource {
 		Date datePublished = new Date(1000 * Long.parseLong(result.get(
 				"datepublished").toString()));
 
+		String postId = uuid.toString();
+
 		LOGGER.info("Returning content for [{}] with uuid [{}].", postId, uuid);
         String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
 
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
 				.withXmlBody(tidiedUpBody(body, transactionId))
-				.withContentOrigin(ORIGINATING_SYSTEM_FT_CLAMO, postId.toString())
+				.withContentOrigin(ORIGINATING_SYSTEM_FT_CLAMO, postId)
 				.withBrands(new TreeSet<>(Arrays.asList(fastFtBrand)))
 				.withUuid(uuid).build();
 

@@ -38,7 +38,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
     @Override
     public void run(final WordPressArticleTransformerConfiguration configuration, final Environment environment) throws Exception {
     	LOGGER.info("running with configuration: {}", configuration);
-		Client client = new JerseyClientBuilder(environment).using(configuration.getWordPressConnections().getJerseyClientConfiguration()).build("Health check connection to Clamo");
+		Client client = new JerseyClientBuilder(environment).using(configuration.getWordPressConnections().get(0).getJerseyClientConfiguration()).build("Health check connection to Clamo");
 
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());

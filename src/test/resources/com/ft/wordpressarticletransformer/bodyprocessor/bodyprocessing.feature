@@ -106,4 +106,12 @@ For details of how tags will look before and after for particular processing rul
     | weird     | <weird>text surrounded by unknown tags</weird>     |
 
 
+  Scenario Outline: Fix markup problems
+    Given I have html <with errors>
+    When I transform it
+    Then I get the html <without errors>
 
+  Examples:
+    | with errors                                                       | without errors                                                    |
+    | <p>a paragraph <span>with complex and incorrect</p> markup</span> | <p>a paragraph <span>with complex and incorrect</span> markup</p> |
+    | <p>a paragraph with <br> line break</p>                           | <p>a paragraph with <br/> line break</p>                          |

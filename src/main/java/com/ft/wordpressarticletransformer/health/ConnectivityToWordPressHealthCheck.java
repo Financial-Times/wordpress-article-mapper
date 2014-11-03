@@ -57,7 +57,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 							Map<String, Object> dataMap = data.getAdditionalProperties();
 							if(dataMap.get("id") instanceof Integer){
 								Integer id = (Integer)dataMap.get("id");
-								if((Integer.valueOf(contentId)).equals(id)){
+								if((Integer.valueOf(99999)).equals(id)){
 									continue;
 								}
 							}
