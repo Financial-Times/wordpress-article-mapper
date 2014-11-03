@@ -29,23 +29,24 @@ public class WordPressResilientClient {
     public WordPressResilientClient(Client client, MetricRegistry appMetrics, int numberOfConnectionAttempts) {
         this.client = client;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
-		this.requests = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "requestToClamo"));
+		this.requests = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "requestToWordPress"));
     }
 
     public ClientResponse getRecentPosts(WordPressConnection wordPressConnection) {
 
-        URI fastFtContentByIdUri = getWordPressRecentPostsUrl(wordPressConnection);
+        URI wordPressRecentPostsUrl = getWordPressRecentPostsUrl(wordPressConnection);
 
-        WebResource webResource = client.resource(fastFtContentByIdUri);
+        WebResource webResource = client.resource(wordPressRecentPostsUrl);
         
         ClientHandlerException lastClientHandlerException = null;
         
         for (int attemptsCount = 1; attemptsCount <= numberOfConnectionAttempts; attemptsCount++) {
-            LOGGER.info("[REQUEST STARTED] attempt={} requestUri={}", attemptsCount, fastFtContentByIdUri);
+            LOGGER.info("[REQUEST STARTED] attempt={} requestUri={}", attemptsCount, wordPressRecentPostsUrl);
             Timer.Context requestsTimer = requests.time();
             long startTime = System.currentTimeMillis();
             
-            ClientResponse response = null;
+
+            ClientResponse response;
             
             try {
                 response = webResource.accept("application/json").get(ClientResponse.class);
@@ -60,11 +61,11 @@ public class WordPressResilientClient {
                 LOGGER.info("[REQUEST FINISHED] attempt={} time_ms={}", attemptsCount, timeTakenMillis);
             }
         }
-        
+
         Throwable cause = lastClientHandlerException.getCause();
         if(cause instanceof IOException) {
             throw ServerError.status(503).context(webResource).error(
-                        String.format("Cannot connect to Clamo for url: [%s]", fastFtContentByIdUri)).exception(cause);
+                        String.format("Cannot connect to WordPress for url: [%s]", wordPressRecentPostsUrl)).exception(cause);
         }
         throw lastClientHandlerException;
 
