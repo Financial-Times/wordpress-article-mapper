@@ -54,7 +54,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 		environment.healthChecks().register(healthCheckName,
 				new ConnectivityToWordPressHealthCheck(healthCheckName,
 						wordPressResilientClient,
-						SystemId.systemIdFromCode("wordpress"), // TODO proper name
+						SystemId.systemIdFromCode("wordpress-article-transformer"), // TODO proper name
 						"https://sites.google.com/a/ft.com/dynamic-publishing-team/", // TODO proper link
 						configuration.getWordPressConnections()
 				));
