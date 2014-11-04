@@ -99,20 +99,11 @@ public class WordPressArticleTransformerResource {
 		Brand brand = brandResolver.getBrand(requestUri);
         SortedSet<Brand> brands = null;
 
-        if(brand == null){
 
+        if(brand != null){
 
-            // We have not been able to establish the brand for this request URL.
-            // We are going to pass null to the content builder in the place of brands.
-
-
-        } else {
-
-            // We have resolved the correct brand for this piece of content to have.
-            // We are going to wrap this one brand in a sorted set, and pass it to
-            // the content builder.
             brands = new TreeSet<>();
-                brands.add(brand);
+            brands.add(brand);
 
         }
 
@@ -121,7 +112,7 @@ public class WordPressArticleTransformerResource {
                 .withXmlBody(tidiedUpBody(body, transactionId))
                 .withByline(postDetails.getAuthor().getName())
                 .withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, postDetails.getUrl())
-                .withBrands(new TreeSet<>(Arrays.asList(brand)))
+                .withBrands(brands)
                 .withUuid(UUID.fromString(uuid)).build();
 	}
 
