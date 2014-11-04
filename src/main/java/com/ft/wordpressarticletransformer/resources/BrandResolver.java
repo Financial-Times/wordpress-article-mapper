@@ -3,26 +3,32 @@ package com.ft.wordpressarticletransformer.resources;
 import com.ft.content.model.Brand;
 
 import java.net.URI;
+import java.util.List;
 
 public class BrandResolver {
 
 
-    public static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54") ;
+    private final List<HostToBrand> hostToBrandMappings;
+
+    public BrandResolver(List<HostToBrand> hostToBrandMappings) {
+        this.hostToBrandMappings = hostToBrandMappings;
+    }
 
     public Brand getBrand(URI requestUri) {
 
-        if(requestUri == null || requestUri.getHost() == null){
+        if (requestUri == null || requestUri.getHost() == null) {
 
             return null;
-
         }
 
-        if (requestUri.getHost().contains("ftalphaville.ft.com")) {
+        for (HostToBrand hostToBrand : hostToBrandMappings) {
+            if (requestUri.getHost().contains(
+                    hostToBrand.getHost())) {
 
-            return ALPHA_VILLE_BRAND;
+                return hostToBrand.getBrand();
+            }
         }
 
         return null;
-
     }
 }

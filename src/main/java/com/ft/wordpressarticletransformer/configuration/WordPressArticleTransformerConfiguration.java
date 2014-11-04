@@ -1,6 +1,7 @@
 package com.ft.wordpressarticletransformer.configuration;
 
 import com.ft.content.model.Brand;
+import com.ft.wordpressarticletransformer.resources.HostToBrand;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
@@ -15,17 +16,19 @@ import java.util.List;
 public class WordPressArticleTransformerConfiguration extends Configuration {
 
 	private final List<WordPressConnection> wordPressConnections;
+    private final List<HostToBrand> hostToBrands;
 	private final Brand fastFtBrand;
 	private final JerseyClientConfiguration jerseyClientConfiguration;
 	private final int numberOfConnectionAttempts;
 
 	public WordPressArticleTransformerConfiguration(@JsonProperty("healthCheckWordPressConnections") List<WordPressConnection> wordPressConnections,
-													@JsonProperty("fastFtBrandId") String fastFtBrandId,
-													@JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
-													@JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts) {
+                                                    @JsonProperty("fastFtBrandId") String fastFtBrandId,
+                                                    @JsonProperty("hostToBrandMappings")List<HostToBrand> hostToBrands, @JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
+                                                    @JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts) {
 		super();
 		this.wordPressConnections = wordPressConnections;
-		this.fastFtBrand = new Brand(fastFtBrandId);
+        this.hostToBrands = hostToBrands;
+        this.fastFtBrand = new Brand(fastFtBrandId);
 		this.jerseyClientConfiguration = jerseyClientConfiguration;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
 	}
@@ -35,6 +38,12 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 	public List<WordPressConnection> getWordPressConnections() {
 		return wordPressConnections;
 	}
+
+    @Valid
+    @NotNull
+    public List<HostToBrand> getHostToBrands() {
+        return hostToBrands;
+    }
 
 	@Valid
 	@NotNull
@@ -65,4 +74,5 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
     public String toString() {
         return toStringHelper().toString();
     }
+
 }

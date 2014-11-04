@@ -1,6 +1,8 @@
 package com.ft.wordpressarticletransformer;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import javax.servlet.DispatcherType;
 
 import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
@@ -10,8 +12,9 @@ import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
 import com.ft.wordpressarticletransformer.resources.BrandResolver;
+import com.ft.wordpressarticletransformer.resources.HostToBrand;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
-import com.ft.wordpressarticletransformer.resources.TransformerResource;
+import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
 import com.ft.messaging.standards.message.v1.SystemId;
@@ -48,9 +51,9 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 		WordPressResilientClient wordPressResilientClient = new WordPressResilientClient(client, environment.metrics(),
 				configuration.getNumberOfConnectionAttempts());
 		
-        environment.jersey().register(new TransformerResource(getBodyProcessingFieldTransformer(), configuration.getFastFtBrand(),
-				wordPressResilientClient, new BrandResolver()));
 
+        environment.jersey().register(new WordPressArticleTransformerResource(getBodyProcessingFieldTransformer(),
+				wordPressResilientClient, new BrandResolver(configuration.getHostToBrands()))); //Todo read it from the config
 
 		String healthCheckName = "Connectivity to WordPress";
 		environment.healthChecks().register(healthCheckName,

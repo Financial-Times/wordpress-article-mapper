@@ -29,7 +29,7 @@ public class WordPressResilientClient {
     public WordPressResilientClient(Client client, MetricRegistry appMetrics, int numberOfConnectionAttempts) {
         this.client = client;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
-		this.requests = appMetrics.timer(MetricRegistry.name(TransformerResource.class, "requestToWordPress"));
+		this.requests = appMetrics.timer(MetricRegistry.name(WordPressArticleTransformerResource.class, "requestToWordPress"));
     }
 
     public ClientResponse getRecentPosts(WordPressConnection wordPressConnection) {
