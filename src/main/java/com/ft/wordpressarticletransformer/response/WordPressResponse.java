@@ -18,6 +18,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "status",
+    "error",
     "post",
     "previous_url"
 })
@@ -25,6 +26,8 @@ public class WordPressResponse {
 
     @JsonProperty("status")
     private String status;
+    @JsonProperty("error")
+    private String error;
     @JsonProperty("post")
     private Post post;
     @JsonProperty("previous_url")
@@ -51,7 +54,27 @@ public class WordPressResponse {
     public void setStatus(String status) {
         this.status = status;
     }
+    
+    /**
+     * 
+     * @return
+     *     The error 
+     */
+    @JsonProperty("error")
+    public String getError() {
+        return error;
+    }
 
+    /**
+     * 
+     * @param error
+     *     The error
+     */
+    @JsonProperty("error")
+    public void setError(String error) {
+        this.error = error;
+    }
+    
     /**
      * 
      * @return
@@ -94,6 +117,7 @@ public class WordPressResponse {
 
     @Override
     public String toString() {
+        //TODO replace with non-reflection based version
         return ToStringBuilder.reflectionToString(this);
     }
 
@@ -109,7 +133,7 @@ public class WordPressResponse {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(status).append(post).append(previousUrl).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(status).append(error).append(post).append(previousUrl).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -121,7 +145,7 @@ public class WordPressResponse {
             return false;
         }
         WordPressResponse rhs = ((WordPressResponse) other);
-        return new EqualsBuilder().append(status, rhs.status).append(post, rhs.post).append(previousUrl, rhs.previousUrl).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(status, rhs.status).append(error, rhs.error).append(post, rhs.post).append(previousUrl, rhs.previousUrl).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

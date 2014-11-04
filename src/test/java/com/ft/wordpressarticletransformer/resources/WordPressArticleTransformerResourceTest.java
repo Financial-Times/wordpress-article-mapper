@@ -42,6 +42,7 @@ public class WordPressArticleTransformerResourceTest {
 
     private static final String WILL_RETURN_200 = "http://localhost:15670/request_to_word_press_200/?json=1";
     private static final String WILL_RETURN_404 = "http://localhost:15670/request_to_word_press_404/?json=1";
+    private static final String WILL_RETURN_ERROR_NOT_FOUND = "http://localhost:15670/request_to_word_press_error_not_found/?json=1";
     private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_500/?json=1";
     private static final String WILL_RETURN_CANNOT_CONNECT = "http://localhost:15670/request_to_word_press_cannot_connect/?json=1";
     
@@ -76,6 +77,15 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("originating system", receivedContent.getContentOrigin().getOriginatingSystem(), is(equalTo(WordPressArticleTransformerResource.ORIGINATING_SYSTEM_WORDPRESS)));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
 		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
+	}
+	
+	@Test
+	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private
+	public void shouldReturn404WhenWordPressReturnsStatusErrorAndErrorNotFound() {
+	    final URI uri = buildTransformerUrl(UUID, WILL_RETURN_ERROR_NOT_FOUND);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
 	}
 
     @Test
@@ -113,14 +123,14 @@ public class WordPressArticleTransformerResourceTest {
 	}
 
 
-//    @Test
-//	public void shouldReturn503WhenCannotConnectToClamo() {
-//		WireMock.stubFor(WireMock.get(WireMock.urlMatching("/request_to_word_press_cannot_connect*")).willReturn(WireMock.aResponse().withFixedDelay(5000)));
-//		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_CANNOT_CONNECT);
-//
-//		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
-//	}
+    @Test
+    @Ignore("Not sure why this doesn't work - TODO, fix it")
+	public void shouldReturn503WhenCannotConnectToClamo() {
+		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_CANNOT_CONNECT);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+	}
 
 
     @After

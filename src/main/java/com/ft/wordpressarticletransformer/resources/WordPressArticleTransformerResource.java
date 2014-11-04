@@ -14,8 +14,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -44,6 +42,9 @@ public class WordPressArticleTransformerResource {
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
 	public static final String ORIGINATING_SYSTEM_WORDPRESS = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-242";
+
+    private static final String STATUS_ERROR = "error";
+    private static final String ERROR_NOT_FOUND = "Not found";
 
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 	private final Brand fastFtBrand;//TODO replace with brand lookup
@@ -119,10 +120,22 @@ public class WordPressArticleTransformerResource {
 		int responseStatusFamily = responseStatusCode / 100;
 
 		if (responseStatusFamily == 2) {
-		    return getJsonFields(response);
+		    WordPressResponse wordPressResponse = getJsonFields(response);
+		    if (STATUS_ERROR.equals(wordPressResponse.getStatus())) {
+		        String error = wordPressResponse.getError();
+		        if (ERROR_NOT_FOUND.equals(error)) {
+	                throw ClientError.status(404).error("Not found").exception();
+		        } else {
+		            // It says it's an error, but we don't understand this kind of error
+		            throw ServerError.status(500).error(
+                            String.format("Unexpected error from WordPress: [%s] for url [%s].", error, requestUri)).exception();
+		        }
+		    }
+		    
+		    return wordPressResponse;
 		} else if (responseStatusFamily == 4) {
 		    throw ClientError.status(404).error("Not found").exception();
-		} else { //TODO - handle 404 etc
+		} else {
 			throw ServerError.status(responseStatusCode).exception();
 		}
 	}
