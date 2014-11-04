@@ -44,7 +44,7 @@ public class WordPressArticleTransformerResource {
 	public static final String ORIGINATING_SYSTEM_WORDPRESS = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-242";
 
     private static final String STATUS_ERROR = "error";
-    private static final String ERROR_NOT_FOUND = "Not found";
+    private static final String ERROR_NOT_FOUND = "Not found.";
 
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 	private final Brand fastFtBrand;//TODO replace with brand lookup
