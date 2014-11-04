@@ -98,11 +98,11 @@ public class WordPressArticleTransformerResourceTest {
 	}
     
     @Test
-    public void shouldReturn405WhenNoUrlSupplied() {
+    public void shouldReturn400WhenNoUrlSupplied() {
        final URI uri = buildTransformerUrlWithUrlMissing(UUID);
 
        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-       assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
+       assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
     @Test
