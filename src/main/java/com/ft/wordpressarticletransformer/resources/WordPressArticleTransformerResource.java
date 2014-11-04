@@ -14,6 +14,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
@@ -34,9 +37,9 @@ import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.ClientResponse;
 
 @Path("/content")
-public class TransformerResource {
+public class WordPressArticleTransformerResource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransformerResource.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleTransformerResource.class);
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
@@ -47,7 +50,7 @@ public class TransformerResource {
 	
 	private WordPressResilientClient wordPressResilientClient;
 
-	public TransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer, 
+	public WordPressArticleTransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer, 
 							   Brand fastFtBrand, WordPressResilientClient wordPressResilientClient) {
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
 		this.fastFtBrand = fastFtBrand;
@@ -60,6 +63,10 @@ public class TransformerResource {
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
 	public final Content getByPostId(@PathParam("uuid") String uuid, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
 
+	    if (requestUri == null) {
+	        throw ClientError.status(405).error("No url supplied").exception();
+	    }
+	    
 	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
 	    
 	    WordPressResponse wordPressResponse = doRequest(requestUri);
@@ -113,7 +120,8 @@ public class TransformerResource {
 
 		if (responseStatusFamily == 2) {
 		    return getJsonFields(response);
-
+		} else if (responseStatusFamily == 4) {
+		    throw ClientError.status(404).error("Not found").exception();
 		} else { //TODO - handle 404 etc
 			throw ServerError.status(responseStatusCode).exception();
 		}

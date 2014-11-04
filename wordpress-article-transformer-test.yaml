@@ -16,11 +16,11 @@ server:
 
   applicationConnectors:
     - type: http
-      port: 14080
+      port: 14180
 
   adminConnectors:
       - type: http
-        port: 14081
+        port: 14181
 
   requestLog:
 

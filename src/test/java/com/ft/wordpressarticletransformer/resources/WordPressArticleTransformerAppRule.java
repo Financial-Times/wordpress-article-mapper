@@ -10,13 +10,13 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-public class FastFtTransformerAppRule implements TestRule {
+public class WordPressArticleTransformerAppRule implements TestRule {
 
-	private static final int CLAMO_PORT = 11180;
+	private static final int WORDPRESS_PORT = 15670;
 
-	private WireMockClassRule fastFTWireMockRule = new WireMockClassRule(WireMockConfiguration.wireMockConfig()
-			.withRootDirectory("src/test/resources/clamo")
-			.port(CLAMO_PORT)
+	private WireMockClassRule wordPressWireMockRule = new WireMockClassRule(WireMockConfiguration.wireMockConfig()
+			.withRootDirectory("src/test/resources/wordPress")
+			.port(WORDPRESS_PORT)
 	);
 
 	private final DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule;
@@ -28,15 +28,15 @@ public class FastFtTransformerAppRule implements TestRule {
 		return ruleChain.apply(base, description);
 	}
 
-	public int getFastFtTransformerLocalPort() {
+	public int getWordPressArticleTransformerLocalPort() {
 		return appRule.getLocalPort();
 	}
 
-	public FastFtTransformerAppRule(String configurationPath) {
+	public WordPressArticleTransformerAppRule(String configurationPath) {
 		appRule = new DropwizardAppRule<>(WordPressArticleTransformerApplication.class, configurationPath);
 
 		ruleChain = RuleChain
-				.outerRule(fastFTWireMockRule)
+				.outerRule(wordPressWireMockRule)
 				.around(appRule);
 	}
 }
