@@ -11,7 +11,7 @@ hostToBrandMappings:
       brand: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
 
 jerseyClient:
-    timeout: 3000ms
+    timeout: 100ms
 numberOfConnectionAttempts: 3
 
 fastFtBrandId: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
