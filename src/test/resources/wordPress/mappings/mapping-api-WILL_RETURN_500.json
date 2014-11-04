@@ -1,0 +1,10 @@
+{
+	"request" : {
+		"urlPattern" : "/request_to_word_press_cannot_connect.*",
+		"method" : "GET"
+	},
+	"response" : {
+		"status" : 200,
+		"fixedDelayMilliseconds" : 5000
+	}
+}

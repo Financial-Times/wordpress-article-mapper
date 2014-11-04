@@ -1,11 +1,11 @@
 {
 	"request" : {
-		"urlPattern" : "/api/.*1866712.*",
+		"urlPattern" : "/request_to_word_press_non_word_press_response.*",
 		"method" : "GET"
 	},
 	"response" : {
 		"status" : 200,
-		"bodyFileName" : "body-api-1866712.json",
+		"bodyFileName" : "WILL_RETURN_200-body-not-from-wordpress.json",
 		"headers" : {
 			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
 			"Content-Type" : "application/json",

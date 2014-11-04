@@ -1,13 +1,13 @@
 healthCheckWordPressConnections:
-    - hostName: uat.ftalphaville.ft.com
+    - hostName: {{{hostname_1}}}
       port: 80
       path: /api/get_recent_posts/
-    - hostName: uat.ftalphaville.ft.com
+    - hostName: {{{hostname_2}}}
       port: 80
       path: /api/get_recent_posts/
 
 jerseyClient:
-    timeout: 100ms
+    timeout: 3000ms
 numberOfConnectionAttempts: 3
 
 fastFtBrandId: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
@@ -16,11 +16,11 @@ server:
 
   applicationConnectors:
     - type: http
-      port: 14180
+      port: 14080
 
   adminConnectors:
       - type: http
-        port: 14181
+        port: 14081
 
   requestLog:
 
