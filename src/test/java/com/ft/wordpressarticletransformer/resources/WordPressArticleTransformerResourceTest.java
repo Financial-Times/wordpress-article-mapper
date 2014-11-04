@@ -1,18 +1,13 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
 import java.net.URI;
-import java.util.Date;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.content.model.Brand;
@@ -55,7 +50,7 @@ public class WordPressArticleTransformerResourceTest {
 	@Before
 	public void setup() {
 		client = Client.create();
-		client.setReadTimeout(2000);
+		client.setReadTimeout(500);
 		
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
         publishedDate = formatter.parseDateTime("2014-10-21 05:45:30");
@@ -119,12 +114,11 @@ public class WordPressArticleTransformerResourceTest {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_500);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
 	}
 
 
     @Test
-    @Ignore("Not sure why this doesn't work - TODO, fix it")
 	public void shouldReturn503WhenCannotConnectToClamo() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_CANNOT_CONNECT);
 

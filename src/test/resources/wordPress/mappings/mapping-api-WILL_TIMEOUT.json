@@ -4,7 +4,7 @@
 		"method" : "GET"
 	},
 	"response" : {
-		"status" : 500,
+		"status" : 150,
 		"bodyFileName" : "WILL_RETURN_200-body-from-wordpress.json",
 		"headers" : {
 			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
