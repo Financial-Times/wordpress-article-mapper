@@ -38,12 +38,11 @@ public class WordPressArticleTransformerResourceTest {
     private static final String WILL_RETURN_404 = "http://localhost:15670/request_to_word_press_404/?json=1";
     private static final String WILL_RETURN_ERROR_NOT_FOUND = "http://localhost:15670/request_to_word_press_error_not_found/?json=1";
     private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_500/?json=1";
+    private static final String WILL_RETURN_NON_WORD_PRESS_RESPONSE = "http://localhost:15670/request_to_word_press_non_word_press_response/?json=1";
     private static final String WILL_RETURN_CANNOT_CONNECT = "http://localhost:15670/request_to_word_press_cannot_connect/?json=1";
     
-
     private static final String WILL_FAIL_BEFORE_REQUEST_TO_WORDPRESS = "http://localhost:15670/no_request_to_word_press_expected/?json=1";
    
-
 	private Client client;
 
 	@Before
@@ -90,7 +89,6 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
 	}
 
-
 	@Test
 	public void shouldReturn405WhenNoUuidSupplied() {
 		final URI uri = buildTransformerUrlWithIdMissing(WILL_FAIL_BEFORE_REQUEST_TO_WORDPRESS);
@@ -99,13 +97,20 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
 	}
     
-    
     @Test
     public void shouldReturn405WhenNoUrlSupplied() {
        final URI uri = buildTransformerUrlWithUrlMissing(UUID);
 
        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
        assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
+    }
+
+    @Test
+    public void shouldReturn400WhenResponseNotAValidWordPressResponse() {
+        final URI uri = buildTransformerUrl(UUID, WILL_RETURN_NON_WORD_PRESS_RESPONSE);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
 	@Test

@@ -33,7 +33,9 @@ import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 @Path("/content")
 public class WordPressArticleTransformerResource {
@@ -123,7 +125,17 @@ public class WordPressArticleTransformerResource {
 		int responseStatusFamily = responseStatusCode / 100;
 
 		if (responseStatusFamily == 2) {
-		    WordPressResponse wordPressResponse = getJsonFields(response);
+		    WordPressResponse wordPressResponse = null;
+		    try {
+		        wordPressResponse = response.getEntity(WordPressResponse.class);
+		    } catch (ClientHandlerException | UniformInterfaceException e) {
+		        throw ClientError.status(400).error(
+                        String.format("Response not a valid WordPressResponse - check your url [%s].", requestUri)).exception();
+		    } 
+		    if (wordPressResponse.getStatus() == null) {
+		        throw ClientError.status(400).error(
+                        String.format("Response not a valid WordPressResponse - check your url [%s].", requestUri)).exception();
+		    }
 		    if (STATUS_ERROR.equals(wordPressResponse.getStatus())) {
 		        String error = wordPressResponse.getError();
 		        if (ERROR_NOT_FOUND.equals(error)) {
