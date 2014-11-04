@@ -29,6 +29,7 @@ import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
+import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
@@ -78,18 +79,20 @@ public class WordPressArticleTransformerResource {
 
 		String body = wrapBody(wordPressResponse.getPost().getContent());
 		
+        Post postDetails = wordPressResponse.getPost();
+		
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
-		DateTime datePublished = formatter.parseDateTime(wordPressResponse.getPost().getDate());
+		DateTime datePublished = formatter.parseDateTime(postDetails.getDate());
 		
 		LOGGER.info("Returning content for uuid [{}].", uuid);
 		
-		Brand brand = getBrand(requestUri);        
+		Brand brand = getBrand(requestUri);  
 
-		return Content.builder().withTitle(wordPressResponse.getPost().getTitle())
+		return Content.builder().withTitle(postDetails.getTitle())
 				.withPublishedDate(datePublished.toDate())
 				.withXmlBody(tidiedUpBody(body, transactionId))
-				.withByline(wordPressResponse.getPost().getAuthor().getName())
-				.withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, uuid.toString())
+				.withByline(postDetails.getAuthor().getName())
+				.withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, postDetails.getUrl())
 				.withBrands(new TreeSet<>(Arrays.asList(brand)))
 				.withUuid(UUID.fromString(uuid)).build();
 

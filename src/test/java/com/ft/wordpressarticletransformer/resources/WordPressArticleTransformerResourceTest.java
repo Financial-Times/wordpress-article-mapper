@@ -22,7 +22,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class WordPressArticleTransformerResourceTest {
@@ -68,7 +67,7 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
 		assertThat("byline", receivedContent.getByline(), is(equalTo("David Keohane")));
 		assertThat("brands", receivedContent.getBrands(), hasItem(new Brand("http://replace_with_actual_brand")));
-		assertThat("originating identifier", receivedContent.getContentOrigin().getOriginatingIdentifier(), is(equalTo(UUID)));
+		assertThat("originating identifier", receivedContent.getContentOrigin().getOriginatingIdentifier(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
 		assertThat("originating system", receivedContent.getContentOrigin().getOriginatingSystem(), is(equalTo(WordPressArticleTransformerResource.ORIGINATING_SYSTEM_WORDPRESS)));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
 		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
