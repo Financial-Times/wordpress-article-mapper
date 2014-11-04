@@ -67,11 +67,9 @@ public class WordPressArticleTransformerResource {
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
 	public final Content getByPostId(@PathParam("uuid") String uuid, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
 
-	    if (requestUri == null) {
+	    if (requestUri == null || "".equals(requestUri.toString())) {
 	        throw ClientError.status(400).error("No url supplied").exception();
 	    }
-	    
-	   
 	    
 	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
 	    
