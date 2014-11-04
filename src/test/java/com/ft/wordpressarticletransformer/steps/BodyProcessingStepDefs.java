@@ -54,9 +54,9 @@ public class BodyProcessingStepDefs {
         rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT", "StripXMLEventHandler");
     }
 
-    @Given("^I have html (.+?)$")
-    public void I_have_html(String html) throws Throwable {
-        fastFTBodyText = html;
+    @Given("^I have body (.+?)$")
+    public void I_have_body(String html) throws Throwable {
+        fastFTBodyText = "<body>" + html + "</body>";
     }
     
     @Given("^there are empty paragraphs in the body$")
@@ -144,9 +144,9 @@ public class BodyProcessingStepDefs {
         assertTagIsRegisteredToTransform(rule, tagname, replacement);
     }
 
-	@Then("^I get the html (.+?)$")
-	public void then_I_get_the_html(String html) throws Throwable {
-		assertThat(transformedBodyText,equalToIgnoringWhiteSpace(html));
+	@Then("^I get the body (.+?)$")
+	public void then_I_get_the_body(String html) throws Throwable {
+		assertThat( transformedBodyText ,equalToIgnoringWhiteSpace("<body>" + html + "</body>"));
 	}
 
 }

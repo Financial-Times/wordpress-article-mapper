@@ -17,6 +17,7 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		super.registerDefaultEventHandler(new StripXMLEventHandler());
 		//tags to include
 		super.registerStartAndEndElementEventHandler(new RetainWithoutAttributesXMLEventHandler(),
+				"body",
 				"h1","h2", "h3", "h4", "h5", "h6",
 				"ol", "ul", "li",
 				"br", "strong", "em", "small", "sub", "sup",

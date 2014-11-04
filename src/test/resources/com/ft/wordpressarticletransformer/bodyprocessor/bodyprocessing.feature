@@ -107,9 +107,9 @@ For details of how tags will look before and after for particular processing rul
 
 
   Scenario Outline: Remove inline images
-    Given I have html <with inline images>
+    Given I have body <with inline images>
     When I transform it
-    Then I get the html <without inline images>
+    Then I get the body <without inline images>
 
   Examples:
     | with inline images                                                      | without inline images                                                    |
@@ -117,9 +117,9 @@ For details of how tags will look before and after for particular processing rul
 
 
   Scenario Outline: Fix markup problems
-    Given I have html <with errors>
+    Given I have body <with errors>
     When I transform it
-    Then I get the html <without errors>
+    Then I get the body <without errors>
 
   Examples:
     | with errors                                                       | without errors                                                    |

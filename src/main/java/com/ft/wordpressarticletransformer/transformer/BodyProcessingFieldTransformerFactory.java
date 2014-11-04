@@ -10,6 +10,7 @@ import com.ft.bodyprocessing.regex.RegexRemoverBodyProcessor;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.bodyprocessing.transformer.FieldTransformerFactory;
 import com.ft.bodyprocessing.xml.StAXTransformingBodyProcessor;
+import com.ft.wordpressarticletransformer.transformer.html.RemoveEmptyElementsBodyProcessor;
 import com.ft.wordpressarticletransformer.transformer.html.TagSoupCleanupHtmlBodyProcessor;
 import com.ft.wordpressarticletransformer.transformer.html.TagSoupHtmlBodyProcessor;
 
@@ -31,7 +32,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
 				new TagSoupHtmlBodyProcessor(),
 				new TagSoupCleanupHtmlBodyProcessor(),
                 stAXTransformingBodyProcessor(),
-                new RegexRemoverBodyProcessor("(<p>)\\s*(</p>)")
+                new RemoveEmptyElementsBodyProcessor(asList("p","a"),asList("img"))
         );
     }
 
