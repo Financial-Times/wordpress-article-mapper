@@ -4,7 +4,7 @@ Feature: Body processing links
 #  separate scenarios of one generic scenario with internal/external/relative etc examples
 #  NOTE: do not merge. This is not the final specification - internal links will eventually be processed down to UUIDs
   Scenario Outline:
-    Given I have html <internal link html>
+    Given I have body <internal link html>
     When I transform it
     Then it is left unmodified
 
@@ -14,7 +14,7 @@ Feature: Body processing links
 
 
   Scenario Outline:
-    Given I have html <external link html>
+    Given I have body <external link html>
     When I transform it
     Then it is left unmodified
 

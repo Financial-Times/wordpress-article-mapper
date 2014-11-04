@@ -34,7 +34,16 @@ public class TagSoupCleanupHtmlBodyProcessor implements BodyProcessor {
 
     @Override
     public String process(String bodyHtml, BodyProcessingContext bodyProcessingContext) throws BodyProcessingException {
-        try {
+
+		if(bodyHtml==null) {
+			throw new BodyProcessingException("Body is null");
+		}
+
+		if("".equals(bodyHtml.trim())) {
+			return "";
+		}
+
+		try {
             XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new StringReader(bodyHtml));
             StringWriter stringWriter = new StringWriter();
             XMLEventWriter xmlEventWriter = xmlOutputFactory.createXMLEventWriter(stringWriter);

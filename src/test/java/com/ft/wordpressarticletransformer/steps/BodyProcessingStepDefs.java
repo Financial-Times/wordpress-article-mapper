@@ -98,19 +98,23 @@ public class BodyProcessingStepDefs {
 
     @Then("^it is transformed, (.+) becomes (.+)$")
     public void the_before_becomes_after(String before, String after) throws Throwable {
-        transformedBodyText = bodyTransformer.transform(before, TRANSACTION_ID);
-        assertThat("before and after do not match", transformedBodyText, equalTo(after));
+        transformedBodyText = bodyTransformer.transform(wrapped(before), TRANSACTION_ID);
+        assertThat("before and after do not match", transformedBodyText, equalTo(wrapped(after)));
     }
 
+	private String wrapped(String bodyMarkUp) {
+		return String.format("<body>%s</body>", bodyMarkUp);
+	}
 
-    @Then("^it is transformed the entity (.+) should be replaced by the unicode codepoint (.+)$")
+
+	@Then("^it is transformed the entity (.+) should be replaced by the unicode codepoint (.+)$")
     public void the_entity_should_be_replace_by_unicode_codepoint(String entity, String codepoint) throws Throwable {
         int codePointInt = Integer.decode(codepoint);
         char[] chars = Character.toChars(codePointInt);
         String expected = "<p>" + TEXT  + new String(chars) + "</p>";
         fastFTBodyText = "<p>" + TEXT  +  entity + "</p>";
         transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
-        assertThat(transformedBodyText, is(expected));
+        assertThat(transformedBodyText, is(wrapped(expected)));
     }
 
     private void assertTagIsRegisteredToTransform(String rule, String before, String after){

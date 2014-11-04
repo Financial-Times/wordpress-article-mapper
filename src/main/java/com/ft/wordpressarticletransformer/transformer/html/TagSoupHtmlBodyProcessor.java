@@ -24,6 +24,15 @@ import java.io.StringWriter;
 public class TagSoupHtmlBodyProcessor implements BodyProcessor {
     @Override
     public String process(String bodyHtml, BodyProcessingContext bodyProcessingContext) throws BodyProcessingException {
+
+		if(bodyHtml==null) {
+			throw new BodyProcessingException("Body is null");
+		}
+
+		if("".equals(bodyHtml.trim())) {
+			return "";
+		}
+
         Document doc = createDocument(bodyHtml);
         Element body = (Element) doc.getElementsByTagName("body").item(0);
 

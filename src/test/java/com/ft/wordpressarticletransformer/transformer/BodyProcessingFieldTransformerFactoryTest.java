@@ -82,7 +82,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
     @Test
     public void checkLinkBreaksAreNotCorrupted() {
-        String properLineBreak =  "<p>Blah<br/>Blah</p>";
+        String properLineBreak =  wrapped("<p>Blah<br/>Blah</p>");
         checkTransformation(properLineBreak,properLineBreak); // not changed!
     }
 
@@ -94,10 +94,14 @@ public class BodyProcessingFieldTransformerFactoryTest {
  
     @Test
     public void nameSpacesShouldBeIgnored() {
-        checkTransformation("<p v:vs=\"|1|\" v:n=\"15\" v:idx=\"11\">Text</p>", "<p>Text</p>");
+        checkTransformation(wrapped("<p v:vs=\"|1|\" v:n=\"15\" v:idx=\"11\">Text</p>"), wrapped("<p>Text</p>"));
     }
 
-    @Test
+	private String wrapped(String body) {
+		return String.format("<body>%s</body>",body);
+	}
+
+	@Test
     public void nbspShouldBeReplacedWithSpace() {
         checkTransformation("<body>This is a sentence&nbsp;.</body>",
                 String.format("<body>This is a sentence%s.</body>", String.valueOf('\u00A0')));
@@ -110,7 +114,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
     @Test
     public void paraWithAllElementsRemovedShouldBeRemoved() {
-        checkTransformationToEmpty("<p><canvas>Canvas is removed</canvas></p>");
+        checkTransformationToEmpty(wrapped("<p><canvas>Canvas is removed</canvas></p>"));
     }
 
     @Test

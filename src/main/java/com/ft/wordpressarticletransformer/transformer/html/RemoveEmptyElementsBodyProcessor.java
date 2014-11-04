@@ -42,6 +42,15 @@ public class RemoveEmptyElementsBodyProcessor implements BodyProcessor {
 
 	@Override
 	public String process(String bodyHtml, BodyProcessingContext bodyProcessingContext) throws BodyProcessingException {
+
+		if(bodyHtml==null) {
+			throw new BodyProcessingException("Body is null");
+		}
+
+		if("".equals(bodyHtml.trim())) {
+			return "";
+		}
+
 		Document doc = createDocument(bodyHtml);
 		Element body = (Element) doc.getElementsByTagName("body").item(0);
 
@@ -64,6 +73,10 @@ public class RemoveEmptyElementsBodyProcessor implements BodyProcessor {
 				}
 			}
 		} while(removedElements>0);
+
+		if(!body.hasChildNodes()) {
+			return "";
+		}
 
 		try {
 			Transformer transformer = TransformerFactory.newInstance().newTransformer();
