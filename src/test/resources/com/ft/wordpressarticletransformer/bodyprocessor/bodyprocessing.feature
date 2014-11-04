@@ -12,9 +12,11 @@ For details of how tags will look before and after for particular processing rul
     | tagname | replacement |
     | b       | strong      |
     | i       | em          |
+    | s       | del         |
+    | strike  | del         |
 
   Scenario Outline:
-    Given the fastFt body contains <tagname> the transformer will RETAIN ELEMENT AND REMOVE ATTRIBUTES
+    Given the WordPress body contains <tagname> the transformer will RETAIN ELEMENT AND REMOVE ATTRIBUTES
 
   Examples: Tidy up tags to remove attributes that probably relate to formatting
     | tagname |
@@ -32,9 +34,10 @@ For details of how tags will look before and after for particular processing rul
     | ul      |
     | li      |
     | p       |
+    | del     |
 
   Scenario Outline:
-    Given the fastFt body contains <tagname> the transformer will STRIP ELEMENT AND CONTENTS
+    Given the WordPress body contains <tagname> the transformer will STRIP ELEMENT AND CONTENTS
 
   Examples: Remove tags completely, including content, for html5 tags that we cannot support currently
     | tagname                    |
@@ -49,7 +52,6 @@ For details of how tags will look before and after for particular processing rul
     | colgroup                   |
     | command                    |
     | datalist                   |
-    | del                        |
     | dir                        |
     | embed                      |
     | fieldset                   |
@@ -78,11 +80,9 @@ For details of how tags will look before and after for particular processing rul
     | rp                         |
     | rt                         |
     | ruby                       |
-    | s                          |
     | script                     |
     | select                     |
     | source                     |
-    | strike                     |
     | style                      |
     | table                      |
     | tbody                      |
@@ -97,7 +97,7 @@ For details of how tags will look before and after for particular processing rul
     | wbr                        |
 
   Scenario Outline:
-    Given the fastFt body contains <tagname> the transformer will STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT
+    Given the WordPress body contains <tagname> the transformer will STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT
 
   Examples: Remove tag but leave any content - these are just some examples, by default anything not specified separately will be treated like this
     | tagname   | html                                               |
@@ -123,5 +123,5 @@ For details of how tags will look before and after for particular processing rul
 
   Examples:
     | with errors                                                       | without errors                                                    |
-    | <p>a paragraph <span>with complex and incorrect</p> markup</span> | <p>a paragraph <span>with complex and incorrect</span> markup</p> |
+    | <p>a paragraph <span>with complex and incorrect</p> markup</span> | <p>a paragraph with complex and incorrect</p> markup        |
     | <p>a paragraph with <br> line break</p>                           | <p>a paragraph with <br/> line break</p>                          |

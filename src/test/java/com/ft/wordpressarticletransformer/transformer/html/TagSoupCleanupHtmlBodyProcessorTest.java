@@ -2,7 +2,7 @@ package com.ft.wordpressarticletransformer.transformer.html;
 
 import org.junit.Test;
 
-import static com.ft.fastfttransformer.html.TagSoupHtmlBodyProcessorTest.simpleContext;
+import static com.ft.wordpressarticletransformer.transformer.html.TagSoupHtmlBodyProcessorTest.simpleContext;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;

@@ -20,7 +20,7 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 				"h1","h2", "h3", "h4", "h5", "h6",
 				"ol", "ul", "li",
 				"br", "strong", "em", "small", "sub", "sup",
-				"del", "blockquote",
+				"del", "blockquote", "p",
 				"itemBody"); // itemBody included as it will be a root node wrapping the body text so that the xml being written out is valid
 
 		// TODO handle wrapped image captions and image source
@@ -37,8 +37,8 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 
 		// to be transformed
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("span", "class", "ft-underlined"), "u");
-		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("span", "class", "ft-bold"), "b");
-		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("span", "class", "ft-italic"), "i");
+		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("strong"), "b");
+		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("em"), "i");
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("del"), "s");
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("del"), "strike");
 
@@ -72,11 +72,11 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		// characters (i.e. normal text) will be output
 		super.registerCharactersEventHandler(new RetainXMLEventHandler());
 		// specific entity references should be retained
-		super.registerEntityReferenceEventHandler(new StructuredXmlHtmlEntityReferenceEventHandler());
+		super.registerEntityReferenceEventHandler(new PlainTextHtmlEntityReferenceEventHandler());  // consistent with FastFT, NOT V1
 	}
 
 	private XMLEventHandler removeForTheTimeBeing() {
-		return new StripElementAndContentsXMLEventHandler();
+		return new StripXMLEventHandler();
 	}
 
 

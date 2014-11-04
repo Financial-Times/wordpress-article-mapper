@@ -15,7 +15,7 @@ import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
-import com.ft.wordpressarticletransformer.transformer.BodyTransformationXMLEventRegistry;
+import com.ft.wordpressarticletransformer.transformer.StructuredWordPressSourcedBodyXMLEventHandlerRegistry;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -33,7 +33,7 @@ public class BodyProcessingStepDefs {
 
     private static final String TRANSACTION_ID = randomChars(10);
     private static final String TEXT = "Some text in between tags";
-    private BodyTransformationXMLEventRegistry registry;
+    private StructuredWordPressSourcedBodyXMLEventHandlerRegistry registry;
 
     private Map <String, String> rulesAndHandlers;
 
@@ -44,7 +44,7 @@ public class BodyProcessingStepDefs {
     @Before
     public void setup() {
         bodyTransformer = new BodyProcessingFieldTransformerFactory().newInstance();
-        registry = new BodyTransformationXMLEventRegistry();
+        registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry();
         rulesAndHandlers = new HashMap<String, String>();
         rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS" , "StripElementAndContentsXMLEventHandler");
         rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
@@ -107,8 +107,8 @@ public class BodyProcessingStepDefs {
     public void the_entity_should_be_replace_by_unicode_codepoint(String entity, String codepoint) throws Throwable {
         int codePointInt = Integer.decode(codepoint);
         char[] chars = Character.toChars(codePointInt);
-        String expected = "<body>" + TEXT  + new String(chars) + "</body>";
-        fastFTBodyText = "<body>" + TEXT  +  entity + "</body>";
+        String expected = "<p>" + TEXT  + new String(chars) + "</p>";
+        fastFTBodyText = "<p>" + TEXT  +  entity + "</p>";
         transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
         assertThat(transformedBodyText, is(expected));
     }
@@ -133,8 +133,8 @@ public class BodyProcessingStepDefs {
         return eventHandler;
     }
 
-    @Given("^the fastFt body contains (.+) the transformer will (.+)$")
-    public void the_fastFT_body_contains(String tagname, String rule) throws Throwable {
+    @Given("^the \\w+ body contains (.+) the transformer will (.+)$")
+    public void the_system_body_contains(String tagname, String rule) throws Throwable {
         assertTagIsRegistered(tagname,rule);
     }
 

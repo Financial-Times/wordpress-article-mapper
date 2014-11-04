@@ -11,9 +11,9 @@ For details of which rules apply for particular tags, see bodyprocessing.feature
 
   Examples:
     | rule                                  | name      | before                                                | after             |
-    | STRIP ELEMENT AND CONTENTS            | applet    | pretext <applet id="myApplet">Text</applet>posttext   | pretext posttext  |
-    | STRIP ELEMENT AND LEAVE CONTENT       | unknown   | <unknown id="myUnknown">Some unknown text</unknown>   | Some unknown text |
-    | RETAIN ELEMENT AND REMOVE ATTRIBUTES  | h1        | <h1 id="attr1" class="attr2">Text</h1>                | <h1>Text</h1>     |
+    | STRIP ELEMENT AND CONTENTS            | applet    | <body>pretext <applet id="myApplet">Text</applet>posttext</body>   | pretext posttext  |
+    | STRIP ELEMENT AND LEAVE CONTENT       | unknown   | <body><unknown id="myUnknown">Some unknown text</unknown></body>   | Some unknown text |
+    | RETAIN ELEMENT AND REMOVE ATTRIBUTES  | h1        | <body><h1 id="attr1" class="attr2">Text</h1></body>                | <h1>Text</h1>     |
 
   Scenario Outline: Transform one tag into another
     Given the before tag <beforename> and the after tag <aftername> adheres to the TRANSFORM THE TAG rule
