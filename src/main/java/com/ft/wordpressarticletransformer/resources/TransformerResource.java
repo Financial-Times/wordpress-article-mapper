@@ -2,9 +2,12 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.io.IOException;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
+
 import java.util.TreeSet;
 import java.util.UUID;
 import javax.ws.rs.GET;
@@ -20,8 +23,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
@@ -29,7 +30,6 @@ import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
-import com.google.common.collect.Maps;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.ClientResponse;
 import org.slf4j.Logger;
@@ -70,9 +70,15 @@ public class TransformerResource {
 			throw new NotFoundException();
 		}
 
-		String title = "title";
-		String body = transformBody("<p>Hard coded body</p>");
-		Date datePublished = new Date();
+		String title = wordPressResponse.getPost().getTitlePlain();
+		String body = wordPressResponse.getPost().getContent();
+		Date datePublished;
+		try {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			datePublished = df.parse(wordPressResponse.getPost().getDate());
+		} catch (ParseException e) {
+			throw ServerError.status(500).exception(e);
+		}
 
 		LOGGER.info("Returning content for uuid [{}].", uuid);
 		
@@ -100,10 +106,6 @@ public class TransformerResource {
         }
 	}
 
-	private String transformBody(String originalBody) {
-		return "<body>" + originalBody + "</body>";
-	}
-
 	private WordPressResponse doRequest(URI requestUri) {
 		
 		ClientResponse response = wordPressResilientClient.getContent(requestUri);
@@ -124,7 +126,7 @@ public class TransformerResource {
         
         String json = rawOutput.substring(rawOutput.indexOf("{"));
         
-        final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+        final ObjectMapper objectMapper = new ObjectMapper();
         WordPressResponse wordPressResponse = null;
         
         try {
