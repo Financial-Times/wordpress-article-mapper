@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.UUID;
 import javax.ws.rs.GET;
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
@@ -29,7 +27,6 @@ import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
-import com.google.common.collect.Maps;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.ClientResponse;
 import org.slf4j.Logger;
@@ -45,16 +42,16 @@ public class TransformerResource {
 	public static final String ORIGINATING_SYSTEM_FT_CLAMO = "http://www.ft.com/ontology/origin/TODO_USE_CORRECT_VALUE";
 
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
-	private final Brand fastFtBrand;//TODO replace with brand lookup
+    private final BrandResolver brandResolver;
 	
 	private WordPressResilientClient wordPressResilientClient;
 
-	public TransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer, 
-							   Brand fastFtBrand, WordPressResilientClient wordPressResilientClient) {
+	public TransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
+                                WordPressResilientClient wordPressResilientClient, BrandResolver brandResolver) {
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
-		this.fastFtBrand = fastFtBrand;
         this.wordPressResilientClient = wordPressResilientClient;
-	}
+        this.brandResolver = brandResolver;
+    }
 
 	@GET
 	@Timed
@@ -76,7 +73,7 @@ public class TransformerResource {
 
 		LOGGER.info("Returning content for uuid [{}].", uuid);
 		
-		Brand brand = getBrand(requestUri);        
+		Brand brand = brandResolver.getBrand(requestUri);
 
 		return Content.builder().withTitle(title)
 				.withPublishedDate(datePublished)
@@ -86,10 +83,6 @@ public class TransformerResource {
 				.withUuid(uuid).build();
 
 	}
-
-	private Brand getBrand(URI requestUri) {
-	    return new Brand("http://replace_with_actual_brand");
-    }
 
     private String tidiedUpBody(String body, String transactionId) {
         try {

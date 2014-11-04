@@ -9,6 +9,7 @@ import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
+import com.ft.wordpressarticletransformer.resources.BrandResolver;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.resources.TransformerResource;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
@@ -48,7 +49,8 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 				configuration.getNumberOfConnectionAttempts());
 		
         environment.jersey().register(new TransformerResource(getBodyProcessingFieldTransformer(), configuration.getFastFtBrand(),
-				wordPressResilientClient));
+				wordPressResilientClient, new BrandResolver()));
+
 
 		String healthCheckName = "Connectivity to WordPress";
 		environment.healthChecks().register(healthCheckName,
