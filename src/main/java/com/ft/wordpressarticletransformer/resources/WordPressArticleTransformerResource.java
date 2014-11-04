@@ -71,6 +71,10 @@ public class WordPressArticleTransformerResource {
 	        throw ClientError.status(400).error("No url supplied").exception();
 	    }
 	    
+	    if (requestUri.getHost() == null) {
+	        throw ClientError.status(400).error("Not a valid url").exception();
+	    }
+	    
 	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
 	    
 	    WordPressResponse wordPressResponse = doRequest(requestUri);
