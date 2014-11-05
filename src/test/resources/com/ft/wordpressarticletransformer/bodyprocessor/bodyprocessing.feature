@@ -35,6 +35,7 @@ For details of how tags will look before and after for particular processing rul
     | li      |
     | p       |
     | del     |
+    | u       |
 
   Scenario Outline:
     Given the WordPress body contains <tagname> the transformer will STRIP ELEMENT AND CONTENTS

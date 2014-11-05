@@ -37,7 +37,6 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		//registerStartAndEndElementEventHandler(videoHandlerWithFallbackTo(tweetHandlerWithFallbackTo(new BaseXMLEventHandler())), "div");
 
 		// to be transformed
-		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("span", "class", "ft-underlined"), "u");
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("strong"), "b");
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("em"), "i");
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("del"), "s");

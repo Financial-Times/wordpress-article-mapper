@@ -147,6 +147,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.ft.dropwizard</groupId>
             <artifactId>api-hamcrest-matchers</artifactId>
             <version>0.6.2</version>
