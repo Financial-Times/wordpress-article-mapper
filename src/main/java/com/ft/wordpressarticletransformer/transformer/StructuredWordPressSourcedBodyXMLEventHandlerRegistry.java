@@ -20,7 +20,7 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 				"body",
 				"h1","h2", "h3", "h4", "h5", "h6",
 				"ol", "ul", "li",
-				"br", "strong", "em", "small", "sub", "sup",
+				"br", "strong", "em", "small", "sub", "sup", "u",
 				"del", "blockquote", "p",
 				"itemBody"); // itemBody included as it will be a root node wrapping the body text so that the xml being written out is valid
 
