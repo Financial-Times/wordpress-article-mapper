@@ -1,0 +1,16 @@
+{
+	"request" : {
+		"urlPattern" : "/request_to_word_press_non_word_press_response.*",
+		"method" : "GET"
+	},
+	"response" : {
+		"status" : 200,
+		"bodyFileName" : "WILL_RETURN_200-body-not-from-wordpress.json",
+		"headers" : {
+			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
+			"Content-Type" : "application/json",
+			"Vary" : "Accept-Encoding, User-Agent",
+			"Transfer-Encoding" : "chunked"
+		}
+	}
+}

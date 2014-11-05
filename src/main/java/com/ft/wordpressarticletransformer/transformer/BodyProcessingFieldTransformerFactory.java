@@ -10,6 +10,9 @@ import com.ft.bodyprocessing.regex.RegexRemoverBodyProcessor;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.bodyprocessing.transformer.FieldTransformerFactory;
 import com.ft.bodyprocessing.xml.StAXTransformingBodyProcessor;
+import com.ft.wordpressarticletransformer.transformer.html.RemoveEmptyElementsBodyProcessor;
+import com.ft.wordpressarticletransformer.transformer.html.TagSoupCleanupHtmlBodyProcessor;
+import com.ft.wordpressarticletransformer.transformer.html.TagSoupHtmlBodyProcessor;
 
 public class BodyProcessingFieldTransformerFactory implements FieldTransformerFactory {
 
@@ -26,13 +29,15 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
     private List<BodyProcessor> bodyProcessors() {
         return asList(
                 new RegexRemoverBodyProcessor("(<p>)\\s*(</p>)|(<p/>)"),
+				new TagSoupHtmlBodyProcessor(),
+				new TagSoupCleanupHtmlBodyProcessor(),
                 stAXTransformingBodyProcessor(),
-                new RegexRemoverBodyProcessor("(<p>)\\s*(</p>)")
+                new RemoveEmptyElementsBodyProcessor(asList("p","a"),asList("img"))
         );
     }
 
     private BodyProcessor stAXTransformingBodyProcessor() {
-        return new StAXTransformingBodyProcessor(new BodyTransformationXMLEventRegistry());
+        return new StAXTransformingBodyProcessor(new StructuredWordPressSourcedBodyXMLEventHandlerRegistry());
     }
 
 }
