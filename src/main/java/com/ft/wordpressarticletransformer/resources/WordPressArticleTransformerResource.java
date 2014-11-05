@@ -94,26 +94,24 @@ public class WordPressArticleTransformerResource {
 		DateTime datePublished = formatter.parseDateTime(postDetails.getDate());
 		
 		LOGGER.info("Returning content for uuid [{}].", uuid);
-		
 
 		Brand brand = brandResolver.getBrand(requestUri);
-        SortedSet<Brand> brands = null;
 
+        if(brand == null){
+			LOGGER.error("Failed to resolve brand for uri [{}].", requestUri);
+			throw ServerError.status(500).error(String.format("Failed to resolve brand for uri [%s].", requestUri)).exception();
+        } else {
+			SortedSet<Brand> resolvedBrandWrappedInASet = new TreeSet<>();
+			resolvedBrandWrappedInASet.add(brand);
 
-        if(brand != null){
-
-            brands = new TreeSet<>();
-            brands.add(brand);
-
-        }
-
-        return Content.builder().withTitle(postDetails.getTitle())
-                .withPublishedDate(datePublished.toDate())
-                .withXmlBody(tidiedUpBody(body, transactionId))
-                .withByline(postDetails.getAuthor().getName())
-                .withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, postDetails.getUrl())
-                .withBrands(brands)
-                .withUuid(UUID.fromString(uuid)).build();
+			return Content.builder().withTitle(postDetails.getTitle())
+					.withPublishedDate(datePublished.toDate())
+					.withXmlBody(tidiedUpBody(body, transactionId))
+					.withByline(postDetails.getAuthor().getName())
+					.withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, postDetails.getUrl())
+					.withBrands(resolvedBrandWrappedInASet)
+					.withUuid(UUID.fromString(uuid)).build();
+		}
 	}
 
     private String tidiedUpBody(String body, String transactionId) {
