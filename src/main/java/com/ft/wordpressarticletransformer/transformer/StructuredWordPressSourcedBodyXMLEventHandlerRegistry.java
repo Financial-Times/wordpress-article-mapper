@@ -25,16 +25,15 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 				"itemBody"); // itemBody included as it will be a root node wrapping the body text so that the xml being written out is valid
 
 		// TODO handle wrapped image captions and image source
-		//super.registerStartAndEndElementEventHandler(imageCaptionHandlerWithFallbackTo(new RetainWithoutAttributesXMLEventHandler()), "p");
-		//super.registerStartAndEndElementEventHandler(imageSourceHandlerWithFallbackTo(new StripXMLEventHandler()), "span");
+		// super.registerStartAndEndElementEventHandler(imageCaptionHandlerWithFallbackTo(new RetainWithoutAttributesXMLEventHandler()), "p");
+		// super.registerStartAndEndElementEventHandler(imageSourceHandlerWithFallbackTo(new StripXMLEventHandler()), "span");
 
 		// to be retained with attributes
 		super.registerStartElementEventHandler(new LinkTagXMLEventHandler(), "a");
 		super.registerEndElementEventHandler(new LinkTagXMLEventHandler(), "a");
 		super.registerStartAndEndElementEventHandler(removeForTheTimeBeing(), "img");
 
-		// TODO handle wrapped tweets
-		//registerStartAndEndElementEventHandler(videoHandlerWithFallbackTo(tweetHandlerWithFallbackTo(new BaseXMLEventHandler())), "div");
+		registerStartAndEndElementEventHandler(videoHandlerWithFallbackTo(tweetHandlerWithFallbackTo(new BaseXMLEventHandler())), "div");
 
 		// to be transformed
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("strong"), "b");
@@ -73,6 +72,14 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		super.registerCharactersEventHandler(new RetainXMLEventHandler());
 		// specific entity references should be retained
 		super.registerEntityReferenceEventHandler(new PlainTextHtmlEntityReferenceEventHandler());  // consistent with FastFT, NOT V1
+	}
+
+	private XMLEventHandler videoHandlerWithFallbackTo(XMLEventHandler fallbackHandler) {
+		return new StripElementByClassEventHandler("morevideo",fallbackHandler);
+	}
+
+	private XMLEventHandler tweetHandlerWithFallbackTo(BaseXMLEventHandler baseXMLEventHandler) {
+		return new StripElementByClassEventHandler("twitter-tweet",baseXMLEventHandler);
 	}
 
 	private XMLEventHandler removeForTheTimeBeing() {

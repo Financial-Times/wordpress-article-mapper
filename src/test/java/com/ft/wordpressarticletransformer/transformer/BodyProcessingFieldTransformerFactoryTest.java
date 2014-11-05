@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
+import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -133,7 +134,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
 
 
-        assertThat(actualTransformedBody, equalTo(expectedTransformedBody));
+        assertThat(actualTransformedBody, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformedBody));
     }
 
 
