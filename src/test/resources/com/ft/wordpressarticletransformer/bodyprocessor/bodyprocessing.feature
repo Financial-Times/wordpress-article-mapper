@@ -107,15 +107,16 @@ For details of how tags will look before and after for particular processing rul
     | weird     | <weird>text surrounded by unknown tags</weird>     |
 
 
-  Scenario Outline: Remove inline images
-    Given I have body <with inline images>
+  Scenario Outline: Remove inline assets
+    Given I have body <with inline asset>
     When I transform it
-    Then I get the body <without inline images>
+    Then I get the body <without inline asset>
 
   Examples:
-    | with inline images                                                      | without inline images                                                    |
-    | <p>Check this chart out!</p><p><a href="http://uat.ftalphaville.ft.com/files/2014/10/Chart5.png" target="_blank"><img class="aligncenter size-full wp-image-2012992" src="http://uat.ftalphaville.ft.com/files/2014/10/Chart5-e1413767777269.png" alt="" width="300" height="660" /></a></p><p>Profit!</p> | <p>Check this chart out!</p><p>Profit!</p> |
-
+    | with inline asset                                                      | without inline asset                                                    |
+    | <p>Check this chart out!</p><p><a href="http://uat.ftalphaville.ft.com/files/2014/10/Chart5.png" target="_blank"><img class="aligncenter size-full wp-image-2012992" src="http://uat.ftalphaville.ft.com/files/2014/10/Chart5-e1413767777269.png" alt="" width="300" height="660" /></a></p><p>Profit!</p>  | <p>Check this chart out!</p><p>Profit!</p> |
+    | <p>Confusion:</p><p<div data-asset-type="embed"><blockquote class="twitter-tweet" lang="en"><p>Learning from Comcast/TWC? AT&amp;T b DirecTV deal includes collar protecting <a href="https://twitter.com/search?q=%24DTV&amp;src=ctag">$DTV</a> shareholders from decline in <a href="https://twitter.com/search?q=%24T&amp;src=ctag">$T<\/a> stock. (Caps upside, too).</p>&mdash; Liz Hoffman (@lizrhoffman) <a href="https://twitter.com/lizrhoffman/statuses/468146880682016769">May 18, 2014</a></blockquote> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></div></p><p>AT&amp;T</p> | <p>Confusion:</p><p>AT&amp;T</p> |
+    | <p>Confusion:</p><div class="morevideo"><a href="http://video.ft.com/">More video</a></div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | <p>Confusion:</p>                |
 
   Scenario Outline: Fix markup problems
     Given I have body <with errors>
