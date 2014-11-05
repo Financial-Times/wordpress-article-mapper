@@ -3,6 +3,7 @@ package com.ft.wordpressarticletransformer.steps;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
@@ -14,7 +15,7 @@ import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
-import com.ft.wordpressarticletransformer.transformer.BodyTransformationXMLEventRegistry;
+import com.ft.wordpressarticletransformer.transformer.StructuredWordPressSourcedBodyXMLEventHandlerRegistry;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -32,7 +33,7 @@ public class BodyProcessingStepDefs {
 
     private static final String TRANSACTION_ID = randomChars(10);
     private static final String TEXT = "Some text in between tags";
-    private BodyTransformationXMLEventRegistry registry;
+    private StructuredWordPressSourcedBodyXMLEventHandlerRegistry registry;
 
     private Map <String, String> rulesAndHandlers;
 
@@ -43,7 +44,7 @@ public class BodyProcessingStepDefs {
     @Before
     public void setup() {
         bodyTransformer = new BodyProcessingFieldTransformerFactory().newInstance();
-        registry = new BodyTransformationXMLEventRegistry();
+        registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry();
         rulesAndHandlers = new HashMap<String, String>();
         rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS" , "StripElementAndContentsXMLEventHandler");
         rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
@@ -53,9 +54,9 @@ public class BodyProcessingStepDefs {
         rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT", "StripXMLEventHandler");
     }
 
-    @Given("^I have html (.+?)$")
-    public void I_have_html(String html) throws Throwable {
-        fastFTBodyText = html;
+    @Given("^I have body (.+?)$")
+    public void I_have_body(String html) throws Throwable {
+        fastFTBodyText = "<body>" + html + "</body>";
     }
     
     @Given("^there are empty paragraphs in the body$")
@@ -97,19 +98,23 @@ public class BodyProcessingStepDefs {
 
     @Then("^it is transformed, (.+) becomes (.+)$")
     public void the_before_becomes_after(String before, String after) throws Throwable {
-        transformedBodyText = bodyTransformer.transform(before, TRANSACTION_ID);
-        assertThat("before and after do not match", transformedBodyText, equalTo(after));
+        transformedBodyText = bodyTransformer.transform(wrapped(before), TRANSACTION_ID);
+        assertThat("before and after do not match", transformedBodyText, equalTo(wrapped(after)));
     }
 
+	private String wrapped(String bodyMarkUp) {
+		return String.format("<body>%s</body>", bodyMarkUp);
+	}
 
-    @Then("^it is transformed the entity (.+) should be replaced by the unicode codepoint (.+)$")
+
+	@Then("^it is transformed the entity (.+) should be replaced by the unicode codepoint (.+)$")
     public void the_entity_should_be_replace_by_unicode_codepoint(String entity, String codepoint) throws Throwable {
         int codePointInt = Integer.decode(codepoint);
         char[] chars = Character.toChars(codePointInt);
-        String expected = "<body>" + TEXT  + new String(chars) + "</body>";
-        fastFTBodyText = "<body>" + TEXT  +  entity + "</body>";
+        String expected = "<p>" + TEXT  + new String(chars) + "</p>";
+        fastFTBodyText = "<p>" + TEXT  +  entity + "</p>";
         transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
-        assertThat(transformedBodyText, is(expected));
+        assertThat(transformedBodyText, is(wrapped(expected)));
     }
 
     private void assertTagIsRegisteredToTransform(String rule, String before, String after){
@@ -132,8 +137,8 @@ public class BodyProcessingStepDefs {
         return eventHandler;
     }
 
-    @Given("^the fastFt body contains (.+) the transformer will (.+)$")
-    public void the_fastFT_body_contains(String tagname, String rule) throws Throwable {
+    @Given("^the \\w+ body contains (.+) the transformer will (.+)$")
+    public void the_system_body_contains(String tagname, String rule) throws Throwable {
         assertTagIsRegistered(tagname,rule);
     }
 
@@ -143,5 +148,9 @@ public class BodyProcessingStepDefs {
         assertTagIsRegisteredToTransform(rule, tagname, replacement);
     }
 
+	@Then("^I get the body (.+?)$")
+	public void then_I_get_the_body(String html) throws Throwable {
+		assertThat( transformedBodyText ,equalToIgnoringWhiteSpace("<body>" + html + "</body>"));
+	}
 
 }
