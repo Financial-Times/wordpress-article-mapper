@@ -15,13 +15,16 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 	public StructuredWordPressSourcedBodyXMLEventHandlerRegistry() {
 		//default is to skip events - any start or end tags or entities not configured below will be excluded, as will comments
 		super.registerDefaultEventHandler(new StripXMLEventHandler());
+
+		super.registerStartAndEndElementEventHandler(tweetHandlerWithFallbackTo(new RetainWithoutAttributesXMLEventHandler()),"blockquote");
+
 		//tags to include
 		super.registerStartAndEndElementEventHandler(new RetainWithoutAttributesXMLEventHandler(),
 				"body",
 				"h1","h2", "h3", "h4", "h5", "h6",
 				"ol", "ul", "li",
 				"br", "strong", "em", "small", "sub", "sup", "u",
-				"del", "blockquote", "p",
+				"del", "p",
 				"itemBody"); // itemBody included as it will be a root node wrapping the body text so that the xml being written out is valid
 
 		// TODO handle wrapped image captions and image source
@@ -33,7 +36,9 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		super.registerEndElementEventHandler(new LinkTagXMLEventHandler(), "a");
 		super.registerStartAndEndElementEventHandler(removeForTheTimeBeing(), "img");
 
-		registerStartAndEndElementEventHandler(videoHandlerWithFallbackTo(tweetHandlerWithFallbackTo(new BaseXMLEventHandler())), "div");
+
+		registerStartAndEndElementEventHandler(videoHandlerWithFallbackTo(new BaseXMLEventHandler()), "div");
+
 
 		// to be transformed
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("strong"), "b");
