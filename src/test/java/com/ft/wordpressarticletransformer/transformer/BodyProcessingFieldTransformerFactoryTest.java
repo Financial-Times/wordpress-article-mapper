@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.xmlmatchers.XmlMatchers.equivalentTo;
+import static org.xmlmatchers.transform.XmlConverters.the;
 
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
@@ -13,6 +15,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.xmlmatchers.XmlMatchers;
 
 public class BodyProcessingFieldTransformerFactoryTest {
     @Rule
@@ -133,8 +136,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
         String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
 
-
-        assertThat(actualTransformedBody, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformedBody));
+        assertThat(the(actualTransformedBody), equivalentTo(the(expectedTransformedBody)));
     }
 
 
