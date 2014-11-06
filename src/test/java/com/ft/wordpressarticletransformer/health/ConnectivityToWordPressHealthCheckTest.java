@@ -4,9 +4,11 @@ import static com.ft.dropwizard.matcher.AdvancedHealthCheckResult.healthy;
 import static com.ft.dropwizard.matcher.AdvancedHealthCheckResult.unhealthy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,24 +37,32 @@ public class ConnectivityToWordPressHealthCheckTest {
 
 	@Before
 	public void setup() {
-		List<WordPressConnection> list = null;
+
+		WordPressConnection dummyConnection = new WordPressConnection("localhost","/path",8080);
+
+		List<WordPressConnection> list = Collections.singletonList(dummyConnection);
 		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", wordPressResilientClient, SystemId.systemIdFromCode("test-fastft"), "", list);
 	}
 
 	@Test
 	public void shouldReturnHealthyWhenClamoStatus200() throws Exception {
-//		when(response.getStatus()).thenReturn(200);
-//        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
-//        WordPressMostRecentPostsResponse[] wordPressMostRecentPostsResponses = new WordPressMostRecentPostsResponse[]{wordPressMostRecentPostsResponse};
-//        when(response.getEntity(WordPressMostRecentPostsResponse[].class)).thenReturn(wordPressMostRecentPostsResponses);
-//        Data data = mock(Data.class);
-//        when(wordPressMostRecentPostsResponse.getData()).thenReturn(data);
-//        when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("ok");
-//        Map<String, Object> dataMap = new HashMap<String, Object>();
-//        dataMap.put("id", CONTENT_ID);
-//        when(data.getAdditionalProperties()).thenReturn(dataMap);
-//
-//        assertThat(healthCheck.checkAdvanced(), is(healthy()));
+		when(response.getStatus()).thenReturn(200);
+        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
+
+        when(response.getEntity(WordPressMostRecentPostsResponse.class)).thenReturn(wordPressMostRecentPostsResponse);
+
+		when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("ok");
+		when(wordPressMostRecentPostsResponse.getCount()).thenReturn(1);
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("id", "2014892");
+
+        when(wordPressMostRecentPostsResponse.getAdditionalProperties()).thenReturn(dataMap);
+
+		when(wordPressResilientClient.getRecentPosts(any(WordPressConnection.class))).thenReturn(response);
+
+        assertThat(healthCheck.checkAdvanced(), is(healthy()));
 	}
+
+
 
 }

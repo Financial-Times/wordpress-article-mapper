@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 
 import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
@@ -33,9 +34,11 @@ public class WordPressArticleTransformerResourceTest {
 	private static final String UUID = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
 	private static final String URL = "url";
 	private DateTime publishedDate = null;
-	
 
-    private static final String WILL_RETURN_200 = "http://localhost:15670/request_to_word_press_200/?json=1";
+
+	public static final String WILL_RETURN_200_PATH = "/request_to_word_press_200/?json=1";
+	private static final String WILL_RETURN_200 = "http://localhost:15670" + WILL_RETURN_200_PATH;
+
     private static final String WILL_RETURN_404 = "http://localhost:15670/request_to_word_press_404/?json=1";
     private static final String WILL_RETURN_ERROR_NOT_FOUND = "http://localhost:15670/request_to_word_press_error_not_found/?json=1";
     private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_500/?json=1";
@@ -50,7 +53,7 @@ public class WordPressArticleTransformerResourceTest {
 	@Before
 	public void setup() {
 		client = Client.create();
-		client.setReadTimeout(500);
+		client.setReadTimeout(50000);
 		
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
         publishedDate = formatter.parseDateTime("2014-10-21 05:45:30");
@@ -138,6 +141,21 @@ public class WordPressArticleTransformerResourceTest {
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+	}
+
+
+	@Test
+	public void shouldAddApiKeyToUpstreamRequest() {
+		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assumeThat("response", clientResponse, hasProperty("status", equalTo(200)));
+
+		String urlWithKeyAdded = WILL_RETURN_200_PATH + "&api_key="+ WP.EXAMPLE_API_KEY;
+
+		WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
+
+
 	}
 
 
