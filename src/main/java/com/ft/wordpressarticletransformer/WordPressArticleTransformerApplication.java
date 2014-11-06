@@ -1,24 +1,22 @@
 package com.ft.wordpressarticletransformer;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import javax.servlet.DispatcherType;
 
+import com.ft.api.jaxrs.errors.Errors;
 import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
+import com.ft.messaging.standards.message.v1.SystemId;
+import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
 import com.ft.wordpressarticletransformer.resources.BrandResolver;
-import com.ft.wordpressarticletransformer.resources.HostToBrand;
-import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
+import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
-import com.ft.messaging.standards.message.v1.SystemId;
-import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.sun.jersey.api.client.Client;
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
@@ -65,7 +63,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 				));
 
 		environment.jersey().register(new RuntimeExceptionMapper());
-
+        Errors.customise(new WordPressArticleTransformerErrorEntityFactory());
 		environment.servlets().addFilter("Transaction ID Filter",
 				new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
     }

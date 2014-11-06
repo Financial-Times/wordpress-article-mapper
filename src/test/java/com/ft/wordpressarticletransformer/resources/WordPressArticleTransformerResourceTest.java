@@ -15,7 +15,6 @@ import com.ft.content.model.Content;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -86,10 +85,22 @@ public class WordPressArticleTransformerResourceTest {
     @Test
 	public void shouldReturn404When404ReturnedFromWordPress() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_404);
-
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
 	}
+
+//    //TODO
+//    @Test
+//    public void shouldReturn404WithUuidWhenNotFoundFromWordPress() {
+//    }
+//
+//    @Test
+//    public void shouldReturn404WithUuidWhenTypePostFromWordPress() {
+//    }
+//
+//    @Test
+//    public void shouldReturn400WhenUuidIsNotValid() {
+//    }
 
 	@Test
 	public void shouldReturn405WhenNoUuidSupplied() {
@@ -106,6 +117,7 @@ public class WordPressArticleTransformerResourceTest {
        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
+
     
     @Test
     public void shouldReturn400WhenUrlIsNotValid() {
@@ -122,6 +134,7 @@ public class WordPressArticleTransformerResourceTest {
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
+
 
 	@Test
 	public void shouldReturn503When500ReturnedFromClamo() {

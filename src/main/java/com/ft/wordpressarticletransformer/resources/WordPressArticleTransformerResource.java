@@ -2,11 +2,9 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -15,12 +13,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +29,11 @@ import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/content")
 public class WordPressArticleTransformerResource {
@@ -75,12 +72,19 @@ public class WordPressArticleTransformerResource {
 	    }
 	    
 	    if (requestUri.getHost() == null) {
-	        throw ClientError.status(400).error("Not a valid url").exception();
-	    }
+            throw ClientError.status(400).error("Not a valid url").exception();
+        }
+        UUID validUuid = null;
+        try {
+            validUuid = UUID.fromString(uuid);
+        }
+        catch(Exception e){
+            throw ClientError.status(400).error("Not a valid uuid").exception();
+        }
 	    
-	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid, "Publish request");
+	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, validUuid.toString(), "Publish request");
 	    
-	    WordPressResponse wordPressResponse = doRequest(requestUri);
+	    WordPressResponse wordPressResponse = doRequest(requestUri, validUuid);
 
 		if (wordPressResponse == null) {
 			throw new NotFoundException();
@@ -93,7 +97,7 @@ public class WordPressArticleTransformerResource {
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
 		DateTime datePublished = formatter.parseDateTime(postDetails.getDate());
 		
-		LOGGER.info("Returning content for uuid [{}].", uuid);
+		LOGGER.info("Returning content for uuid [{}].", validUuid.toString());
 
 		Brand brand = brandResolver.getBrand(requestUri);
 
@@ -110,7 +114,7 @@ public class WordPressArticleTransformerResource {
 					.withByline(postDetails.getAuthor().getName())
 					.withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, postDetails.getUrl())
 					.withBrands(resolvedBrandWrappedInASet)
-					.withUuid(UUID.fromString(uuid)).build();
+					.withUuid(validUuid).build();
 		}
 	}
 
@@ -127,7 +131,7 @@ public class WordPressArticleTransformerResource {
 		return "<body>" + originalBody + "</body>";
 	}
 
-	private WordPressResponse doRequest(URI requestUri) {
+	private WordPressResponse doRequest(URI requestUri, UUID uuid) {
 		
 		ClientResponse response = wordPressResilientClient.getContent(requestUri);
 
@@ -146,10 +150,14 @@ public class WordPressArticleTransformerResource {
 		        throw ClientError.status(400).error(
                         String.format("Response not a valid WordPressResponse - check your url [%s].", requestUri)).exception();
 		    }
+            if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals("post")) { // martkets live
+                throw ClientError.status(400).error(
+                        String.format("Not a valid post", requestUri)).exception();
+            }
 		    if (STATUS_ERROR.equals(wordPressResponse.getStatus())) {
 		        String error = wordPressResponse.getError();
 		        if (ERROR_NOT_FOUND.equals(error)) {
-	                throw ClientError.status(404).error("Not found").exception();
+	                throw ClientError.status(404).context(uuid).error("Not found").exception();
 		        } else {
 		            // It says it's an error, but we don't understand this kind of error
 		            throw ServerError.status(500).error(
