@@ -9,8 +9,8 @@ healthCheckWordPressConnections:
       path: /tech-blog/api/get_recent_posts/
 
 hostToBrandMappings:
-    - host: unlocalhost
-      brand: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
+    - host: ftalphaville.ft.com
+      brand: http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a6
 
 jerseyClient:
     timeout: 3000ms
@@ -22,20 +22,15 @@ server:
 
   applicationConnectors:
     - type: http
-      port: 14180
+      port: 8080
 
   adminConnectors:
       - type: http
-        port: 14181
+        port: 8081
 
   requestLog:
 
     appenders:
-
-      - type: console
-
-        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
-        timeZone: UTC
 
       - type: file
 
@@ -61,9 +56,6 @@ logging:
     io.dropwizard: DEBUG
 
   appenders:
-
-    - type: console
-      logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
 
     - type: file
       # Do not write log statements below this threshold to the file.
