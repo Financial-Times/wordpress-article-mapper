@@ -1,5 +1,5 @@
 
-wordpressApiKey: ABC123DEF456ABC123DEF456ABC123DEF456
+credentialsPath: credentials.properties
 
 healthCheckWordPressConnections:
     - hostName: uat.ftalphaville.ft.com

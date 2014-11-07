@@ -22,8 +22,9 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 	private final Brand fastFtBrand;
 	private final JerseyClientConfiguration jerseyClientConfiguration;
 	private final int numberOfConnectionAttempts;
+    private String credentialsPath;
 
-	public WordPressArticleTransformerConfiguration(
+    public WordPressArticleTransformerConfiguration(
 													@JsonProperty("wordpressApiKey") String wordpressApiKey,
 													@JsonProperty("healthCheckWordPressConnections") List<WordPressConnection> wordPressConnections,
                                                     @JsonProperty("fastFtBrandId") String fastFtBrandId,
@@ -38,10 +39,11 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
 	}
 
-	@NotNull @Size(min=16)
-	public String getWordpressApiKey() {
-		return wordpressApiKey;
-	}
+    @Valid @NotNull
+    public String getCredentialsPath() {
+        return credentialsPath;
+    }
+
 
 	@Valid
 	@NotNull
@@ -84,5 +86,6 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
     public String toString() {
         return toStringHelper().toString();
     }
+
 
 }
