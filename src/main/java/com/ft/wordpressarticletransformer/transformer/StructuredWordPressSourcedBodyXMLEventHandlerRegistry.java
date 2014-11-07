@@ -37,7 +37,13 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		super.registerStartAndEndElementEventHandler(removeForTheTimeBeing(), "img");
 
 
-		registerStartAndEndElementEventHandler(videoHandlerWithFallbackTo(new BaseXMLEventHandler()), "div");
+		registerStartAndEndElementEventHandler(
+				videoHandlerWithFallbackTo(
+						captionedImageHandlerWithFallbackTo(
+								new BaseXMLEventHandler()
+						)
+				),
+			"div");
 
 
 		// to be transformed
@@ -69,14 +75,21 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 				"video",
 				"wbr");
 
+		// OLD HANDLING RETAINED as at Nov 2014 as it is expected archives MAY contain it.
 		// TODO - replace this with the correct handling for tweets. It's here now because otherwise we get
 		// parts of stuff between the comments output
 		// for embedded tweets, strip everything between the initial and final comments. Any other comments will just be removed.
 		super.registerCommentsEventHandler(new StripEmbeddedTweetXMLEventHandler());
+		// END scope of previous comment re OLD HANDLING
+
 		// characters (i.e. normal text) will be output
 		super.registerCharactersEventHandler(new RetainXMLEventHandler());
 		// specific entity references should be retained
 		super.registerEntityReferenceEventHandler(new PlainTextHtmlEntityReferenceEventHandler());  // consistent with FastFT, NOT V1
+	}
+
+	private XMLEventHandler captionedImageHandlerWithFallbackTo(XMLEventHandler xmlEventHandler) {
+		return new StripElementByClassEventHandler("wp-caption",xmlEventHandler);
 	}
 
 	private XMLEventHandler videoHandlerWithFallbackTo(XMLEventHandler fallbackHandler) {

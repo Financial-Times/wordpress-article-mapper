@@ -17,7 +17,6 @@ import org.junit.rules.ExpectedException;
 
 import com.codahale.metrics.MetricRegistry;
 import com.ft.api.jaxrs.errors.WebApplicationServerException;
-import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandler;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -26,8 +25,10 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class WordPressResilientClientTest {
-    
-    private ClientHandler handler = mock(ClientHandler.class);
+
+
+
+	private ClientHandler handler = mock(ClientHandler.class);
     private Client mockClient = new Client(handler);
     private ClientResponse clientResponse = mock(ClientResponse.class);
     private MetricRegistry appMetrics = new MetricRegistry();
@@ -41,7 +42,7 @@ public class WordPressResilientClientTest {
     
     @Before
     public void setup() {
-        wordPressResilientClient = new WordPressResilientClient(mockClient, appMetrics, 3);
+        wordPressResilientClient = new WordPressResilientClient(mockClient, appMetrics, 3, WP.EXAMPLE_API_KEY);
         when(clientResponse.getHeaders()).thenReturn(new MultivaluedMapImpl());
     }
 

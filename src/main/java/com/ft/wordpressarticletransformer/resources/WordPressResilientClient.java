@@ -18,17 +18,20 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 public class WordPressResilientClient {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(WordPressResilientClient.class);
 
-    private final Client client;
+	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressResilientClient.class);
+	public static final String API_KEY_NAME = "api_key";
+
+	private final Client client;
 	private int numberOfConnectionAttempts;
+	private String wordpressApiKey;
 
 	private final Timer requests;
 
-    public WordPressResilientClient(Client client, MetricRegistry appMetrics, int numberOfConnectionAttempts) {
+    public WordPressResilientClient(Client client, MetricRegistry appMetrics, int numberOfConnectionAttempts, String wordpressApiKey) {
         this.client = client;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
+		this.wordpressApiKey = wordpressApiKey;
 		this.requests = appMetrics.timer(MetricRegistry.name(WordPressArticleTransformerResource.class, "requestToWordPress"));
     }
 
@@ -78,13 +81,14 @@ public class WordPressResilientClient {
                 .scheme("http")
                 .host(wordPressConnection.getHostName())
                 .port(wordPressConnection.getPort())
-                .queryParam("count", 1).build();
+                .queryParam("count", 1)
+				.queryParam(API_KEY_NAME,wordpressApiKey).build();
     }
 
 
 	public ClientResponse getContent(URI requestUri) {
 
-	    WebResource webResource = client.resource(requestUri);
+	    WebResource webResource = client.resource(requestUri).queryParam(API_KEY_NAME,wordpressApiKey);
         
         ClientHandlerException lastClientHandlerException = null;
         

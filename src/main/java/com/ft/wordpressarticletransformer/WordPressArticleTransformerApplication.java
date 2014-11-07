@@ -47,7 +47,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 		environment.jersey().register(new VersionResource());
 		
 		WordPressResilientClient wordPressResilientClient = new WordPressResilientClient(client, environment.metrics(),
-				configuration.getNumberOfConnectionAttempts());
+				configuration.getNumberOfConnectionAttempts(), configuration.getWordpressApiKey());
 		
 
         environment.jersey().register(new WordPressArticleTransformerResource(getBodyProcessingFieldTransformer(),

@@ -34,7 +34,8 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
 				new TagSoupCleanupHtmlBodyProcessor(),
                 stAXTransformingBodyProcessor(),
                 new RemoveEmptyElementsBodyProcessor(asList("p","a"),asList("img")),
-				new RegexReplacerBodyProcessor("</p>\\s*<p>", "</p><p>")
+				new RegexReplacerBodyProcessor("</p>(\\r?\\n)+<p>", "</p>" + System.lineSeparator() + "<p>"),
+				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>")
         );
     }
 

@@ -1,3 +1,6 @@
+
+wordpressApiKey: ABC123DEF456ABC123DEF456ABC123DEF456
+
 healthCheckWordPressConnections:
     - hostName: uat.ftalphaville.ft.com
       port: 80

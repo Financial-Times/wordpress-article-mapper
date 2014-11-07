@@ -135,9 +135,8 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
         String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
-
-        assertThat(the(actualTransformedBody), equivalentTo(the(expectedTransformedBody)));
-    }
+		assertThat(actualTransformedBody, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformedBody));
+	}
 
 
     private void checkTransformationToEmpty(String originalBody) {

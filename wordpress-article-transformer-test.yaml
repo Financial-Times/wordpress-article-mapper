@@ -1,10 +1,10 @@
+
+wordpressApiKey : ABC123DEF456ABC123DEF456ABC123DEF456
+
 healthCheckWordPressConnections:
-    - hostName: uat.ftalphaville.ft.com
-      port: 80
+    - hostName: localhost
+      port: 15670
       path: /api/get_recent_posts/
-    - hostName: uat.blogs.ft.com
-      port: 80
-      path: /tech-blog/api/get_recent_posts/
 
 hostToBrandMappings:
     - host: localhost
