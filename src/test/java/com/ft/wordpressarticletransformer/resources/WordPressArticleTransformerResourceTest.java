@@ -36,6 +36,7 @@ public class WordPressArticleTransformerResourceTest {
 
     private static final String WILL_RETURN_200 = "http://localhost:15670/request_to_word_press_200/?json=1";
     private static final String WILL_RETURN_404 = "http://localhost:15670/request_to_word_press_404/?json=1";
+    private static final String WILL_RETURN_200_INCORRECT_BLOG_TYPE = "http://localhost:15670/request_to_word_press_200_not_type_post/?json=1";
     private static final String WILL_RETURN_ERROR_NOT_FOUND = "http://localhost:15670/request_to_word_press_error_not_found/?json=1";
     private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_500/?json=1";
     private static final String WILL_RETURN_NON_WORD_PRESS_RESPONSE = "http://localhost:15670/request_to_word_press_non_word_press_response/?json=1";
@@ -74,12 +75,13 @@ public class WordPressArticleTransformerResourceTest {
 	}
 	
 	@Test
-	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private
+	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
 	public void shouldReturn404WhenWordPressReturnsStatusErrorAndErrorNotFound() {
 	    final URI uri = buildTransformerUrl(UUID, WILL_RETURN_ERROR_NOT_FOUND);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("uuid:"));
 	}
 
     @Test
@@ -89,18 +91,22 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
 	}
 
-//    //TODO
-//    @Test
-//    public void shouldReturn404WithUuidWhenNotFoundFromWordPress() {
-//    }
-//
-//    @Test
-//    public void shouldReturn404WithUuidWhenTypePostFromWordPress() {
-//    }
-//
-//    @Test
-//    public void shouldReturn400WhenUuidIsNotValid() {
-//    }
+
+
+    @Test
+    public void shouldReturn404WithUuidWhenTypePostFromWordPress() {
+        final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+    }
+
+    @Test
+    public void shouldReturn400WhenUuidIsNotValid() {
+        final URI uri = buildTransformerUrl("ABC-1234", WILL_FAIL_BEFORE_REQUEST_TO_WORDPRESS);
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+    }
 
 	@Test
 	public void shouldReturn405WhenNoUuidSupplied() {

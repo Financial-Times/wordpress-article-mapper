@@ -1,0 +1,17 @@
+{
+   "request" : {
+      "urlPattern" : "/request_to_word_press_200_not_type_post.*",
+      "method" : "GET"
+   },
+   "response" : {
+      "status" : 200,
+      "bodyFileName" : "WILL_RETURN_200-not-type-post.json",
+      "headers" : {
+         "Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
+         "Content-Type" : "application/json",
+         "Vary" : "Accept-Encoding, User-Agent",
+         "Transfer-Encoding" : "chunked"
+      }
+   }
+}
+
