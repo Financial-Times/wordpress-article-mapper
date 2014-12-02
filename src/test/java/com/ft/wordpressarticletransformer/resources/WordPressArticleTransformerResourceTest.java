@@ -94,15 +94,13 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
 	}
 
+    @Test
+    public void shouldReturn404WithUuidWhenTypeNotPostFromWordPress() {
+        final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
 
-
-//    @Test
-//    public void shouldReturn404WithUuidWhenTypeNotPostFromWordPress() {
-//        final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
-//    }
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+    }
 
     @Test
     public void shouldReturn400WhenUuidIsNotValid() {
