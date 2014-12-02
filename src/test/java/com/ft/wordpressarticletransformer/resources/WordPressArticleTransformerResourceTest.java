@@ -35,7 +35,7 @@ public class WordPressArticleTransformerResourceTest {
 	private DateTime publishedDate = null;
 
 
-	public static final String WILL_RETURN_200_PATH = "/request_to_word_press_200/?json=1";
+	public static final String WILL_RETURN_200_PATH = "/request_to_word_press_200_ok/?json=1";
 	private static final String WILL_RETURN_200 = "http://localhost:15670" + WILL_RETURN_200_PATH;
 
     private static final String WILL_RETURN_404 = "http://localhost:15670/request_to_word_press_404/?json=1";
