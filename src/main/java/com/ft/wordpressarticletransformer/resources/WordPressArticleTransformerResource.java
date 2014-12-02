@@ -150,6 +150,10 @@ public class WordPressArticleTransformerResource {
 		        throw ClientError.status(400).error(
                         String.format("Response not a valid WordPressResponse - check your url [%s]. Response is [%s]", requestUri, response)).exception();
 		    }
+			LOGGER.info("Post is [{}].", wordPressResponse.getPost());
+			if (wordPressResponse.getPost() != null) {
+				LOGGER.info("Post type is [{}].", wordPressResponse.getPost().getType());
+			}
             if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals("post")) { // markets live
                 throw ClientError.status(400).error(
 						String.format(String.format("Not a valid post, type is [%s].", wordPressResponse.getPost().getType()), requestUri)).exception();
