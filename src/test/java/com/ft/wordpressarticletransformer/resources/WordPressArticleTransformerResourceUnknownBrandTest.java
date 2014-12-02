@@ -26,14 +26,14 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 	private static final String URL = "url";
 
 
-	private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_200/?json=1";
+	private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_200_ok/?json=1";
 
 	private Client client;
 
 	@Before
 	public void setup() {
 		client = Client.create();
-		client.setReadTimeout(500);
+		client.setReadTimeout(50000);
 	}
 
 	// The brand is unknown, because the content URL we are passing is going to localhost,

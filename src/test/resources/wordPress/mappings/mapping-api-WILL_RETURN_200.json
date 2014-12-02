@@ -1,6 +1,6 @@
 {
 	"request" : {
-		"urlPattern" : "/request_to_word_press_200.*",
+		"urlPattern" : "/request_to_word_press_200_ok.*",
 		"method" : "GET"
 	},
 	"response" : {
