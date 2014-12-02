@@ -5,7 +5,7 @@
    },
    "response" : {
       "status" : 200,
-      "bodyFileName" : "WILL_RETURN_200-not-type-post.json",
+      "bodyFileName" : "WILL_RETURN_200-incorrect-blog-type.json",
       "headers" : {
          "Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
          "Content-Type" : "application/json",

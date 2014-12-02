@@ -152,7 +152,7 @@ public class WordPressArticleTransformerResource {
 		    }
             if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals("post")) { // markets live
                 throw ClientError.status(400).error(
-                        String.format("Not a valid post", requestUri)).exception();
+						String.format(String.format("Not a valid post, type is [%s].", wordPressResponse.getPost().getType()), requestUri)).exception();
             }
 		    if (STATUS_ERROR.equals(wordPressResponse.getStatus())) {
 		        String error = wordPressResponse.getError();
