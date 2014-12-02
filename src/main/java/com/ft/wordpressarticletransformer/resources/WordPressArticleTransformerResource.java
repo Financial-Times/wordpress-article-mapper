@@ -144,13 +144,13 @@ public class WordPressArticleTransformerResource {
 		        wordPressResponse = response.getEntity(WordPressResponse.class);
 		    } catch (ClientHandlerException | UniformInterfaceException e) {
 		        throw ClientError.status(400).error(
-                        String.format("Response not a valid WordPressResponse - check your url [%s].", requestUri)).exception();
+                        String.format("Response not a valid WordPressResponse - check your url [%s]. Response is [%s]", requestUri, response)).exception();
 		    } 
 		    if (wordPressResponse.getStatus() == null) {
 		        throw ClientError.status(400).error(
-                        String.format("Response not a valid WordPressResponse - check your url [%s].", requestUri)).exception();
+                        String.format("Response not a valid WordPressResponse - check your url [%s]. Response is [%s]", requestUri, response)).exception();
 		    }
-            if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals("post")) { // martkets live
+            if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals("post")) { // markets live
                 throw ClientError.status(400).error(
                         String.format("Not a valid post", requestUri)).exception();
             }
@@ -161,7 +161,7 @@ public class WordPressArticleTransformerResource {
 		        } else {
 		            // It says it's an error, but we don't understand this kind of error
 		            throw ServerError.status(500).error(
-                            String.format("Unexpected error from WordPress: [%s] for url [%s].", error, requestUri)).exception();
+                            String.format("Unexpected error from WordPress: [%s] for url [%s]. Response is [%s]", error, requestUri, response)).exception();
 		        }
 		    }
 		    
@@ -172,25 +172,5 @@ public class WordPressArticleTransformerResource {
 			throw ServerError.status(responseStatusCode).exception();
 		}
 	}
-
-    private WordPressResponse getJsonFields(ClientResponse response) {   
-        String rawOutput = response.getEntity(String.class);
-        
-        String json = rawOutput.substring(rawOutput.indexOf("{"));
-        
-        final ObjectMapper objectMapper = new ObjectMapper();
-        WordPressResponse wordPressResponse = null;
-        
-        try {
-            wordPressResponse = objectMapper.readValue(json, WordPressResponse.class);
-        } catch (IOException e) {
-            LOGGER.error("Failed to parse response from WordPress", e);
-            throw ServerError.status(500).error("Failed to parse response from WordPress").exception(e);
-        }
-        
-
-        return wordPressResponse;
-    }
-
 
 }

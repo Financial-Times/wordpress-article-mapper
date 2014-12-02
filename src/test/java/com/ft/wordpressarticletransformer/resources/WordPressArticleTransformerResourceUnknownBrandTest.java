@@ -33,7 +33,7 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 	@Before
 	public void setup() {
 		client = Client.create();
-		client.setReadTimeout(500);
+		client.setReadTimeout(50000);
 	}
 
 	// The brand is unknown, because the content URL we are passing is going to localhost,
