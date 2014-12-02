@@ -1,5 +1,5 @@
 
-credentialsPath: credentials.properties
+credentialsPath: junit-credentials.properties
 
 healthCheckWordPressConnections:
     - hostName: uat.ftalphaville.ft.com
