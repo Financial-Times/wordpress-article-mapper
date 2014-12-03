@@ -1,5 +1,5 @@
 
-wordpressApiKey : 75ec83ae259076b1224ac5ce28f5e5d3d02c1cacc04e4c537ed2578ff8441d09
+credentialsPath: junit-credentials.properties
 
 healthCheckWordPressConnections:
     - hostName: uat.ftalphaville.ft.com
