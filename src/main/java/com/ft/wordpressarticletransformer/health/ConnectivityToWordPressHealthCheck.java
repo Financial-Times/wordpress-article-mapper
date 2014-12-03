@@ -1,8 +1,6 @@
 package com.ft.wordpressarticletransformer.health;
 
-import java.net.URI;
 import java.util.List;
-import javax.ws.rs.core.UriBuilder;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
@@ -94,14 +92,6 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 	@Override
 	protected String panicGuideUrl() {
 		return panicGuideUrl;
-	}
-
-	private URI getWordPressMostRecentUrl(WordPressConnection wordPressConnection) {
-		return UriBuilder.fromPath(wordPressConnection.getPath())
-				.scheme("http")
-				.host(wordPressConnection.getHostName())
-				.port(wordPressConnection.getPort())
-				.build();
 	}
 
 }

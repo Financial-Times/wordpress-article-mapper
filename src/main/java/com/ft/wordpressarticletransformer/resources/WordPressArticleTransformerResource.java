@@ -1,6 +1,5 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -15,7 +14,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
