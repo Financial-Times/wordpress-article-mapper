@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.wordpressarticletransformer.resources.HostToBrand;
@@ -15,29 +14,31 @@ import com.google.common.base.Objects;
 
 public class WordPressArticleTransformerConfiguration extends Configuration {
 
-	private final String wordpressApiKey;
 	private final List<WordPressConnection> wordPressConnections;
     private final List<HostToBrand> hostToBrands;
 	private final JerseyClientConfiguration jerseyClientConfiguration;
 	private final int numberOfConnectionAttempts;
+    private String credentialsPath;
 
-	public WordPressArticleTransformerConfiguration(
-													@JsonProperty("wordpressApiKey") String wordpressApiKey,
+    public WordPressArticleTransformerConfiguration(
+													@JsonProperty("credentialsPath") String credentialsPath,
 													@JsonProperty("healthCheckWordPressConnections") List<WordPressConnection> wordPressConnections,
-                                                    @JsonProperty("hostToBrandMappings")List<HostToBrand> hostToBrands, @JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
+                                                    @JsonProperty("hostToBrandMappings")List<HostToBrand> hostToBrands,
+                                                    @JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
                                                     @JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts) {
 		super();
-		this.wordpressApiKey = wordpressApiKey;
+		this.credentialsPath = credentialsPath;
 		this.wordPressConnections = wordPressConnections;
         this.hostToBrands = hostToBrands;
 		this.jerseyClientConfiguration = jerseyClientConfiguration;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
 	}
 
-	@NotNull @Size(min=16)
-	public String getWordpressApiKey() {
-		return wordpressApiKey;
-	}
+    @Valid @NotNull
+    public String getCredentialsPath() {
+        return credentialsPath;
+    }
+
 
 	@Valid
 	@NotNull
@@ -73,5 +74,6 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
     public String toString() {
         return toStringHelper().toString();
     }
+
 
 }

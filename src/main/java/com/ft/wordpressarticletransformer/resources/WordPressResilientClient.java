@@ -5,6 +5,8 @@ import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,9 @@ public class WordPressResilientClient {
 	private final Timer requests;
 
     public WordPressResilientClient(Client client, MetricRegistry appMetrics, int numberOfConnectionAttempts, String wordpressApiKey) {
+
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(wordpressApiKey),"No WordPress API key provided");
+
         this.client = client;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
 		this.wordpressApiKey = wordpressApiKey;

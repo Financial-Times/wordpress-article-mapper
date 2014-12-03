@@ -1,6 +1,9 @@
 package com.ft.wordpressarticletransformer;
 
+import java.io.File;
+import java.io.FileReader;
 import java.util.EnumSet;
+import java.util.Properties;
 import javax.servlet.DispatcherType;
 
 import com.ft.api.jaxrs.errors.Errors;
@@ -45,13 +48,16 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());
+
+        Properties credentials = new Properties();
+        credentials.load( new FileReader(new File(configuration.getCredentialsPath())));
 		
 		WordPressResilientClient wordPressResilientClient = new WordPressResilientClient(client, environment.metrics(),
-				configuration.getNumberOfConnectionAttempts(), configuration.getWordpressApiKey());
+				configuration.getNumberOfConnectionAttempts(), credentials.getProperty("wordpress.contentApi.key"));
 		
 
         environment.jersey().register(new WordPressArticleTransformerResource(getBodyProcessingFieldTransformer(),
-				wordPressResilientClient, new BrandResolver(configuration.getHostToBrands()))); //Todo read it from the config
+				wordPressResilientClient, new BrandResolver(configuration.getHostToBrands())));
 
 		String healthCheckName = "Connectivity to WordPress";
 		environment.healthChecks().register(healthCheckName,
