@@ -21,19 +21,39 @@ Healthcheck: [http://localhost:14081/healthcheck](http://localhost:14081/healthc
 Make a GET request to http://localhost:14080/content/{uuid}?url=http://uat.ftalphaville.ft.com/api/get_post/?id={blogpost id}
 
 You will receive a json response for the Content. The following is an example:
->{  
-&nbsp;&nbsp;&nbsp;&nbsp;    "uuid": "6a5d55f1-8419-35f9-8b79-98356a848207",  
-&nbsp;&nbsp;&nbsp;&nbsp;    "title": ""Alphaville now available via V2 of the API in Int",  
-&nbsp;&nbsp;&nbsp;&nbsp;    "byline": "Sarah Wells",  
-&nbsp;&nbsp;&nbsp;&nbsp;    "brands": [  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        {  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    "id": "http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66"  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        }  
-&nbsp;&nbsp;&nbsp;&nbsp;    ],      
-&nbsp;&nbsp;&nbsp;&nbsp;    "contentOrigin": {  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    "originatingSystem": "http://www.ft.com/ontology/origin/FT-LABS-WP-1-242",  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    "originatingIdentifier": "http://uat.ftalphaville.ft.com/2014/11/07/2015132/alphaville-now-available-via-v2-of-the-api/"  
-&nbsp;&nbsp;&nbsp;&nbsp;    },  
-&nbsp;&nbsp;&nbsp;&nbsp;    "publishedDate": "2014-11-07T12:31:30.000Z",  
-&nbsp;&nbsp;&nbsp;&nbsp;    "body": <body> The body </body>,  
-}
+
+    {  
+        "uuid": "6a5d55f1-8419-35f9-8b79-98356a848207",  
+        "title": ""Alphaville now available via V2 of the API in Int",  
+        "byline": "Sarah Wells",  
+        "brands": [  
+            {  
+                 "id": "http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66"  
+            }  
+        ],      
+        "contentOrigin": {  
+            "originatingSystem": "http://www.ft.com/ontology/origin/FT-LABS-WP-1-242",  
+            "originatingIdentifier": "http://uat.ftalphaville.ft.com/2014/11/07/2015132/alphaville-now-available-via-v2-of-the-api/"  
+        },  
+        "publishedDate": "2014-11-07T12:31:30.000Z",  
+        "body": <body> The body </body>,  
+    }
+
+
+Security
+========
+
+The WordPress API is a secure endpoint and an API key is required to access it. This is kept in a file named
+`credentials.properties` which is listed in `.gitignore`. This is references by the developer YAML file
+`wordpress-article-transformer.yaml` for use when debugging locally.
+
+So, to get set up:
+
+1. Copy `credentials.properties.template` as `credentials.properties` locally
+1. Locate the key via secure real life channels, such as a paper copy of it.
+1. Type the key into `credentials.properties`
+1. DO NOT OVERRIDE `.gitignore`
+1. DO NOT CHECK IN `credentials.properties`
+
+There is a separate file for tests that need to run as part of the build and which do not use a real back-end. This
+file `junit-credentials.properties` contains a fake key.

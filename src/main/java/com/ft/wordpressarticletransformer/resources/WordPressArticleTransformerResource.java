@@ -1,6 +1,5 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -15,7 +14,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ft.api.jaxrs.errors.ClientError;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
@@ -42,7 +40,7 @@ public class WordPressArticleTransformerResource {
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
-	public static final String ORIGINATING_SYSTEM_WORDPRESS = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-242";
+	public static final String ORIGINATING_SYSTEM_WORDPRESS = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-24";
 
     private static final String STATUS_ERROR = "error";
     private static final String ERROR_NOT_FOUND = "Not found.";
@@ -152,7 +150,7 @@ public class WordPressArticleTransformerResource {
 		    }
             if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals("post")) { // markets live
                 throw ClientError.status(400).error(
-                        String.format("Not a valid post", requestUri)).exception();
+						String.format(String.format("Not a valid post, type is [%s].", wordPressResponse.getPost().getType()), requestUri)).exception();
             }
 		    if (STATUS_ERROR.equals(wordPressResponse.getStatus())) {
 		        String error = wordPressResponse.getError();

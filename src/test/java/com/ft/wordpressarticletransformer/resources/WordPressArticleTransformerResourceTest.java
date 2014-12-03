@@ -35,7 +35,7 @@ public class WordPressArticleTransformerResourceTest {
 	private DateTime publishedDate = null;
 
 
-	public static final String WILL_RETURN_200_PATH = "/request_to_word_press_200/?json=1";
+	public static final String WILL_RETURN_200_PATH = "/request_to_word_press_200_ok/?json=1";
 	private static final String WILL_RETURN_200 = "http://localhost:15670" + WILL_RETURN_200_PATH;
 
     private static final String WILL_RETURN_404 = "http://localhost:15670/request_to_word_press_404/?json=1";
@@ -94,15 +94,14 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
 	}
 
+    @Test
+    public void shouldReturn400WithUuidWhenTypeNotPostFromWordPress() {
+        final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
 
-
-//    @Test
-//    public void shouldReturn404WithUuidWhenTypeNotPostFromWordPress() {
-//        final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
-//    }
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("markets-live"));
+    }
 
     @Test
     public void shouldReturn400WhenUuidIsNotValid() {
