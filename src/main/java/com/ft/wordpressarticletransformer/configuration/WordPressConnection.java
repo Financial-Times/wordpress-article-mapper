@@ -1,7 +1,5 @@
 package com.ft.wordpressarticletransformer.configuration;
 
-import io.dropwizard.client.JerseyClientConfiguration;
-
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
