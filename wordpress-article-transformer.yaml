@@ -2,7 +2,7 @@
 credentialsPath: credentials.properties
 
 healthCheckWordPressConnections:
-    - hostName: uat.ftalphaville.ft.com
+    - hostName: int.ftalphaville.ft.com
       port: 80
       path: /api/get_recent_posts/
 
