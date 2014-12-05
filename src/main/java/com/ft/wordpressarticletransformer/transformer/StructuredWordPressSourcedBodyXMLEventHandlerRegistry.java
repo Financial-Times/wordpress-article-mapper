@@ -27,10 +27,6 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 				"del", "p",
 				"itemBody"); // itemBody included as it will be a root node wrapping the body text so that the xml being written out is valid
 
-		// TODO handle wrapped image captions and image source
-		// super.registerStartAndEndElementEventHandler(imageCaptionHandlerWithFallbackTo(new RetainWithoutAttributesXMLEventHandler()), "p");
-		// super.registerStartAndEndElementEventHandler(imageSourceHandlerWithFallbackTo(new StripXMLEventHandler()), "span");
-
 		// to be retained with attributes
 		super.registerStartElementEventHandler(new LinkTagXMLEventHandler(), "a");
 		super.registerEndElementEventHandler(new LinkTagXMLEventHandler(), "a");
