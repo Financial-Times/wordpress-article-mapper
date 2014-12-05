@@ -1,6 +1,7 @@
 package com.ft.wordpressarticletransformer.health;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
@@ -46,7 +47,9 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 					if(output != null){
 						String status = output.getStatus();
 						if (!STATUS_OK.equals(status)) {
-							return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + status);
+						    Map<String, Object> additionalProperties = output.getAdditionalProperties();
+							return AdvancedResult.error(this, String.format("status field in response not \"%s\", was \"%s\", details: %s ", 
+							        STATUS_OK, status, additionalProperties!=null? additionalProperties: "no additional information" ));
 						}
 						Integer count = output.getCount();
 						if (!EXPECTED_COUNT.equals(count)) {
