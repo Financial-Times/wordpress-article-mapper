@@ -3,6 +3,8 @@ package com.ft.wordpressarticletransformer.health;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.UriBuilder;
+
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.messaging.standards.message.v1.SystemId;
@@ -48,25 +50,26 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 						String status = output.getStatus();
 						if (!STATUS_OK.equals(status)) {
 						    Map<String, Object> additionalProperties = output.getAdditionalProperties();
-							return AdvancedResult.error(this, String.format("status field in response not \"%s\", was \"%s\", details: %s ", 
+							return AdvancedResult.error(this, String.format("status field in response from " + getWordPressUrl(wordPressConnection) + " not \"%s\", was \"%s\", details: %s ", 
 							        STATUS_OK, status, additionalProperties!=null? additionalProperties: "no additional information" ));
+
 						}
 						Integer count = output.getCount();
 						if (!EXPECTED_COUNT.equals(count)) {
-							return AdvancedResult.error(this, "count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
+							return AdvancedResult.error(this, "count field in response from " + getWordPressUrl(wordPressConnection) + " not \"" + EXPECTED_COUNT + "\", was " + count);
 						}
 						continue;
 					}
-					return AdvancedResult.error(this, "Status code 200 was received from WordPress but content id did not match");
+					return AdvancedResult.error(this, "Status code 200 was received from WordPress but unexpected output");
 
 				} else {
-					String message = String.format("Status code [%d] received when receiving content from WordPress.",
+					String message = String.format("Status code [%d] received from " + getWordPressUrl(wordPressConnection),
 							response.getStatus());
 					LOGGER.warn(message);
 					return AdvancedResult.error(this, message);
 				}
 			} catch (Throwable e) {
-				LOGGER.warn(getName() + ": " + "Exception during getting most recent content from WordPress", e);
+				LOGGER.warn(getName() + ": " + "Exception during getting most recent content from WordPress "+ getWordPressUrl(wordPressConnection), e);
 				return AdvancedResult.error(this, e);
 			} finally {
 				if (response != null) {
@@ -77,7 +80,16 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 		return AdvancedResult.healthy("All is ok");
 	}
 
-	@Override
+	private String getWordPressUrl(WordPressConnection wordPressConnection) {
+        return UriBuilder.fromPath(wordPressConnection.getPath())
+                .scheme("http")
+                .host(wordPressConnection.getHostName())
+                .port(wordPressConnection.getPort())
+                .queryParam("count", 1)
+                .build().toString();
+    }
+
+    @Override
 	protected int severity() {
 		return 2;
 	}

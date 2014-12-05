@@ -37,7 +37,7 @@ public class ConnectivityToWordPressHealthCheckTest {
 		WordPressConnection dummyConnection = new WordPressConnection("localhost","/path",8080);
 
 		List<WordPressConnection> list = Collections.singletonList(dummyConnection);
-		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", wordPressResilientClient, SystemId.systemIdFromCode("test-fastft"), "", list);
+		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", wordPressResilientClient, SystemId.systemIdFromCode("test-wordpress"), "", list);
 	}
 
 	@Test
