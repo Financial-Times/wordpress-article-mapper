@@ -84,7 +84,7 @@ public class WordPressArticleTransformerResourceTest {
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-        assertThat("response", clientResponse.getEntity(String.class), containsString("uuid"));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("UUID"));
 	}
 
     @Test
