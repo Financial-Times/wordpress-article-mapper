@@ -1,6 +1,7 @@
 package com.ft.wordpressarticletransformer.health;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
@@ -36,34 +37,39 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 	@Override
 	protected AdvancedResult checkAdvanced() throws Exception {
 
-		for (WordPressConnection wordPressConnection: wordPressConnections) {
+    	for (WordPressConnection wordPressConnection: wordPressConnections) {
 			ClientResponse response = null;
+
+            String urlWithoutApiKey = client.templateUrl(wordPressConnection).build().toString();
+
 			try {
 				response = client.getRecentPosts(wordPressConnection);
 
-				if (response.getStatus() == 200) {
+                if (response.getStatus() == 200) {
 					WordPressMostRecentPostsResponse output = response.getEntity(WordPressMostRecentPostsResponse.class);
 					if(output != null){
 						String status = output.getStatus();
 						if (!STATUS_OK.equals(status)) {
-							return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + status);
+						    Map<String, Object> additionalProperties = output.getAdditionalProperties();
+							return AdvancedResult.error(this, String.format("status field in response from " + urlWithoutApiKey + " not \"%s\", was \"%s\", details: %s ",
+							        STATUS_OK, status, additionalProperties!=null? additionalProperties: "no additional information" ));
 						}
 						Integer count = output.getCount();
 						if (!EXPECTED_COUNT.equals(count)) {
-							return AdvancedResult.error(this, "count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
+							return AdvancedResult.error(this, "count field in response from " + urlWithoutApiKey + " not \"" + EXPECTED_COUNT + "\", was " + count);
 						}
 						continue;
 					}
-					return AdvancedResult.error(this, "Status code 200 was received from WordPress but content id did not match");
+					return AdvancedResult.error(this, "Status code 200 was received from WordPress output is missing (null)");
 
 				} else {
-					String message = String.format("Status code [%d] received when receiving content from WordPress.",
+					String message = String.format("Status code [%d] received from " + urlWithoutApiKey,
 							response.getStatus());
 					LOGGER.warn(message);
 					return AdvancedResult.error(this, message);
 				}
 			} catch (Throwable e) {
-				LOGGER.warn(getName() + ": " + "Exception during getting most recent content from WordPress", e);
+				LOGGER.warn(getName() + ": " + "Exception during getting most recent content from WordPress " + urlWithoutApiKey, e);
 				return AdvancedResult.error(this, e);
 			} finally {
 				if (response != null) {
@@ -71,10 +77,12 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 				}
 			}
 		}
+
+        // It may be helpful to add to this output, but in fact it is never displayed due to the health check formatter.
 		return AdvancedResult.healthy("All is ok");
 	}
 
-	@Override
+    @Override
 	protected int severity() {
 		return 2;
 	}
@@ -86,7 +94,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 	@Override
 	protected String technicalSummary() {
-		return systemId + " is unable to transform WordPress content.";
+		return "The transformer is unable to transform WordPress content.\n\nCMDB: " + systemId + "";
 	}
 
 	@Override

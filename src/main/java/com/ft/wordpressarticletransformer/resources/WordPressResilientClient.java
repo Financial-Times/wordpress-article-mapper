@@ -80,18 +80,20 @@ public class WordPressResilientClient {
         
     }
 
-
     private URI getWordPressRecentPostsUrl(WordPressConnection wordPressConnection) {
+        return templateUrl(wordPressConnection)
+				.queryParam(API_KEY_NAME, wordpressApiKey).build();
+    }
+
+    public UriBuilder templateUrl(WordPressConnection wordPressConnection) {
         return UriBuilder.fromPath(wordPressConnection.getPath())
                 .scheme("http")
                 .host(wordPressConnection.getHostName())
                 .port(wordPressConnection.getPort())
-                .queryParam("count", 1)
-				.queryParam(API_KEY_NAME,wordpressApiKey).build();
+                .queryParam("count", 1);
     }
 
-
-	public ClientResponse getContent(URI requestUri) {
+    public ClientResponse getContent(URI requestUri) {
 
 	    WebResource webResource = client.resource(requestUri).queryParam(API_KEY_NAME,wordpressApiKey);
         
