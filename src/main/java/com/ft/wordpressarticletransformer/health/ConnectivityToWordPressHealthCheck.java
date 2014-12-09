@@ -60,7 +60,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 						}
 						continue;
 					}
-					return AdvancedResult.error(this, "Status code 200 was received from WordPress but unexpected output");
+					return AdvancedResult.error(this, "Status code 200 was received from WordPress output is missing (null)");
 
 				} else {
 					String message = String.format("Status code [%d] received from " + urlWithoutApiKey,
