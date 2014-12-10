@@ -16,12 +16,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "status",
+    "error",
     "count"
 })
 public class WordPressMostRecentPostsResponse {
 
     @JsonProperty("status")
     private String status;
+    @JsonProperty("error")
+    private String error;
 	@JsonProperty("count")
 	private Integer count;
     @JsonIgnore
@@ -36,6 +39,12 @@ public class WordPressMostRecentPostsResponse {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @JsonProperty("error")
+    public String getError() { return error; }
+
+    @JsonProperty("error")
+    public void setError(String error) { this.error = error; }
 
 	@JsonProperty("count")
 	public Integer getCount() {
@@ -61,5 +70,6 @@ public class WordPressMostRecentPostsResponse {
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
+
 
 }

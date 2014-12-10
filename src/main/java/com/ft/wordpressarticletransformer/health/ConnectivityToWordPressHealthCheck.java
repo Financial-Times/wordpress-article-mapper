@@ -5,6 +5,10 @@ import java.util.List;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
+import com.ft.wordpressarticletransformer.resources.ErrorCodeNotFoundException;
+import com.ft.wordpressarticletransformer.resources.InvalidResponseException;
+import com.ft.wordpressarticletransformer.resources.UnexpectedStatusFieldException;
+import com.ft.wordpressarticletransformer.resources.UnknownStatusErrorCodeException;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
@@ -18,7 +22,8 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConnectivityToWordPressHealthCheck.class);
 
-	private static final String STATUS_OK = "ok";
+    private static final String STATUS_OK = "ok";
+    private static final String STATUS_ERROR = "error";
 	private static final Integer EXPECTED_COUNT = 1;
 
 	private final String panicGuideUrl;
@@ -39,38 +44,37 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 	protected AdvancedResult checkAdvanced() throws Exception {
 
 		for (WordPressConnection wordPressConnection: wordPressConnections) {
-			ClientResponse response = null;
-			try {
-				response = client.getRecentPosts(wordPressConnection);
 
-				if (response.getStatus() == 200) {
-					WordPressMostRecentPostsResponse output = response.getEntity(WordPressMostRecentPostsResponse.class);
-					if(output != null){
-						String status = output.getStatus();
-						if (!STATUS_OK.equals(status)) {
-							return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + status);
-						}
-						Integer count = output.getCount();
-						if (!EXPECTED_COUNT.equals(count)) {
-							return AdvancedResult.error(this, "count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
-						}
-						continue;
-					}
-					return AdvancedResult.error(this, "Status code 200 was received from WordPress but content id did not match");
+            WordPressMostRecentPostsResponse output = client.getRecentPosts(wordPressConnection);
+
+			try {
+
+				if(output != null){
+                    String status = output.getStatus();
+                    if (!STATUS_OK.equals(status)) {
+                        return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + status);
+                    }
+                    Integer count = output.getCount();
+                    if (!EXPECTED_COUNT.equals(count)) {
+                        return AdvancedResult.error(this, "count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
+                    }
 
 				} else {
-					String message = String.format("Status code [%d] received when receiving content from WordPress.",
-							response.getStatus());
+					String message = String.format("Status code [%d] received when receiving content from WordPress.", output.getStatus());
 					LOGGER.warn(message);
 					return AdvancedResult.error(this, message);
 				}
-			} catch (Throwable e) {
+			} catch(InvalidResponseException e) {
+                return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + e.getResponse());
+            } catch(ErrorCodeNotFoundException e) {
+                return AdvancedResult.error(this, "status field in response not \"" + STATUS_ERROR + "\", was " + e.getError());
+            } catch(UnknownStatusErrorCodeException e) {
+                return AdvancedResult.error(this, "error field in response not \"" + STATUS_ERROR + "\", was " + e.getError());
+            } catch(UnexpectedStatusFieldException e) {
+                return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + e.getStatus());
+            } catch (Throwable e) {
 				LOGGER.warn(getName() + ": " + "Exception during getting most recent content from WordPress", e);
 				return AdvancedResult.error(this, e);
-			} finally {
-				if (response != null) {
-					response.close();
-				}
 			}
 		}
 		return AdvancedResult.healthy("All is ok");
