@@ -83,7 +83,7 @@ public class WordPressResilientClientTest {
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
         Post post = wordPressResilientClient.getContent(requestUri, uuid);
-        assertThat(post, is(equalTo(post)));
+        assertThat(post, is(equalTo(mockWordPressResponse.getPost())));
     }
     
     @Test
@@ -104,7 +104,7 @@ public class WordPressResilientClientTest {
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
         Post post = wordPressResilientClient.getContent(requestUri, uuid);
-        assertThat(post, is(equalTo(post)));
+        assertThat(post, is(equalTo(mockWordPressResponse.getPost())));
         verify(handler, times(2)).handle(any(ClientRequest.class));
     }
 
@@ -190,7 +190,7 @@ public class WordPressResilientClientTest {
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressMostRecentPostsResponse.getStatus()).thenReturn(STATUS_OK);
         WordPressMostRecentPostsResponse output = wordPressResilientClient.getRecentPosts(wordPressConnection);
-        assertThat(output, is(equalTo(output)));
+        assertThat(output, is(equalTo(mockWordPressMostRecentPostsResponse)));
         verify(handler, times(2)).handle(any(ClientRequest.class));
     }
 
