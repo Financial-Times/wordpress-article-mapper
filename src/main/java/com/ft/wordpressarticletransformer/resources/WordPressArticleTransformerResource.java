@@ -144,7 +144,7 @@ public class WordPressArticleTransformerResource {
         } catch (UnexpectedStatusFieldException e) {
             throw ClientError.status(500).error(String.format("Unexpected status from WordPress: [%s] for uuid [%s].", e.getStatus(), e.getUuid())).exception();
         } catch (UnexpectedStatusCodeException e) {
-            throw ServerError.status(503).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
+            throw ClientError.status(404).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
         } catch (RequestFailedException e) {
             throw ServerError.status(503).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
         }

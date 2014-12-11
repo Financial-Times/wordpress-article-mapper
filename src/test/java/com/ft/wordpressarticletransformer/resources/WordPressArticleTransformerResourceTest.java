@@ -91,7 +91,7 @@ public class WordPressArticleTransformerResourceTest {
 	public void shouldReturn503When404ReturnedFromWordpress() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_404);
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
 	}
 
     @Test
