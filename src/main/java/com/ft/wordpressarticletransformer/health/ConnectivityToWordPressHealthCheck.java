@@ -14,7 +14,6 @@ import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
-import com.sun.jersey.api.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,35 +51,39 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 				if(output != null){
                     String status = output.getStatus();
                     if (!STATUS_OK.equals(status)) {
-                        return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + status);
+                        return reportError("status field in response not \"" + STATUS_OK + "\", was " + status);
                     }
                     Integer count = output.getCount();
                     if (!EXPECTED_COUNT.equals(count)) {
-                        return AdvancedResult.error(this, "count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
+                        return reportError("count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
                     }
 
 				} else {
-					String message = String.format("Status code [%d] received when receiving content from WordPress.", output.getStatus());
-					LOGGER.warn(message);
-					return AdvancedResult.error(this, message);
+                    return reportError(String.format("WordPress returned no data. Status code [%d]", output.getStatus()));
 				}
 			} catch(InvalidResponseException e) {
-                return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + e.getResponse());
+                return reportError("status field in response not \"" + STATUS_OK + "\", was " + e.getResponse());
             } catch(ErrorCodeNotFoundException e) {
-                return AdvancedResult.error(this, "status field in response not \"" + STATUS_ERROR + "\", was " + e.getError());
+                return reportError("status field in response not \"" + STATUS_ERROR + "\", was " + e.getError());
             } catch(UnknownStatusErrorCodeException e) {
-                return AdvancedResult.error(this, "error field in response not \"" + STATUS_ERROR + "\", was " + e.getError());
+                return reportError("error field in response not \"" + STATUS_ERROR + "\", was " + e.getError());
             } catch(UnexpectedStatusFieldException e) {
-                return AdvancedResult.error(this, "status field in response not \"" + STATUS_OK + "\", was " + e.getStatus());
+                return reportError("status field in response not \"" + STATUS_OK + "\", was " + e.getStatus());
             } catch (Throwable e) {
-				LOGGER.warn(getName() + ": " + "Exception during getting most recent content from WordPress", e);
+				LOGGER.warn(getName() + ": Exception during getting most recent content from WordPress", e);
 				return AdvancedResult.error(this, e);
 			}
 		}
 		return AdvancedResult.healthy("All is ok");
 	}
 
-	@Override
+    private AdvancedResult reportError(String message) {
+        AdvancedResult result = AdvancedResult.error(this, message);
+        LOGGER.warn(result.checkOutput());
+        return result;
+    }
+
+    @Override
 	protected int severity() {
 		return 2;
 	}
