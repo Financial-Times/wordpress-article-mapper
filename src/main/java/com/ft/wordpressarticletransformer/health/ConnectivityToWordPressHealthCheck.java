@@ -5,8 +5,8 @@ import java.util.List;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
-import com.ft.wordpressarticletransformer.resources.ErrorCodeNotFoundException;
 import com.ft.wordpressarticletransformer.resources.InvalidResponseException;
+import com.ft.wordpressarticletransformer.resources.PostNotFoundException;
 import com.ft.wordpressarticletransformer.resources.RequestFailedException;
 import com.ft.wordpressarticletransformer.resources.UnexpectedStatusCodeException;
 import com.ft.wordpressarticletransformer.resources.UnexpectedStatusFieldException;
@@ -66,7 +66,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 				}
 			} catch(InvalidResponseException e) {
                 return reportError("status field in response not \"" + STATUS_OK + "\", was " + e.getResponse());
-            } catch(ErrorCodeNotFoundException e) {
+            } catch(PostNotFoundException e) {
                 return reportError("error code in response not \"" + STATUS_ERROR + "\", was " + e.getError());
             } catch(UnknownErrorCodeException e) {
                 return reportError("error code in response not \"" + STATUS_ERROR + "\", was " + e.getError());

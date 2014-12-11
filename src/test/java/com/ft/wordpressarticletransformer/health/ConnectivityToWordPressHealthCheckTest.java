@@ -43,7 +43,6 @@ public class ConnectivityToWordPressHealthCheckTest {
 	@Test
 	public void shouldReturnHealthyWhenWPStatusIsOk() throws Exception {
 		when(response.getStatus()).thenReturn("ok");
-        //WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
 
 		when(response.getStatus()).thenReturn("ok");
 		when(response.getCount()).thenReturn(1);

@@ -167,7 +167,7 @@ public class WordPressResilientClient {
                     throw new UnsupportedPostTypeException(wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
                 }
                 if (ERROR_NOT_FOUND.equals(error)) {
-                    throw new ErrorCodeNotFoundException(wordPressResponse.getError(), uuid);
+                    throw new PostNotFoundException(wordPressResponse.getError(), uuid);
                 } else {
                     // It says it's an error, but we don't understand this kind of error
                     throw new UnknownErrorCodeException(wordPressResponse.getError(), uuid);
@@ -202,7 +202,7 @@ public class WordPressResilientClient {
             } else if (STATUS_ERROR.equals(status)) {
                 String error = output.getError();
                 if (ERROR_NOT_FOUND.equals(error)) {
-                    throw new ErrorCodeNotFoundException(output.getError());
+                    throw new PostNotFoundException(output.getError());
                 } else {
                     // It says it's an error, but we don't understand this kind of error
                     throw new UnknownErrorCodeException(output.getError());

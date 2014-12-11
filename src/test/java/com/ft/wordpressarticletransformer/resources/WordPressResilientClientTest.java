@@ -129,8 +129,8 @@ public class WordPressResilientClientTest {
         wordPressResilientClient.getContent(requestUri, uuid);
     }
 
-    @Test(expected=ErrorCodeNotFoundException.class)
-    public void shouldThrowErrorCodeNotFoundExceptionWhenStatusErrorAndErrorCodeNotFoundForGetContent() {
+    @Test(expected=PostNotFoundException.class)
+    public void shouldThrowPostNotFoundExceptionWhenStatusErrorAndErrorCodeNotFoundForGetContent() {
         when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
         when(handler.handle(any(ClientRequest.class)))
                 .thenReturn(clientResponse);
@@ -203,8 +203,8 @@ public class WordPressResilientClientTest {
         wordPressResilientClient.getRecentPosts(wordPressConnection);
     }
 
-    @Test(expected=ErrorCodeNotFoundException.class)
-    public void shouldThrowErrorCodeNotFoundExceptionWhenStatusErrorAndErrorCodeNotFoundForGetRecentPosts() {
+    @Test(expected=PostNotFoundException.class)
+    public void shouldThrowPostNotFoundExceptionWhenStatusErrorAndErrorCodeNotFoundForGetRecentPosts() {
         when(clientResponse.getEntity(WordPressMostRecentPostsResponse.class)).thenReturn(mockWordPressMostRecentPostsResponse);
         when(handler.handle(any(ClientRequest.class)))
                 .thenReturn(clientResponse);
