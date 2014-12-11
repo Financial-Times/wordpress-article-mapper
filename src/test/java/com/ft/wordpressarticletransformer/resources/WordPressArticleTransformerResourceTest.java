@@ -92,18 +92,18 @@ public class WordPressArticleTransformerResourceTest {
      * The endpoint generally returns 200, even for errors, so a 404 means we have the wrong URL.
      */
     @Test
-	public void shouldReturn503When404ReturnedFromWordpress() {
+	public void shouldReturn400When404ReturnedFromWordpress() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_404);
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+		assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
 	}
 
     @Test
-    public void shouldReturn404WithUuidWhenTypeNotPostFromWordpress() {
+    public void shouldReturn403WithUuidWhenTypeNotPostFromWordpress() {
         final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(403)));
         assertThat("response", clientResponse.getEntity(String.class), containsString("markets-live"));
     }
 

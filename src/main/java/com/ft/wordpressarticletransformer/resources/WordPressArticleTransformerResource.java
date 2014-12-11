@@ -136,15 +136,15 @@ public class WordPressArticleTransformerResource {
         } catch (InvalidResponseException e) {
             throw ClientError.status(400).error(String.format("Response not a valid WordPressResponse - check your url [%s]. Response is [%s]", requestUri, e.getResponse())).exception();
         } catch (UnsupportedPostTypeException e) {
-            throw ClientError.status(404).error(String.format("Not a valid post, type is [%s], should be [%s], for content with uuid:[%s]", e.getActualType(), e.getSupportedType(), uuid)).exception();
+            throw ClientError.status(403).error(String.format("Not a valid post, type is [%s], should be [%s], for content with uuid:[%s]", e.getActualType(), e.getSupportedType(), uuid)).exception();
         } catch (PostNotFoundException e) {
-            throw ServerError.status(500).error(String.format("Error [%s] not found for content with uuid: [%s]", e.getError(), e.getUuid())).exception();
+            throw ClientError.status(404).error(String.format("Error [%s]. Content with uuid: [%s] not found", e.getError(), e.getUuid())).exception();
         } catch (UnknownErrorCodeException e) {
             throw ServerError.status(500).error(String.format("Unexpected error from WordPress: [%s] for uuid [%s].",  e.getError(), e.getUuid())).exception();
         } catch (UnexpectedStatusFieldException e) {
             throw ServerError.status(500).error(String.format("Unexpected status from WordPress: [%s] for uuid [%s].", e.getStatus(), e.getUuid())).exception();
         } catch (UnexpectedStatusCodeException e) {
-            throw ServerError.status(503).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
+            throw ClientError.status(400).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
         } catch (RequestFailedException e) {
             throw ServerError.status(503).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
         }
