@@ -2,6 +2,9 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.util.UUID;
 
+/**
+ * The WP defined error field was absent.
+ */
 public class ErrorCodeNotFoundException extends RuntimeException {
 
     private final UUID uuid;

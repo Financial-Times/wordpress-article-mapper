@@ -2,6 +2,9 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.net.URI;
 
+/**
+ * The HTTP status code ahs not been provided for (200 is expected for application level errors).
+ */
 public class UnexpectedStatusCodeException extends RuntimeException {
 
     private final URI requestUri;

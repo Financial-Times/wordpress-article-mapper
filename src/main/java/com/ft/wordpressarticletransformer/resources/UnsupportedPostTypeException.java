@@ -2,6 +2,10 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.util.UUID;
 
+/**
+ * The post has a type or custom type other than "post", meaning it has custom formatting associated with it and is
+ * unsupported.
+ */
 public class UnsupportedPostTypeException extends RuntimeException {
 
     private final String actualType;

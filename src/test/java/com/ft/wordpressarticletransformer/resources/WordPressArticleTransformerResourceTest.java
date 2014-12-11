@@ -87,11 +87,15 @@ public class WordPressArticleTransformerResourceTest {
         assertThat("response", clientResponse.getEntity(String.class), containsString("uuid"));
 	}
 
+
+    /**
+     * The endpoint generally returns 200, even for errors, so a 404 means we have the wrong URL.
+     */
     @Test
 	public void shouldReturn503When404ReturnedFromWordpress() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_404);
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
 	}
 
     @Test
