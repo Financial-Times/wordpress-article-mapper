@@ -7,8 +7,10 @@ import javax.ws.rs.core.UriBuilder;
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.resources.ErrorCodeNotFoundException;
 import com.ft.wordpressarticletransformer.resources.InvalidResponseException;
+import com.ft.wordpressarticletransformer.resources.RequestFailedException;
+import com.ft.wordpressarticletransformer.resources.UnexpectedStatusCodeException;
 import com.ft.wordpressarticletransformer.resources.UnexpectedStatusFieldException;
-import com.ft.wordpressarticletransformer.resources.UnknownStatusErrorCodeException;
+import com.ft.wordpressarticletransformer.resources.UnknownErrorCodeException;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
@@ -23,6 +25,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
     private static final String STATUS_OK = "ok";
     private static final String STATUS_ERROR = "error";
+    private static final int SUCCESSFUL_RESPONSE_CODE = 200;
 	private static final Integer EXPECTED_COUNT = 1;
 
 	private final String panicGuideUrl;
@@ -64,11 +67,15 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 			} catch(InvalidResponseException e) {
                 return reportError("status field in response not \"" + STATUS_OK + "\", was " + e.getResponse());
             } catch(ErrorCodeNotFoundException e) {
-                return reportError("status field in response not \"" + STATUS_ERROR + "\", was " + e.getError());
-            } catch(UnknownStatusErrorCodeException e) {
-                return reportError("error field in response not \"" + STATUS_ERROR + "\", was " + e.getError());
+                return reportError("error code in response not \"" + STATUS_ERROR + "\", was " + e.getError());
+            } catch(UnknownErrorCodeException e) {
+                return reportError("error code in response not \"" + STATUS_ERROR + "\", was " + e.getError());
             } catch(UnexpectedStatusFieldException e) {
                 return reportError("status field in response not \"" + STATUS_OK + "\", was " + e.getStatus());
+            } catch(UnexpectedStatusCodeException e) {
+                return reportError("expected response code \"" + SUCCESSFUL_RESPONSE_CODE + "\", received " + e.getResponseStatusCode());
+            } catch(RequestFailedException e) {
+                return reportError("expected response code \"" + SUCCESSFUL_RESPONSE_CODE + "\", received " + e.getResponseStatusCode());
             } catch (Throwable e) {
 				LOGGER.warn(getName() + ": Exception during getting most recent content from WordPress", e);
 				return AdvancedResult.error(this, e);

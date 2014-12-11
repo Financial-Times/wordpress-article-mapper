@@ -71,7 +71,6 @@ public class WordPressResilientClientTest {
     public void setup() {
         wordPressResilientClient = new WordPressResilientClient(mockClient, appMetrics, 3, WP.EXAMPLE_API_KEY);
         when(clientResponse.getHeaders()).thenReturn(new MultivaluedMapImpl());
-
         wordPressConnection = new WordPressConnection(hostname, path, port);
     }
 
@@ -142,8 +141,8 @@ public class WordPressResilientClientTest {
 
     }
 
-    @Test(expected=UnknownStatusErrorCodeException.class)
-    public void shouldThrowUnknownStatusErrorCodeExceptionWhenStatusErrorAndErrorCodeIsUnknownForGetContent() {
+    @Test(expected=UnknownErrorCodeException.class)
+    public void shouldThrowUnknownErrorCodeExceptionWhenStatusErrorAndErrorCodeIsUnknownForGetContent() {
         when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
         when(handler.handle(any(ClientRequest.class)))
                 .thenReturn(clientResponse);
@@ -213,11 +212,10 @@ public class WordPressResilientClientTest {
         when(mockWordPressMostRecentPostsResponse.getStatus()).thenReturn(STATUS_ERROR);
         when(mockWordPressMostRecentPostsResponse.getError()).thenReturn(ERROR_NOT_FOUND);
         wordPressResilientClient.getRecentPosts(wordPressConnection);
-
     }
 
-    @Test(expected=UnknownStatusErrorCodeException.class)
-    public void shouldThrowUnknownStatusErrorCodeExceptionWhenStatusErrorAndErrorCodeIsUnknownForGetRecentPosts() {
+    @Test(expected=UnknownErrorCodeException.class)
+    public void shouldThrowUnknownErrorCodeExceptionWhenStatusErrorAndErrorCodeIsUnknownForGetRecentPosts() {
         when(clientResponse.getEntity(WordPressMostRecentPostsResponse.class)).thenReturn(mockWordPressMostRecentPostsResponse);
         when(handler.handle(any(ClientRequest.class)))
                 .thenReturn(clientResponse);
@@ -234,6 +232,24 @@ public class WordPressResilientClientTest {
                 .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressMostRecentPostsResponse.getStatus()).thenReturn(STATUS_UNKNOWN);
+        wordPressResilientClient.getRecentPosts(wordPressConnection);
+    }
+
+    @Test(expected=UnexpectedStatusCodeException.class)
+    public void shouldThrowUnexpectedStatusCodeExceptionWhenClientResponseReturns400ForGetRecentPosts() {
+        when(clientResponse.getEntity(WordPressMostRecentPostsResponse.class)).thenReturn(mockWordPressMostRecentPostsResponse);
+        when(handler.handle(any(ClientRequest.class)))
+                .thenReturn(clientResponse);
+        when(clientResponse.getStatus()).thenReturn(ERROR_RESPONSE_STATUS_CODE);
+        wordPressResilientClient.getRecentPosts(wordPressConnection);
+    }
+
+    @Test(expected=RequestFailedException.class)
+    public void shouldThrowRequestFailedExceptionWhenClientResponseReturns500ForGetRecentPosts() {
+        when(clientResponse.getEntity(WordPressMostRecentPostsResponse.class)).thenReturn(mockWordPressMostRecentPostsResponse);
+        when(handler.handle(any(ClientRequest.class)))
+                .thenReturn(clientResponse);
+        when(clientResponse.getStatus()).thenReturn(INTERNAL_ERROR_RESPONSE_STATUS_CODE);
         wordPressResilientClient.getRecentPosts(wordPressConnection);
     }
 }

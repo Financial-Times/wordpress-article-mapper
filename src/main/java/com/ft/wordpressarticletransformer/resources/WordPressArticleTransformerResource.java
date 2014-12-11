@@ -139,7 +139,7 @@ public class WordPressArticleTransformerResource {
             throw ClientError.status(404).error(String.format("Not a valid post, type is [%s], should be [%s], for content with uuid:[%s]", e.getActualType(), e.getSupportedType(), uuid)).exception();
         } catch (ErrorCodeNotFoundException e) {
             throw ServerError.status(500).error(String.format("Error [%s] not found for content with uuid: [%s]", e.getError(), e.getUuid())).exception();
-        } catch (UnknownStatusErrorCodeException e) {
+        } catch (UnknownErrorCodeException e) {
             throw ServerError.status(500).error(String.format("Unexpected error from WordPress: [%s] for uuid [%s].",  e.getError(), e.getUuid())).exception();
         } catch (UnexpectedStatusFieldException e) {
             throw ServerError.status(500).error(String.format("Unexpected status from WordPress: [%s] for uuid [%s].", e.getStatus(), e.getUuid())).exception();

@@ -19,7 +19,6 @@ import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
@@ -171,7 +170,7 @@ public class WordPressResilientClient {
                     throw new ErrorCodeNotFoundException(wordPressResponse.getError(), uuid);
                 } else {
                     // It says it's an error, but we don't understand this kind of error
-                    throw new UnknownStatusErrorCodeException(wordPressResponse.getError(), uuid);
+                    throw new UnknownErrorCodeException(wordPressResponse.getError(), uuid);
                 }
             } else {
                 throw new UnexpectedStatusFieldException(status, uuid);
@@ -206,7 +205,7 @@ public class WordPressResilientClient {
                     throw new ErrorCodeNotFoundException(output.getError());
                 } else {
                     // It says it's an error, but we don't understand this kind of error
-                    throw new UnknownStatusErrorCodeException(output.getError());
+                    throw new UnknownErrorCodeException(output.getError());
                 }
             } else {
                 throw new UnexpectedStatusFieldException(status);
