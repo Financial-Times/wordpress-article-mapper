@@ -2,6 +2,9 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.util.UUID;
 
+/**
+ * The WP defined error field contained an unexpected value.
+ */
 public class UnknownStatusErrorCodeException extends RuntimeException {
 
     private final UUID uuid;
