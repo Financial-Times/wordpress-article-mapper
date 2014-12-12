@@ -28,7 +28,7 @@ public class ConnectivityToWordPressHealthCheckTest {
 	private ConnectivityToWordPressHealthCheck healthCheck;
 	
 	private WordPressResilientClient wordPressResilientClient = mock(WordPressResilientClient.class);
-	private ClientResponse response = mock(ClientResponse.class);
+    private WordPressMostRecentPostsResponse response = mock(WordPressMostRecentPostsResponse.class);
 
 
 	@Before
@@ -41,18 +41,15 @@ public class ConnectivityToWordPressHealthCheckTest {
 	}
 
 	@Test
-	public void shouldReturnHealthyWhenClamoStatus200() throws Exception {
-		when(response.getStatus()).thenReturn(200);
-        WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
+	public void shouldReturnHealthyWhenWPStatusIsOk() throws Exception {
+		when(response.getStatus()).thenReturn("ok");
 
-        when(response.getEntity(WordPressMostRecentPostsResponse.class)).thenReturn(wordPressMostRecentPostsResponse);
-
-		when(wordPressMostRecentPostsResponse.getStatus()).thenReturn("ok");
-		when(wordPressMostRecentPostsResponse.getCount()).thenReturn(1);
+		when(response.getStatus()).thenReturn("ok");
+		when(response.getCount()).thenReturn(1);
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("id", "2014892");
 
-        when(wordPressMostRecentPostsResponse.getAdditionalProperties()).thenReturn(dataMap);
+        when(response.getAdditionalProperties()).thenReturn(dataMap);
 
 		when(wordPressResilientClient.getRecentPosts(any(WordPressConnection.class))).thenReturn(response);
 
