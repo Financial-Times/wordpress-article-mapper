@@ -205,10 +205,10 @@ public class WordPressResilientClient {
                     throw new PostNotFoundException(output.getError());
                 } else {
                     // It says it's an error, but we don't understand this kind of error
-                    throw new UnknownErrorCodeException(output.getError());
+                    throw new UnknownErrorCodeException(output.getError(), output.getAdditionalProperties());
                 }
             } else {
-                throw new UnexpectedStatusFieldException(status);
+                throw new UnexpectedStatusFieldException(status, output.getAdditionalProperties());
             }
 
         } else if (responseStatusFamily == 4) {
