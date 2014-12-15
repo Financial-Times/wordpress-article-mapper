@@ -5,6 +5,7 @@ import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
 
+import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -14,19 +15,28 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
+import com.ft.wordpressarticletransformer.response.Post;
+import com.ft.wordpressarticletransformer.response.WordPressResponse;
+
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+
+import java.util.UUID;
 
 public class WordPressResilientClient {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressResilientClient.class);
 	public static final String API_KEY_NAME = "api_key";
 
+    private static final String STATUS_OK = "ok";
+    private static final String STATUS_ERROR = "error";
+    private static final String ERROR_NOT_FOUND = "Not found";
+    private static final String POST_TYPE_POST = "post";
+
 	private final Client client;
-	private int numberOfConnectionAttempts;
-	private String wordpressApiKey;
+	private final int numberOfConnectionAttempts;
+	private final String wordpressApiKey;
 
 	private final Timer requests;
 
@@ -40,29 +50,33 @@ public class WordPressResilientClient {
 		this.requests = appMetrics.timer(MetricRegistry.name(WordPressArticleTransformerResource.class, "requestToWordPress"));
     }
 
-    public ClientResponse getRecentPosts(WordPressConnection wordPressConnection) {
+    public WordPressMostRecentPostsResponse getRecentPosts(WordPressConnection wordPressConnection) {
+
+        ClientResponse response = null;
 
         URI wordPressRecentPostsUrl = getWordPressRecentPostsUrl(wordPressConnection);
 
         WebResource webResource = client.resource(wordPressRecentPostsUrl);
-        
-        ClientHandlerException lastClientHandlerException = null;
-        
+
+        RuntimeException lastException = null;
+
         for (int attemptsCount = 1; attemptsCount <= numberOfConnectionAttempts; attemptsCount++) {
             LOGGER.info("[REQUEST STARTED] attempt={} requestUri={}", attemptsCount, wordPressRecentPostsUrl);
             Timer.Context requestsTimer = requests.time();
             long startTime = System.currentTimeMillis();
-            
+            WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse;
 
-            ClientResponse response;
-            
             try {
                 response = webResource.accept("application/json").get(ClientResponse.class);
-                return response; 
-            } catch (ClientHandlerException che) {
-                lastClientHandlerException = che; 
-                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, che.getMessage());
+                wordPressMostRecentPostsResponse = processListResponse(response, wordPressRecentPostsUrl);
+                return wordPressMostRecentPostsResponse;
+            } catch (RuntimeException e) {
+                lastException = e;
+                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, e.getMessage());
             } finally {
+                if (response != null) {
+                    response.close();
+                }
                 long endTime = System.currentTimeMillis();
                 long timeTakenMillis = (endTime - startTime);
                 requestsTimer.stop();
@@ -70,16 +84,13 @@ public class WordPressResilientClient {
             }
         }
 
-        Throwable cause = lastClientHandlerException.getCause();
+        Throwable cause = lastException.getCause();
         if(cause instanceof IOException) {
             throw ServerError.status(503).context(webResource).error(
-                        String.format("Cannot connect to WordPress for url: [%s]", wordPressRecentPostsUrl)).exception(cause);
+                    String.format("Cannot connect to WordPress for url: [%s]", wordPressRecentPostsUrl)).exception(cause);
         }
-        throw lastClientHandlerException;
-
-        
+        throw lastException;
     }
-
 
     private URI getWordPressRecentPostsUrl(WordPressConnection wordPressConnection) {
         return UriBuilder.fromPath(wordPressConnection.getPath())
@@ -91,26 +102,31 @@ public class WordPressResilientClient {
     }
 
 
-	public ClientResponse getContent(URI requestUri) {
+	public Post getContent(URI requestUri, UUID uuid) {
+
+        ClientResponse response = null;
 
 	    WebResource webResource = client.resource(requestUri).queryParam(API_KEY_NAME,wordpressApiKey);
         
-        ClientHandlerException lastClientHandlerException = null;
+        RuntimeException lastException = null;
         
         for (int attemptsCount = 1; attemptsCount <= numberOfConnectionAttempts; attemptsCount++) {
             LOGGER.info("[REQUEST STARTED] attempt={} requestUri={}", attemptsCount, requestUri);
             Timer.Context requestsTimer = requests.time();
             long startTime = System.currentTimeMillis();
-            
-            ClientResponse response = null;
+            Post post;
             
             try {
                 response = webResource.accept("application/json").get(ClientResponse.class);
-                return response; 
-            } catch (ClientHandlerException che) {
-                lastClientHandlerException = che; 
-                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, che.getMessage());
+                post = processPostResponse(response, uuid, requestUri);
+                return post;
+            } catch (RuntimeException e) {
+                lastException = e;
+                LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, e.getMessage());
             } finally {
+                if (response != null) {
+                    response.close();
+                }
                 long endTime = System.currentTimeMillis();
                 long timeTakenMillis = (endTime - startTime);
                 requestsTimer.stop();
@@ -118,12 +134,88 @@ public class WordPressResilientClient {
             }
         }
         
-        Throwable cause = lastClientHandlerException.getCause();
+        Throwable cause = lastException.getCause();
         if(cause instanceof IOException) {
             throw ServerError.status(503).context(webResource).error(
                         String.format("Cannot connect to WordPress for url: [%s]", requestUri)).exception(cause);
         }
-        throw lastClientHandlerException;
+        throw lastException;
 
 	}
+
+    private Post processPostResponse(ClientResponse response, UUID uuid, URI requestUri) {
+        WordPressResponse wordPressResponse;
+
+        int responseStatusCode = response.getStatus();
+        int responseStatusFamily = responseStatusCode / 100;
+
+        if (responseStatusFamily == 2) {
+
+            wordPressResponse = response.getEntity(WordPressResponse.class);
+            String status = wordPressResponse.getStatus();
+
+            if (status == null) {
+                throw new InvalidResponseException(response);
+            }else if (STATUS_OK.equals(status)) {
+                if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals(POST_TYPE_POST)) { // markets live
+                    throw new UnsupportedPostTypeException(wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
+                }
+                return wordPressResponse.getPost();
+            } else if (STATUS_ERROR.equals(status)) {
+                String error = wordPressResponse.getError();
+                if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals(POST_TYPE_POST)) { // markets live
+                    throw new UnsupportedPostTypeException(wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
+                }
+                if (ERROR_NOT_FOUND.equals(error)) {
+                    throw new PostNotFoundException(wordPressResponse.getError(), uuid);
+                } else {
+                    // It says it's an error, but we don't understand this kind of error
+                    throw new UnknownErrorCodeException(wordPressResponse.getError(), uuid);
+                }
+            } else {
+                throw new UnexpectedStatusFieldException(status, uuid);
+            }
+
+        } else if (responseStatusFamily == 4) {
+            throw new UnexpectedStatusCodeException(requestUri, responseStatusCode);
+        } else {
+            throw new RequestFailedException(requestUri, responseStatusCode);
+        }
+    }
+
+    private WordPressMostRecentPostsResponse processListResponse(ClientResponse response, URI requestUri) {
+
+        WordPressMostRecentPostsResponse output;
+
+        int responseStatusCode = response.getStatus();
+        int responseStatusFamily = responseStatusCode / 100;
+
+        if (responseStatusFamily == 2) {
+
+            output = response.getEntity(WordPressMostRecentPostsResponse.class);
+            String status = output.getStatus();
+
+            if (status == null) {
+                throw new InvalidResponseException(response);
+            }else if (STATUS_OK.equals(status)) {
+                return output;
+            } else if (STATUS_ERROR.equals(status)) {
+                String error = output.getError();
+                if (ERROR_NOT_FOUND.equals(error)) {
+                    throw new PostNotFoundException(output.getError());
+                } else {
+                    // It says it's an error, but we don't understand this kind of error
+                    throw new UnknownErrorCodeException(output.getError());
+                }
+            } else {
+                throw new UnexpectedStatusFieldException(status);
+            }
+
+        } else if (responseStatusFamily == 4) {
+            throw new UnexpectedStatusCodeException(requestUri, responseStatusCode);
+        } else {
+            throw new RequestFailedException(requestUri, responseStatusCode);
+        }
+    }
+
 }

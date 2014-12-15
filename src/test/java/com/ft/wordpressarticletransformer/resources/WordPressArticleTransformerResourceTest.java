@@ -79,27 +79,31 @@ public class WordPressArticleTransformerResourceTest {
 	
 	@Test
 	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
-	public void shouldReturn404WhenWordPressReturnsStatusErrorAndErrorNotFound() {
+	public void shouldReturn500WhenWordpressReturnsStatusErrorAndErrorNotFound() {
 	    final URI uri = buildTransformerUrl(UUID, WILL_RETURN_ERROR_NOT_FOUND);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
         assertThat("response", clientResponse.getEntity(String.class), containsString("uuid"));
 	}
 
+
+    /**
+     * The endpoint generally returns 200, even for errors, so a 404 means we have the wrong URL.
+     */
     @Test
-	public void shouldReturn404When404ReturnedFromWordPress() {
+	public void shouldReturn500When404ReturnedFromWordpress() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_404);
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-		assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
 	}
 
     @Test
-    public void shouldReturn400WithUuidWhenTypeNotPostFromWordPress() {
+    public void shouldReturn403WithUuidWhenTypeNotPostFromWordpress() {
         final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(403)));
         assertThat("response", clientResponse.getEntity(String.class), containsString("markets-live"));
     }
 
@@ -136,7 +140,7 @@ public class WordPressArticleTransformerResourceTest {
     }
 
     @Test
-    public void shouldReturn400WhenResponseNotAValidWordPressResponse() {
+    public void shouldReturn400WhenResponseNotAValidWordpressResponse() {
         final URI uri = buildTransformerUrl(UUID, WILL_RETURN_NON_WORD_PRESS_RESPONSE);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -145,7 +149,7 @@ public class WordPressArticleTransformerResourceTest {
 
 
 	@Test
-	public void shouldReturn503When500ReturnedFromClamo() {
+	public void shouldReturn503When500ReturnedFromWordpress() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_500);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -154,7 +158,7 @@ public class WordPressArticleTransformerResourceTest {
 
 
     @Test
-	public void shouldReturn503WhenCannotConnectToClamo() {
+	public void shouldReturn503WhenCannotConnectToWordpress() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_CANNOT_CONNECT);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);

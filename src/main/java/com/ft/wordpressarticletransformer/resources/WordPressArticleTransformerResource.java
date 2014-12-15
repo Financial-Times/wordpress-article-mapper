@@ -21,12 +21,8 @@ import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.wordpressarticletransformer.response.Post;
-import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.sun.jersey.api.NotFoundException;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -42,13 +38,11 @@ public class WordPressArticleTransformerResource {
 
 	public static final String ORIGINATING_SYSTEM_WORDPRESS = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-24";
 
-    private static final String STATUS_ERROR = "error";
-    private static final String ERROR_NOT_FOUND = "Not found.";
-
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
     private final BrandResolver brandResolver;
 	
 	private WordPressResilientClient wordPressResilientClient;
+
 
 
 	public WordPressArticleTransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
@@ -81,16 +75,14 @@ public class WordPressArticleTransformerResource {
         }
 	    
 	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, validUuid.toString(), "Publish request");
-	    
-	    WordPressResponse wordPressResponse = doRequest(requestUri, validUuid);
 
-		if (wordPressResponse == null) {
+        Post postDetails = doRequest(requestUri, validUuid);
+
+		if (postDetails == null) {
 			throw new NotFoundException();
 		}
 
-		String body = wrapBody(wordPressResponse.getPost().getContent());
-		
-        Post postDetails = wordPressResponse.getPost();
+		String body = wrapBody(postDetails.getContent());
 		
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
 		DateTime datePublished = formatter.parseDateTime(postDetails.getDate());
@@ -129,46 +121,34 @@ public class WordPressArticleTransformerResource {
 		return "<body>" + originalBody + "</body>";
 	}
 
-	private WordPressResponse doRequest(URI requestUri, UUID uuid) {
+	private Post doRequest(URI requestUri, UUID uuid) {
 		
-		ClientResponse response = wordPressResilientClient.getContent(requestUri);
+		Post post;
 
-		int responseStatusCode = response.getStatus();
-		int responseStatusFamily = responseStatusCode / 100;
+        try {
+            post = wordPressResilientClient.getContent(requestUri, uuid);
 
-		if (responseStatusFamily == 2) {
-		    WordPressResponse wordPressResponse = null;
-		    try {
-		        wordPressResponse = response.getEntity(WordPressResponse.class);
-		    } catch (ClientHandlerException | UniformInterfaceException e) {
-		        throw ClientError.status(400).error(
-                        String.format("Response not a valid WordPressResponse - check your url [%s]. Response is [%s]", requestUri, response)).exception();
-		    } 
-		    if (wordPressResponse.getStatus() == null) {
-		        throw ClientError.status(400).error(
-                        String.format("Response not a valid WordPressResponse - check your url [%s]. Response is [%s]", requestUri, response)).exception();
-		    }
-            if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals("post")) { // markets live
-                throw ClientError.status(400).error(
-						String.format(String.format("Not a valid post, type is [%s].", wordPressResponse.getPost().getType()), requestUri)).exception();
+            if (post == null) {
+                LOGGER.error("No content was returned");
+                return null;
             }
-		    if (STATUS_ERROR.equals(wordPressResponse.getStatus())) {
-		        String error = wordPressResponse.getError();
-		        if (ERROR_NOT_FOUND.equals(error)) {
-	                throw ClientError.status(404).context(uuid).error("Not found").exception();
-		        } else {
-		            // It says it's an error, but we don't understand this kind of error
-		            throw ServerError.status(500).error(
-                            String.format("Unexpected error from WordPress: [%s] for url [%s]. Response is [%s]", error, requestUri, response)).exception();
-		        }
-		    }
-		    
-		    return wordPressResponse;
-		} else if (responseStatusFamily == 4) {
-		    throw ClientError.status(404).error("Not found").exception();
-		} else {
-			throw ServerError.status(responseStatusCode).exception();
-		}
-	}
+            return post;
+        } catch (InvalidResponseException e) {
+            throw ClientError.status(400).error(String.format("Response not a valid WordPressResponse - check your url [%s]. Response is [%s]", requestUri, e.getResponse())).exception();
+        } catch (UnsupportedPostTypeException e) {
+            throw ClientError.status(403).error(String.format("Not a valid post, type is [%s], should be [%s], for content with uuid:[%s]", e.getActualType(), e.getSupportedType(), uuid)).exception();
+        } catch (PostNotFoundException e) {
+            throw ClientError.status(404).error(String.format("Error [%s]. Content with uuid: [%s] not found", e.getError(), e.getUuid())).exception();
+        } catch (UnknownErrorCodeException e) {
+            throw ServerError.status(500).error(String.format("Unexpected error from WordPress: [%s] for uuid [%s].",  e.getError(), e.getUuid())).exception();
+        } catch (UnexpectedStatusFieldException e) {
+            throw ServerError.status(500).error(String.format("Unexpected status from WordPress: [%s] for uuid [%s].", e.getStatus(), e.getUuid())).exception();
+        } catch (UnexpectedStatusCodeException e) {
+            throw ServerError.status(500).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
+        } catch (RequestFailedException e) {
+            throw ServerError.status(503).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
+        }
+
+    }
 
 }
