@@ -90,7 +90,7 @@ public class WordPressResilientClientTest {
         when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
         when(handler.handle(any(ClientRequest.class)))
             .thenThrow(new ClientHandlerException(new SocketTimeoutException()));
-        expectedException.expect(WebApplicationServerException.class);
+        expectedException.expect(CannotConnectToWordPressException.class);
         wordPressResilientClient.getContent(requestUri, uuid);
     }
 
@@ -141,7 +141,7 @@ public class WordPressResilientClientTest {
 
     }
 
-    @Test(expected=UnknownErrorCodeException.class)
+    @Test(expected=UnexpectedErrorCodeException.class)
     public void shouldThrowUnknownErrorCodeExceptionWhenStatusErrorAndErrorCodeIsUnknownForGetContent() {
         when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
         when(handler.handle(any(ClientRequest.class)))
@@ -203,18 +203,7 @@ public class WordPressResilientClientTest {
         wordPressResilientClient.getRecentPosts(wordPressConnection);
     }
 
-    @Test(expected=PostNotFoundException.class)
-    public void shouldThrowPostNotFoundExceptionWhenStatusErrorAndErrorCodeNotFoundForGetRecentPosts() {
-        when(clientResponse.getEntity(WordPressMostRecentPostsResponse.class)).thenReturn(mockWordPressMostRecentPostsResponse);
-        when(handler.handle(any(ClientRequest.class)))
-                .thenReturn(clientResponse);
-        when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
-        when(mockWordPressMostRecentPostsResponse.getStatus()).thenReturn(STATUS_ERROR);
-        when(mockWordPressMostRecentPostsResponse.getError()).thenReturn(ERROR_NOT_FOUND);
-        wordPressResilientClient.getRecentPosts(wordPressConnection);
-    }
-
-    @Test(expected=UnknownErrorCodeException.class)
+    @Test(expected=UnexpectedErrorCodeException.class)
     public void shouldThrowUnknownErrorCodeExceptionWhenStatusErrorAndErrorCodeIsUnknownForGetRecentPosts() {
         when(clientResponse.getEntity(WordPressMostRecentPostsResponse.class)).thenReturn(mockWordPressMostRecentPostsResponse);
         when(handler.handle(any(ClientRequest.class)))
