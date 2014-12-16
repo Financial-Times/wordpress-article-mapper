@@ -139,7 +139,7 @@ public class WordPressArticleTransformerResource {
             throw ClientError.status(403).error(String.format("Not a valid post, type is [%s], should be [%s], for content with uuid:[%s]", e.getActualType(), e.getSupportedType(), uuid)).exception();
         } catch (PostNotFoundException e) {
             throw ClientError.status(404).error(String.format("Error [%s]. Content with uuid: [%s] not found", e.getError(), e.getUuid())).exception();
-        } catch (UnknownErrorCodeException e) {
+        } catch (UnexpectedErrorCodeException e) {
             throw ServerError.status(500).error(String.format("Unexpected error from WordPress: [%s] for uuid [%s].",  e.getError(), e.getUuid())).exception();
         } catch (UnexpectedStatusFieldException e) {
             throw ServerError.status(500).error(String.format("Unexpected status from WordPress: [%s] for uuid [%s].", e.getStatus(), e.getUuid())).exception();
@@ -147,6 +147,8 @@ public class WordPressArticleTransformerResource {
             throw ServerError.status(500).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
         } catch (RequestFailedException e) {
             throw ServerError.status(503).error(String.format("Unexpected Client Response for [%s] with code [%s].", e.getRequestUri(), e.getResponseStatusCode())).exception();
+        } catch (CannotConnectToWordPressException e) {
+            throw ServerError.status(503).error(String.format("Cannot connect to WordPress for url: [%s]", requestUri)).exception(e);
         }
 
     }

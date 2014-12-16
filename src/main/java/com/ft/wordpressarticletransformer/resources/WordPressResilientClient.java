@@ -136,8 +136,7 @@ public class WordPressResilientClient {
         
         Throwable cause = lastException.getCause();
         if(cause instanceof IOException) {
-            throw ServerError.status(503).context(webResource).error(
-                        String.format("Cannot connect to WordPress for url: [%s]", requestUri)).exception(cause);
+            throw new CannotConnectToWordPressException(requestUri, cause);
         }
         throw lastException;
 
@@ -170,7 +169,7 @@ public class WordPressResilientClient {
                     throw new PostNotFoundException(wordPressResponse.getError(), uuid);
                 } else {
                     // It says it's an error, but we don't understand this kind of error
-                    throw new UnknownErrorCodeException(wordPressResponse.getError(), uuid);
+                    throw new UnexpectedErrorCodeException(wordPressResponse.getError(), uuid);
                 }
             } else {
                 throw new UnexpectedStatusFieldException(status, uuid);
@@ -193,20 +192,17 @@ public class WordPressResilientClient {
         if (responseStatusFamily == 2) {
 
             output = response.getEntity(WordPressMostRecentPostsResponse.class);
+            if (output == null) {
+                throw new InvalidResponseException(response);
+            }
             String status = output.getStatus();
-
             if (status == null) {
                 throw new InvalidResponseException(response);
-            }else if (STATUS_OK.equals(status)) {
+            } else if (STATUS_OK.equals(status)) {
                 return output;
             } else if (STATUS_ERROR.equals(status)) {
-                String error = output.getError();
-                if (ERROR_NOT_FOUND.equals(error)) {
-                    throw new PostNotFoundException(output.getError());
-                } else {
-                    // It says it's an error, but we don't understand this kind of error
-                    throw new UnknownErrorCodeException(output.getError());
-                }
+                // we expect not to get any error!
+                throw new UnexpectedErrorCodeException(output.getError());
             } else {
                 throw new UnexpectedStatusFieldException(status);
             }
