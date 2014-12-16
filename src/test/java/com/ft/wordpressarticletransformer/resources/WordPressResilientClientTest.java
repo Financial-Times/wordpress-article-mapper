@@ -18,7 +18,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.codahale.metrics.MetricRegistry;
-import com.ft.api.jaxrs.errors.WebApplicationServerException;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.sun.jersey.api.client.Client;
