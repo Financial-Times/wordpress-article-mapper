@@ -31,7 +31,7 @@ public class WordPressResilientClient {
 
     private static final String STATUS_OK = "ok";
     private static final String STATUS_ERROR = "error";
-    private static final String ERROR_NOT_FOUND = "Not found";
+    private static final String ERROR_NOT_FOUND = "Not found."; // DOES include a dot
     private static final String POST_TYPE_POST = "post";
 
 	private final Client client;

@@ -79,11 +79,11 @@ public class WordPressArticleTransformerResourceTest {
 	
 	@Test
 	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
-	public void shouldReturn500WhenWordpressReturnsStatusErrorAndErrorNotFound() {
+	public void shouldReturn404WhenWordpressReturnsStatusErrorAndErrorNotFound() {
 	    final URI uri = buildTransformerUrl(UUID, WILL_RETURN_ERROR_NOT_FOUND);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
         assertThat("response", clientResponse.getEntity(String.class), containsString("uuid"));
 	}
 
