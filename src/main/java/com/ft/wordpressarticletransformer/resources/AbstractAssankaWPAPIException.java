@@ -31,18 +31,18 @@ public class AbstractAssankaWPAPIException  extends RuntimeException {
         String additionalPropertiesMessage = "";
         if(hasAdditionalProperties()) {
             additionalPropertiesMessage = System.lineSeparator()
-                    +  "\tadditional properties: " + additionalProperties.toString();
+                    +  "\tadditionalProperties=" + additionalProperties.toString();
         }
         String uriMessage = "";
         if(hasURI()) {
-            additionalPropertiesMessage = System.lineSeparator()
-                    +  "\trequestUri: " + additionalProperties.toString();
+            uriMessage = System.lineSeparator()
+                    +  "\trequestUri=" + requestUri;
         }
         return super.getMessage() +  additionalPropertiesMessage + uriMessage;
     }
 
     private boolean hasURI() {
-        return requestUri ==null;
+        return requestUri != null;
     }
 
     public boolean hasAdditionalProperties() {
