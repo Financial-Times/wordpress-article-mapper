@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
@@ -67,7 +66,8 @@ public class WordPressResilientClient {
             WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse;
 
             try {
-                response = webResource.accept("application/json").get(ClientResponse.class);
+                //Add API Key to URI here so that we don't log it in this class
+                response = webResource.queryParam(API_KEY_NAME,wordpressApiKey).accept("application/json").get(ClientResponse.class);
                 wordPressMostRecentPostsResponse = processListResponse(response, wordPressRecentPostsUrl);
                 return wordPressMostRecentPostsResponse;
             } catch (RuntimeException e) {
@@ -86,8 +86,7 @@ public class WordPressResilientClient {
 
         Throwable cause = lastException.getCause();
         if(cause instanceof IOException) {
-            throw ServerError.status(503).context(webResource).error(
-                    String.format("Cannot connect to WordPress for url: [%s]", wordPressRecentPostsUrl)).exception(cause);
+            throw new CannotConnectToWordPressException(wordPressRecentPostsUrl, cause);
         }
         throw lastException;
     }
@@ -98,7 +97,7 @@ public class WordPressResilientClient {
                 .host(wordPressConnection.getHostName())
                 .port(wordPressConnection.getPort())
                 .queryParam("count", 1)
-				.queryParam(API_KEY_NAME,wordpressApiKey).build();
+				.build();
     }
 
 

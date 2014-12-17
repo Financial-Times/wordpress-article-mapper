@@ -62,7 +62,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
             } catch(RequestFailedException e) {
                 return reportError("Request failed, response code was " + e.getResponseStatusCode());
             } catch(CannotConnectToWordPressException e) {
-                return reportError("Cannot connect to WordPress on Url" + e.getRequestUri() + " got exception " + e.getCause());
+                return reportError("Cannot connect to WordPress on Url " + e.getRequestUri() + " got exception " + e.getCause());
             }catch (Throwable e) {
 				LOGGER.warn(getName() + ": Exception during getting most recent content from WordPress", e);
 				return AdvancedResult.error(this, e);
