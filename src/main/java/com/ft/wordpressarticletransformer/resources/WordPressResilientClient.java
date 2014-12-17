@@ -144,8 +144,10 @@ public class WordPressResilientClient {
 	}
 
     private Post processPostResponse(ClientResponse response, UUID uuid, URI requestUri) {
-        WordPressResponse wordPressResponse;
 
+        URI loggableRequestUri = redact(requestUri);
+
+        WordPressResponse wordPressResponse;
         int responseStatusCode = response.getStatus();
         int responseStatusFamily = responseStatusCode / 100;
 
@@ -155,25 +157,25 @@ public class WordPressResilientClient {
             String status = wordPressResponse.getStatus();
 
             if (status == null) {
-                throw new InvalidResponseException(response);
+                throw new InvalidResponseException(response, loggableRequestUri);
             }else if (STATUS_OK.equals(status)) {
-                if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals(POST_TYPE_POST)) { // markets live
-                    throw new UnsupportedPostTypeException(wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
+                if (isMarketsLive(wordPressResponse)) {
+                    throw new UnsupportedPostTypeException(loggableRequestUri, wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
                 }
                 return wordPressResponse.getPost();
             } else if (STATUS_ERROR.equals(status)) {
                 String error = wordPressResponse.getError();
-                if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals(POST_TYPE_POST)) { // markets live
-                    throw new UnsupportedPostTypeException(wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
+                if (isMarketsLive(wordPressResponse)) {
+                    throw new UnsupportedPostTypeException(loggableRequestUri, wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
                 }
                 if (ERROR_NOT_FOUND.equals(error)) {
-                    throw new PostNotFoundException(wordPressResponse.getError(), uuid);
+                    throw new PostNotFoundException(loggableRequestUri, wordPressResponse.getError(), uuid);
                 } else {
                     // It says it's an error, but we don't understand this kind of error
-                    throw new UnknownErrorCodeException(wordPressResponse.getError(), uuid);
+                    throw new UnknownErrorCodeException(loggableRequestUri, wordPressResponse.getError(), uuid);
                 }
             } else {
-                throw new UnexpectedStatusFieldException(status, uuid);
+                throw new UnexpectedStatusFieldException(loggableRequestUri, status, uuid);
             }
 
         } else if (responseStatusFamily == 4) {
@@ -183,7 +185,13 @@ public class WordPressResilientClient {
         }
     }
 
+    private boolean isMarketsLive(WordPressResponse wordPressResponse) {
+        return wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals(POST_TYPE_POST);
+    }
+
     private WordPressMostRecentPostsResponse processListResponse(ClientResponse response, URI requestUri) {
+
+        URI loggableRequestUri = redact(requestUri);
 
         WordPressMostRecentPostsResponse output;
 
@@ -196,26 +204,30 @@ public class WordPressResilientClient {
             String status = output.getStatus();
 
             if (status == null) {
-                throw new InvalidResponseException(response);
+                throw new InvalidResponseException(response, loggableRequestUri);
             }else if (STATUS_OK.equals(status)) {
                 return output;
             } else if (STATUS_ERROR.equals(status)) {
                 String error = output.getError();
                 if (ERROR_NOT_FOUND.equals(error)) {
-                    throw new PostNotFoundException(output.getError());
+                    throw new PostNotFoundException(loggableRequestUri, output.getError());
                 } else {
                     // It says it's an error, but we don't understand this kind of error
-                    throw new UnknownErrorCodeException(output.getError(), output.getAdditionalProperties());
+                    throw new UnknownErrorCodeException(loggableRequestUri, output.getError(), output.getAdditionalProperties());
                 }
             } else {
-                throw new UnexpectedStatusFieldException(status, output.getAdditionalProperties());
+                throw new UnexpectedStatusFieldException(loggableRequestUri, status, output.getAdditionalProperties());
             }
 
         } else if (responseStatusFamily == 4) {
-            throw new UnexpectedStatusCodeException(requestUri, responseStatusCode);
+            throw new UnexpectedStatusCodeException(loggableRequestUri, responseStatusCode);
         } else {
-            throw new RequestFailedException(requestUri, responseStatusCode);
+            throw new RequestFailedException(loggableRequestUri, responseStatusCode);
         }
+    }
+
+    private URI redact(URI requestUri) {
+        return URI.create(requestUri.toString().replace(wordpressApiKey, "REDACTED"));
     }
 
 }

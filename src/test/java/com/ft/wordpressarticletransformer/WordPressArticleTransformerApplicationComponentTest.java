@@ -32,7 +32,7 @@ public class WordPressArticleTransformerApplicationComponentTest {
 
     private static final String ADDITIONAL_PROPERTIES_EXAMPLE_BODY = "{\n"+
             "    \"status\": \"error\",\n"+
-            "    \"error\": \"Not found.\",\n"+
+            "    \"error\": \"error\",\n"+
             "    \"foo\" : \"bar\",\n"+
             "    \"baz\" : {\n"+
             "        \"spong\" : \"bip\"\n"+
@@ -41,7 +41,7 @@ public class WordPressArticleTransformerApplicationComponentTest {
 
     private static final String UNUSUAL_ADDITIONAL_PROPERTIES_EXAMPLE_BODY = "{\n"+
             "    \"status\": \"unable to serve content due to an unexpected disaster involving blancmange\",\n"+
-            "    \"error\": \"Not found.\",\n"+
+            "    \"error\": \"error\",\n"+
             "    \"foo\" : \"bar\",\n"+
             "    \"baz\" : {\n"+
             "        \"spong\" : \"bip\"\n"+

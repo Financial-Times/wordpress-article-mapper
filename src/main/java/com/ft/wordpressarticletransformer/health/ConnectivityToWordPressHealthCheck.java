@@ -3,6 +3,7 @@ package com.ft.wordpressarticletransformer.health;
 import java.util.List;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
+import com.ft.wordpressarticletransformer.resources.AbstractAssankaWPAPIException;
 import com.ft.wordpressarticletransformer.resources.InvalidResponseException;
 import com.ft.wordpressarticletransformer.resources.PostNotFoundException;
 import com.ft.wordpressarticletransformer.resources.RequestFailedException;
@@ -22,7 +23,6 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConnectivityToWordPressHealthCheck.class);
 
-    private static final int SUCCESSFUL_RESPONSE_CODE = 200;
 	private static final Integer EXPECTED_COUNT = 1;
 
 	private final String panicGuideUrl;
@@ -59,19 +59,10 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
                     }
 
 				} else {
-                    return reportError(String.format("WordPress returned no data. Status code [%d]", output.getStatus()));
+                    return reportError(String.format("WordPress returned no data."));
 				}
-			} catch(InvalidResponseException e) {
-                return reportError("status field in response not \"" + WPFormat.STATUS_OK + "\", was " + e.getResponse());
-            } catch(PostNotFoundException e) {
-                return reportError("error code in response not \"" + WPFormat.STATUS_ERROR + "\", was " + e.getError());
-            } catch(UnknownErrorCodeException | UnexpectedStatusFieldException e) {
-                // TODO this block could handle everything
+			} catch(AbstractAssankaWPAPIException e) {
                 return reportError(e.getMessage());
-            } catch(UnexpectedStatusCodeException e) {
-                return reportError("expected response code \"" + SUCCESSFUL_RESPONSE_CODE + "\", received " + e.getResponseStatusCode());
-            } catch(RequestFailedException e) {
-                return reportError("expected response code \"" + SUCCESSFUL_RESPONSE_CODE + "\", received " + e.getResponseStatusCode());
             } catch (Throwable e) {
 				LOGGER.warn(getName() + ": Exception during getting most recent content from WordPress", e);
 				return AdvancedResult.error(this, e);

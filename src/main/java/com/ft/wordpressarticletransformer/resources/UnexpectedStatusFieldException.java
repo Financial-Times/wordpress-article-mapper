@@ -2,27 +2,25 @@ package com.ft.wordpressarticletransformer.resources;
 
 import com.ft.wordpressarticletransformer.response.WPFormat;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.UUID;
 
-public class UnexpectedStatusFieldException extends RuntimeException {
+public class UnexpectedStatusFieldException extends AbstractAssankaWPAPIException {
 
     private final String status;
     private final UUID uuid;
-    private Map<String, Object> additionalProperties;
 
-
-    public UnexpectedStatusFieldException(String status, UUID uuid) {
-
+    public UnexpectedStatusFieldException(URI requestUri, String status, UUID uuid) {
+        super(String.format("Unexpected status from WordPress: [%s] for uuid [%s].", status, uuid), requestUri);
         this.status = status;
         this.uuid = uuid;
-        this.additionalProperties = null;
     }
 
-    public UnexpectedStatusFieldException(String status, Map<String,Object> additionalProperties) {
+    public UnexpectedStatusFieldException(URI requestUri, String status, Map<String,Object> additionalProperties) {
+        super("status field in response not \"" + WPFormat.STATUS_OK + "\", was " + status, additionalProperties, requestUri);
         this.status = status;
         this.uuid = null;
-        this.additionalProperties = additionalProperties;
     }
 
     public UUID getUuid() {
@@ -33,25 +31,5 @@ public class UnexpectedStatusFieldException extends RuntimeException {
         return status;
     }
 
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties;
-    }
-
-    @Override
-    public String getMessage() {
-        String additionalPropertiesMessage = "";
-        if(hasAdditionalProperties()) {
-            additionalPropertiesMessage = System.lineSeparator()
-                    +  "\tadditional properties: " + additionalProperties.toString();
-        }
-        return "status field in response not \"" + WPFormat.STATUS_OK + "\", was " + getStatus() +  additionalPropertiesMessage;
-    }
-
-    public boolean hasAdditionalProperties() {
-        if(additionalProperties==null) {
-            return false;
-        }
-        return !additionalProperties.isEmpty();
-    }
 }
 
