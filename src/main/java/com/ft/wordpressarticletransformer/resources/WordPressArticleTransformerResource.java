@@ -136,7 +136,7 @@ public class WordPressArticleTransformerResource {
         } catch (InvalidResponseException e) {
             throw ClientError.status(400).error(e.getMessage()).exception(e);
         } catch (UnsupportedPostTypeException e) {
-            throw ClientError.status(403).error(e.getMessage()).exception(e);
+            throw ClientError.status(404).context(uuid).error(e.getMessage()).exception(e);
         } catch (PostNotFoundException e) {
             throw ClientError.status(404).error(e.getMessage()).exception(e);
         } catch (UnexpectedErrorCodeException | UnexpectedStatusFieldException | UnexpectedStatusCodeException e) {

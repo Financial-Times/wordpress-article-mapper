@@ -99,11 +99,11 @@ public class WordPressArticleTransformerResourceTest {
 	}
 
     @Test
-    public void shouldReturn403WithUuidWhenTypeNotPostFromWordpress() {
+    public void shouldReturn404WithUuidWhenTypeNotPostFromWordpress() {
         final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        assertThat("response", clientResponse, hasProperty("status", equalTo(403)));
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
         assertThat("response", clientResponse.getEntity(String.class), containsString("markets-live"));
     }
 
