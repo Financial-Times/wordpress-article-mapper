@@ -43,10 +43,6 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
                 WordPressMostRecentPostsResponse output = client.getRecentPosts(wordPressConnection);
 
 				if(output != null){
-                    String status = output.getStatus();
-                    if (!WPFormat.STATUS_OK.equals(status)) {
-                        return reportError("status field in response not \"" + WPFormat.STATUS_OK + "\", was " + status);
-                    }
                     Integer count = output.getCount();
                     if (!EXPECTED_COUNT.equals(count)) {
                         return reportError("count field in response not \"" + EXPECTED_COUNT + "\", was " + count);

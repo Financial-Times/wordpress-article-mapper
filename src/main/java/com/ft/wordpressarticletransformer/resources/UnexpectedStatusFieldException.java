@@ -12,13 +12,13 @@ public class UnexpectedStatusFieldException extends WordPressApiException {
     private final UUID uuid;
 
     public UnexpectedStatusFieldException(URI requestUri, String status, UUID uuid) {
-        super(String.format("Unexpected status from WordPress: [%s] for uuid [%s].", status, uuid), requestUri);
+        super(String.format("Unexpected WordPress status=\"%s\" for uuid=\"%s\".", status, uuid), requestUri);
         this.status = status;
         this.uuid = uuid;
     }
 
     public UnexpectedStatusFieldException(URI requestUri, String status, Map<String,Object> additionalProperties) {
-        super("status field in response not \"" + WPFormat.STATUS_OK + "\", was " + status, additionalProperties, requestUri);
+        super(String.format("Unexpected WordPress status=\"%s\". Expected \"%s\".", status, WPFormat.STATUS_OK), additionalProperties, requestUri);
         this.status = status;
         this.uuid = null;
     }
