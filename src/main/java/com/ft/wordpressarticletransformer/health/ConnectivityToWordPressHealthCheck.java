@@ -62,6 +62,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 				return AdvancedResult.error(this, e);
 			}
 		}
+        // It may be helpful to add more info to this output, but in fact it is never displayed due to the health check formatter.
 		return AdvancedResult.healthy("All is ok");
 	}
 
