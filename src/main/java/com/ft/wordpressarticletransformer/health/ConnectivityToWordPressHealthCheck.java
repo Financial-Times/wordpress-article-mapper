@@ -44,9 +44,9 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 		for (WordPressConnection wordPressConnection: wordPressConnections) {
 
-            WordPressMostRecentPostsResponse output = client.getRecentPosts(wordPressConnection);
+            try {
 
-			try {
+                WordPressMostRecentPostsResponse output = client.getRecentPosts(wordPressConnection);
 
 				if(output != null){
                     String status = output.getStatus();
