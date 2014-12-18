@@ -49,7 +49,7 @@ public class WordPressResilientClientTest {
     private static final String STATUS_ERROR = "error";
     private static final String STATUS_UNKNOWN = "unknown";
     private static final String POST_TYPE_GET = "get";
-    private static final String ERROR_NOT_FOUND = "Not found";
+    private static final String ERROR_NOT_FOUND = "Not found.";
     private static final String ERROR_UNKNOWN = "Unknown";
 
     private MetricRegistry appMetrics = new MetricRegistry();
