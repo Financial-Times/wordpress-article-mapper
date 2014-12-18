@@ -4,17 +4,17 @@ import java.util.List;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.resources.AbstractAssankaWPAPIException;
+import com.ft.wordpressarticletransformer.resources.CannotConnectToWordPressException;
 import com.ft.wordpressarticletransformer.resources.InvalidResponseException;
 import com.ft.wordpressarticletransformer.resources.PostNotFoundException;
 import com.ft.wordpressarticletransformer.resources.RequestFailedException;
 import com.ft.wordpressarticletransformer.resources.UnexpectedStatusCodeException;
 import com.ft.wordpressarticletransformer.resources.UnexpectedStatusFieldException;
-import com.ft.wordpressarticletransformer.resources.UnknownErrorCodeException;
+import com.ft.wordpressarticletransformer.resources.UnexpectedErrorCodeException;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
-import com.ft.wordpressarticletransformer.response.WPFormat;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +44,14 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 		for (WordPressConnection wordPressConnection: wordPressConnections) {
 
-            try {
+            WordPressMostRecentPostsResponse output = client.getRecentPosts(wordPressConnection);
 
-                WordPressMostRecentPostsResponse output = client.getRecentPosts(wordPressConnection);
+			try {
 
 				if(output != null){
                     String status = output.getStatus();
-                    if (!WPFormat.STATUS_OK.equals(status)) {
-                        return reportError("status field in response not \"" + WPFormat.STATUS_OK + "\", was " + status);
+                    if (!STATUS_OK.equals(status)) {
+                        return reportError("status field in response not \"" + STATUS_OK + "\", was " + status);
                     }
                     Integer count = output.getCount();
                     if (!EXPECTED_COUNT.equals(count)) {
@@ -59,10 +59,20 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
                     }
 
 				} else {
-                    return reportError(String.format("WordPress returned no data."));
+                    return reportError(String.format("WordPress returned no data. Status code [%d]", output.getStatus()));
 				}
-			} catch(AbstractAssankaWPAPIException e) {
-                return reportError(e.getMessage());
+			} catch(InvalidResponseException e) {
+                return reportError("status field in response not \"" + STATUS_OK + "\", was " + e.getResponse());
+            } catch(PostNotFoundException e) {
+                return reportError("error code in response not \"" + STATUS_ERROR + "\", was " + e.getError());
+            } catch(UnknownErrorCodeException e) {
+                return reportError("error code in response not \"" + STATUS_ERROR + "\", was " + e.getError());
+            } catch(UnexpectedStatusFieldException e) {
+                return reportError("status field in response not \"" + STATUS_OK + "\", was " + e.getStatus());
+            } catch(UnexpectedStatusCodeException e) {
+                return reportError("expected response code \"" + SUCCESSFUL_RESPONSE_CODE + "\", received " + e.getResponseStatusCode());
+            } catch(RequestFailedException e) {
+                return reportError("expected response code \"" + SUCCESSFUL_RESPONSE_CODE + "\", received " + e.getResponseStatusCode());
             } catch (Throwable e) {
 				LOGGER.warn(getName() + ": Exception during getting most recent content from WordPress", e);
 				return AdvancedResult.error(this, e);
