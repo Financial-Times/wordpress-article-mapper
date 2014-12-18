@@ -6,7 +6,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.UUID;
 
-public class UnexpectedErrorCodeException extends AbstractAssankaWPAPIException {
+public class UnexpectedErrorCodeException extends WordPressApiException {
 
     private final UUID uuid;
     private final String error;

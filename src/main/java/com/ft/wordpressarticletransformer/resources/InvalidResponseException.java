@@ -4,7 +4,7 @@ import com.sun.jersey.api.client.ClientResponse;
 
 import java.net.URI;
 
-public class InvalidResponseException extends AbstractAssankaWPAPIException {
+public class InvalidResponseException extends WordPressApiException {
 
     private ClientResponse response;
 

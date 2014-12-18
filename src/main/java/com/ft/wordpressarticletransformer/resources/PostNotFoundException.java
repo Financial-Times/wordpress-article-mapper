@@ -5,7 +5,7 @@ import com.ft.wordpressarticletransformer.response.WPFormat;
 import java.net.URI;
 import java.util.UUID;
 
-public class PostNotFoundException extends AbstractAssankaWPAPIException {
+public class PostNotFoundException extends WordPressApiException {
 
     private final UUID uuid;
     private final String error;

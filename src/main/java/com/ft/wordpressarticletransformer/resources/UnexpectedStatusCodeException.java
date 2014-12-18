@@ -5,7 +5,7 @@ import java.net.URI;
 /**
  * The HTTP status code ahs not been provided for (200 is expected for application level errors).
  */
-public class UnexpectedStatusCodeException extends AbstractAssankaWPAPIException {
+public class UnexpectedStatusCodeException extends WordPressApiException {
 
     private final URI requestUri;
     private final int responseStatusCode;

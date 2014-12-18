@@ -2,7 +2,7 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.net.URI;
 
-public class RequestFailedException extends AbstractAssankaWPAPIException {
+public class RequestFailedException extends WordPressApiException {
 
     private final int responseStatusCode;
 

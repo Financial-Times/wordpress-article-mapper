@@ -7,7 +7,7 @@ import java.util.UUID;
  * The post has a type or custom type other than "post", meaning it has custom formatting associated with it and is
  * unsupported.
  */
-public class UnsupportedPostTypeException extends AbstractAssankaWPAPIException {
+public class UnsupportedPostTypeException extends WordPressApiException {
 
     private final String actualType;
     private final UUID uuid;

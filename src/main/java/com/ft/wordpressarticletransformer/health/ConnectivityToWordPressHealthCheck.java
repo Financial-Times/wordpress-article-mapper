@@ -3,7 +3,7 @@ package com.ft.wordpressarticletransformer.health;
 import java.util.List;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
-import com.ft.wordpressarticletransformer.resources.AbstractAssankaWPAPIException;
+import com.ft.wordpressarticletransformer.resources.WordPressApiException;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
@@ -55,7 +55,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 				} else {
                     return reportError(String.format("WordPress returned no data."));
 				}
-			} catch(AbstractAssankaWPAPIException e) {
+			} catch(WordPressApiException e) {
                 return reportError(e.getMessage());
             } catch (Throwable e) {
 				LOGGER.warn(getName() + ": Exception during getting most recent content from WordPress", e);

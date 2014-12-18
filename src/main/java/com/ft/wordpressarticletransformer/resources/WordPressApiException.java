@@ -4,29 +4,28 @@ import java.net.URI;
 import java.util.Map;
 
 /**
- * FT Labs seem to have a standard way of present API errors (it turns up in FastFT too)
- * in WP this is implemented in <code>assanka-*</code> plugins (the original name for FT LAbs as Assanka)
- *
+ * A generic exception class template with support for recording and formatting the URL and any additional properties
+ * associated with the response.
  * @author Simon.Gibbs
  */
-public class AbstractAssankaWPAPIException  extends RuntimeException {
+public class WordPressApiException extends RuntimeException {
 
     private Map<String, Object> additionalProperties;
     private URI requestUri;
 
-    public AbstractAssankaWPAPIException(Throwable cause, URI requestUri) {
+    public WordPressApiException(Throwable cause, URI requestUri) {
         super(cause.getMessage(),cause);
         this.additionalProperties = null;
         this.requestUri = requestUri;
     }
 
-    public AbstractAssankaWPAPIException(String message, URI requestUri) {
+    public WordPressApiException(String message, URI requestUri) {
         super(message);
         this.additionalProperties = null;
         this.requestUri = requestUri;
     }
 
-    public AbstractAssankaWPAPIException(String message, Map<String, Object> additionalProperties, URI requestUri) {
+    public WordPressApiException(String message, Map<String, Object> additionalProperties, URI requestUri) {
         super(message);
         this.requestUri = requestUri;
         this.additionalProperties = additionalProperties;
