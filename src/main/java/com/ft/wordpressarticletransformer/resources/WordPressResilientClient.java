@@ -119,6 +119,10 @@ public class WordPressResilientClient {
                 response = webResource.accept("application/json").get(ClientResponse.class);
                 post = processPostResponse(response, uuid, requestUri);
                 return post;
+            } catch (UnsupportedPostTypeException | PostNotFoundException e) {
+                LOGGER.info("[REQUEST FAILED] attempt={} exception={}", attemptsCount, e.getMessage());
+                // we don't expect a different response if we retry requests that failed like this so short circuit
+                throw e;
             } catch (RuntimeException e) {
                 lastException = e;
                 LOGGER.warn("[REQUEST FAILED] attempt={} exception={}", attemptsCount, e.getMessage());
