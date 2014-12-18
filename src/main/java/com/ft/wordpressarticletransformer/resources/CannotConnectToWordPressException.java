@@ -2,17 +2,10 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.net.URI;
 
-public class CannotConnectToWordPressException extends RuntimeException {
+public class CannotConnectToWordPressException extends AbstractAssankaWPAPIException {
     
-    private URI requestUri;
-
     public CannotConnectToWordPressException(URI requestUri, Throwable cause) {
-        super(cause);
-        this.requestUri = requestUri;
-    }
-
-    public URI getRequestUri() {
-        return requestUri;
+        super(cause, requestUri);
     }
 
 }

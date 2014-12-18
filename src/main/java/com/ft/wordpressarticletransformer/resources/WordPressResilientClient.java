@@ -207,7 +207,7 @@ public class WordPressResilientClient {
                 return output;
             } else if (STATUS_ERROR.equals(status)) {
                 // we expect not to get any error!
-                throw new UnexpectedErrorCodeException(requestUri, output.getError());
+                throw new UnexpectedErrorCodeException(requestUri, output.getError(), output.getAdditionalProperties());
             } else {
                 throw new UnexpectedStatusFieldException(requestUri, status, output.getAdditionalProperties());
             }

@@ -14,6 +14,12 @@ public class AbstractAssankaWPAPIException  extends RuntimeException {
     private Map<String, Object> additionalProperties;
     private URI requestUri;
 
+    public AbstractAssankaWPAPIException(Throwable cause, URI requestUri) {
+        super(cause.getMessage(),cause);
+        this.additionalProperties = null;
+        this.requestUri = requestUri;
+    }
+
     public AbstractAssankaWPAPIException(String message, URI requestUri) {
         super(message);
         this.additionalProperties = null;
