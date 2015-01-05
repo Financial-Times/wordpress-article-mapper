@@ -2,14 +2,12 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.net.URI;
 
-public class RequestFailedException extends RuntimeException{
+public class RequestFailedException extends WordPressApiException {
 
     private final int responseStatusCode;
-    private final URI requestUri;
 
     public RequestFailedException(URI requestUri, int responseStatusCode) {
-
-        this.requestUri = requestUri;
+        super(String.format("Unexpected Client Response for [%s] with code [%s].", requestUri, responseStatusCode),requestUri);
         this.responseStatusCode = responseStatusCode;
     }
 
@@ -17,7 +15,4 @@ public class RequestFailedException extends RuntimeException{
         return responseStatusCode;
     }
 
-    public URI getRequestUri() {
-        return requestUri;
-    }
 }

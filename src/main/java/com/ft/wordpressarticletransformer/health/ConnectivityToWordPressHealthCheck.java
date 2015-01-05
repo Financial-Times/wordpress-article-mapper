@@ -3,17 +3,12 @@ package com.ft.wordpressarticletransformer.health;
 import java.util.List;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
-import com.ft.wordpressarticletransformer.resources.CannotConnectToWordPressException;
-import com.ft.wordpressarticletransformer.resources.InvalidResponseException;
-import com.ft.wordpressarticletransformer.resources.PostNotFoundException;
-import com.ft.wordpressarticletransformer.resources.RequestFailedException;
-import com.ft.wordpressarticletransformer.resources.UnexpectedStatusCodeException;
-import com.ft.wordpressarticletransformer.resources.UnexpectedStatusFieldException;
-import com.ft.wordpressarticletransformer.resources.UnexpectedErrorCodeException;
+import com.ft.wordpressarticletransformer.resources.WordPressApiException;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
+import com.ft.wordpressarticletransformer.response.WPFormat;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +17,6 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConnectivityToWordPressHealthCheck.class);
 
-    private static final String STATUS_OK = "ok";
-    private static final String STATUS_ERROR = "error";
-    private static final int SUCCESSFUL_RESPONSE_CODE = 200;
 	private static final Integer EXPECTED_COUNT = 1;
 
 	private final String panicGuideUrl;
@@ -46,28 +38,27 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 		for (WordPressConnection wordPressConnection: wordPressConnections) {
 
-		    try {
-		        WordPressMostRecentPostsResponse output = client.getRecentPosts(wordPressConnection);
+            try {
 
-                Integer count = output.getCount();
-                if (!EXPECTED_COUNT.equals(count)) {
-                    return reportError("count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
-                }
-			} catch(InvalidResponseException e) {
-                return reportError("Response from WordPress didn't match our expected response, was " + e.getResponse());
-            } catch(UnexpectedStatusFieldException e) {
-                return reportError("status field in response not \"" + STATUS_OK + "\", was " + e.getStatus());
-            } catch(UnexpectedStatusCodeException e) {
-                return reportError("expected response code \"" + SUCCESSFUL_RESPONSE_CODE + "\", received " + e.getResponseStatusCode());
-            } catch(RequestFailedException e) {
-                return reportError("Request failed, response code was " + e.getResponseStatusCode());
-            } catch(CannotConnectToWordPressException e) {
-                return reportError("Cannot connect to WordPress on Url " + e.getRequestUri() + " got exception " + e.getCause());
-            }catch (Throwable e) {
+                WordPressMostRecentPostsResponse output = client.getRecentPosts(wordPressConnection);
+
+				if(output != null){
+                    Integer count = output.getCount();
+                    if (!EXPECTED_COUNT.equals(count)) {
+                        return reportError("count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
+                    }
+
+				} else {
+                    return reportError(String.format("WordPress returned no data."));
+				}
+			} catch(WordPressApiException e) {
+                return reportError(e.getMessage());
+            } catch (Throwable e) {
 				LOGGER.warn(getName() + ": Exception during getting most recent content from WordPress", e);
 				return AdvancedResult.error(this, e);
 			}
 		}
+        // It may be helpful to add more info to this output, but in fact it is never displayed due to the health check formatter.
 		return AdvancedResult.healthy("All is ok");
 	}
 

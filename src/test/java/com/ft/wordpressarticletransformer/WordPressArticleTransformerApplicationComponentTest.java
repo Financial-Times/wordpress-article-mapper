@@ -12,6 +12,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -29,27 +30,95 @@ public class WordPressArticleTransformerApplicationComponentTest {
 			"\"pages\": 665,\n" +
 			"\"posts\": [ ] }";
 
+    private static final String ADDITIONAL_PROPERTIES_EXAMPLE_BODY = "{\n"+
+            "    \"status\": \"error\",\n"+
+            "    \"error\": \"error\",\n"+
+            "    \"foo\" : \"bar\",\n"+
+            "    \"baz\" : {\n"+
+            "        \"spong\" : \"bip\"\n"+
+            "    }\n"+
+            "}";
+
+    private static final String UNUSUAL_ADDITIONAL_PROPERTIES_EXAMPLE_BODY = "{\n"+
+            "    \"status\": \"unable to serve content due to an unexpected disaster involving blancmange\",\n"+
+            "    \"error\": \"error\",\n"+
+            "    \"foo\" : \"bar\",\n"+
+            "    \"baz\" : {\n"+
+            "        \"spong\" : \"bip\"\n"+
+            "    }\n"+
+            "}";
+
 
 	@ClassRule
 	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test.yaml");
 
 
-	@Test
+    @Test
+    public void shouldExposeUnexpectedJsonPropertiesInHealthCheckOutput() {
+
+        stubWPHealthCheckEndpoint(ADDITIONAL_PROPERTIES_EXAMPLE_BODY);
+
+        Client client  = Client.create();
+
+        ClientResponse response = excerciseAdvancedHealthCheck(client);
+
+        try {
+            String responseContent = response.getEntity(String.class);
+            assertAdditionalPropertiesStructureReturned(responseContent);
+        } finally {
+            response.close();
+        }
+    }
+
+
+    @Test
+    public void shouldExposeUnexpectedJsonPropertiesInHealthCheckOutputWhenWPReturnsUnknownError() {
+
+        stubWPHealthCheckEndpoint(UNUSUAL_ADDITIONAL_PROPERTIES_EXAMPLE_BODY);
+
+        Client client  = Client.create();
+
+        ClientResponse response = excerciseAdvancedHealthCheck(client);
+
+        try {
+            String responseContent = response.getEntity(String.class);
+
+            assertAdditionalPropertiesStructureReturned(responseContent);
+
+        } finally {
+            response.close();
+        }
+    }
+
+    /** Assert two names and three values, including nested ones.
+     * The values do not mean anything.
+     */
+    private void assertAdditionalPropertiesStructureReturned(String responseContent) {
+
+        assertThat(responseContent,containsString("foo"));
+        assertThat(responseContent,containsString("bar"));
+        assertThat(responseContent,containsString("baz"));
+        assertThat(responseContent,containsString("spong"));
+        assertThat(responseContent,containsString("bip"));
+    }
+
+    private ClientResponse excerciseAdvancedHealthCheck(Client client) {
+        URI healthcheckUri = UriBuilder.fromPath("__health")
+                .host("localhost")
+                .port(wordPressArticleTransformerAppRule.getWordPressArticleTransformerLocalPort()).scheme("http").build();
+
+        return client.resource(healthcheckUri).get(ClientResponse.class);
+    }
+
+    @Test
 	public void shouldAuthenticateHealthCheckRequests() {
 
 
-		stubFor(get(urlEqualTo(recentPostsListPathWithApiKey())).willReturn(
-				aResponse()
-					.withBody(MINIMAL_EXAMPLE_POST_LIST_BODY)
-					.withHeader("Content-Type", "application/json")));
+        stubWPHealthCheckEndpoint(MINIMAL_EXAMPLE_POST_LIST_BODY);
 
-		Client client  = Client.create();
+        Client client  = Client.create();
 
-		URI healthcheckUri = UriBuilder.fromPath("__health")
-				.host("localhost")
-				.port(wordPressArticleTransformerAppRule.getWordPressArticleTransformerLocalPort()).scheme("http").build();
-
-		ClientResponse response = client.resource(healthcheckUri).get(ClientResponse.class);
+        ClientResponse response = excerciseAdvancedHealthCheck(client);
 
 		try {
 			assertThat(response.getStatus(),is(200));
@@ -61,7 +130,14 @@ public class WordPressArticleTransformerApplicationComponentTest {
 
 	}
 
-	private String recentPostsListPathWithApiKey() {
+    private void stubWPHealthCheckEndpoint(String body) {
+        stubFor(get(urlEqualTo(recentPostsListPathWithApiKey())).willReturn(
+                aResponse()
+                    .withBody(body)
+                    .withHeader("Content-Type", "application/json")));
+    }
+
+    private String recentPostsListPathWithApiKey() {
 		return "/api/get_recent_posts/?count=1&api_key=" + WP.EXAMPLE_API_KEY;
 	}
 

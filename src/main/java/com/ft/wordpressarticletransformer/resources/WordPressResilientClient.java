@@ -5,6 +5,7 @@ import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
 
+import com.ft.wordpressarticletransformer.response.WPFormat;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -27,11 +28,6 @@ public class WordPressResilientClient {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressResilientClient.class);
 	public static final String API_KEY_NAME = "api_key";
-
-    private static final String STATUS_OK = "ok";
-    private static final String STATUS_ERROR = "error";
-    private static final String ERROR_NOT_FOUND = "Not found.";
-    private static final String POST_TYPE_POST = "post";
 
 	private final Client client;
 	private final int numberOfConnectionAttempts;
@@ -157,25 +153,25 @@ public class WordPressResilientClient {
             String status = wordPressResponse.getStatus();
 
             if (status == null) {
-                throw new InvalidResponseException(response);
-            }else if (STATUS_OK.equals(status)) {
-                if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals(POST_TYPE_POST)) { // markets live
-                    throw new UnsupportedPostTypeException(wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
+                throw new InvalidResponseException(response, requestUri);
+            }else if (WPFormat.STATUS_OK.equals(status)) {
+                if (isMarketsLive(wordPressResponse)) {
+                    throw new UnsupportedPostTypeException(requestUri, wordPressResponse.getPost().getType(), uuid, WPFormat.POST_TYPE_POST);
                 }
                 return wordPressResponse.getPost();
-            } else if (STATUS_ERROR.equals(status)) {
+            } else if (WPFormat.STATUS_ERROR.equals(status)) {
                 String error = wordPressResponse.getError();
-                if (wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals(POST_TYPE_POST)) { // markets live
-                    throw new UnsupportedPostTypeException(wordPressResponse.getPost().getType(), uuid, POST_TYPE_POST);
+                if (isMarketsLive(wordPressResponse)) {
+                    throw new UnsupportedPostTypeException(requestUri, wordPressResponse.getPost().getType(), uuid, WPFormat.POST_TYPE_POST);
                 }
-                if (ERROR_NOT_FOUND.equals(error)) {
-                    throw new PostNotFoundException(wordPressResponse.getError(), uuid);
+                if (WPFormat.ERROR_NOT_FOUND.equals(error)) {
+                    throw new PostNotFoundException(requestUri, wordPressResponse.getError(), uuid);
                 } else {
                     // It says it's an error, but we don't understand this kind of error
-                    throw new UnexpectedErrorCodeException(wordPressResponse.getError(), uuid);
+                    throw new UnexpectedErrorCodeException(requestUri, wordPressResponse.getError(), uuid);
                 }
             } else {
-                throw new UnexpectedStatusFieldException(status, uuid);
+                throw new UnexpectedStatusFieldException(requestUri, status, uuid);
             }
 
         } else if (responseStatusFamily == 4) {
@@ -183,6 +179,10 @@ public class WordPressResilientClient {
         } else {
             throw new RequestFailedException(requestUri, responseStatusCode);
         }
+    }
+
+    private boolean isMarketsLive(WordPressResponse wordPressResponse) {
+        return wordPressResponse.getPost() != null && !wordPressResponse.getPost().getType().equals(WPFormat.POST_TYPE_POST);
     }
 
     private WordPressMostRecentPostsResponse processListResponse(ClientResponse response, URI requestUri) {
@@ -196,18 +196,19 @@ public class WordPressResilientClient {
 
             output = response.getEntity(WordPressMostRecentPostsResponse.class);
             if (output == null) {
-                throw new InvalidResponseException(response);
+                throw new InvalidResponseException(response, requestUri);
             }
             String status = output.getStatus();
+
             if (status == null) {
-                throw new InvalidResponseException(response);
-            } else if (STATUS_OK.equals(status)) {
+                throw new InvalidResponseException(response, requestUri);
+            } else if (WPFormat.STATUS_OK.equals(status)) {
                 return output;
-            } else if (STATUS_ERROR.equals(status)) {
+            } else if (WPFormat.STATUS_ERROR.equals(status)) {
                 // we expect not to get any error!
-                throw new UnexpectedErrorCodeException(output.getError());
+                throw new UnexpectedErrorCodeException(requestUri, output.getError(), output.getAdditionalProperties());
             } else {
-                throw new UnexpectedStatusFieldException(status);
+                throw new UnexpectedStatusFieldException(requestUri, status, output.getAdditionalProperties());
             }
 
         } else if (responseStatusFamily == 4) {
