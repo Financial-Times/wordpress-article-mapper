@@ -6,7 +6,7 @@ import java.util.List;
 import com.ft.content.model.Brand;
 
 public class BrandSystemResolver {
-    private static final String SYSTEM_ID = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-%s";
+    private static final String SYSTEM_ID = "http://www.ft.com/ontology/origin/%s";
     private final List<BlogApiEndpointMetadata> blogApiEndpointMetadata;
 
     public BrandSystemResolver(List<BlogApiEndpointMetadata> blogApiEndpointMetadata) {

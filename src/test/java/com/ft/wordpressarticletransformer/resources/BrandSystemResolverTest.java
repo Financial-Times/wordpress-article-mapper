@@ -23,11 +23,11 @@ public class BrandSystemResolverTest {
     public static final Brand FINAL_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b55");
     public static final Brand BEYONDBRICS_BRAND = new Brand("http://api.ft.com/things/3a37a89e-14ce-4ac8-af12-961a9630dce3");
 
-    public static final String ALPHA_VILLE_ID = String.valueOf(24);
-    public static final String OTHER_ID = String.valueOf(23);
-    public static final String THIRD_ID = String.valueOf(22);
-    public static final String FINAL_ID = String.valueOf(21);
-    public static final String BEYONDBRICS_ID = String.valueOf(91);
+    public static final String ALPHA_VILLE_ID = "FT-LABS-WP-1-24";
+    public static final String OTHER_ID = "FT-LABS-WP-1-23";
+    public static final String THIRD_ID = "FT-LABS-WP-1-22";
+    public static final String FINAL_ID = "FT-LABS-WP-1-21";
+    public static final String BEYONDBRICS_ID = "FT-LABS-WP-1-91";
 
 
     @Before
@@ -104,32 +104,32 @@ public class BrandSystemResolverTest {
     @Test
     public void testShouldReturnAlphaVilleSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException{
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://uat.ftalphaville.ft.com/api/get_post/?id=2014172")),
-                is(equalTo("http://www.ft.com/ontology/origin/FT-LABS-WP-1-" + ALPHA_VILLE_ID)));
+                is(equalTo("http://www.ft.com/ontology/origin/" + ALPHA_VILLE_ID)));
     }
 
     @Test
     public void testShouldReturnOtherSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.othersite.ft.com/api/get_post/?id=1234567")),
-                is (equalTo("http://www.ft.com/ontology/origin/FT-LABS-WP-1-" + OTHER_ID)));
+                is (equalTo("http://www.ft.com/ontology/origin/" + OTHER_ID)));
     }
 
     @Test
     public void testShouldReturnThirdSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.thirdsite.ft.com/api/get_post/?id=9876543")),
-                is (equalTo("http://www.ft.com/ontology/origin/FT-LABS-WP-1-" + THIRD_ID)));
+                is (equalTo("http://www.ft.com/ontology/origin/" + THIRD_ID)));
     }
 
     @Test
     public void testShouldReturnFinalSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.finalsite.ft.com/api/get_post/?id=135790")),
-                is (equalTo("http://www.ft.com/ontology/origin/FT-LABS-WP-1-" + FINAL_ID)));
+                is (equalTo("http://www.ft.com/ontology/origin/" + FINAL_ID)));
     }
 
 
     @Test
     public void testShouldReturnBeyondBricsSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://blogs.ft.com/beyond-brics/api/get_post/?id=135790")),
-                is (equalTo("http://www.ft.com/ontology/origin/FT-LABS-WP-1-" + BEYONDBRICS_ID)));
+                is (equalTo("http://www.ft.com/ontology/origin/" + BEYONDBRICS_ID)));
     }
 
 
