@@ -15,7 +15,7 @@ import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
-import com.ft.wordpressarticletransformer.resources.BrandResolver;
+import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
@@ -57,7 +57,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 		
 
         environment.jersey().register(new WordPressArticleTransformerResource(getBodyProcessingFieldTransformer(),
-				wordPressResilientClient, new BrandResolver(configuration.getHostToBrands())));
+				wordPressResilientClient, new BrandSystemResolver(configuration.getHostToBrands())));
 
 		String healthCheckName = "Connectivity to WordPress";
 		environment.healthChecks().register(healthCheckName,

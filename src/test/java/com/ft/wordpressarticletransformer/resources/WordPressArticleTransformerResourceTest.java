@@ -72,10 +72,11 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("byline", receivedContent.getByline(), is(equalTo("David Keohane")));
         assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
 		assertThat("originating identifier", receivedContent.getContentOrigin().getOriginatingIdentifier(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
-		assertThat("originating system", receivedContent.getContentOrigin().getOriginatingSystem(), is(equalTo(WordPressArticleTransformerResource.ORIGINATING_SYSTEM_WORDPRESS)));
+		assertThat("originating system", receivedContent.getContentOrigin().getOriginatingSystem(), is(equalTo("http://www.ft.com/ontology/origin/FT-LABS-WP-1-24")));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
 		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
 	}
+
 	
 	@Test
 	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
