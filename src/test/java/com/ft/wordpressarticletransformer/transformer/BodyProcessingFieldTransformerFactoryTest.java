@@ -5,8 +5,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.xmlmatchers.XmlMatchers.equivalentTo;
-import static org.xmlmatchers.transform.XmlConverters.the;
 
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
@@ -15,7 +13,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.xmlmatchers.XmlMatchers;
 
 public class BodyProcessingFieldTransformerFactoryTest {
     @Rule
@@ -131,6 +128,22 @@ public class BodyProcessingFieldTransformerFactoryTest {
     public void htmlEntityReferencesShouldBeUnescaped() {
         String expectedSentence = String.format("<body>This is a sentence%s.</body>", String.valueOf('\u20AC'));
         checkTransformation("<body>This is a sentence&euro;.</body>",expectedSentence);
+    }
+
+    @Test
+    public void shouldRetainBlockQuotes() {
+        String expectedSentence = "<body><p>Pork porchetta landjaeger hamburger sausage turducken leberkas tongue" +
+                "tenderloin rump doner. Doner andouille ball tip rump jowl porchetta. Meatball andouille bacon doner," +
+                "drumstick filet mignon ball tip frankfurter tail turkey ribeye boudin. Chicken beef swine shank" +
+                "sausage flank salami pastrami.</p> <blockquote><p>This is a fine quote. Cometh the man, cometh the" +
+                "hour.</p></blockquote> <p>Boudin shoulder</p></body>";
+        String straightOutOfWordPress = "<body><p>Pork porchetta landjaeger hamburger sausage turducken leberkas tongue" +
+                "tenderloin rump doner. Doner andouille ball tip rump jowl porchetta. Meatball andouille bacon doner," +
+                "drumstick filet mignon ball tip frankfurter tail turkey ribeye boudin. Chicken beef swine shank" +
+                "sausage flank salami pastrami.</p> <blockquote><p>This is a fine quote. Cometh the man, cometh the" +
+                "hour.</p></blockquote> <p>Boudin shoulder</p></body>";
+
+        checkTransformation(straightOutOfWordPress, expectedSentence);
     }
 
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
