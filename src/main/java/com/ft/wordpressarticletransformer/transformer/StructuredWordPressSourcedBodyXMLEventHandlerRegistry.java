@@ -93,7 +93,7 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 	}
 
 	private XMLEventHandler tweetHandlerWithFallbackTo(BaseXMLEventHandler baseXMLEventHandler) {
-		return new StripElementByClassEventHandler("twitter-tweet",baseXMLEventHandler);
+		return new RetainElementByClassEventHandler("twitter-tweet", baseXMLEventHandler);
 	}
 
 	private XMLEventHandler removeForTheTimeBeing() {
