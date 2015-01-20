@@ -10,6 +10,7 @@ import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -144,6 +145,26 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "hour.</p></blockquote> <p>Boudin shoulder</p></body>";
 
         checkTransformation(straightOutOfWordPress, expectedSentence);
+    }
+    
+    @Test
+    @Ignore
+    public void shouldTransformTweet() {
+        String tweetFromWordPress = "<body><div data-asset-type=\"embed\"><blockquote class=\"twitter-tweet\" lang=\"en\">" +
+                "<p>Learning from Comcast/TWC? AT&amp;T b DirecTV deal includes collar protecting " +
+                "<a href=\"https://twitter.com/search?q=%24DTV&amp;src=ctag\">$DTV</a> shareholders from decline in " +
+                "<a href=\"https://twitter.com/search?q=%24T&amp;src=ctag\">$T</a> stock. (Caps upside, too).</p>&mdash; Liz Hoffman (@lizrhoffman) " +
+                "<a href=\"https://twitter.com/lizrhoffman/statuses/468146880682016769\">May 18, 2014</a></blockquote>" +
+                "<script src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script></div></body>";
+
+        String expectedSentence = "<body><blockquote class=\"twitter-tweet\" lang=\"en\">" +
+                "<p>Learning from Comcast/TWC? AT&amp;T b DirecTV deal includes collar protecting " +
+                "<a href=\"https://twitter.com/search?q=%24DTV&amp;src=ctag\">$DTV</a> shareholders from decline in " +
+                "<a href=\"https://twitter.com/search?q=%24T&amp;src=ctag\">$T</a> stock. (Caps upside, too).</p>— Liz Hoffman (@lizrhoffman) " +
+                "<a href=\"https://twitter.com/lizrhoffman/statuses/468146880682016769\">May 18, 2014</a></blockquote></body>";
+        
+        checkTransformation(tweetFromWordPress, expectedSentence);
+
     }
 
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
