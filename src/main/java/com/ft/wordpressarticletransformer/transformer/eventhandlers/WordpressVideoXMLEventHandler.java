@@ -87,8 +87,10 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
     private XMLEvent skipBlockUnlessConditionSatisfied(XMLEventReader reader, String primaryElementName, String secondaryElementName,
                                                        String secondaryElementAttributeName, String secondaryElementAttributeValueRegex)
             throws XMLStreamException {
-        XMLEvent xmlEvent = null;
-        int primaryOpenElementNameCount = 1;
+
+        XMLEvent foundSecondaryStartElementEvent = null;
+        int primaryOpenElementNameCount = 1; // One, not zero, as we are already in the element.
+
         while (reader.hasNext()) {
             XMLEvent nextEvent = reader.nextEvent();
             if (nextEvent.isStartElement()) {
@@ -100,7 +102,7 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
                 if ((secondaryElementName).equals(newStartElement.getName().getLocalPart())) {
                     Attribute attribute = newStartElement.getAttributeByName(QName.valueOf(secondaryElementAttributeName));
                     if (Pattern.matches(secondaryElementAttributeValueRegex, attribute.getValue())) {
-                        xmlEvent = nextEvent;
+                        foundSecondaryStartElementEvent = nextEvent;
                     }
                 }
             }
@@ -108,7 +110,7 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
                 EndElement newEndElement = nextEvent.asEndElement();
                 if ((primaryElementName).equals(newEndElement.getName().getLocalPart()) ) {
                     if(primaryOpenElementNameCount ==1){
-                        return xmlEvent;
+                        return foundSecondaryStartElementEvent;
                     }
                     primaryOpenElementNameCount--;
                 }
@@ -119,27 +121,5 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
 
     }
 
-    protected void skipUntilMatchingEndTag(String nameToMatch, XMLEventReader xmlEventReader) throws XMLStreamException {
-        int count = 0;
-        while (xmlEventReader.hasNext()) {
-            XMLEvent event = xmlEventReader.nextEvent();
-            if (event.isStartElement()) {
-                StartElement newStartElement = event.asStartElement();
-                if (nameToMatch
-                        .equals(newStartElement.getName().getLocalPart())) {
-                    count++;
-                }
-            }
-            if (event.isEndElement()) {
-                EndElement endElement = event.asEndElement();
-                String localName = endElement.getName().getLocalPart();
-                if (nameToMatch.equals(localName)) {
-                    if (count == 0) {
-                        return;
-                    }
-                    count--;
-                }
-            }
-        }
-    }
+
 }
