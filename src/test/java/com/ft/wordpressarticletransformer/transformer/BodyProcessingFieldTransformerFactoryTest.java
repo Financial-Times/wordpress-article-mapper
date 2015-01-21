@@ -145,6 +145,24 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
         checkTransformation(straightOutOfWordPress, expectedSentence);
     }
+
+    @Test
+    public void shouldNotBarfOnMultipleBlockQuotes() {
+        String expectedSentence = "<body><p>Pork porchetta landjaeger hamburger sausage turducken leberkas tongue" +
+                "tenderloin rump doner. Doner andouille ball tip rump jowl porchetta. Meatball andouille bacon doner," +
+                "drumstick filet mignon ball tip frankfurter tail turkey ribeye boudin. Chicken beef swine shank" +
+                "sausage flank salami pastrami.</p> <blockquote><p>This is a fine quote. Cometh the man, cometh the hour." +
+                "</p></blockquote> <blockquote><p>This is a fine quote. Cometh the man, cometh the hour.</p>" +
+                "</blockquote> <p>Boudin shoulder</p></body>";
+        String straightOutOfWordPress = "<body><p>Pork porchetta landjaeger hamburger sausage turducken leberkas tongue" +
+                "tenderloin rump doner. Doner andouille ball tip rump jowl porchetta. Meatball andouille bacon doner," +
+                "drumstick filet mignon ball tip frankfurter tail turkey ribeye boudin. Chicken beef swine shank" +
+                "sausage flank salami pastrami.</p> <blockquote><p>This is a fine quote. Cometh the man, cometh the hour." +
+                "</p></blockquote> <blockquote><p>This is a fine quote. Cometh the man, cometh the hour.</p>" +
+                "</blockquote> <p>Boudin shoulder</p></body>";
+
+        checkTransformation(straightOutOfWordPress, expectedSentence);
+    }
     
     @Test
     public void shouldTransformTweet() {
@@ -163,6 +181,32 @@ public class BodyProcessingFieldTransformerFactoryTest {
         
         checkTransformation(tweetFromWordPress, expectedSentence);
 
+    }
+
+    @Test
+    public void shouldNotBarfOnMultipleTweets() {
+        String tweetFromWordPress = "<body><div data-asset-type=\"embed\"><blockquote class=\"twitter-tweet\" lang=\"en\">" +
+                "<p>Learning from Comcast/TWC? AT&amp;T b DirecTV deal includes collar protecting " +
+                "<a href=\"https://twitter.com/search?q=%24DTV&amp;src=ctag\">$DTV</a> shareholders from decline in " +
+                "<a href=\"https://twitter.com/search?q=%24T&amp;src=ctag\">$T</a> stock. (Caps upside, too).</p>&mdash; Liz Hoffman (@lizrhoffman) " +
+                "<a href=\"https://twitter.com/lizrhoffman/statuses/468146880682016769\">May 18, 2014</a></blockquote>" +
+                "<blockquote class=\"twitter-tweet\" lang=\"en\"> <p>Learning from Comcast/TWC? AT&amp;T b DirecTV deal " +
+                "includes collar protecting <a href=\"https://twitter.com/search?q=%24DTV&amp;src=ctag\">$DTV</a> " +
+                "shareholders from decline in <a href=\"https://twitter.com/search?q=%24T&amp;src=ctag\">$T</a> stock. " +
+                "(Caps upside, too).</p>&mdash; Liz Hoffman (@lizrhoffman) <a href=\"https://twitter.com/lizrhoffman/statuses/468146880682016769\">" +
+                "May 18, 2014</a></blockquote><script src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script></div></body>";
+
+        String expectedSentence = "<body><blockquote class=\"twitter-tweet\" lang=\"en\">" +
+                "<p>Learning from Comcast/TWC? AT&amp;T b DirecTV deal includes collar protecting " +
+                "<a href=\"https://twitter.com/search?q=%24DTV&amp;src=ctag\">$DTV</a> shareholders from decline in " +
+                "<a href=\"https://twitter.com/search?q=%24T&amp;src=ctag\">$T</a> stock. (Caps upside, too).</p>— Liz Hoffman (@lizrhoffman) " +
+                "<a href=\"https://twitter.com/lizrhoffman/statuses/468146880682016769\">May 18, 2014</a></blockquote><blockquote " +
+                "class=\"twitter-tweet\" lang=\"en\"> <p>Learning from Comcast/TWC? AT&amp;T b DirecTV deal includes collar protecting " +
+                "<a href=\"https://twitter.com/search?q=%24DTV&amp;src=ctag\">$DTV</a> shareholders from decline in " +
+                "<a href=\"https://twitter.com/search?q=%24T&amp;src=ctag\">$T</a> stock. (Caps upside, too).</p>— Liz Hoffman (@lizrhoffman) " +
+                "<a href=\"https://twitter.com/lizrhoffman/statuses/468146880682016769\">May 18, 2014</a></blockquote></body>";
+
+        checkTransformation(tweetFromWordPress, expectedSentence);
     }
 
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
