@@ -10,7 +10,6 @@ import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -148,7 +147,6 @@ public class BodyProcessingFieldTransformerFactoryTest {
     }
     
     @Test
-    @Ignore
     public void shouldTransformTweet() {
         String tweetFromWordPress = "<body><div data-asset-type=\"embed\"><blockquote class=\"twitter-tweet\" lang=\"en\">" +
                 "<p>Learning from Comcast/TWC? AT&amp;T b DirecTV deal includes collar protecting " +
