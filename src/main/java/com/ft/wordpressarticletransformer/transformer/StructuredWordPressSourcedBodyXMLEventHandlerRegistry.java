@@ -3,6 +3,7 @@ package com.ft.wordpressarticletransformer.transformer;
 import com.ft.bodyprocessing.xml.eventhandlers.BaseXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.LinkTagXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.PlainTextHtmlEntityReferenceEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.RetainWithSpecificClassXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.RetainWithoutAttributesXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.RetainXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
@@ -27,7 +28,8 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		//default is to skip events - any start or end tags or entities not configured below will be excluded, as will comments
 		super.registerDefaultEventHandler(new StripXMLEventHandler());
 
-		super.registerStartAndEndElementEventHandler(tweetHandlerWithFallbackTo(new RetainWithoutAttributesXMLEventHandler()),"blockquote");
+        super.registerStartElementEventHandler(new RetainWithSpecificClassXMLEventHandler("twitter-tweet", new RetainWithoutAttributesXMLEventHandler(), "lang"), "blockquote");
+        super.registerEndElementEventHandler(new RetainXMLEventHandler(), "blockquote");
 
 		//tags to include
 		super.registerStartAndEndElementEventHandler(new RetainWithoutAttributesXMLEventHandler(),
@@ -98,10 +100,6 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 
 	private XMLEventHandler videoHandlerWithFallbackTo(XMLEventHandler fallbackHandler) {
 		return new StripElementByClassEventHandler("morevideo",fallbackHandler);
-	}
-
-	private XMLEventHandler tweetHandlerWithFallbackTo(BaseXMLEventHandler baseXMLEventHandler) {
-		return new StripElementByClassEventHandler("twitter-tweet",baseXMLEventHandler);
 	}
 
 	private XMLEventHandler removeForTheTimeBeing() {
