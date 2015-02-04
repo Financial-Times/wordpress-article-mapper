@@ -35,22 +35,19 @@ public class WordPressArticleTransformerResource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleTransformerResource.class);
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
-
-	public static final String ORIGINATING_SYSTEM_WORDPRESS = "http://www.ft.com/ontology/origin/FT-LABS-WP-1-24";
-
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
-    private final BrandResolver brandResolver;
+    private final BrandSystemResolver brandSystemResolver;
 	
 	private WordPressResilientClient wordPressResilientClient;
 
 
 
 	public WordPressArticleTransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
-                                WordPressResilientClient wordPressResilientClient, BrandResolver brandResolver) {
+                                WordPressResilientClient wordPressResilientClient, BrandSystemResolver brandSystemResolver) {
 
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
         this.wordPressResilientClient = wordPressResilientClient;
-        this.brandResolver = brandResolver;
+        this.brandSystemResolver = brandSystemResolver;
     }
 
 	@GET
@@ -89,23 +86,29 @@ public class WordPressArticleTransformerResource {
 		
 		LOGGER.info("Returning content for uuid [{}].", validUuid.toString());
 
-		Brand brand = brandResolver.getBrand(requestUri);
+		Brand brand = brandSystemResolver.getBrand(requestUri);
 
         if(brand == null){
 			LOGGER.error("Failed to resolve brand for uri [{}].", requestUri);
 			throw ServerError.status(500).error(String.format("Failed to resolve brand for uri [%s].", requestUri)).exception();
-        } else {
-			SortedSet<Brand> resolvedBrandWrappedInASet = new TreeSet<>();
-			resolvedBrandWrappedInASet.add(brand);
+        }
 
-			return Content.builder().withTitle(postDetails.getTitle())
-					.withPublishedDate(datePublished.toDate())
-					.withXmlBody(tidiedUpBody(body, transactionId))
-					.withByline(postDetails.getAuthor().getName())
-					.withContentOrigin(ORIGINATING_SYSTEM_WORDPRESS, postDetails.getUrl())
-					.withBrands(resolvedBrandWrappedInASet)
-					.withUuid(validUuid).build();
-		}
+        String originatingSystemId = brandSystemResolver.getOriginatingSystemId(requestUri);
+        if(originatingSystemId == null){
+            LOGGER.error("Failed to resolve brand for uri [{}].", requestUri);
+            throw ServerError.status(500).error(String.format("Failed to resolve originatingSystemId for uri [%s].", requestUri)).exception();
+        }
+
+        SortedSet<Brand> resolvedBrandWrappedInASet = new TreeSet<>();
+        resolvedBrandWrappedInASet.add(brand);
+
+        return Content.builder().withTitle(postDetails.getTitle())
+                .withPublishedDate(datePublished.toDate())
+                .withXmlBody(tidiedUpBody(body, transactionId))
+                .withByline(postDetails.getAuthor().getName())
+                .withContentOrigin(originatingSystemId, postDetails.getUrl())
+                .withBrands(resolvedBrandWrappedInASet)
+                .withUuid(validUuid).build();
 	}
 
     private String tidiedUpBody(String body, String transactionId) {

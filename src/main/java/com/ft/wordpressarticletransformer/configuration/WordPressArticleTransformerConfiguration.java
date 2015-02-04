@@ -1,21 +1,19 @@
 package com.ft.wordpressarticletransformer.configuration;
 
-import io.dropwizard.Configuration;
-import io.dropwizard.client.JerseyClientConfiguration;
-
 import java.util.List;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ft.wordpressarticletransformer.resources.HostToBrand;
+import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
 import com.google.common.base.Objects;
+import io.dropwizard.Configuration;
+import io.dropwizard.client.JerseyClientConfiguration;
 
 public class WordPressArticleTransformerConfiguration extends Configuration {
 
 	private final List<WordPressConnection> wordPressConnections;
-    private final List<HostToBrand> hostToBrands;
+    private final List<BlogApiEndpointMetadata> hostToBrands;
 	private final JerseyClientConfiguration jerseyClientConfiguration;
 	private final int numberOfConnectionAttempts;
     private String credentialsPath;
@@ -23,13 +21,13 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
     public WordPressArticleTransformerConfiguration(
 													@JsonProperty("credentialsPath") String credentialsPath,
 													@JsonProperty("healthCheckWordPressConnections") List<WordPressConnection> wordPressConnections,
-                                                    @JsonProperty("hostToBrandMappings")List<HostToBrand> hostToBrands,
+                                                    @JsonProperty("blogApiEndpointMetadata")List<BlogApiEndpointMetadata> blogApiEndpointMetadataList,
                                                     @JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
                                                     @JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts) {
 		super();
 		this.credentialsPath = credentialsPath;
 		this.wordPressConnections = wordPressConnections;
-        this.hostToBrands = hostToBrands;
+        this.hostToBrands = blogApiEndpointMetadataList;
 		this.jerseyClientConfiguration = jerseyClientConfiguration;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
 	}
@@ -48,7 +46,7 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 
     @Valid
     @NotNull
-    public List<HostToBrand> getHostToBrands() {
+    public List<BlogApiEndpointMetadata> getHostToBrands() {
         return hostToBrands;
     }
 
