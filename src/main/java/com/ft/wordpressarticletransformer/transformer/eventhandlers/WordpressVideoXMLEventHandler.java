@@ -50,7 +50,7 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
         }
 
 
-        XMLEvent found = skipBlockUnlessConditionSatisfied(xmlEventReader, "div", "div", VIDEO_ID_ATTRIBUTE, "[.a-zA-Z0-9]*");
+        XMLEvent found = getEventAndSkipBlock(xmlEventReader, "div", "div", VIDEO_ID_ATTRIBUTE, "[.a-zA-Z0-9]*");
 
 
         String source = found.asStartElement().getAttributeByName(QName.valueOf(VIDEO_SOURCE_ATTRIBUTE)).getValue();
@@ -84,7 +84,7 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
     }
 
 
-    private XMLEvent skipBlockUnlessConditionSatisfied(XMLEventReader reader, String primaryElementName, String secondaryElementName,
+    private XMLEvent getEventAndSkipBlock(XMLEventReader reader, String primaryElementName, String secondaryElementName,
                                                        String secondaryElementAttributeName, String secondaryElementAttributeValueRegex)
             throws XMLStreamException {
 
@@ -101,7 +101,7 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
 
                 if ((secondaryElementName).equals(newStartElement.getName().getLocalPart())) {
                     Attribute attribute = newStartElement.getAttributeByName(QName.valueOf(secondaryElementAttributeName));
-                    if (Pattern.matches(secondaryElementAttributeValueRegex, attribute.getValue())) {
+                    if (attribute!=null || Pattern.matches(secondaryElementAttributeValueRegex, attribute.getValue())) {
                         foundSecondaryStartElementEvent = nextEvent;
                     }
                 }
