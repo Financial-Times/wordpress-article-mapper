@@ -101,7 +101,7 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
 
                 if ((secondaryElementName).equals(newStartElement.getName().getLocalPart())) {
                     Attribute attribute = newStartElement.getAttributeByName(QName.valueOf(secondaryElementAttributeName));
-                    if (attribute!=null || Pattern.matches(secondaryElementAttributeValueRegex, attribute.getValue())) {
+                    if (attribute!=null && Pattern.matches(secondaryElementAttributeValueRegex, attribute.getValue())) {
                         foundSecondaryStartElementEvent = nextEvent;
                     }
                 }

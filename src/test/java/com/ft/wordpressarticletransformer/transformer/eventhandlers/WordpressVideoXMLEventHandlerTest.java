@@ -95,9 +95,11 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
     public void shouldTransformAndWriteYoutubeContentIfAllConditionsAreMet() throws Exception {
         Map<String, String> firstElementAttributes = new HashMap<>();
         firstElementAttributes.put(NEW_ELEMENT_ATTRIBUTE, TARGETED_CLASS_VALUE);
+
         Map<String, String> secondElementAttributes = new HashMap<>();
         secondElementAttributes.put(VIDEO_ID_ATTRIBUTE, YOUTUBE_ATTRIBUTE_VALUE);
         secondElementAttributes.put(VIDEO_SOURCE_ATTRIBUTE, VIDEO_SOURCE_ATTRIBUTE_YOUTUBE);
+
         String videoUrl = YOUTUBE_SOURCE + YOUTUBE_ATTRIBUTE_VALUE + YOUTUBE_URL_ADDITIONAL_PARAMETER;
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
