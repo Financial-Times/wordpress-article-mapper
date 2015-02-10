@@ -29,8 +29,8 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
     @Mock private BodyWriter mockBodyWriter;
     @Mock private BodyProcessingContext mockBodyProcessingContext;
 
-    private static final String NEW_ELEMENT = "div";
-    private static final String NEW_ELEMENT_ATTRIBUTE = "class";
+    private static final String ORIGINAL_ELEMENT = "div";
+    private static final String ORIGINAL_ELEMENT_ATTRIBUTE = "class";
     private static final String TARGETED_CLASS_VALUE = "video-container";
     private static final String INCORRECT_TARGETED_CLASS_VALUE = "wrong-value";
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
@@ -52,7 +52,7 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
 
     @Test
     public void shouldUseFallBackHandlerIfTargetedClassIsNotPresent() throws Exception {
-        StartElement startElement = getStartElement(NEW_ELEMENT);
+        StartElement startElement = getStartElement(ORIGINAL_ELEMENT);
         eventHandler.handleStartElementEvent(startElement, mockXMLEventReader, mockBodyWriter, mockBodyProcessingContext);
         verify(fallBackHandler).handleStartElementEvent(startElement, mockXMLEventReader, mockBodyWriter, mockBodyProcessingContext);
     }
@@ -60,8 +60,8 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
     @Test
     public void shouldUseFallBackHandlerIfTargetedClassDoesNotHaveExpectedAttributes() throws Exception {
         Map<String, String> attributes = new HashMap<>();
-        attributes.put(NEW_ELEMENT_ATTRIBUTE, INCORRECT_TARGETED_CLASS_VALUE);
-        StartElement startElement = getStartElementWithAttributes(NEW_ELEMENT, attributes);
+        attributes.put(ORIGINAL_ELEMENT_ATTRIBUTE, INCORRECT_TARGETED_CLASS_VALUE);
+        StartElement startElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, attributes);
         eventHandler.handleStartElementEvent(startElement, mockXMLEventReader, mockBodyWriter, mockBodyProcessingContext);
         verify(fallBackHandler).handleStartElementEvent(startElement, mockXMLEventReader, mockBodyWriter, mockBodyProcessingContext);
     }
@@ -69,7 +69,7 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
     @Test
     public void shouldTransformAndWriteBrightcoveContentIfAllConditionsAreMet() throws Exception {
         Map<String, String> firstElementAttributes = new HashMap<>();
-        firstElementAttributes.put(NEW_ELEMENT_ATTRIBUTE, TARGETED_CLASS_VALUE);
+        firstElementAttributes.put(ORIGINAL_ELEMENT_ATTRIBUTE, TARGETED_CLASS_VALUE);
 
         Map<String, String> secondElementAttributes = new HashMap<>();
         secondElementAttributes.put(VIDEO_ID_ATTRIBUTE, BRIGHTCOVE_ATTRIBUTE_VALUE);
@@ -79,10 +79,10 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
 
-        StartElement firstElement = getStartElementWithAttributes(NEW_ELEMENT, firstElementAttributes);
-        StartElement secondElement = getStartElementWithAttributes(NEW_ELEMENT, secondElementAttributes);
-        EndElement closeSecondElement = getEndElement(NEW_ELEMENT);
-        EndElement closeFirstElement = getEndElement(NEW_ELEMENT);
+        StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
+        StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
+        EndElement closeSecondElement = getEndElement(ORIGINAL_ELEMENT);
+        EndElement closeFirstElement = getEndElement(ORIGINAL_ELEMENT);
 
         when(mockXMLEventReader.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true);
         when(mockXMLEventReader.nextEvent()).thenReturn(secondElement).thenReturn(closeSecondElement).thenReturn(closeFirstElement);
@@ -94,7 +94,7 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
     @Test
     public void shouldTransformAndWriteYoutubeContentIfAllConditionsAreMet() throws Exception {
         Map<String, String> firstElementAttributes = new HashMap<>();
-        firstElementAttributes.put(NEW_ELEMENT_ATTRIBUTE, TARGETED_CLASS_VALUE);
+        firstElementAttributes.put(ORIGINAL_ELEMENT_ATTRIBUTE, TARGETED_CLASS_VALUE);
 
         Map<String, String> secondElementAttributes = new HashMap<>();
         secondElementAttributes.put(VIDEO_ID_ATTRIBUTE, YOUTUBE_ATTRIBUTE_VALUE);
@@ -104,10 +104,10 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
 
-        StartElement firstElement = getStartElementWithAttributes(NEW_ELEMENT, firstElementAttributes);
-        StartElement secondElement = getStartElementWithAttributes(NEW_ELEMENT, secondElementAttributes);
-        EndElement closeSecondElement = getEndElement(NEW_ELEMENT);
-        EndElement closeFirstElement = getEndElement(NEW_ELEMENT);
+        StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
+        StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
+        EndElement closeSecondElement = getEndElement(ORIGINAL_ELEMENT);
+        EndElement closeFirstElement = getEndElement(ORIGINAL_ELEMENT);
 
         when(mockXMLEventReader.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true);
         when(mockXMLEventReader.nextEvent()).thenReturn(secondElement).thenReturn(closeSecondElement).thenReturn(closeFirstElement);
