@@ -103,7 +103,7 @@ public class WordPressResilientClient {
 
 	    WebResource webResource = client.resource(requestUri)
                     .queryParam(API_KEY_NAME,wordpressApiKey)
-                    .queryParam("t",transactionId);
+                    .queryParam("cache_buster",transactionId);
 
         
         RuntimeException lastException = null;

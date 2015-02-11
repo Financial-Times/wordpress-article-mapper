@@ -179,7 +179,7 @@ public class WordPressArticleTransformerResourceTest {
                 .get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
-		String urlWithKeyAdded = WILL_RETURN_200_PATH + "&api_key="+ WP.EXAMPLE_API_KEY + "&t="+ transactionID;
+		String urlWithKeyAdded = WILL_RETURN_200_PATH + "&api_key="+ WP.EXAMPLE_API_KEY + "&cache_buster="+ transactionID;
 
 		WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
 
