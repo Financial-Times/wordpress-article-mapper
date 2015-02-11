@@ -97,11 +97,14 @@ public class WordPressResilientClient {
     }
 
 
-	public Post getContent(URI requestUri, UUID uuid) {
+	public Post getContent(URI requestUri, UUID uuid, String transactionId) {
 
         ClientResponse response = null;
 
-	    WebResource webResource = client.resource(requestUri).queryParam(API_KEY_NAME,wordpressApiKey);
+	    WebResource webResource = client.resource(requestUri)
+                    .queryParam(API_KEY_NAME,wordpressApiKey)
+                    .queryParam("cache_buster",transactionId);
+
         
         RuntimeException lastException = null;
         
