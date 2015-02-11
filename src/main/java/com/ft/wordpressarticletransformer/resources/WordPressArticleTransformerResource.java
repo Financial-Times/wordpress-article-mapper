@@ -73,7 +73,7 @@ public class WordPressArticleTransformerResource {
 	    
 	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, validUuid.toString(), "Publish request");
 
-        Post postDetails = doRequest(requestUri, validUuid);
+        Post postDetails = doRequest(requestUri, validUuid, transactionId);
 
 		if (postDetails == null) {
 			throw new NotFoundException();
@@ -124,12 +124,12 @@ public class WordPressArticleTransformerResource {
 		return "<body>" + originalBody + "</body>";
 	}
 
-	private Post doRequest(URI requestUri, UUID uuid) {
+	private Post doRequest(URI requestUri, UUID uuid, String transactionId) {
 		
 		Post post;
 
         try {
-            post = wordPressResilientClient.getContent(requestUri, uuid);
+            post = wordPressResilientClient.getContent(requestUri, uuid, transactionId);
 
             if (post == null) {
                 LOGGER.error("No content was returned");

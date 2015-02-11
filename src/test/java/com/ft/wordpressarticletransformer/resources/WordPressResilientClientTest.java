@@ -80,17 +80,21 @@ public class WordPressResilientClientTest {
             .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
-        Post post = wordPressResilientClient.getContent(requestUri, uuid);
+        Post post = wordPressResilientClient.getContent(requestUri, uuid, transactionId());
         assertThat(post, is(equalTo(mockWordPressResponse.getPost())));
     }
-    
+
+    private String transactionId() {
+        return this.getClass().getSimpleName();
+    }
+
     @Test
     public void shouldThrowExceptionWhenConsistentlyCannotConnectToWordpress() {
         when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
         when(handler.handle(any(ClientRequest.class)))
             .thenThrow(new ClientHandlerException(new SocketTimeoutException()));
         expectedException.expect(CannotConnectToWordPressException.class);
-        wordPressResilientClient.getContent(requestUri, uuid);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
     @Test
@@ -101,7 +105,7 @@ public class WordPressResilientClientTest {
             .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
-        Post post = wordPressResilientClient.getContent(requestUri, uuid);
+        Post post = wordPressResilientClient.getContent(requestUri, uuid, transactionId());
         assertThat(post, is(equalTo(mockWordPressResponse.getPost())));
         verify(handler, times(2)).handle(any(ClientRequest.class));
     }
@@ -113,7 +117,7 @@ public class WordPressResilientClientTest {
                 .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_NULL);
-        wordPressResilientClient.getContent(requestUri, uuid);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
     @Test(expected=UnsupportedPostTypeException.class)
@@ -125,7 +129,7 @@ public class WordPressResilientClientTest {
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
         when(mockWordPressResponse.getPost()).thenReturn(mockPost);
         when(mockWordPressResponse.getPost().getType()).thenReturn(POST_TYPE_GET);
-        wordPressResilientClient.getContent(requestUri, uuid);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
     @Test(expected=PostNotFoundException.class)
@@ -136,7 +140,7 @@ public class WordPressResilientClientTest {
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_ERROR);
         when(mockWordPressResponse.getError()).thenReturn(ERROR_NOT_FOUND);
-        wordPressResilientClient.getContent(requestUri, uuid);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
 
     }
 
@@ -148,7 +152,7 @@ public class WordPressResilientClientTest {
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_ERROR);
         when(mockWordPressResponse.getError()).thenReturn(ERROR_UNKNOWN);
-        wordPressResilientClient.getContent(requestUri, uuid);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
     @Test(expected=UnexpectedStatusFieldException.class)
@@ -158,7 +162,7 @@ public class WordPressResilientClientTest {
                 .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_UNKNOWN);
-        wordPressResilientClient.getContent(requestUri, uuid);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
     @Test(expected=UnexpectedStatusCodeException.class)
@@ -167,7 +171,7 @@ public class WordPressResilientClientTest {
         when(handler.handle(any(ClientRequest.class)))
                 .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(ERROR_RESPONSE_STATUS_CODE);
-        wordPressResilientClient.getContent(requestUri, uuid);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
     @Test(expected=RequestFailedException.class)
@@ -176,7 +180,7 @@ public class WordPressResilientClientTest {
         when(handler.handle(any(ClientRequest.class)))
                 .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(INTERNAL_ERROR_RESPONSE_STATUS_CODE);
-        wordPressResilientClient.getContent(requestUri, uuid);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
     @Test

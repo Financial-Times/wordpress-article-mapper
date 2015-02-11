@@ -11,6 +11,7 @@ import static org.junit.Assume.assumeThat;
 import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
 
+import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -171,10 +172,14 @@ public class WordPressArticleTransformerResourceTest {
 	public void shouldAddApiKeyToUpstreamRequest() {
 		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200);
 
-		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-		assumeThat("response", clientResponse, hasProperty("status", equalTo(200)));
+        String transactionID = java.util.UUID.randomUUID().toString();
 
-		String urlWithKeyAdded = WILL_RETURN_200_PATH + "&api_key="+ WP.EXAMPLE_API_KEY;
+		final ClientResponse clientResponse = client.resource(uri)
+                .header(TransactionIdUtils.TRANSACTION_ID_HEADER,transactionID)
+                .get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+
+		String urlWithKeyAdded = WILL_RETURN_200_PATH + "&api_key="+ WP.EXAMPLE_API_KEY + "&t="+ transactionID;
 
 		WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
 
