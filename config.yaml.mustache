@@ -4,7 +4,10 @@ credentialsPath: /etc/wordpress-article-transformer-credentials.properties
 healthCheckWordPressConnections:
     - hostName: {{{hostname_1}}}
       port: {{{port_1}}}
-      path: /api/get_recent_posts/
+      path: {{{path_1}}}
+    - hostName: {{{hostname_2}}}
+      port: {{{port_2}}}
+      path: {{{path_2}}}
 
 blogApiEndpointMetadata:
     - host: ftalphaville.ft.com

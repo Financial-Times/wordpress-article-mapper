@@ -1,14 +1,14 @@
 package com.ft.wordpressarticletransformer.health;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
-import com.ft.wordpressarticletransformer.resources.WordPressApiException;
-import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
-import com.ft.wordpressarticletransformer.response.WPFormat;
+import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
+import com.ft.wordpressarticletransformer.resources.WordPressApiException;
+import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 	@Override
 	protected AdvancedResult checkAdvanced() throws Exception {
-
+        List<String> errorMsgs = new ArrayList<String>();
 		for (WordPressConnection wordPressConnection: wordPressConnections) {
 
             try {
@@ -44,26 +44,35 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 				if(output != null){
                     Integer count = output.getCount();
-                    if (!EXPECTED_COUNT.equals(count)) {
-                        return reportError("count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
+                    if (count != null && count < 0) {
+                        errorMsgs.add(wordPressConnection.toString() + " : count field in response not \"" + EXPECTED_COUNT + "\", was " + count);
                     }
 
 				} else {
-                    return reportError(String.format("WordPress returned no data."));
+                    errorMsgs.add(String.format("WordPress returned no data."));
 				}
 			} catch(WordPressApiException e) {
-                return reportError(e.getMessage());
+                errorMsgs.add(e.getMessage());
             } catch (Throwable e) {
 				LOGGER.warn(getName() + ": Exception during getting most recent content from WordPress", e);
-				return AdvancedResult.error(this, e);
+                errorMsgs.add(e.getMessage());
 			}
 		}
+
+        if(!errorMsgs.isEmpty()){
+            return reportError(errorMsgs);
+        }
         // It may be helpful to add more info to this output, but in fact it is never displayed due to the health check formatter.
 		return AdvancedResult.healthy("All is ok");
 	}
 
-    private AdvancedResult reportError(String message) {
-        AdvancedResult result = AdvancedResult.error(this, message);
+
+    private AdvancedResult reportError(List<String> errorMsgs) {
+        StringBuilder sb = new StringBuilder();
+        for(String error : errorMsgs){
+            sb.append(error).append(System.lineSeparator());
+        }
+        AdvancedResult result = AdvancedResult.error(this, sb.toString());
         LOGGER.warn(result.checkOutput());
         return result;
     }
