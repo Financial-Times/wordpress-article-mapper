@@ -25,6 +25,8 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
 
 	public static final String DATA_ASSET_TYPE = "data-asset-type";
 	public static final String VIDEO = "video";
+	public static final String DATA_EMBEDDED = "data-embedded";
+	public static final String TRUE = "true";
 
 	private static final String VIDEO_SOURCE_ATTRIBUTE = "data-asset-source";
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
@@ -65,6 +67,7 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
 		Map<String, String> attributesToAdd = new HashMap<>();
         attributesToAdd.put(NEW_ELEMENT_ATTRIBUTE, videoUrl);
 		attributesToAdd.put(DATA_ASSET_TYPE, VIDEO);
+		attributesToAdd.put(DATA_EMBEDDED, TRUE);
 
         eventWriter.writeStartTag(NEW_ELEMENT, attributesToAdd);
         eventWriter.writeEndTag(NEW_ELEMENT);

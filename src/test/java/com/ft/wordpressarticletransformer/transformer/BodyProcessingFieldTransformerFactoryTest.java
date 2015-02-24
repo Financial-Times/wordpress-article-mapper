@@ -244,7 +244,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "   </div>\n" +
                 "   \n" +
                 "</div></body>" ;
-        String expectedVideo =  "<body><a data-asset-type=\"video\" href=\"http://video.ft.com/3791005080001\"></a></body>";
+        String expectedVideo =  "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a></body>";
         checkTransformation(wordpressVideoText, expectedVideo);
     }
 
@@ -257,7 +257,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "</div>\n" +
                 "</div>" ;
 
-        String expectedYouTube = "<body><a data-asset-type=\"video\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a></body>";
+        String expectedYouTube = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a></body>";
         checkTransformation(wordpressYouTube, expectedYouTube);
     }
 
@@ -268,7 +268,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "</iframe>" +
                 "</div></div></body>" ;
 
-        String expectedYouTube = "<body><a data-asset-type=\"video\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a></body>";
+        String expectedYouTube = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a></body>";
         checkTransformation(videoText, expectedYouTube);
     }
 
@@ -292,7 +292,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "<a href=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman.jpg\" target=\"_blank\">" +
                 "<img class=\"size-medium wp-image-2048592\" title=\"PubQuizGoldman\" src=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman-272x188.jpg\" alt=\"Alternate Text\" width=\"272\" height=\"188\" data-img-id=\"2048592\" /></a>" +
                 "<p class=\"wp-caption-text\" data-img-id=\"2048592\">Caption for this image</p></div></body>";
-        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" href=\"http://video.ft.com/3791005080001\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a><p>An Image:</p></body>";
+        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a><p>An Image:</p></body>";
         checkTransformation(videoText, expectedYouTube);
     }
 

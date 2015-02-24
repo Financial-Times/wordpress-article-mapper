@@ -79,6 +79,7 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
 		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressVideoXMLEventHandler.VIDEO);
+		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_EMBEDDED, WordpressVideoXMLEventHandler.TRUE);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
@@ -105,6 +106,7 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
 		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressVideoXMLEventHandler.VIDEO);
+		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_EMBEDDED, WordpressVideoXMLEventHandler.TRUE);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
