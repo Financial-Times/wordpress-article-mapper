@@ -78,6 +78,7 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
         String videoUrl = BRIGHTCOVE_SOURCE + BRIGHTCOVE_ATTRIBUTE_VALUE;
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
+		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressVideoXMLEventHandler.VIDEO);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
@@ -103,6 +104,7 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
         String videoUrl = YOUTUBE_SOURCE + YOUTUBE_ATTRIBUTE_VALUE + YOUTUBE_URL_ADDITIONAL_PARAMETER;
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
+		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressVideoXMLEventHandler.VIDEO);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);

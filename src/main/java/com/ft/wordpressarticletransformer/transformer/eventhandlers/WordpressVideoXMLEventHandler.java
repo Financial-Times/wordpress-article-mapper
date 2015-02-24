@@ -23,11 +23,13 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
 
     private String targetedHtmlClass;
 
-    private static final String VIDEO_SOURCE_ATTRIBUTE = "data-asset-source";
+	public static final String DATA_ASSET_TYPE = "data-asset-type";
+	public static final String VIDEO = "video";
+
+	private static final String VIDEO_SOURCE_ATTRIBUTE = "data-asset-source";
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
     private static final String NEW_ELEMENT = "a";
     private static final String NEW_ELEMENT_ATTRIBUTE = "href";
-    private Map<String, String> attributesToAdd;
     private XMLEventHandler fallbackHandler;
 
     private Map<String, String> sourceToUrlMap;
@@ -36,7 +38,7 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
     public WordpressVideoXMLEventHandler(String targetedHtmlClass, XMLEventHandler fallbackHandler) {
         this.targetedHtmlClass = targetedHtmlClass;
         this.fallbackHandler = fallbackHandler;
-        sourceToUrlMap = new HashMap<String, String>();
+        sourceToUrlMap = new HashMap<>();
         sourceToUrlMap.put("Brightcove", "http://video.ft.com/%s");
         sourceToUrlMap.put("YouTube", "http://www.youtube.com/embed/%s?wmode=transparent");
     }
@@ -60,8 +62,9 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
             return;//fallback
         }
         String videoUrl = String.format(sourceToUrlMap.get(source), id);
-        attributesToAdd = new HashMap<String, String>();
+		Map<String, String> attributesToAdd = new HashMap<>();
         attributesToAdd.put(NEW_ELEMENT_ATTRIBUTE, videoUrl);
+		attributesToAdd.put(DATA_ASSET_TYPE, VIDEO);
 
         eventWriter.writeStartTag(NEW_ELEMENT, attributesToAdd);
         eventWriter.writeEndTag(NEW_ELEMENT);
