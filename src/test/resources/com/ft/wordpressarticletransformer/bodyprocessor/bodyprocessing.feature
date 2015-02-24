@@ -105,6 +105,7 @@ Feature: Body processing
     | img     | <img src="abc.jpg"/>                           |
     | !--     | <!-- comments -->                              |
     | weird   | <weird>text surrounded by unknown tags</weird> |
+    | code    | <code>Why would they ever use code?</code>     |
 
 
   Scenario Outline: Remove inline assets
