@@ -1,6 +1,39 @@
 
 credentialsPath: junit-credentials.properties
 
+videoSiteConfig:
+    - urlPattern: "https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)"
+      template: null
+      embedded: true
+      retainedParams: ["t"]
+      forceHTTPS: true
+
+    - urlPattern: "https?://www.youtube.com/embed/(?<id>[A-Za-z0-9_-]+)"
+      template: "https://www.youtube.com/watch?v=%s"
+      embedded: false
+      retainedParams: ["t"]
+      forceHTTPS: true
+
+    - urlPattern: "https?://youtu.be/(?<id>[A-Za-z0-9_-]+)"
+      template: "https://www.youtube.com/watch?v=%s"
+      embedded: false
+      retainedParams: ["t"]
+      forceHTTPS: true
+
+    - urlPattern: "https?://vimeo.com/(?<id>[0-9]+)"
+      template: null
+      embedded: false
+      forceHTTPS: true
+
+    - urlPattern: "//player.vimeo.com/video/(?<id>[0-9]+)"
+      template: "https://www.vimeo.com/%s"
+      embedded: true
+      forceHTTPS: true
+
+    - urlPattern: "https?://video.ft.com/(?<id>[0-9]+)/"
+      template: null
+      embedded: false
+
 healthCheckWordPressConnections:
     - hostName: uat.ftalphaville.ft.com
       port: 80

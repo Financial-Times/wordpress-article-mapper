@@ -139,7 +139,7 @@
         <dependency>
             <groupId>com.ft.bodyprocessing</groupId>
             <artifactId>body-processing</artifactId>
-            <version>0.0.15</version>
+            <version>0.1.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.xml.stream</groupId>

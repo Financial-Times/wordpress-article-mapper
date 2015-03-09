@@ -20,9 +20,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
+public class WordpressBrightcoveAndYoutubeVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
 
-    private WordpressVideoXMLEventHandler eventHandler;
+    private WordpressBrightcoveAndYoutubeVideoXMLEventHandler eventHandler;
 
     @Mock private BaseXMLEventHandler fallBackHandler;
     @Mock private XMLEventReader mockXMLEventReader;
@@ -36,18 +36,17 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
     private static final String BRIGHTCOVE_ATTRIBUTE_VALUE = "4035805662001";
     private static final String YOUTUBE_ATTRIBUTE_VALUE = "OQzJR3BqS7o";
-    private static final String YOUTUBE_URL_ADDITIONAL_PARAMETER = "?wmode=transparent";
     private static final String VIDEO_SOURCE_ATTRIBUTE = "data-asset-source";
     private static final String BRIGHTCOVE_SOURCE = "http://video.ft.com/";
     private static final String VIDEO_SOURCE_ATTRIBUTE_BRIGHTCOVE = "Brightcove";
-    private static final String YOUTUBE_SOURCE = "http://www.youtube.com/embed/";
+    private static final String YOUTUBE_SOURCE = "https://www.youtube.com/watch?v=";
     private static final String VIDEO_SOURCE_ATTRIBUTE_YOUTUBE = "YouTube";
     private static final String TRANSFORMED_ELEMENT = "a";
     private static final String TRANSFORMED_ELEMENT_ATTRIBUTE = "href";
 
     @Before
     public void setUp() {
-        eventHandler = new WordpressVideoXMLEventHandler(TARGETED_CLASS_VALUE, fallBackHandler);
+        eventHandler = new WordpressBrightcoveAndYoutubeVideoXMLEventHandler(TARGETED_CLASS_VALUE, fallBackHandler);
     }
 
     @Test
@@ -78,8 +77,8 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
         String videoUrl = BRIGHTCOVE_SOURCE + BRIGHTCOVE_ATTRIBUTE_VALUE;
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
-		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressVideoXMLEventHandler.VIDEO);
-		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_EMBEDDED, WordpressVideoXMLEventHandler.TRUE);
+		transformedElementAttributes.put(WordpressBrightcoveAndYoutubeVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressBrightcoveAndYoutubeVideoXMLEventHandler.VIDEO);
+		transformedElementAttributes.put(WordpressBrightcoveAndYoutubeVideoXMLEventHandler.DATA_EMBEDDED, WordpressBrightcoveAndYoutubeVideoXMLEventHandler.TRUE);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
@@ -102,11 +101,11 @@ public class WordpressVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
         secondElementAttributes.put(VIDEO_ID_ATTRIBUTE, YOUTUBE_ATTRIBUTE_VALUE);
         secondElementAttributes.put(VIDEO_SOURCE_ATTRIBUTE, VIDEO_SOURCE_ATTRIBUTE_YOUTUBE);
 
-        String videoUrl = YOUTUBE_SOURCE + YOUTUBE_ATTRIBUTE_VALUE + YOUTUBE_URL_ADDITIONAL_PARAMETER;
+        String videoUrl = YOUTUBE_SOURCE + YOUTUBE_ATTRIBUTE_VALUE;
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
-		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressVideoXMLEventHandler.VIDEO);
-		transformedElementAttributes.put(WordpressVideoXMLEventHandler.DATA_EMBEDDED, WordpressVideoXMLEventHandler.TRUE);
+		transformedElementAttributes.put(WordpressBrightcoveAndYoutubeVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressBrightcoveAndYoutubeVideoXMLEventHandler.VIDEO);
+		transformedElementAttributes.put(WordpressBrightcoveAndYoutubeVideoXMLEventHandler.DATA_EMBEDDED, WordpressBrightcoveAndYoutubeVideoXMLEventHandler.TRUE);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);

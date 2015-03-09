@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
 import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
 import com.google.common.base.Objects;
 import io.dropwizard.Configuration;
@@ -17,26 +18,28 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 	private final JerseyClientConfiguration jerseyClientConfiguration;
 	private final int numberOfConnectionAttempts;
     private String credentialsPath;
+    private final List<VideoSiteConfiguration> videoSiteConfig;
 
     public WordPressArticleTransformerConfiguration(
 													@JsonProperty("credentialsPath") String credentialsPath,
 													@JsonProperty("healthCheckWordPressConnections") List<WordPressConnection> wordPressConnections,
                                                     @JsonProperty("blogApiEndpointMetadata")List<BlogApiEndpointMetadata> blogApiEndpointMetadataList,
                                                     @JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
-                                                    @JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts) {
+                                                    @JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts,
+                                                    @JsonProperty("videoSiteConfig") List<VideoSiteConfiguration> videoSiteConfig){
 		super();
 		this.credentialsPath = credentialsPath;
 		this.wordPressConnections = wordPressConnections;
         this.hostToBrands = blogApiEndpointMetadataList;
 		this.jerseyClientConfiguration = jerseyClientConfiguration;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
+        this.videoSiteConfig = videoSiteConfig;
 	}
 
     @Valid @NotNull
     public String getCredentialsPath() {
         return credentialsPath;
     }
-
 
 	@Valid
 	@NotNull
@@ -59,6 +62,11 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 	public int getNumberOfConnectionAttempts() {
 		return numberOfConnectionAttempts;
 	}
+
+    @NotNull
+    public List<VideoSiteConfiguration> getVideoSiteConfiguration() {
+        return videoSiteConfig;
+    }
 
     protected Objects.ToStringHelper toStringHelper() {
         return Objects.toStringHelper(this)

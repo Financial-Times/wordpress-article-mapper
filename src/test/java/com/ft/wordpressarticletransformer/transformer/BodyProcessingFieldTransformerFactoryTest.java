@@ -5,26 +5,47 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 import com.ft.bodyprocessing.BodyProcessingException;
+import com.ft.bodyprocessing.richcontent.RichContentItem;
+import com.ft.bodyprocessing.richcontent.Video;
+import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class BodyProcessingFieldTransformerFactoryTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     private FieldTransformer bodyTransformer;
 
+    @Mock private VideoMatcher videoMatcher;
+
     private static final String TRANSACTION_ID = "tid_test";
+    private Video exampleYouTubeVideo;
+    private Video exampleVimeoVideo;
 
     @Before
     public void setup() {
-        bodyTransformer = new BodyProcessingFieldTransformerFactory().newInstance();
+        exampleVimeoVideo = new Video();
+        exampleVimeoVideo.setUrl("https://www.vimeo.com/77761436");
+        exampleVimeoVideo.setEmbedded(true);
+
+        exampleYouTubeVideo = new Video();
+        exampleYouTubeVideo.setUrl("https://www.youtube.com/watch?v=fRqCVcSWbDc");
+        exampleYouTubeVideo.setEmbedded(true);
+
+        bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher).newInstance();
     }
 
     @Test
@@ -209,17 +230,6 @@ public class BodyProcessingFieldTransformerFactoryTest {
         checkTransformation(tweetFromWordPress, expectedSentence);
     }
 
-    private void checkTransformation(String originalBody, String expectedTransformedBody) {
-        String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
-		assertThat(actualTransformedBody, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformedBody));
-	}
-
-
-    private void checkTransformationToEmpty(String originalBody) {
-        String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
-        assertThat(actualTransformedBody, is(""));
-    }
-
     @Test
     public void shouldProcessVideoTagCorrectly() {
 
@@ -257,7 +267,8 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "</div>\n" +
                 "</div>" ;
 
-        String expectedYouTube = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a></body>";
+        String expectedYouTube = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
+        when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleYouTubeVideo);
         checkTransformation(wordpressYouTube, expectedYouTube);
     }
 
@@ -267,11 +278,18 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "<iframe width=\"590\" height=\"331\" src=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\" frameborder=\"0\" >" +
                 "</iframe>" +
                 "</div></div></body>" ;
-
-        String expectedYouTube = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a></body>";
+        String expectedYouTube = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
+        when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleYouTubeVideo);
         checkTransformation(videoText, expectedYouTube);
     }
 
+    @Test
+    public void shouldProcessVideoTagCorrectlyVimeo() {
+        String videoText = "<body><div data-asset-type=\"embed\"><iframe src=\"//player.vimeo.com/video/77761436\" width=\"500\" height=\"208\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe><p><a href=\"http://vimeo.com/77761436\">ATROPA -- Sci-fi Short</a> from <a href=\"http://vimeo.com/sasich\">Eli Sasich</a> on <a href=\"https://vimeo.com\">Vimeo</a>.</p></div></body>" ;
+        String expectedVimeo = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.vimeo.com/77761436\"></a><p><a href=\"http://vimeo.com/77761436\">ATROPA -- Sci-fi Short</a> from <a href=\"http://vimeo.com/sasich\">Eli Sasich</a> on <a href=\"https://vimeo.com\">Vimeo</a>.</p></body>";
+        when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleVimeoVideo);
+        checkTransformation(videoText, expectedVimeo);
+    }
 
     @Test
     public void shouldProcessVideoCombinedVideoTagsCorrectly() {
@@ -292,8 +310,20 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "<a href=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman.jpg\" target=\"_blank\">" +
                 "<img class=\"size-medium wp-image-2048592\" title=\"PubQuizGoldman\" src=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman-272x188.jpg\" alt=\"Alternate Text\" width=\"272\" height=\"188\" data-img-id=\"2048592\" /></a>" +
                 "<p class=\"wp-caption-text\" data-img-id=\"2048592\">Caption for this image</p></div></body>";
-        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\"></a><p>An Image:</p></body>";
+        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a><p>An Image:</p></body>";
+        when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleYouTubeVideo);
         checkTransformation(videoText, expectedYouTube);
+    }
+
+    private void checkTransformation(String originalBody, String expectedTransformedBody) {
+        String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
+		assertThat(actualTransformedBody, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformedBody));
+	}
+
+
+    private void checkTransformationToEmpty(String originalBody) {
+        String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
+        assertThat(actualTransformedBody, is(""));
     }
 
 }

@@ -19,7 +19,7 @@ import com.ft.bodyprocessing.writer.BodyWriter;
 import com.ft.bodyprocessing.xml.eventhandlers.BaseXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 
-public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
+public class WordpressBrightcoveAndYoutubeVideoXMLEventHandler extends BaseXMLEventHandler {
 
     private String targetedHtmlClass;
 
@@ -37,12 +37,12 @@ public class WordpressVideoXMLEventHandler extends BaseXMLEventHandler {
     private Map<String, String> sourceToUrlMap;
 
 
-    public WordpressVideoXMLEventHandler(String targetedHtmlClass, XMLEventHandler fallbackHandler) {
+    public WordpressBrightcoveAndYoutubeVideoXMLEventHandler(String targetedHtmlClass, XMLEventHandler fallbackHandler) {
         this.targetedHtmlClass = targetedHtmlClass;
         this.fallbackHandler = fallbackHandler;
         sourceToUrlMap = new HashMap<>();
         sourceToUrlMap.put("Brightcove", "http://video.ft.com/%s");
-        sourceToUrlMap.put("YouTube", "http://www.youtube.com/embed/%s?wmode=transparent");
+        sourceToUrlMap.put("YouTube", "https://www.youtube.com/watch?v=%s");
     }
 
     @Override

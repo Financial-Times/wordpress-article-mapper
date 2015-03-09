@@ -7,10 +7,15 @@ import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 
+import com.ft.bodyprocessing.richcontent.VideoMatcher;
+import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
@@ -27,9 +32,10 @@ import org.codehaus.stax2.ri.evt.StartElementEventImpl;
 
 public class BodyProcessingStepDefs {
 
-    private String fastFTBodyText;
+    private String wordpressBodyText;
     private String transformedBodyText;
     private FieldTransformer bodyTransformer;
+    private VideoMatcher videoMatcher;
 
     private static final String TRANSACTION_ID = randomChars(10);
     private static final String TEXT = "Some text in between tags";
@@ -41,10 +47,23 @@ public class BodyProcessingStepDefs {
         return RandomStringUtils.randomAlphanumeric(howMany).toLowerCase();
     }
 
+    private static final List<String> T = Collections.singletonList("t");
+    private static final List<String> NONE = Collections.emptyList();
+
+    public static List<VideoSiteConfiguration> DEFAULTS = Arrays.asList(
+            new VideoSiteConfiguration("https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)", null, true, T, true),
+            new VideoSiteConfiguration("https?://www.youtube.com/embed/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, T, true),
+            new VideoSiteConfiguration("https?://youtu.be/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, T, true),
+            new VideoSiteConfiguration("https?://www.vimeo.com/(?<id>[0-9]+)", null, false, NONE, true),
+            new VideoSiteConfiguration("//player.vimeo.com/video/(?<id>[0-9]+)", "https://www.vimeo.com/%s", true, NONE, true),
+            new VideoSiteConfiguration("https?://video.ft.com/(?<id>[0-9]+)/", null, false, NONE, true)
+    );
+
     @Before
     public void setup() {
-        bodyTransformer = new BodyProcessingFieldTransformerFactory().newInstance();
-        registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry();
+        videoMatcher = new VideoMatcher(DEFAULTS);
+        bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher).newInstance();
+        registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher);
         rulesAndHandlers = new HashMap<String, String>();
         rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS" , "StripElementAndContentsXMLEventHandler");
         rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
@@ -56,7 +75,7 @@ public class BodyProcessingStepDefs {
 
     @Given("^I have body (.+?)$")
     public void I_have_body(String html) throws Throwable {
-        fastFTBodyText = "<body>" + html + "</body>";
+        wordpressBodyText = "<body>" + html + "</body>";
     }
     
     @Given("^there are empty paragraphs in the body$")
@@ -76,7 +95,7 @@ public class BodyProcessingStepDefs {
 
     @Then("^it is left unmodified$")
     public void it_is_left_unmodified() {
-        assertThat(transformedBodyText,equalToIgnoringCase(fastFTBodyText));
+        assertThat(transformedBodyText,equalToIgnoringCase(wordpressBodyText));
     }
 
     @And("^the tag (.+) adheres to the (.+)$")
@@ -92,7 +111,7 @@ public class BodyProcessingStepDefs {
 
     @When("^I transform it$")
     public void I_transform_it() throws Throwable {
-        transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
+        transformedBodyText = bodyTransformer.transform(wordpressBodyText, TRANSACTION_ID);
     }
 
 
@@ -112,8 +131,8 @@ public class BodyProcessingStepDefs {
         int codePointInt = Integer.decode(codepoint);
         char[] chars = Character.toChars(codePointInt);
         String expected = "<p>" + TEXT  + new String(chars) + "</p>";
-        fastFTBodyText = "<p>" + TEXT  +  entity + "</p>";
-        transformedBodyText = bodyTransformer.transform(fastFTBodyText, TRANSACTION_ID);
+        wordpressBodyText = "<p>" + TEXT  +  entity + "</p>";
+        transformedBodyText = bodyTransformer.transform(wordpressBodyText, TRANSACTION_ID);
         assertThat(transformedBodyText, is(wrapped(expected)));
     }
 
@@ -152,5 +171,20 @@ public class BodyProcessingStepDefs {
 	public void then_I_get_the_body(String html) throws Throwable {
 		assertThat( transformedBodyText ,equalToIgnoringWhiteSpace("<body>" + html + "</body>"));
 	}
+
+    @Given("^I have text in Wordpress XML like (.*)$")
+    public void I_have_body_text_in_Methode_XML_like_before(String text) throws Throwable {
+        wordpressBodyText = text;
+    }
+
+    @When("^I transform it into our Content Store format$")
+    public void i_transform_it_into_our_content_store_format() throws Throwable {
+        transformedBodyText = bodyTransformer.transform(wordpressBodyText, TRANSACTION_ID);
+    }
+
+    @Then("^the body should be like (.*)$")
+    public void the_body_should_be_like_after(String after) throws Throwable {
+        assertThat("the body was not transformed as expected", transformedBodyText, is(after));
+    }
 
 }

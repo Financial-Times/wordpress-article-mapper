@@ -1,5 +1,6 @@
 package com.ft.wordpressarticletransformer.transformer;
 
+import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.xml.eventhandlers.BaseXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.LinkTagXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.PlainTextHtmlEntityReferenceEventHandler;
@@ -13,7 +14,8 @@ import com.ft.bodyprocessing.xml.eventhandlers.StripXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandlerRegistry;
 import com.ft.wordpressarticletransformer.transformer.eventhandlers.StripEmbeddedTweetXMLEventHandler;
-import com.ft.wordpressarticletransformer.transformer.eventhandlers.WordpressVideoXMLEventHandler;
+import com.ft.wordpressarticletransformer.transformer.eventhandlers.WordpressBrightcoveAndYoutubeVideoXMLEventHandler;
+import com.ft.wordpressarticletransformer.transformer.eventhandlers.WordpressVimeoAndYoutubeXMLEventHandler;
 
 /**
  * StructuredWordPressSourcedBodyXMLEventHandlerRegistry
@@ -24,7 +26,7 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 
 
 
-	public StructuredWordPressSourcedBodyXMLEventHandlerRegistry() {
+	public StructuredWordPressSourcedBodyXMLEventHandlerRegistry(VideoMatcher videoMatcher) {
 		//default is to skip events - any start or end tags or entities not configured below will be excluded, as will comments
 		super.registerDefaultEventHandler(new StripXMLEventHandler());
 
@@ -45,12 +47,14 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		super.registerEndElementEventHandler(new LinkTagXMLEventHandler(), "a");
 		super.registerStartAndEndElementEventHandler(removeForTheTimeBeing(), "img");
 
-        registerStartAndEndElementEventHandler(new WordpressVideoXMLEventHandler("video-container",
+        registerStartAndEndElementEventHandler(new WordpressBrightcoveAndYoutubeVideoXMLEventHandler("video-container",
                 videoHandlerWithFallbackTo(
                         captionedImageHandlerWithFallbackTo(
                                 new BaseXMLEventHandler()
                         ) )
                 ), "div");
+
+        super.registerStartAndEndElementEventHandler(new WordpressVimeoAndYoutubeXMLEventHandler("src", new StripElementAndContentsXMLEventHandler(), videoMatcher), "iframe");
 
 		// to be transformed
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("strong"), "b");
@@ -67,7 +71,7 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 				"embed",
 				"fieldset", "form", "frame", "frameset",
 				"head",
-				"iframe", "input",
+				"input",
 				"keygen",
 				"label", "legend", "link",
 				"map", "menu", "meta",

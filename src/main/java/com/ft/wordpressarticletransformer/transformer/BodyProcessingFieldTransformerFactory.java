@@ -9,6 +9,7 @@ import com.ft.bodyprocessing.BodyProcessorChain;
 import com.ft.bodyprocessing.html.Html5SelfClosingTagBodyProcessor;
 import com.ft.bodyprocessing.regex.RegexRemoverBodyProcessor;
 import com.ft.bodyprocessing.regex.RegexReplacerBodyProcessor;
+import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.bodyprocessing.transformer.FieldTransformerFactory;
 import com.ft.bodyprocessing.xml.StAXTransformingBodyProcessor;
@@ -18,8 +19,10 @@ import com.ft.wordpressarticletransformer.transformer.html.TagSoupHtmlBodyProces
 
 public class BodyProcessingFieldTransformerFactory implements FieldTransformerFactory {
 
-    public BodyProcessingFieldTransformerFactory() {
+    private VideoMatcher videoMatcher;
 
+    public BodyProcessingFieldTransformerFactory(VideoMatcher videoMatcher) {
+        this.videoMatcher = videoMatcher;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
     }
 
     private BodyProcessor stAXTransformingBodyProcessor() {
-        return new StAXTransformingBodyProcessor(new StructuredWordPressSourcedBodyXMLEventHandlerRegistry());
+        return new StAXTransformingBodyProcessor(new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher));
     }
 
 }

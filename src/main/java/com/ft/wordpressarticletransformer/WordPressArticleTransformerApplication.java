@@ -11,6 +11,7 @@ import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
+import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
@@ -49,6 +50,8 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
         environment.jersey().register(new BuildInfoResource());
 		environment.jersey().register(new VersionResource());
 
+        VideoMatcher videoMatcher = new VideoMatcher(configuration.getVideoSiteConfiguration());
+
         Properties credentials = new Properties();
         credentials.load( new FileReader(new File(configuration.getCredentialsPath())));
 		
@@ -56,7 +59,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 				configuration.getNumberOfConnectionAttempts(), credentials.getProperty("wordpress.contentApi.key"));
 		
 
-        environment.jersey().register(new WordPressArticleTransformerResource(getBodyProcessingFieldTransformer(),
+        environment.jersey().register(new WordPressArticleTransformerResource(getBodyProcessingFieldTransformer(videoMatcher),
 				wordPressResilientClient, new BrandSystemResolver(configuration.getHostToBrands())));
 
 		String healthCheckName = "Connectivity to WordPress";
@@ -74,8 +77,8 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 				new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
     }
 
-    private BodyProcessingFieldTransformer getBodyProcessingFieldTransformer() {
-        return (BodyProcessingFieldTransformer) (new BodyProcessingFieldTransformerFactory()).newInstance();
+    private BodyProcessingFieldTransformer getBodyProcessingFieldTransformer(VideoMatcher videoMatcher) {
+        return (BodyProcessingFieldTransformer) (new BodyProcessingFieldTransformerFactory(videoMatcher)).newInstance();
     }
 
 }
