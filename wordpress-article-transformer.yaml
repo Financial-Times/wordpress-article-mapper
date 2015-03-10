@@ -8,54 +8,6 @@ healthCheckWordPressConnections:
     - hostName: int.blogs.ft.com
       port: 80
       path: /beyond-brics/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /the-world/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /tech-blog/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /gavyndavies/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /ftdata/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /brusselsblog/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /andrew-smithers/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /lex-live/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /off-message/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /nick-butler/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /mba-blog/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /businessblog/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /photo-diary/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /material-world/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /david-allen-green/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /westminster/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /the-exchange/api/get_recent_posts/
 
 
 blogApiEndpointMetadata:
