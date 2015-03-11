@@ -16,12 +16,12 @@ import javax.xml.stream.events.StartElement;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WordpressVimeoAndYoutubeXMLEventHandler extends BaseXMLEventHandler {
+public class IframeSrcVideoXMLEventHandler extends BaseXMLEventHandler {
 
-    private String targetedAttribute;
     private XMLEventHandler fallbackHandler;
     private VideoMatcher videoMatcher;
 
+    private static final String SRC_ATTRIBUTE = "src";
     private static final String NEW_ELEMENT = "a";
     private static final String NEW_ELEMENT_ATTRIBUTE = "href";
     public static final String DATA_ASSET_TYPE = "data-asset-type";
@@ -29,8 +29,7 @@ public class WordpressVimeoAndYoutubeXMLEventHandler extends BaseXMLEventHandler
     public static final String DATA_EMBEDDED = "data-embedded";
     public static final String TRUE = "true";
 
-    public WordpressVimeoAndYoutubeXMLEventHandler(String targetedAttribute, XMLEventHandler fallbackHandler, VideoMatcher videoMatcher) {
-        this.targetedAttribute = targetedAttribute;
+    public IframeSrcVideoXMLEventHandler(XMLEventHandler fallbackHandler, VideoMatcher videoMatcher) {
         this.fallbackHandler = fallbackHandler;
         this.videoMatcher = videoMatcher;
     }
@@ -39,7 +38,7 @@ public class WordpressVimeoAndYoutubeXMLEventHandler extends BaseXMLEventHandler
     public void handleStartElementEvent(StartElement event, XMLEventReader xmlEventReader, BodyWriter eventWriter,
                                         BodyProcessingContext bodyProcessingContext) throws XMLStreamException {
 
-        Attribute srcValue = event.getAttributeByName(QName.valueOf(targetedAttribute));
+        Attribute srcValue = event.getAttributeByName(QName.valueOf(SRC_ATTRIBUTE));
 
         if (srcValue==null) {
             fallbackHandler.handleStartElementEvent(event, xmlEventReader, eventWriter, bodyProcessingContext);

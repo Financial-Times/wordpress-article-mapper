@@ -19,15 +19,14 @@ import com.ft.bodyprocessing.writer.BodyWriter;
 import com.ft.bodyprocessing.xml.eventhandlers.BaseXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 
-public class WordpressBrightcoveAndYoutubeVideoXMLEventHandler extends BaseXMLEventHandler {
-
-    private String targetedHtmlClass;
+public class ClassVideoContainerXMLEventHandler extends BaseXMLEventHandler {
 
 	public static final String DATA_ASSET_TYPE = "data-asset-type";
 	public static final String VIDEO = "video";
 	public static final String DATA_EMBEDDED = "data-embedded";
 	public static final String TRUE = "true";
 
+    private static final String VIDEO_CONTAINER = "video-container";
 	private static final String VIDEO_SOURCE_ATTRIBUTE = "data-asset-source";
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
     private static final String NEW_ELEMENT = "a";
@@ -37,8 +36,7 @@ public class WordpressBrightcoveAndYoutubeVideoXMLEventHandler extends BaseXMLEv
     private Map<String, String> sourceToUrlMap;
 
 
-    public WordpressBrightcoveAndYoutubeVideoXMLEventHandler(String targetedHtmlClass, XMLEventHandler fallbackHandler) {
-        this.targetedHtmlClass = targetedHtmlClass;
+    public ClassVideoContainerXMLEventHandler(XMLEventHandler fallbackHandler) {
         this.fallbackHandler = fallbackHandler;
         sourceToUrlMap = new HashMap<>();
         sourceToUrlMap.put("Brightcove", "http://video.ft.com/%s");
@@ -53,14 +51,13 @@ public class WordpressBrightcoveAndYoutubeVideoXMLEventHandler extends BaseXMLEv
             return;
         }
 
-
         XMLEvent found = getEventAndSkipBlock(xmlEventReader, "div", "div", VIDEO_ID_ATTRIBUTE, "[.a-zA-Z0-9]*");
 
 
         String source = found.asStartElement().getAttributeByName(QName.valueOf(VIDEO_SOURCE_ATTRIBUTE)).getValue();
         String id = found.asStartElement().getAttributeByName(QName.valueOf(VIDEO_ID_ATTRIBUTE)).getValue();
 
-        if(sourceToUrlMap.get(source)==null || source == null || id == null){
+        if(source == null || id == null || sourceToUrlMap.get(source)==null){
             return;//fallback
         }
         String videoUrl = String.format(sourceToUrlMap.get(source), id);
@@ -86,7 +83,7 @@ public class WordpressBrightcoveAndYoutubeVideoXMLEventHandler extends BaseXMLEv
 
         List<String> classes = Arrays.asList(classesAttr.getValue().split(" "));
 
-        return classes.contains(targetedHtmlClass);
+        return classes.contains(VIDEO_CONTAINER);
     }
 
 

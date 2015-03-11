@@ -8,7 +8,7 @@ import com.ft.bodyprocessing.BodyProcessingContext;
 import com.ft.bodyprocessing.xml.StAXTransformingBodyProcessor;
 import com.ft.bodyprocessing.xml.eventhandlers.BaseXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandlerRegistry;
-import com.ft.wordpressarticletransformer.transformer.eventhandlers.WordpressBrightcoveAndYoutubeVideoXMLEventHandler;
+import com.ft.wordpressarticletransformer.transformer.eventhandlers.ClassVideoContainerXMLEventHandler;
 import org.junit.Test;
 
 public class StAXTransformingBodyProcessorTest {
@@ -17,7 +17,7 @@ public class StAXTransformingBodyProcessorTest {
     @Test
     public void shouldProcessVideoTagCorrectly() {
         XMLEventHandlerRegistry eventHandlerRegistry = new XMLEventHandlerRegistry() {
-            { super.registerStartAndEndElementEventHandler(new WordpressBrightcoveAndYoutubeVideoXMLEventHandler("video-container", new BaseXMLEventHandler()), "div");}
+            { super.registerStartAndEndElementEventHandler(new ClassVideoContainerXMLEventHandler(new BaseXMLEventHandler()), "div");}
         };
         bodyProcessor = new StAXTransformingBodyProcessor(eventHandlerRegistry);
 
@@ -51,7 +51,7 @@ public class StAXTransformingBodyProcessorTest {
     @Test
     public void shouldProcessVideoTagCorrectlyYouTube() {
         XMLEventHandlerRegistry eventHandlerRegistry = new XMLEventHandlerRegistry() {
-            { super.registerStartAndEndElementEventHandler(new WordpressBrightcoveAndYoutubeVideoXMLEventHandler("video-container", new BaseXMLEventHandler()), "div");}
+            { super.registerStartAndEndElementEventHandler(new ClassVideoContainerXMLEventHandler(new BaseXMLEventHandler()), "div");}
         };
         bodyProcessor = new StAXTransformingBodyProcessor(eventHandlerRegistry);
 
@@ -69,7 +69,7 @@ public class StAXTransformingBodyProcessorTest {
     @Test
     public void shouldProcessVideoTagCorrectlyYouTube2() {
         XMLEventHandlerRegistry eventHandlerRegistry = new XMLEventHandlerRegistry() {
-            { super.registerStartAndEndElementEventHandler(new WordpressBrightcoveAndYoutubeVideoXMLEventHandler("video-container", new BaseXMLEventHandler()), "div");}
+            { super.registerStartAndEndElementEventHandler(new ClassVideoContainerXMLEventHandler(new BaseXMLEventHandler()), "div");}
         };
         bodyProcessor = new StAXTransformingBodyProcessor(eventHandlerRegistry);
 
@@ -87,7 +87,7 @@ public class StAXTransformingBodyProcessorTest {
     public void shouldProcessVideoTagCorrectlyYouTube3() {
 
         XMLEventHandlerRegistry eventHandlerRegistry = new XMLEventHandlerRegistry() {
-            { super.registerStartAndEndElementEventHandler(new WordpressBrightcoveAndYoutubeVideoXMLEventHandler("video-container", new BaseXMLEventHandler()), "div");}
+            { super.registerStartAndEndElementEventHandler(new ClassVideoContainerXMLEventHandler(new BaseXMLEventHandler()), "div");}
         };
         bodyProcessor = new StAXTransformingBodyProcessor(eventHandlerRegistry);
 
