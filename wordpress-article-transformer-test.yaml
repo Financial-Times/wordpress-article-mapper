@@ -58,6 +58,9 @@ blogApiEndpointMetadata:
     - host: blogs.ft.com/lex-live
       brand: http://api.ft.com/things/e363dfb8-f6d9-4f2c-beba-5162b334272b
       id: FT-LABS-WP-1-302
+    - host: blogs.ft.com/andrew-mcafee
+      brand: http://api.ft.com/things/e180d0e0-9d13-4212-9696-f86ef197d2bd
+      id: FT-LABS-WP-1-312
     - host: blogs.ft.com/the-exchange
       brand: http://api.ft.com/things/462507e2-e20a-431d-9648-a9131770b3aa
       id: FT-LABS-WP-1-332
