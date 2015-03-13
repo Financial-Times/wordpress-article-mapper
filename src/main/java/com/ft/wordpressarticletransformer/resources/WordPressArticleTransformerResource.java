@@ -20,8 +20,10 @@ import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
+import com.ft.content.model.Identifier;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
+import com.google.common.collect.ImmutableSortedSet;
 import com.sun.jersey.api.NotFoundException;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -95,7 +97,7 @@ public class WordPressArticleTransformerResource {
 
         String originatingSystemId = brandSystemResolver.getOriginatingSystemId(requestUri);
         if(originatingSystemId == null){
-            LOGGER.error("Failed to resolve brand for uri [{}].", requestUri);
+            LOGGER.error("Failed to resolve originatingSystemId for uri [{}].", requestUri);
             throw ServerError.status(500).error(String.format("Failed to resolve originatingSystemId for uri [%s].", requestUri)).exception();
         }
 
@@ -107,6 +109,7 @@ public class WordPressArticleTransformerResource {
                 .withXmlBody(tidiedUpBody(body, transactionId))
                 .withByline(postDetails.getAuthor().getName())
                 .withContentOrigin(originatingSystemId, postDetails.getUrl())
+                .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                 .withBrands(resolvedBrandWrappedInASet)
                 .withUuid(validUuid).build();
 	}
