@@ -35,7 +35,7 @@ public class ClassVideoContainerXMLEventHandlerTest extends BaseXMLEventHandlerT
     private static final String INCORRECT_TARGETED_CLASS_VALUE = "wrong-value";
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
     private static final String BRIGHTCOVE_ATTRIBUTE_VALUE = "4035805662001";
-    private static final String YOUTUBE_ATTRIBUTE_VALUE = "OQzJR3BqS7o";
+    private static final String YOUTUBE_ATTRIBUTE_VALUE = "OQz-R3B_S7o";
     private static final String VIDEO_SOURCE_ATTRIBUTE = "data-asset-source";
     private static final String BRIGHTCOVE_SOURCE = "http://video.ft.com/";
     private static final String VIDEO_SOURCE_ATTRIBUTE_BRIGHTCOVE = "Brightcove";

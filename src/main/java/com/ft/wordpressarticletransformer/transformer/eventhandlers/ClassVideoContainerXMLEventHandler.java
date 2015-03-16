@@ -51,14 +51,17 @@ public class ClassVideoContainerXMLEventHandler extends BaseXMLEventHandler {
             return;
         }
 
-        XMLEvent found = getEventAndSkipBlock(xmlEventReader, "div", "div", VIDEO_ID_ATTRIBUTE, "[.a-zA-Z0-9]*");
+        XMLEvent found = getEventAndSkipBlock(xmlEventReader, "div", "div", VIDEO_ID_ATTRIBUTE, "[a-zA-Z0-9_\\-]*");
 
+        if(found==null) {
+            return;
+        }
 
         String source = found.asStartElement().getAttributeByName(QName.valueOf(VIDEO_SOURCE_ATTRIBUTE)).getValue();
         String id = found.asStartElement().getAttributeByName(QName.valueOf(VIDEO_ID_ATTRIBUTE)).getValue();
 
         if(source == null || id == null || sourceToUrlMap.get(source)==null){
-            return;//fallback
+            return;
         }
         String videoUrl = String.format(sourceToUrlMap.get(source), id);
 		Map<String, String> attributesToAdd = new HashMap<>();
