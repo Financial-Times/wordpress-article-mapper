@@ -3,7 +3,7 @@ credentialsPath: /etc/wordpress-article-transformer-credentials.properties
 
 videoSiteConfig:
     - urlPattern: "https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)"
-      template: null
+      template: "https://www.youtube.com/watch?v=%s"
       embedded: true
       retainedParams: ["t"]
       forceHTTPS: true
