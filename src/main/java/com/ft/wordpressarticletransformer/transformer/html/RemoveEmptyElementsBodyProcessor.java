@@ -1,10 +1,6 @@
 package com.ft.wordpressarticletransformer.transformer.html;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import com.ft.bodyprocessing.BodyProcessingContext;
 import com.ft.bodyprocessing.BodyProcessingException;
@@ -14,8 +10,6 @@ import com.google.common.base.Strings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * RemoveEmptyElementsBodyProcessor
@@ -43,7 +37,7 @@ public class RemoveEmptyElementsBodyProcessor implements BodyProcessor {
 			return "";
 		}
 
-		Document doc = createDocument(bodyHtml);
+		Document doc = Xml.createDocument(bodyHtml);
 		Element body = (Element) doc.getElementsByTagName("body").item(0);
 
 		int removedElements;
@@ -86,16 +80,6 @@ public class RemoveEmptyElementsBodyProcessor implements BodyProcessor {
 		return Strings.isNullOrEmpty(Strings.nullToEmpty(element.getTextContent()).trim());
 	}
 
-	private Document createDocument(String html) throws BodyProcessingException {
 
-		try {
-			InputSource is = new InputSource();
-			is.setCharacterStream(new StringReader(html));
-			return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			throw new BodyProcessingException(e);
-		}
-	}
 
 }
