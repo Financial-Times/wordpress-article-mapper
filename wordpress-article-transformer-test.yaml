@@ -11,7 +11,7 @@ videoSiteConfig:
     - urlPattern: "https?://www.youtube.com/embed/(?<id>[A-Za-z0-9_-]+)"
       template: "https://www.youtube.com/watch?v=%s"
       embedded: false
-      retainedParams: ["t"]
+      retainedParams: ["start"]
       forceHTTPS: true
 
     - urlPattern: "https?://youtu.be/(?<id>[A-Za-z0-9_-]+)"
