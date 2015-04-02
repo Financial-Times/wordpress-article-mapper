@@ -6,13 +6,11 @@ videoSiteConfig:
       template: "https://www.youtube.com/watch?v=%s"
       embedded: true
       retainedParams: ["t"]
-      convertedParams: null
       forceHTTPS: true
 
     - urlPattern: "https?://www.youtube.com/embed/(?<id>[A-Za-z0-9_-]+)"
       template: "https://www.youtube.com/watch?v=%s"
       embedded: false
-      retainedParams: ["start"]
       convertedParams:
           - startingParameter: "start"
             convertedParameter: "t"
@@ -23,7 +21,6 @@ videoSiteConfig:
       template: "https://www.youtube.com/watch?v=%s"
       embedded: false
       retainedParams: ["t"]
-      convertedParams: null
       forceHTTPS: true
 
     - urlPattern: "https?://vimeo.com/(?<id>[0-9]+)"

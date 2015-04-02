@@ -50,7 +50,6 @@ public class BodyProcessingStepDefs {
     }
 
     private static final List<String> T = Collections.singletonList("t");
-    private static final List<String> START = Collections.singletonList("start");
     private static final List<String> NONE = Collections.emptyList();
 
     private static final String STARTING_PARAMETER = "start";
@@ -61,7 +60,7 @@ public class BodyProcessingStepDefs {
 
     public static List<VideoSiteConfiguration> DEFAULTS = Arrays.asList(
             new VideoSiteConfiguration("https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", true, T, null, true),
-            new VideoSiteConfiguration("https?://www.youtube.com/embed/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, START, CONVERT_PARAMETERS_LIST, true),
+            new VideoSiteConfiguration("https?://www.youtube.com/embed/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, NONE, CONVERT_PARAMETERS_LIST, true),
             new VideoSiteConfiguration("https?://youtu.be/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, T, null, true),
             new VideoSiteConfiguration("https?://www.vimeo.com/(?<id>[0-9]+)", null, false, NONE, null, true),
             new VideoSiteConfiguration("//player.vimeo.com/video/(?<id>[0-9]+)", "https://www.vimeo.com/%s", true, NONE, null, true),
