@@ -108,7 +108,6 @@ public class WordPressArticleTransformerResource {
                 .withPublishedDate(datePublished.toDate())
                 .withXmlBody(tidiedUpBody(body, transactionId))
                 .withByline(postDetails.getAuthor().getName())
-                .withContentOrigin(originatingSystemId, postDetails.getUrl())
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                 .withBrands(resolvedBrandWrappedInASet)
                 .withUuid(validUuid).build();

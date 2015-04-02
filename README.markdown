@@ -30,11 +30,7 @@ You will receive a json response for the Content. The following is an example:
             {  
                  "id": "http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66"  
             }  
-        ],      
-        "contentOrigin": {  
-            "originatingSystem": "http://www.ft.com/ontology/origin/FT-LABS-WP-1-242",  
-            "originatingIdentifier": "http://uat.ftalphaville.ft.com/2014/11/07/2015132/alphaville-now-available-via-v2-of-the-api/"  
-        },  
+        ],
         "publishedDate": "2014-11-07T12:31:30.000Z",  
         "body": <body> The body </body>,  
     }
