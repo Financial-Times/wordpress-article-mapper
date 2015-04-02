@@ -56,7 +56,7 @@ public class WordPressArticleTransformerResourceTest {
 		client.setReadTimeout(50000);
 		
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
-        publishedDate = formatter.parseDateTime("2014-10-21 05:45:30");
+        publishedDate = formatter.parseDateTime("2014-10-21 08:45:30");
 	}
 
 	@Test
