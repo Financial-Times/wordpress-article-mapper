@@ -84,7 +84,17 @@ public class WordPressArticleTransformerResource {
 		String body = wrapBody(postDetails.getContent());
 		
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
-		String publishedDateStr = (postDetails.getModifiedGmt() != null)? postDetails.getModifiedGmt() : postDetails.getDateGmt();
+		String publishedDateStr = null;
+        if(postDetails.getModifiedGmt() != null){
+            publishedDateStr = postDetails.getModifiedGmt();
+        }
+        else if (postDetails.getDateGmt() != null) {
+            publishedDateStr = postDetails.getDateGmt();
+        }
+        else {
+            LOGGER.error("Modified and Date GMT fields not found for : " + requestUri);
+            publishedDateStr = postDetails.getModified();
+        }
         DateTime datePublished = formatter.parseDateTime(publishedDateStr);
 		
 		LOGGER.info("Returning content for uuid [{}].", validUuid.toString());
