@@ -1,9 +1,11 @@
 package com.ft.wordpressarticletransformer.transformer;
 
+import com.ft.bodyprocessing.richcontent.ConvertParameters;
 import com.ft.bodyprocessing.richcontent.RichContentItem;
 import com.ft.bodyprocessing.richcontent.Video;
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -19,13 +21,19 @@ public class RetainYoutubeParametersTest {
     private static final List<String> T = Collections.singletonList("t");
     private static final List<String> NONE = Collections.emptyList();
 
+    private static final String CONVERT_FROM_PARAMETER = "start";
+    private static final String CONVERTED_TO_PARAMETER = "t";
+    private static final String CONVERSION_TEMPLATE = "%ss";
+    private static final ConvertParameters CONVERT_PARAMETERS = new ConvertParameters(CONVERT_FROM_PARAMETER, CONVERTED_TO_PARAMETER, CONVERSION_TEMPLATE);
+    private static final List<ConvertParameters> CONVERT_PARAMETERS_LIST = ImmutableList.of(CONVERT_PARAMETERS);
+
     public static List<VideoSiteConfiguration> DEFAULTS = Arrays.asList(
-            new VideoSiteConfiguration("https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", true, T, true),
-            new VideoSiteConfiguration("https?://www.youtube.com/embed/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, T, true),
-            new VideoSiteConfiguration("https?://youtu.be/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, T, true),
-            new VideoSiteConfiguration("https?://www.vimeo.com/(?<id>[0-9]+)", null, false, NONE, true),
-            new VideoSiteConfiguration("//player.vimeo.com/video/(?<id>[0-9]+)", "https://www.vimeo.com/%s", true, NONE, true),
-            new VideoSiteConfiguration("https?://video.ft.com/(?<id>[0-9]+)/", null, false, NONE, true)
+            new VideoSiteConfiguration("https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", true, T, null, true),
+            new VideoSiteConfiguration("https?://www.youtube.com/embed/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, NONE, CONVERT_PARAMETERS_LIST, true),
+            new VideoSiteConfiguration("https?://youtu.be/(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", false, T, null, true),
+            new VideoSiteConfiguration("https?://www.vimeo.com/(?<id>[0-9]+)", null, false, NONE, null, true),
+            new VideoSiteConfiguration("//player.vimeo.com/video/(?<id>[0-9]+)", "https://www.vimeo.com/%s", true, NONE, null, true),
+            new VideoSiteConfiguration("https?://video.ft.com/(?<id>[0-9]+)/", null, false, NONE, null, true)
     );
 
     private List<VideoSiteConfiguration> videoSiteConfigurationList = DEFAULTS;
@@ -47,10 +55,17 @@ public class RetainYoutubeParametersTest {
     }
 
     @Test
-    public void shouldRetainTimeParameterOnYoutubeEmbedUrls() {
-        RichContentItem attachment = new RichContentItem("http://www.youtube.com/embed/V8B4CjOkcck?t=30s", "Title");
+         public void shouldRetainStartParameterAndConvertToTimeOnYoutubeEmbedUrls() {
+        RichContentItem attachment = new RichContentItem("http://www.youtube.com/embed/V8B4CjOkcck?start=30", "Title");
         String result = matchVideoFormat(attachment);
         assertThat(result, is("https://www.youtube.com/watch?v=V8B4CjOkcck&t=30s"));
+    }
+
+    @Test
+    public void shouldNotRetainTimeParameterOnYoutubeEmbedUrls() {
+        RichContentItem attachment = new RichContentItem("http://www.youtube.com/embed/V8B4CjOkcck?t=30s", "Title");
+        String result = matchVideoFormat(attachment);
+        assertThat(result, is("https://www.youtube.com/watch?v=V8B4CjOkcck"));
     }
 
     @Test
