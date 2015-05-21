@@ -81,12 +81,12 @@ public class WordPressArticleTransformerResourceTest {
 	
 	@Test
 	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
-	public void shouldReturn404WhenWordpressReturnsStatusErrorAndErrorNotFound() {
+	public void shouldReturn404WithUuidWhenWordpressReturnsStatusErrorAndErrorNotFound() {
 	    final URI uri = buildTransformerUrl(UUID, WILL_RETURN_ERROR_NOT_FOUND);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-        assertThat("response", clientResponse.getEntity(String.class), containsString("uuid"));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("\"uuid\"")); //i.e. json field "uuid"
 	}
 
 
@@ -101,7 +101,7 @@ public class WordPressArticleTransformerResourceTest {
 	}
 
     @Test
-    public void shouldReturn404WithUuidWhenTypeNotPostFromWordpress() {
+    public void shouldReturn404WhenTypeNotPostFromWordpress() {
         final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
