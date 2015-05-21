@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -24,10 +23,8 @@ import com.ft.content.model.Content;
 import com.ft.content.model.Identifier;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSortedSet;
 import com.sun.jersey.api.NotFoundException;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -83,14 +80,8 @@ public class WordPressArticleTransformerResource {
 		if (postDetails == null) {
 			throw new NotFoundException();
 		}
-		
-		String body = postDetails.getContent();
-		if (Strings.isNullOrEmpty(body)) {
-            throw ClientError.status(422)
-                    .error("Not a valid WordPress article for publication")
-                    .exception();
-		}
-		body = wrapBody(body);
+
+		String body = wrapBody(postDetails.getContent());
 		
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
 		String publishedDateStr = null;

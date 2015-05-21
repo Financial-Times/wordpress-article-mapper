@@ -36,8 +36,7 @@ public class WordPressArticleTransformerResourceTest {
 
 
 	public static final String WILL_RETURN_200_PATH = "/request_to_word_press_200_ok/?json=1";
-	private static final String WORDPRESS_BASE_URL = "http://localhost:15670";
-	private static final String WILL_RETURN_200 = WORDPRESS_BASE_URL + WILL_RETURN_200_PATH;
+	private static final String WILL_RETURN_200 = "http://localhost:15670" + WILL_RETURN_200_PATH;
 
     private static final String WILL_RETURN_404 = "http://localhost:15670/request_to_word_press_404/?json=1";
     private static final String WILL_RETURN_200_INCORRECT_BLOG_TYPE = "http://localhost:15670/request_to_word_press_200_not_type_post/?json=1";
@@ -185,20 +184,7 @@ public class WordPressArticleTransformerResourceTest {
 
 
 	}
-	
-	@Test
-	public void thatArticleWithEmptyBodyReturns422() {
-	    String requestUri = "/request_to_word_press_200_post_empty_content/?json%3D1";
-        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-        
-        String transactionID = java.util.UUID.randomUUID().toString();
 
-        final ClientResponse clientResponse = client.resource(uri)
-                .header(TransactionIdUtils.TRANSACTION_ID_HEADER, transactionID)
-                .get(ClientResponse.class);
-        
-        assertThat("response", clientResponse, hasProperty("status", equalTo(422)));
-	}
 
     @After
 	public void reset() {
