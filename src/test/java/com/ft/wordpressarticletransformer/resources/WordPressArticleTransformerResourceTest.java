@@ -35,20 +35,8 @@ public class WordPressArticleTransformerResourceTest {
 	private DateTime publishedDate = null;
 
 
-	public static final String WILL_RETURN_200_PATH = "/request_to_word_press_200_ok/?json=1";
 	private static final String WORDPRESS_BASE_URL = "http://localhost:15670";
-	private static final String WILL_RETURN_200 = WORDPRESS_BASE_URL + WILL_RETURN_200_PATH;
-
-    private static final String WILL_RETURN_404 = "http://localhost:15670/request_to_word_press_404/?json=1";
-    private static final String WILL_RETURN_200_INCORRECT_BLOG_TYPE = "http://localhost:15670/request_to_word_press_200_not_type_post/?json=1";
-    private static final String WILL_RETURN_ERROR_NOT_FOUND = "http://localhost:15670/request_to_word_press_error_not_found/?json=1";
-    private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_500/?json=1";
-    private static final String WILL_RETURN_NON_WORD_PRESS_RESPONSE = "http://localhost:15670/request_to_word_press_non_word_press_response/?json=1";
-    private static final String WILL_RETURN_CANNOT_CONNECT = "http://localhost:15670/request_to_word_press_cannot_connect/?json=1";
-    private static final String INVALID_URL = "werhjwekrhjerwkh";
     
-    private static final String WILL_FAIL_BEFORE_REQUEST_TO_WORDPRESS = "http://localhost:15670/no_request_to_word_press_expected/?json=1";
-   
 	private Client client;
 
 	@Before
@@ -62,7 +50,8 @@ public class WordPressArticleTransformerResourceTest {
 
 	@Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPress() {
-		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200);
+        final String requestUri = "/request_to_word_press_200_ok/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
@@ -82,7 +71,8 @@ public class WordPressArticleTransformerResourceTest {
 	@Test
 	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
 	public void shouldReturn404WhenWordpressReturnsStatusErrorAndErrorNotFound() {
-	    final URI uri = buildTransformerUrl(UUID, WILL_RETURN_ERROR_NOT_FOUND);
+        final String requestUri = "/request_to_word_press_error_not_found/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
@@ -95,14 +85,17 @@ public class WordPressArticleTransformerResourceTest {
      */
     @Test
 	public void shouldReturn500When404ReturnedFromWordpress() {
-		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_404);
+        final String requestUri = "/request_to_word_press_404/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+		
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
 	}
 
     @Test
     public void shouldReturn404WithUuidWhenTypeNotPostFromWordpress() {
-        final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200_INCORRECT_BLOG_TYPE);
+        final String requestUri = "/request_to_word_press_200_not_type_post/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
@@ -111,14 +104,17 @@ public class WordPressArticleTransformerResourceTest {
 
     @Test
     public void shouldReturn400WhenUuidIsNotValid() {
-        final URI uri = buildTransformerUrl("ABC-1234", WILL_FAIL_BEFORE_REQUEST_TO_WORDPRESS);
+        final String requestUri = "/no_request_to_word_press_expected/?json=1";
+        final URI uri = buildTransformerUrl("ABC-1234", WORDPRESS_BASE_URL + requestUri);
+        
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
 	@Test
 	public void shouldReturn405WhenNoUuidSupplied() {
-		final URI uri = buildTransformerUrlWithIdMissing(WILL_FAIL_BEFORE_REQUEST_TO_WORDPRESS);
+        final String requestUri = "/no_request_to_word_press_expected/?json=1";
+        final URI uri = buildTransformerUrlWithIdMissing(WORDPRESS_BASE_URL + requestUri);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
@@ -135,15 +131,17 @@ public class WordPressArticleTransformerResourceTest {
     
     @Test
     public void shouldReturn400WhenUrlIsNotValid() {
-       final URI uri = buildTransformerUrl(UUID, INVALID_URL);
+        final String requestUri = "werhjwekrhjerwkh";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
-       final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-       assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
     @Test
     public void shouldReturn400WhenResponseNotAValidWordpressResponse() {
-        final URI uri = buildTransformerUrl(UUID, WILL_RETURN_NON_WORD_PRESS_RESPONSE);
+        final String requestUri = "/request_to_word_press_non_word_press_response/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
@@ -152,7 +150,8 @@ public class WordPressArticleTransformerResourceTest {
 
 	@Test
 	public void shouldReturn503When500ReturnedFromWordpress() {
-		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_500);
+        final String requestUri = "/request_to_word_press_500/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
@@ -161,7 +160,8 @@ public class WordPressArticleTransformerResourceTest {
 
     @Test
 	public void shouldReturn503WhenCannotConnectToWordpress() {
-		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_CANNOT_CONNECT);
+        final String requestUri = "/request_to_word_press_cannot_connect/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
@@ -170,7 +170,8 @@ public class WordPressArticleTransformerResourceTest {
 
 	@Test
 	public void shouldAddApiKeyToUpstreamRequest() {
-		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_200);
+        final String requestUri = "/request_to_word_press_200_ok/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         String transactionID = java.util.UUID.randomUUID().toString();
 
@@ -179,7 +180,7 @@ public class WordPressArticleTransformerResourceTest {
                 .get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
-		String urlWithKeyAdded = WILL_RETURN_200_PATH + "&api_key="+ WP.EXAMPLE_API_KEY + "&cache_buster="+ transactionID;
+		String urlWithKeyAdded = requestUri + "&api_key="+ WP.EXAMPLE_API_KEY + "&cache_buster="+ transactionID;
 
 		WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
 
@@ -188,7 +189,7 @@ public class WordPressArticleTransformerResourceTest {
 	
 	@Test
 	public void thatArticleWithEmptyBodyReturns422() {
-	    String requestUri = "/request_to_word_press_200_post_empty_content/?json%3D1";
+	    final String requestUri = "/request_to_word_press_200_post_empty_content/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
         
         String transactionID = java.util.UUID.randomUUID().toString();
