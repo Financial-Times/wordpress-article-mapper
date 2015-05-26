@@ -1,10 +1,22 @@
 package com.ft.wordpressarticletransformer.transformer;
 
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
-import com.ft.bodyprocessing.xml.eventhandlers.*;
 import com.ft.wordpressarticletransformer.transformer.eventhandlers.StripEmbeddedTweetXMLEventHandler;
 import com.ft.wordpressarticletransformer.transformer.eventhandlers.ClassVideoContainerXMLEventHandler;
 import com.ft.wordpressarticletransformer.transformer.eventhandlers.IframeSrcVideoXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.PlainTextHtmlEntityReferenceEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.RetainWithSpecificClassXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.RetainWithoutAttributesXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.RetainXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.StripElementAndContentsXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.StripElementByClassEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.StripXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandlerRegistry;
+import com.ft.bodyprocessing.xml.eventhandlers.RetainWithSpecificAttributesXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.LinkTagXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.BaseXMLEventHandler;
 
 /**
  * StructuredWordPressSourcedBodyXMLEventHandlerRegistry
@@ -35,7 +47,7 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		super.registerStartElementEventHandler(new LinkTagXMLEventHandler(), "a");
 		super.registerEndElementEventHandler(new LinkTagXMLEventHandler(), "a");
         registerStartAndEndElementEventHandler(inlineImageEventHandler(), "img");
-        registerStartAndEndElementEventHandler(inlineImageCaptionHadlerWithFallbackTo(new RetainWithoutAttributesXMLEventHandler()), "p");
+        registerStartAndEndElementEventHandler(inlineImageCaptionHandlerWithFallbackTo(new RetainWithoutAttributesXMLEventHandler()), "p");
 
         registerStartAndEndElementEventHandler(new ClassVideoContainerXMLEventHandler(
                 videoHandlerWithFallbackTo(new BaseXMLEventHandler())), "div");
@@ -88,7 +100,7 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
         return new RetainWithSpecificAttributesXMLEventHandler("src", "alt", "width", "height");
     }
 
-    private StripElementByClassEventHandler inlineImageCaptionHadlerWithFallbackTo(XMLEventHandler fallbackHandler) {
+    private StripElementByClassEventHandler inlineImageCaptionHandlerWithFallbackTo(XMLEventHandler fallbackHandler) {
         return new StripElementByClassEventHandler("wp-caption-text", fallbackHandler);
     }
 
