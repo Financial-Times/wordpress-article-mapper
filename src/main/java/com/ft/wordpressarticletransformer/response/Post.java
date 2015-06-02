@@ -30,6 +30,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "excerpt",
     "date",
     "modified",
+    "date_gmt",
+    "modified_gmt",
     "categories",
     "tags",
     "author",
@@ -63,6 +65,10 @@ public class Post {
     private String date;
     @JsonProperty("modified")
     private String modified;
+    @JsonProperty("date_gmt")
+    private String dateGmt;
+    @JsonProperty("modified_gmt")
+    private String modifiedGmt;
     @JsonProperty("categories")
     private List<Object> categories = new ArrayList<Object>();
     @JsonProperty("tags")
@@ -300,6 +306,26 @@ public class Post {
     @JsonProperty("modified")
     public void setModified(String modified) {
         this.modified = modified;
+    }
+
+    @JsonProperty("date_gmt")
+    public String getDateGmt() {
+        return dateGmt;
+    }
+
+    @JsonProperty("date_gmt")
+    public void setDateGmt(String dateGmt) {
+        this.dateGmt = dateGmt;
+    }
+
+    @JsonProperty("modified_gmt")
+    public String getModifiedGmt() {
+        return modifiedGmt;
+    }
+
+    @JsonProperty("modified_gmt")
+    public void setModifiedGmt(String modifiedGmt) {
+        this.modifiedGmt = modifiedGmt;
     }
 
     /**

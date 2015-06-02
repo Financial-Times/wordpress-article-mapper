@@ -1,8 +1,9 @@
 package com.ft.wordpressarticletransformer.transformer;
 
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
-import com.ft.bodyprocessing.xml.eventhandlers.BaseXMLEventHandler;
-import com.ft.bodyprocessing.xml.eventhandlers.LinkTagXMLEventHandler;
+import com.ft.wordpressarticletransformer.transformer.eventhandlers.StripEmbeddedTweetXMLEventHandler;
+import com.ft.wordpressarticletransformer.transformer.eventhandlers.ClassVideoContainerXMLEventHandler;
+import com.ft.wordpressarticletransformer.transformer.eventhandlers.IframeSrcVideoXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.PlainTextHtmlEntityReferenceEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.RetainWithSpecificClassXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.RetainWithoutAttributesXMLEventHandler;
@@ -13,9 +14,9 @@ import com.ft.bodyprocessing.xml.eventhandlers.StripElementByClassEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.StripXMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandlerRegistry;
-import com.ft.wordpressarticletransformer.transformer.eventhandlers.StripEmbeddedTweetXMLEventHandler;
-import com.ft.wordpressarticletransformer.transformer.eventhandlers.WordpressBrightcoveAndYoutubeVideoXMLEventHandler;
-import com.ft.wordpressarticletransformer.transformer.eventhandlers.WordpressVimeoAndYoutubeXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.RetainWithSpecificAttributesXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.LinkTagXMLEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.BaseXMLEventHandler;
 
 /**
  * StructuredWordPressSourcedBodyXMLEventHandlerRegistry
@@ -39,22 +40,19 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 				"h1","h2", "h3", "h4", "h5", "h6",
 				"ol", "ul", "li",
 				"br", "strong", "em", "small", "sub", "sup", "u",
-				"del", "p",
+				"del",
 				"itemBody"); // itemBody included as it will be a root node wrapping the body text so that the xml being written out is valid
 
 		// to be retained with attributes
 		super.registerStartElementEventHandler(new LinkTagXMLEventHandler(), "a");
 		super.registerEndElementEventHandler(new LinkTagXMLEventHandler(), "a");
-		super.registerStartAndEndElementEventHandler(removeForTheTimeBeing(), "img");
+        registerStartAndEndElementEventHandler(inlineImageEventHandler(), "img");
+        registerStartAndEndElementEventHandler(inlineImageCaptionHandlerWithFallbackTo(new RetainWithoutAttributesXMLEventHandler()), "p");
 
-        registerStartAndEndElementEventHandler(new WordpressBrightcoveAndYoutubeVideoXMLEventHandler("video-container",
-                videoHandlerWithFallbackTo(
-                        captionedImageHandlerWithFallbackTo(
-                                new BaseXMLEventHandler()
-                        ) )
-                ), "div");
+        registerStartAndEndElementEventHandler(new ClassVideoContainerXMLEventHandler(
+                videoHandlerWithFallbackTo(new BaseXMLEventHandler())), "div");
 
-        super.registerStartAndEndElementEventHandler(new WordpressVimeoAndYoutubeXMLEventHandler("src", new StripElementAndContentsXMLEventHandler(), videoMatcher), "iframe");
+        super.registerStartAndEndElementEventHandler(new IframeSrcVideoXMLEventHandler(new StripElementAndContentsXMLEventHandler(), videoMatcher), "iframe");
 
 		// to be transformed
 		super.registerStartAndEndElementEventHandler(new SimpleTransformTagXmlEventHandler("strong"), "b");
@@ -98,18 +96,15 @@ public class StructuredWordPressSourcedBodyXMLEventHandlerRegistry extends XMLEv
 		super.registerEntityReferenceEventHandler(new PlainTextHtmlEntityReferenceEventHandler());  // consistent with FastFT, NOT V1
 	}
 
-	private XMLEventHandler captionedImageHandlerWithFallbackTo(XMLEventHandler xmlEventHandler) {
-		return new StripElementByClassEventHandler("wp-caption",xmlEventHandler);
-	}
+    private RetainWithSpecificAttributesXMLEventHandler inlineImageEventHandler() {
+        return new RetainWithSpecificAttributesXMLEventHandler("src", "alt", "width", "height");
+    }
 
-	private XMLEventHandler videoHandlerWithFallbackTo(XMLEventHandler fallbackHandler) {
+    private StripElementByClassEventHandler inlineImageCaptionHandlerWithFallbackTo(XMLEventHandler fallbackHandler) {
+        return new StripElementByClassEventHandler("wp-caption-text", fallbackHandler);
+    }
+
+    private XMLEventHandler videoHandlerWithFallbackTo(XMLEventHandler fallbackHandler) {
 		return new StripElementByClassEventHandler("morevideo",fallbackHandler);
 	}
-
-	private XMLEventHandler removeForTheTimeBeing() {
-		return new StripXMLEventHandler();
-	}
-
-
-
 }

@@ -13,9 +13,9 @@ import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.bodyprocessing.transformer.FieldTransformerFactory;
 import com.ft.bodyprocessing.xml.StAXTransformingBodyProcessor;
+import com.ft.bodyprocessing.xml.TagSoupCleanupHtmlBodyProcessor;
+import com.ft.bodyprocessing.xml.TagSoupHtmlBodyProcessor;
 import com.ft.wordpressarticletransformer.transformer.html.RemoveEmptyElementsBodyProcessor;
-import com.ft.wordpressarticletransformer.transformer.html.TagSoupCleanupHtmlBodyProcessor;
-import com.ft.wordpressarticletransformer.transformer.html.TagSoupHtmlBodyProcessor;
 
 public class BodyProcessingFieldTransformerFactory implements FieldTransformerFactory {
 

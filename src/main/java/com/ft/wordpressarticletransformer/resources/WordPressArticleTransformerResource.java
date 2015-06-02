@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,9 +21,13 @@ import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
+import com.ft.content.model.Identifier;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSortedSet;
 import com.sun.jersey.api.NotFoundException;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -78,11 +83,28 @@ public class WordPressArticleTransformerResource {
 		if (postDetails == null) {
 			throw new NotFoundException();
 		}
-
-		String body = wrapBody(postDetails.getContent());
+		
+		String body = postDetails.getContent();
+		if (Strings.isNullOrEmpty(body)) {
+            throw ClientError.status(422)
+                    .error("Not a valid WordPress article for publication")
+                    .exception();
+		}
+		body = wrapBody(body);
 		
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
-		DateTime datePublished = formatter.parseDateTime(postDetails.getDate());
+		String publishedDateStr = null;
+        if(postDetails.getModifiedGmt() != null){
+            publishedDateStr = postDetails.getModifiedGmt();
+        }
+        else if (postDetails.getDateGmt() != null) {
+            publishedDateStr = postDetails.getDateGmt();
+        }
+        else {
+            LOGGER.error("Modified and Date GMT fields not found for : " + requestUri);
+            publishedDateStr = postDetails.getModified();
+        }
+        DateTime datePublished = formatter.parseDateTime(publishedDateStr);
 		
 		LOGGER.info("Returning content for uuid [{}].", validUuid.toString());
 
@@ -95,7 +117,7 @@ public class WordPressArticleTransformerResource {
 
         String originatingSystemId = brandSystemResolver.getOriginatingSystemId(requestUri);
         if(originatingSystemId == null){
-            LOGGER.error("Failed to resolve brand for uri [{}].", requestUri);
+            LOGGER.error("Failed to resolve originatingSystemId for uri [{}].", requestUri);
             throw ServerError.status(500).error(String.format("Failed to resolve originatingSystemId for uri [%s].", requestUri)).exception();
         }
 
@@ -106,7 +128,7 @@ public class WordPressArticleTransformerResource {
                 .withPublishedDate(datePublished.toDate())
                 .withXmlBody(tidiedUpBody(body, transactionId))
                 .withByline(postDetails.getAuthor().getName())
-                .withContentOrigin(originatingSystemId, postDetails.getUrl())
+                .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                 .withBrands(resolvedBrandWrappedInASet)
                 .withUuid(validUuid).build();
 	}

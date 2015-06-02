@@ -20,9 +20,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WordpressBrightcoveAndYoutubeVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
+public class ClassVideoContainerXMLEventHandlerTest extends BaseXMLEventHandlerTest {
 
-    private WordpressBrightcoveAndYoutubeVideoXMLEventHandler eventHandler;
+    private ClassVideoContainerXMLEventHandler eventHandler;
 
     @Mock private BaseXMLEventHandler fallBackHandler;
     @Mock private XMLEventReader mockXMLEventReader;
@@ -35,7 +35,7 @@ public class WordpressBrightcoveAndYoutubeVideoXMLEventHandlerTest extends BaseX
     private static final String INCORRECT_TARGETED_CLASS_VALUE = "wrong-value";
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
     private static final String BRIGHTCOVE_ATTRIBUTE_VALUE = "4035805662001";
-    private static final String YOUTUBE_ATTRIBUTE_VALUE = "OQzJR3BqS7o";
+    private static final String YOUTUBE_ATTRIBUTE_VALUE = "OQ-JR3B_S7o";
     private static final String VIDEO_SOURCE_ATTRIBUTE = "data-asset-source";
     private static final String BRIGHTCOVE_SOURCE = "http://video.ft.com/";
     private static final String VIDEO_SOURCE_ATTRIBUTE_BRIGHTCOVE = "Brightcove";
@@ -46,7 +46,7 @@ public class WordpressBrightcoveAndYoutubeVideoXMLEventHandlerTest extends BaseX
 
     @Before
     public void setUp() {
-        eventHandler = new WordpressBrightcoveAndYoutubeVideoXMLEventHandler(TARGETED_CLASS_VALUE, fallBackHandler);
+        eventHandler = new ClassVideoContainerXMLEventHandler(fallBackHandler);
     }
 
     @Test
@@ -77,8 +77,8 @@ public class WordpressBrightcoveAndYoutubeVideoXMLEventHandlerTest extends BaseX
         String videoUrl = BRIGHTCOVE_SOURCE + BRIGHTCOVE_ATTRIBUTE_VALUE;
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
-		transformedElementAttributes.put(WordpressBrightcoveAndYoutubeVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressBrightcoveAndYoutubeVideoXMLEventHandler.VIDEO);
-		transformedElementAttributes.put(WordpressBrightcoveAndYoutubeVideoXMLEventHandler.DATA_EMBEDDED, WordpressBrightcoveAndYoutubeVideoXMLEventHandler.TRUE);
+		transformedElementAttributes.put(ClassVideoContainerXMLEventHandler.DATA_ASSET_TYPE, ClassVideoContainerXMLEventHandler.VIDEO);
+		transformedElementAttributes.put(ClassVideoContainerXMLEventHandler.DATA_EMBEDDED, ClassVideoContainerXMLEventHandler.TRUE);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
@@ -104,8 +104,8 @@ public class WordpressBrightcoveAndYoutubeVideoXMLEventHandlerTest extends BaseX
         String videoUrl = YOUTUBE_SOURCE + YOUTUBE_ATTRIBUTE_VALUE;
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
-		transformedElementAttributes.put(WordpressBrightcoveAndYoutubeVideoXMLEventHandler.DATA_ASSET_TYPE, WordpressBrightcoveAndYoutubeVideoXMLEventHandler.VIDEO);
-		transformedElementAttributes.put(WordpressBrightcoveAndYoutubeVideoXMLEventHandler.DATA_EMBEDDED, WordpressBrightcoveAndYoutubeVideoXMLEventHandler.TRUE);
+		transformedElementAttributes.put(ClassVideoContainerXMLEventHandler.DATA_ASSET_TYPE, ClassVideoContainerXMLEventHandler.VIDEO);
+		transformedElementAttributes.put(ClassVideoContainerXMLEventHandler.DATA_EMBEDDED, ClassVideoContainerXMLEventHandler.TRUE);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);

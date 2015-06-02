@@ -33,7 +33,6 @@ Feature: Body processing
     | ol      |
     | ul      |
     | li      |
-    | p       |
     | del     |
     | u       |
 
@@ -101,7 +100,6 @@ Feature: Body processing
 
   Examples: Remove tag but leave any content - these are just some examples, by default anything not specified separately will be treated like this
     | tagname | html                                           |
-    | img     | <img src="abc.jpg"/>                           |
     | !--     | <!-- comments -->                              |
     | weird   | <weird>text surrounded by unknown tags</weird> |
     | code    | <code>Why would they ever use code?</code>     |
@@ -114,9 +112,7 @@ Feature: Body processing
 
   Examples:
     | with inline asset                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | without inline asset                                                                   |
-    | <p>Check this chart out!</p><p><a href="http://uat.ftalphaville.ft.com/files/2014/10/Chart5.png" target="_blank"><img class="aligncenter size-full wp-image-2012992" src="http://uat.ftalphaville.ft.com/files/2014/10/Chart5-e1413767777269.png" alt="" width="300" height="660" /></a></p><p>Profit!</p>                                                                                                                                                                                                                                                                                                                   | <p>Check this chart out!</p><p>Profit!</p>                                             |
     | <p>Confusion:</p><div class="morevideo"><a href="http://video.ft.com/">More video</a></div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | <p>Confusion:</p>                                                                      |
-    | <p>Image:</p><div id="attachment_2015044" class="wp-caption alignnone" style="width: 282px"><a href="http://uat.ftalphaville.ft.com/files/2014/11/holy_grail_arthur_sees1.jpg" target="_blank"><img class="size-medium wp-image-2015044" src="http://uat.ftalphaville.ft.com/files/2014/11/holy_grail_arthur_sees1-272x149.jpg" alt="I am Arther, King of the Britons Alt Text" width="272" height="149" /></a><p class="wp-caption-text" data-img-id="2015044">I am Arther, King of the Britons Caption</p></div>                                                                                                           | <p>Image:</p>                                                                          |
     | <blockquote><p>This is a fine quote. Cometh the man, cometh the hour.</p></blockquote>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | <blockquote><p>This is a fine quote. Cometh the man, cometh the hour.</p></blockquote> |
 
   Scenario Outline: Fix markup problems

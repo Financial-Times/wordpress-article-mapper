@@ -24,9 +24,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WordpressVimeoAndYoutubeXMLEventHandlerTest extends BaseXMLEventHandlerTest {
+public class IframeSrcVideoXMLEventHandlerTest extends BaseXMLEventHandlerTest {
 
-    private WordpressVimeoAndYoutubeXMLEventHandler eventHandler;
+    private IframeSrcVideoXMLEventHandler eventHandler;
     private Video video;
 
     @Mock private StripElementAndContentsXMLEventHandler fallbackHandler;
@@ -36,7 +36,6 @@ public class WordpressVimeoAndYoutubeXMLEventHandlerTest extends BaseXMLEventHan
     @Mock private VideoMatcher videoMatcher;
 
     private static final String IFRAME = "iframe";
-    private static final String SRC = "src";
     private static final String STANDARDIZED_VIMEO = "https://www.vimeo.com/77761436";
     private static final String STANDARDIZED_YOUTUBE = "https://www.youtube.com/watch?v=OQzJR3BqS7o";
     private static final String NEW_ELEMENT = "a";
@@ -48,7 +47,7 @@ public class WordpressVimeoAndYoutubeXMLEventHandlerTest extends BaseXMLEventHan
 
     @Before
     public void setUp() {
-        eventHandler = new WordpressVimeoAndYoutubeXMLEventHandler(SRC, fallbackHandler, videoMatcher);
+        eventHandler = new IframeSrcVideoXMLEventHandler(fallbackHandler, videoMatcher);
         video = new Video();
     }
 

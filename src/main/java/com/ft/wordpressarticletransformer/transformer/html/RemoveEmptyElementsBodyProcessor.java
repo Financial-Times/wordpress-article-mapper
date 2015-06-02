@@ -9,7 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import com.ft.bodyprocessing.BodyProcessingContext;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.BodyProcessor;
-import com.ft.wordpressarticletransformer.transformer.Xml;
+import com.ft.bodyprocessing.Xml;
 import com.google.common.base.Strings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

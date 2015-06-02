@@ -304,16 +304,25 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "<p>Some YouTube video:</p>" +
                 "<div class='video-container video-container-youtube' data-aspect-ratio='16:9'>" +
                 "<div data-asset-type='video' data-asset-source='YouTube' data-asset-ref='fRqCVcSWbDc'>" +
-                "<iframe width='590' height='331' src='http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent' frameborder='0'></iframe></div></div>" +
-                "<p>An Image:</p>" +
-                "<div id=\"attachment_2048592\" class=\"wp-caption align none\" style=\"width: 282px\">" +
-                "<a href=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman.jpg\" target=\"_blank\">" +
-                "<img class=\"size-medium wp-image-2048592\" title=\"PubQuizGoldman\" src=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman-272x188.jpg\" alt=\"Alternate Text\" width=\"272\" height=\"188\" data-img-id=\"2048592\" /></a>" +
-                "<p class=\"wp-caption-text\" data-img-id=\"2048592\">Caption for this image</p></div></body>";
-        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a><p>An Image:</p></body>";
+                "<iframe width='590' height='331' src='http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent' frameborder='0'></iframe></div></div></body>";
+        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
         when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleYouTubeVideo);
         checkTransformation(videoText, expectedYouTube);
     }
+
+    @Test
+    public void testShouldRetainImgTagWithValidAttributes() {
+        String imageText = "<body><img class=\"size-medium wp-image-2015044\" src=\"http://uat.ftalphaville.ft.com/files/2014/11/holy_grail_arthur_sees1-272x149.jpg\" alt=\"I am Arther, King of the Britons Alt Text\" width=\"272\" height=\"149\" /></body>";
+        checkTransformation(imageText, "<body><img alt=\"I am Arther, King of the Britons Alt Text\" height=\"149\" src=\"http://uat.ftalphaville.ft.com/files/2014/11/holy_grail_arthur_sees1-272x149.jpg\" width=\"272\"/></body>");
+    }
+
+    @Test
+    public void testShouldRemoveImageCaption() {
+        String imageWithCaptionText = "<body><img class=\"size-medium wp-image-2048592\" title=\"PubQuizGoldman\" src=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman-272x188.jpg\" alt=\"Alternate Text\" width=\"272\" height=\"188\" data-img-id=\"2048592\" />" +
+                "<p class=\"wp-caption-text\" data-img-id=\"2048592\">Caption for this image</p></div></body>";
+        checkTransformation(imageWithCaptionText, "<body><img alt=\"Alternate Text\" height=\"188\" src=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman-272x188.jpg\" width=\"272\"/></body>");
+    }
+
 
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
         String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
