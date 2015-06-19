@@ -27,10 +27,8 @@ import com.ft.content.model.Identifier;
 import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Lists;
 import com.sun.jersey.api.NotFoundException;
 
 import org.joda.time.DateTime;
