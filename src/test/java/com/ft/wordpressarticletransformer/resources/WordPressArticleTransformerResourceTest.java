@@ -121,6 +121,16 @@ public class WordPressArticleTransformerResourceTest {
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
 	}
+    
+    @Test
+    public void shouldReturn500WhenContentTypeNotJsonReturnedFromWordpress() {
+        final String requestUri = "/request_to_word_press_invalid_content_type/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+        
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("Response not application/json")); 
+    }
 
     @Test
     public void shouldReturn404WhenTypeNotPostFromWordpress() {

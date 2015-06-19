@@ -1,0 +1,16 @@
+{
+	"request" : {
+		"urlPattern" : "/request_to_word_press_invalid_content_type.*",
+		"method" : "GET"
+	},
+	"response" : {
+		"status" : 200,
+		"bodyFileName" : "WILL_RETURN_200-incorrect-content-type.json",
+		"headers" : {
+			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
+			"Content-Type" : "text/html",
+			"Vary" : "Accept-Encoding, User-Agent",
+			"Transfer-Encoding" : "chunked"
+		}
+	}
+}

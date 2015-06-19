@@ -12,6 +12,7 @@ import java.net.URI;
 
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import org.junit.rules.ExpectedException;
 import com.codahale.metrics.MetricRegistry;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
+import com.google.common.collect.ImmutableList;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandler;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -28,6 +30,8 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import java.util.UUID;
+
+import javax.ws.rs.core.MultivaluedMap;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,6 +44,7 @@ public class WordPressResilientClientTest {
     private WordPressResponse mockWordPressResponse = mock(WordPressResponse.class);
     private WordPressMostRecentPostsResponse mockWordPressMostRecentPostsResponse = mock(WordPressMostRecentPostsResponse.class);
     private Post mockPost = mock(Post.class);
+    private MultivaluedMap<String,String> mockHeaders = mock(MultivaluedMap.class);
 
     private static final int SUCCESSFUL_RESPONSE_STATUS_CODE = 200;
     private static final int ERROR_RESPONSE_STATUS_CODE = 400;
@@ -69,7 +74,8 @@ public class WordPressResilientClientTest {
     @Before
     public void setup() {
         wordPressResilientClient = new WordPressResilientClient(mockClient, appMetrics, 3, WP.EXAMPLE_API_KEY);
-        when(clientResponse.getHeaders()).thenReturn(new MultivaluedMapImpl());
+        when(clientResponse.getHeaders()).thenReturn(mockHeaders);
+        when(mockHeaders.get("Content-Type")).thenReturn(ImmutableList.of("application/json"));
         wordPressConnection = new WordPressConnection(hostname, path, port);
     }
 
@@ -108,6 +114,17 @@ public class WordPressResilientClientTest {
         Post post = wordPressResilientClient.getContent(requestUri, uuid, transactionId());
         assertThat(post, is(equalTo(mockWordPressResponse.getPost())));
         verify(handler, times(2)).handle(any(ClientRequest.class));
+    }
+
+    @Test(expected=InvalidContentTypeException.class)
+    public void shouldThrowInvalidContentTypeExceptionWhenContentTypeNotApplicationJsonForGetContent() {
+        when(clientResponse.getEntity(String.class)).thenReturn("<html><p>Not json</p></html>");
+        when(handler.handle(any(ClientRequest.class)))
+                .thenReturn(clientResponse);
+        when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
+        when(mockHeaders.get("Content-Type")).thenReturn(ImmutableList.of("text/html"));
+        when(mockWordPressResponse.getStatus()).thenReturn(STATUS_NULL);
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
     @Test(expected=InvalidResponseException.class)

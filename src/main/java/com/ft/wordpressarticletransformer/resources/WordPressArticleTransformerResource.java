@@ -179,7 +179,8 @@ public class WordPressArticleTransformerResource {
             throw ClientError.status(404).error(e.getMessage()).exception(e);
         } catch (PostNotFoundException e) {
             throw ClientError.status(404).context(uuid).error(e.getMessage()).exception(e);
-        } catch (UnexpectedErrorCodeException | UnexpectedStatusFieldException | UnexpectedStatusCodeException e) {
+        } catch (UnexpectedErrorCodeException | UnexpectedStatusFieldException 
+                | UnexpectedStatusCodeException | InvalidContentTypeException e) {
             throw ServerError.status(500).error(e.getMessage()).exception(e);
         } catch (RequestFailedException | CannotConnectToWordPressException e) {
             throw ServerError.status(503).error(e.getMessage()).exception(e);

@@ -3,7 +3,6 @@ package com.ft.wordpressarticletransformer.resources;
 import java.io.IOException;
 import java.net.URI;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
@@ -24,6 +23,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+import java.util.List;
 import java.util.UUID;
 
 public class WordPressResilientClient {
@@ -154,10 +154,11 @@ public class WordPressResilientClient {
 
         if (responseStatusFamily == 2) {
 
-            //TODO - replace with code that checks the content type returned is application/json,
-            // and throws an appropriate exception if it isn't
-            String wordPressResponseString = response.getEntity(String.class);
-            LOGGER.error("Response not application/json, response body =" + wordPressResponseString);
+            MultivaluedMap<String, String> headers = response.getHeaders();
+            List<String> contentTypes = headers.get("Content-Type");
+            if (contentTypes == null || !contentTypes.stream().anyMatch(ct -> ct.contains("application/json"))) {
+                throw new InvalidContentTypeException(contentTypes, response, requestUri);
+            }
             
             wordPressResponse = response.getEntity(WordPressResponse.class);
             String status = wordPressResponse.getStatus();

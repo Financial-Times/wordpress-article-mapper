@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta content="width=300, initial-scale=1" name="viewport">
+  <meta name="google-site-verification" content="LrdTUW9psUAMbh4Ia074-BPEVmcpBxF6Gwf0MSgQXZs">
+  <title>Sign in - Google Accounts</title>
+  <style>
+  @font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Open Sans Light'), local('OpenSans-Light'), url(//fonts.gstatic.com/s/opensans/v13/DXI1ORHCpsQm3Vp6mXoaTYnF5uFdDttMLvmWuJdhhgs.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url(//fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf) format('truetype');
+}
+  </style>
+  </head>
+  <body>
+  <div class="wrapper">
+  <div class="google-header-bar  centered">
+  <div class="header content clearfix">
+  <img alt="Google" class="logo" src="//ssl.gstatic.com/accounts/ui/logo_2x.png">
+  </div>
+  </div>
+  <div class="main content clearfix">
+<div class="banner">
+  <h2>
+  Sign in with your Google Account
+  </h2>
+</div>
+<div class="card signin-card clearfix">
+<img class="profile-img" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" alt="">
+<p class="profile-name"></p>
+  <form novalidate method="post" action="https://accounts.google.com/ServiceLoginAuth" id="gaia_loginform">
+  <input name="GALX" type="hidden"
+           value="jcJajEQXEyw">
+  <input name="continue" type="hidden" value="https://accounts.google.com/o/oauth2/auth?zt=ChRFQktmVS1sbjdGSGpURm5Hb2sybxIfd25ybHI2NnVKRzhib2lJQmVPNlAybS1xbWFrWG5BSQ%E2%88%99APsBz4gAAAAAVYQRCFyYkddLZNb2BlrYkxwVyeNdTBEn&amp;from_login=1&amp;hl=en-GB&amp;as=-1421ad4b9dd67df6">
+  <input name="ltmpl" type="hidden" value="popup">
+  <input name="scc" type="hidden" value="1">
+  <input name="sarp" type="hidden" value="1">
+  <input name="oauth" type="hidden" value="1">
+  <input type="hidden" id="_utf8" name="_utf8" value="&#9731;"/>
+  <input type="hidden" name="bgresponse" id="bgresponse" value="js_disabled">
+<label class="hidden-label" for="Email">Email</label>
+<input id="Email" name="Email" type="email"
+       placeholder="Email"
+       value=""
+       spellcheck="false"
+       class="">
+<label class="hidden-label" for="Passwd">Password</label>
+<input id="Passwd" name="Passwd" type="password"
+       placeholder="Password"
+       class="">
+<input id="signIn" name="signIn" class="rc-button rc-button-submit" type="submit" value="Sign in">
+  <input type="hidden" name="PersistentCookie" value="yes">
+  <a id="link-forgot-passwd" href="https://accounts.google.com/RecoverAccount?continue=https%3A%2F%2Faccounts.google.com%2Fo%2Foauth2%2Fauth%3Fzt%3DChRFQktmVS1sbjdGSGpURm5Hb2sybxIfd25ybHI2NnVKRzhib2lJQmVPNlAybS1xbWFrWG5BSQ%25E2%2588%2599APsBz4gAAAAAVYQRCFyYkddLZNb2BlrYkxwVyeNdTBEn%26from_login%3D1%26hl%3Den-GB%26as%3D-1421ad4b9dd67df6"
+       
+       >
+  Need help?
+  </a>
+  </form>
+</div>
+<div class="one-google">
+  <p class="create-account">
+  <a id="link-signup" href="https://accounts.google.com/SignUp?continue=https%3A%2F%2Faccounts.google.com%2Fo%2Foauth2%2Fauth%3Fzt%3DChRFQktmVS1sbjdGSGpURm5Hb2sybxIfd25ybHI2NnVKRzhib2lJQmVPNlAybS1xbWFrWG5BSQ%25E2%2588%2599APsBz4gAAAAAVYQRCFyYkddLZNb2BlrYkxwVyeNdTBEn%26from_login%3D1%26hl%3Den-GB%26as%3D-1421ad4b9dd67df6&amp;ltmpl=popup">
+  Create an account
+  </a>
+  </p>
+<p class="tagline">
+  One Google Account for everything Google
+</p>
+<img src="//ssl.gstatic.com/accounts/ui/logo_strip_2x.png" width="210" height="17" alt="">
+</div>
+  </div>
+  <div class="google-footer-bar">
+  <div class="footer content clearfix">
+  <ul id="footer-list">
+  <li>
+  <a href="https://www.google.com/intl/en/about" target="_blank">
+  About Google
+  </a>
+  </li>
+  <li>
+  <a href="https://accounts.google.com/TOS?loc=GB&hl=en&privacy=true" target="_blank">
+  Privacy
+  </a>
+  </li>
+  <li>
+  <a href="https://accounts.google.com/TOS?loc=GB&hl=en" target="_blank">
+  Terms
+  </a>
+  </li>
+  <li>
+  <a href="http://www.google.com/support/accounts?hl=en" target="_blank">
+  Help
+  </a>
+  </li>
+  </ul>
+  </div>
+</div>
+  </div>
+
+
+  </body>
+</html>
