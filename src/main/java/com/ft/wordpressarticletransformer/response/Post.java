@@ -35,6 +35,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "categories",
     "tags",
     "author",
+    "authors",
     "comments",
     "attachments",
     "comment_count",
@@ -75,6 +76,8 @@ public class Post {
     private List<Object> tags = new ArrayList<Object>();
     @JsonProperty("author")
     private Author author;
+    @JsonProperty("authors")
+    private List<Author> authors;
     @JsonProperty("comments")
     private List<Object> comments = new ArrayList<Object>();
     @JsonProperty("attachments")
@@ -374,6 +377,7 @@ public class Post {
      *     The author
      */
     @JsonProperty("author")
+    @Deprecated()
     public Author getAuthor() {
         return author;
     }
@@ -384,8 +388,29 @@ public class Post {
      *     The author
      */
     @JsonProperty("author")
+    @Deprecated
     public void setAuthor(Author author) {
         this.author = author;
+    }
+
+    /**
+     * 
+     * @return
+     *     The authors
+     */
+    @JsonProperty("authors")
+    public List<Author> getAuthors() {
+        return authors;
+    }
+
+    /**
+     * 
+     * @param authors
+     *     The authors
+     */
+    @JsonProperty("authors")
+    public void setAuthors(List<Author> authors) {
+        this.authors = authors;
     }
 
     /**
