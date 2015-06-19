@@ -5,7 +5,7 @@
 	},
 	"response" : {
 		"status" : 200,
-		"bodyFileName" : "WILL_RETURN_200-body-from-wordpress-with-author.json",
+		"bodyFileName" : "WILL_RETURN_200-body-with-author-from-wordpress.json",
 		"headers" : {
 			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
 			"Content-Type" : "application/json",
