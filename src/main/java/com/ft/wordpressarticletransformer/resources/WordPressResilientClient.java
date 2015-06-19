@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.wordpressarticletransformer.response.WPFormat;
@@ -153,6 +154,11 @@ public class WordPressResilientClient {
 
         if (responseStatusFamily == 2) {
 
+            //TODO - replace with code that checks the content type returned is application/json,
+            // and throws an appropriate exception if it isn't
+            String wordPressResponseString = response.getEntity(String.class);
+            LOGGER.error("Response not application/json, response body =" + wordPressResponseString);
+            
             wordPressResponse = response.getEntity(WordPressResponse.class);
             String status = wordPressResponse.getStatus();
 
