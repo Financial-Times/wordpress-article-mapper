@@ -16,38 +16,6 @@
         "modified_gmt": "2014-10-21 08:45:30",
         "categories": [],
         "tags": [],
-        "authors": [
-            {
-                "id": 1,
-                "slug": "Assanka-2",
-                "name": "FT Labs Administrator",
-                "first_name": "",
-                "last_name": "",
-                "nickname": "FT Labs Administrator",
-                "url": "",
-                "description": ""
-            },
-            {
-                "id": 6992,
-                "slug": "janmajek",
-                "name": "Jan Majek",
-                "first_name": "Jan",
-                "last_name": "Majek",
-                "nickname": "janmajek",
-                "url": "",
-                "description": ""
-            },
-            {
-                "id": 3481,
-                "slug": "adambraimbridge",
-                "name": "Adam Braimbridge",
-                "first_name": "Adam",
-                "last_name": "Braimbridge",
-                "nickname": "adambraimbridge",
-                "url": "",
-                "description": "Developer for the Financial Times."
-            }
-        ],
         "comments": [],
         "attachments": [],
         "comment_count": 0,

@@ -59,7 +59,7 @@ public class WordPressArticleTransformerResourceTest {
 		Content receivedContent = clientResponse.getEntity(Content.class);
 		assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
 		assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
-		assertThat("byline", receivedContent.getByline(), is(equalTo("David Keohane")));
+		assertThat("byline", receivedContent.getByline(), is(equalTo("FT Labs Administrator, Jan Majek, Adam Braimbridge")));
         assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
 		assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
 		assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
@@ -67,6 +67,36 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
 	}
 
+    @Test
+    @Deprecated //This should be removed once author gets removed from Wordpress json api.
+    public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPressWithAuthorFieldRatherThanAuthors() {
+        final String requestUri = "/request_to_word_press_200_ok_with_author/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+
+        Content receivedContent = clientResponse.getEntity(Content.class);
+        assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
+        assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
+        assertThat("byline", receivedContent.getByline(), is(equalTo("David Keohane")));
+        assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
+        assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
+        assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
+        assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
+        assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
+    }
+
+    @Test
+    public void shouldReturn500WhenNoAuthorsReturnedFromWordpress() {
+        final String requestUri = "/request_to_word_press_200_ok_with_no_author_no_authors/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+        
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("article has no authors")); 
+        
+    }
 	
 	@Test
 	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?

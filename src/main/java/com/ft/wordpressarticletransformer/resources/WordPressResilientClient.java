@@ -3,12 +3,14 @@ package com.ft.wordpressarticletransformer.resources;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.wordpressarticletransformer.response.WPFormat;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +19,6 @@ import com.codahale.metrics.Timer;
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
-
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;

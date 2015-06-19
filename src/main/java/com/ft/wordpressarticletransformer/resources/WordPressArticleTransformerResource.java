@@ -1,9 +1,11 @@
 package com.ft.wordpressarticletransformer.resources;
 
 import java.net.URI;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,10 +24,13 @@ import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.content.model.Identifier;
+import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Lists;
 import com.sun.jersey.api.NotFoundException;
 
 import org.joda.time.DateTime;
@@ -127,11 +132,23 @@ public class WordPressArticleTransformerResource {
         return Content.builder().withTitle(postDetails.getTitle())
                 .withPublishedDate(datePublished.toDate())
                 .withXmlBody(tidiedUpBody(body, transactionId))
-                .withByline(postDetails.getAuthor().getName())
+                .withByline(createBylineFromAuthors(postDetails))
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                 .withBrands(resolvedBrandWrappedInASet)
                 .withUuid(validUuid).build();
 	}
+
+    private String createBylineFromAuthors(Post postDetails) {
+        List<Author> authorsList = postDetails.getAuthors();
+        
+        if (authorsList != null) {
+            return authorsList.stream().map(i -> i.getName()).collect(Collectors.joining(", "));
+        } else if (postDetails.getAuthor()!= null) {
+            return postDetails.getAuthor().getName();
+        }
+        LOGGER.error("Failed to construct byline");
+        throw ServerError.status(500).error("article has no authors").exception();
+    }
 
     private String tidiedUpBody(String body, String transactionId) {
         try {
