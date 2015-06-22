@@ -2,17 +2,17 @@ package com.ft.wordpressarticletransformer.resources;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
-//import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
-//import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
 import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
 
-//import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.content.model.Brand;
-//import com.ft.content.model.Content;
+import com.ft.content.model.Content;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -48,44 +48,44 @@ public class WordPressArticleTransformerResourceTest {
         publishedDate = formatter.parseDateTime("2014-10-21 08:45:30");
 	}
 
-//	@Test
-//	public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPress() {
-//        final String requestUri = "/request_to_word_press_200_ok/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
-//
-//		Content receivedContent = clientResponse.getEntity(Content.class);
-//		assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
-//		assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
-//		assertThat("byline", receivedContent.getByline(), is(equalTo("FT Labs Administrator, Jan Majek, Adam Braimbridge")));
-//        assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
-//		assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
-//		assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
-//		assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
-//		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
-//	}
+	@Test
+	public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPress() {
+        final String requestUri = "/request_to_word_press_200_ok/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
-//    @Test
-//    @Deprecated //This should be removed once author gets removed from Wordpress json api.
-//    public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPressWithAuthorFieldRatherThanAuthors() {
-//        final String requestUri = "/request_to_word_press_200_ok_with_author/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
-//
-//        Content receivedContent = clientResponse.getEntity(Content.class);
-//        assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
-//        assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
-//        assertThat("byline", receivedContent.getByline(), is(equalTo("David Keohane")));
-//        assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
-//        assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
-//        assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
-//        assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
-//        assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
-//    }
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+
+		Content receivedContent = clientResponse.getEntity(Content.class);
+		assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
+		assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
+		assertThat("byline", receivedContent.getByline(), is(equalTo("FT Labs Administrator, Jan Majek, Adam Braimbridge")));
+        assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
+		assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
+		assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
+		assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
+		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
+	}
+
+    @Test
+    @Deprecated //This should be removed once author gets removed from Wordpress json api.
+    public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPressWithAuthorFieldRatherThanAuthors() {
+        final String requestUri = "/request_to_word_press_200_ok_with_author/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+
+        Content receivedContent = clientResponse.getEntity(Content.class);
+        assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
+        assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
+        assertThat("byline", receivedContent.getByline(), is(equalTo("David Keohane")));
+        assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
+        assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
+        assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
+        assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
+        assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
+    }
 
     @Test
     public void shouldReturn500WhenNoAuthorsReturnedFromWordpress() {
@@ -98,148 +98,148 @@ public class WordPressArticleTransformerResourceTest {
         assertThat("response didn't have expected error, bodyResponse=" + bodyResponse, bodyResponse, containsString("article has no authors"));
     }
 	
-//	@Test
-//	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
-//	public void shouldReturn404WithUuidWhenWordpressReturnsStatusErrorAndErrorNotFound() {
-//        final String requestUri = "/request_to_word_press_error_not_found/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-//        assertThat("response", clientResponse.getEntity(String.class), containsString("\"uuid\"")); //i.e. json field "uuid"
-//	}
-//
-//
-//    /**
-//     * The endpoint generally returns 200, even for errors, so a 404 means we have the wrong URL.
-//     */
-//    @Test
-//	public void shouldReturn500When404ReturnedFromWordpress() {
-//        final String requestUri = "/request_to_word_press_404/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
-//	}
-//
-//    @Test
-//    public void shouldReturn500WhenContentTypeNotJsonReturnedFromWordpress() {
-//        final String requestUri = "/request_to_word_press_invalid_content_type/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
-//        assertThat("response", clientResponse.getEntity(String.class), containsString("Response not application/json"));
-//    }
-//
-//    @Test
-//    public void shouldReturn404WhenTypeNotPostFromWordpress() {
-//        final String requestUri = "/request_to_word_press_200_not_type_post/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-//        assertThat("response", clientResponse.getEntity(String.class), containsString("markets-live"));
-//    }
-//
-//    @Test
-//    public void shouldReturn400WhenUuidIsNotValid() {
-//        final String requestUri = "/no_request_to_word_press_expected/?json=1";
-//        final URI uri = buildTransformerUrl("ABC-1234", WORDPRESS_BASE_URL + requestUri);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
-//    }
-//
-//	@Test
-//	public void shouldReturn405WhenNoUuidSupplied() {
-//        final String requestUri = "/no_request_to_word_press_expected/?json=1";
-//        final URI uri = buildTransformerUrlWithIdMissing(WORDPRESS_BASE_URL + requestUri);
-//
-//		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//		assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
-//	}
-//
-//    @Test
-//    public void shouldReturn400WhenNoUrlSupplied() {
-//       final URI uri = buildTransformerUrlWithUrlMissing(UUID);
-//
-//       final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//       assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
-//    }
-//
-//
-//    @Test
-//    public void shouldReturn400WhenUrlIsNotValid() {
-//        final String requestUri = "werhjwekrhjerwkh";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
-//    }
-//
-//    @Test
-//    public void shouldReturn400WhenResponseNotAValidWordpressResponse() {
-//        final String requestUri = "/request_to_word_press_non_word_press_response/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
-//    }
-//
-//
-//	@Test
-//	public void shouldReturn503When500ReturnedFromWordpress() {
-//        final String requestUri = "/request_to_word_press_500/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
-//	}
-//
-//
-//    @Test
-//	public void shouldReturn503WhenCannotConnectToWordpress() {
-//        final String requestUri = "/request_to_word_press_cannot_connect/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-//		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
-//	}
-//
-//
-//	@Test
-//	public void shouldAddApiKeyToUpstreamRequest() {
-//        final String requestUri = "/request_to_word_press_200_ok/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//        String transactionID = java.util.UUID.randomUUID().toString();
-//
-//		final ClientResponse clientResponse = client.resource(uri)
-//                .header(TransactionIdUtils.TRANSACTION_ID_HEADER,transactionID)
-//                .get(ClientResponse.class);
-//		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
-//
-//		String urlWithKeyAdded = requestUri + "&api_key="+ WP.EXAMPLE_API_KEY + "&cache_buster="+ transactionID;
-//
-//		WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
-//
-//
-//	}
-//
-//	@Test
-//	public void thatArticleWithEmptyBodyReturns422() {
-//	    final String requestUri = "/request_to_word_press_200_post_empty_content/?json=1";
-//        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
-//
-//        String transactionID = java.util.UUID.randomUUID().toString();
-//
-//        final ClientResponse clientResponse = client.resource(uri)
-//                .header(TransactionIdUtils.TRANSACTION_ID_HEADER, transactionID)
-//                .get(ClientResponse.class);
-//
-//        assertThat("response", clientResponse, hasProperty("status", equalTo(422)));
-//	}
+	@Test
+	// this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
+	public void shouldReturn404WithUuidWhenWordpressReturnsStatusErrorAndErrorNotFound() {
+        final String requestUri = "/request_to_word_press_error_not_found/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("\"uuid\"")); //i.e. json field "uuid"
+	}
+
+
+    /**
+     * The endpoint generally returns 200, even for errors, so a 404 means we have the wrong URL.
+     */
+    @Test
+	public void shouldReturn500When404ReturnedFromWordpress() {
+        final String requestUri = "/request_to_word_press_404/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+	}
+
+    @Test
+    public void shouldReturn500WhenContentTypeNotJsonReturnedFromWordpress() {
+        final String requestUri = "/request_to_word_press_invalid_content_type/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("Response not application/json"));
+    }
+
+    @Test
+    public void shouldReturn404WhenTypeNotPostFromWordpress() {
+        final String requestUri = "/request_to_word_press_200_not_type_post/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+        assertThat("response", clientResponse.getEntity(String.class), containsString("markets-live"));
+    }
+
+    @Test
+    public void shouldReturn400WhenUuidIsNotValid() {
+        final String requestUri = "/no_request_to_word_press_expected/?json=1";
+        final URI uri = buildTransformerUrl("ABC-1234", WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+    }
+
+	@Test
+	public void shouldReturn405WhenNoUuidSupplied() {
+        final String requestUri = "/no_request_to_word_press_expected/?json=1";
+        final URI uri = buildTransformerUrlWithIdMissing(WORDPRESS_BASE_URL + requestUri);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
+	}
+
+    @Test
+    public void shouldReturn400WhenNoUrlSupplied() {
+       final URI uri = buildTransformerUrlWithUrlMissing(UUID);
+
+       final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+       assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+    }
+
+
+    @Test
+    public void shouldReturn400WhenUrlIsNotValid() {
+        final String requestUri = "werhjwekrhjerwkh";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+    }
+
+    @Test
+    public void shouldReturn400WhenResponseNotAValidWordpressResponse() {
+        final String requestUri = "/request_to_word_press_non_word_press_response/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+    }
+
+
+	@Test
+	public void shouldReturn503When500ReturnedFromWordpress() {
+        final String requestUri = "/request_to_word_press_500/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+	}
+
+
+    @Test
+	public void shouldReturn503WhenCannotConnectToWordpress() {
+        final String requestUri = "/request_to_word_press_cannot_connect/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
+	}
+
+
+	@Test
+	public void shouldAddApiKeyToUpstreamRequest() {
+        final String requestUri = "/request_to_word_press_200_ok/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        String transactionID = java.util.UUID.randomUUID().toString();
+
+		final ClientResponse clientResponse = client.resource(uri)
+                .header(TransactionIdUtils.TRANSACTION_ID_HEADER,transactionID)
+                .get(ClientResponse.class);
+		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+
+		String urlWithKeyAdded = requestUri + "&api_key="+ WP.EXAMPLE_API_KEY + "&cache_buster="+ transactionID;
+
+		WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
+
+
+	}
+
+	@Test
+	public void thatArticleWithEmptyBodyReturns422() {
+	    final String requestUri = "/request_to_word_press_200_post_empty_content/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        String transactionID = java.util.UUID.randomUUID().toString();
+
+        final ClientResponse clientResponse = client.resource(uri)
+                .header(TransactionIdUtils.TRANSACTION_ID_HEADER, transactionID)
+                .get(ClientResponse.class);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(422)));
+	}
 
     @After
 	public void reset() {
