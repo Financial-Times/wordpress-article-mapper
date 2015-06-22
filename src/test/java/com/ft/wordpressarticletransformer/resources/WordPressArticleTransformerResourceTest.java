@@ -95,8 +95,7 @@ public class WordPressArticleTransformerResourceTest {
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         String bodyResponse = clientResponse.getEntity(String.class);
         assertThat("response didn't have expected error, bodyResponse=" + bodyResponse, clientResponse, hasProperty("status", equalTo(500)));
-        assertThat("response didn't have expected error, bodyResponse=" + bodyResponse, bodyResponse, containsString("article has no authors")); 
-        
+        assertThat("response didn't have expected error, bodyResponse=" + bodyResponse, bodyResponse, containsString("article has no authors"));
     }
 	
 	@Test

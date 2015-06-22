@@ -138,10 +138,11 @@ public class WordPressArticleTransformerResource {
 
     private String createBylineFromAuthors(Post postDetails) {
         List<Author> authorsList = postDetails.getAuthors();
-        
         if (authorsList != null) {
+            LOGGER.info("UPP-526: authorsList is not null");
             return authorsList.stream().map(i -> i.getName()).collect(Collectors.joining(", "));
         } else if (postDetails.getAuthor()!= null) {
+            LOGGER.info("UPP-526: author is not null " + postDetails.getAuthor().getName());
             return postDetails.getAuthor().getName();
         }
         LOGGER.error("Failed to construct byline");
