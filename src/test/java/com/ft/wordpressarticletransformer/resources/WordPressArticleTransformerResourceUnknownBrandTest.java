@@ -1,5 +1,13 @@
 package com.ft.wordpressarticletransformer.resources;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertThat;
+
+import java.net.URI;
+import javax.ws.rs.core.UriBuilder;
+
 import com.ft.api.jaxrs.errors.ErrorEntity;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
@@ -8,14 +16,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertThat;
 
 public class WordPressArticleTransformerResourceUnknownBrandTest {
 
@@ -26,7 +26,7 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 	private static final String URL = "url";
 
 
-	private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_200_ok/?json=1";
+	private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_200_ok_success/?json=1";
 
 	private Client client;
 

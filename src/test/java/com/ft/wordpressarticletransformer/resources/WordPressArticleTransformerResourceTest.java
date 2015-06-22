@@ -50,7 +50,7 @@ public class WordPressArticleTransformerResourceTest {
 
 	@Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPress() {
-        final String requestUri = "/request_to_word_press_200_ok/?json=1";
+        final String requestUri = "/request_to_word_press_200_ok_success/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -211,7 +211,7 @@ public class WordPressArticleTransformerResourceTest {
 
 	@Test
 	public void shouldAddApiKeyToUpstreamRequest() {
-        final String requestUri = "/request_to_word_press_200_ok/?json=1";
+        final String requestUri = "/request_to_word_press_200_ok_success/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         String transactionID = java.util.UUID.randomUUID().toString();
