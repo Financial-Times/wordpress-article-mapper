@@ -1,11 +1,11 @@
 {
 	"request" : {
-		"urlPattern" : "/request_to_word_press_200_ok_with_no_author_no_authors.*",
+		"urlPattern" : "/hello_no_authors.*",
 		"method" : "GET"
 	},
 	"response" : {
 		"status" : 200,
-		"bodyFileName" : "WILL_RETURN_200-body-no-authors-from-wordpress.json",
+		"bodyFileName" : "WILL_RETURN_no-authors-from-wordpress.json",
 		"headers" : {
 			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
 			"Content-Type" : "application/json",

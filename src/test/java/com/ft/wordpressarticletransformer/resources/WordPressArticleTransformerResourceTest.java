@@ -89,7 +89,7 @@ public class WordPressArticleTransformerResourceTest {
 
     @Test
     public void shouldReturn500WhenNoAuthorsReturnedFromWordpress() {
-        final String requestUri = "/request_to_word_press_200_ok_with_no_author_no_authors/?json=1";
+        final String requestUri = "/hello_no_authors/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
         
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
