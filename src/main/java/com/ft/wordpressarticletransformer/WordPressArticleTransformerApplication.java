@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.EnumSet;
 import java.util.Properties;
+
 import javax.servlet.DispatcherType;
 
 import com.ft.api.jaxrs.errors.Errors;
-import com.ft.api.jaxrs.errors.RuntimeExceptionMapper;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
@@ -17,15 +17,18 @@ import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
+import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerExceptionMapper;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
 import com.sun.jersey.api.client.Client;
+
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +74,11 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 						configuration.getWordPressConnections()
 				));
 
-		environment.jersey().register(new RuntimeExceptionMapper());
+        environment.jersey().register(WordPressArticleTransformerExceptionMapper.class);
         Errors.customise(new WordPressArticleTransformerErrorEntityFactory());
 		environment.servlets().addFilter("Transaction ID Filter",
 				new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
+		
     }
 
     private BodyProcessingFieldTransformer getBodyProcessingFieldTransformer(VideoMatcher videoMatcher) {

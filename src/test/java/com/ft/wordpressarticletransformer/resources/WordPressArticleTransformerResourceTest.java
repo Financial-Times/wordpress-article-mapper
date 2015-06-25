@@ -1,5 +1,6 @@
 package com.ft.wordpressarticletransformer.resources;
 
+import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -8,6 +9,8 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
 import java.net.URI;
+
+import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.api.util.transactionid.TransactionIdUtils;
@@ -16,6 +19,7 @@ import com.ft.content.model.Content;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -134,13 +138,13 @@ public class WordPressArticleTransformerResourceTest {
     }
 
     @Test
-    public void shouldReturn404WhenTypeNotPostFromWordpress() {
+    public void shouldReturn422WhenTypeNotPostFromWordpress() {
         final String requestUri = "/request_to_word_press_200_not_type_post/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-        assertThat("response", clientResponse.getEntity(String.class), containsString("markets-live"));
+        assertThat("response status", clientResponse, hasProperty("status", equalTo(SC_UNPROCESSABLE_ENTITY)));
+        assertThat("response message", clientResponse.getEntity(String.class), containsString("markets-live"));
     }
 
     @Test
@@ -149,7 +153,7 @@ public class WordPressArticleTransformerResourceTest {
         final URI uri = buildTransformerUrl("ABC-1234", WORDPRESS_BASE_URL + requestUri);
         
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
+        assertThat("response status", clientResponse, hasProperty("status", equalTo(400)));
     }
 
 	@Test
@@ -239,7 +243,7 @@ public class WordPressArticleTransformerResourceTest {
                 .header(TransactionIdUtils.TRANSACTION_ID_HEADER, transactionID)
                 .get(ClientResponse.class);
         
-        assertThat("response", clientResponse, hasProperty("status", equalTo(422)));
+        assertThat("response status", clientResponse, hasProperty("status", equalTo(422)));
 	}
 
     @After
