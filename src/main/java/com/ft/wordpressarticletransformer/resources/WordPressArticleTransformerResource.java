@@ -22,6 +22,7 @@ import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
+import com.ft.content.model.Comments;
 import com.ft.content.model.Content;
 import com.ft.content.model.Identifier;
 import com.ft.wordpressarticletransformer.response.Author;
@@ -133,6 +134,7 @@ public class WordPressArticleTransformerResource {
                 .withByline(createBylineFromAuthors(postDetails))
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                 .withBrands(resolvedBrandWrappedInASet)
+                .withComments(Comments.builder().withEnabled(false).build())
                 .withUuid(validUuid).build();
 	}
 

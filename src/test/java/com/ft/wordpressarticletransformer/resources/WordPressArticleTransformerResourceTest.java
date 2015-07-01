@@ -65,6 +65,7 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
 		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
+		assertThat("comments", receivedContent.getComments().isEnabled(), is(false));
 	}
 
     @Test
@@ -96,7 +97,6 @@ public class WordPressArticleTransformerResourceTest {
         String bodyResponse = clientResponse.getEntity(String.class);
         assertThat("response didn't have expected error, bodyResponse=" + bodyResponse, clientResponse, hasProperty("status", equalTo(500)));
         assertThat("response didn't have expected error, bodyResponse=" + bodyResponse, bodyResponse, containsString("article has no authors")); 
-        
     }
 	
 	@Test
@@ -109,7 +109,6 @@ public class WordPressArticleTransformerResourceTest {
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
         assertThat("response", clientResponse.getEntity(String.class), containsString("\"uuid\"")); //i.e. json field "uuid"
 	}
-
 
     /**
      * The endpoint generally returns 200, even for errors, so a 404 means we have the wrong URL.
@@ -224,8 +223,6 @@ public class WordPressArticleTransformerResourceTest {
 		String urlWithKeyAdded = requestUri + "&api_key="+ WP.EXAMPLE_API_KEY + "&cache_buster="+ transactionID;
 
 		WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
-
-
 	}
 	
 	@Test
@@ -258,7 +255,6 @@ public class WordPressArticleTransformerResourceTest {
                 .build(uuid);
     }
 
-
 	private URI buildTransformerUrlWithIdMissing(String requestUri) {
 	    return UriBuilder
                 .fromPath("content")
@@ -269,7 +265,6 @@ public class WordPressArticleTransformerResourceTest {
                 .build();
 	}
 
-
     private URI buildTransformerUrlWithUrlMissing(String uuid) {
         return UriBuilder
                 .fromPath("content")
@@ -279,5 +274,4 @@ public class WordPressArticleTransformerResourceTest {
                 .port(wordPressArticleTransformerAppRule.getWordPressArticleTransformerLocalPort())
                 .build(uuid);
     }
-
 }
