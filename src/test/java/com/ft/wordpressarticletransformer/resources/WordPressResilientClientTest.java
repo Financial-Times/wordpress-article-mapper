@@ -137,8 +137,8 @@ public class WordPressResilientClientTest {
         wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
-    @Test(expected=UnsupportedPostTypeException.class)
-    public void shouldThrowUnsupportedPostTypeExceptionWhenPostTypeIsNotPostForGetContent() {
+    @Test(expected=UnpublishablePostException.class)
+    public void shouldThrowUnpublishablePostExceptionWhenPostTypeIsNotPostForGetContent() {
         when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
         when(handler.handle(any(ClientRequest.class)))
                 .thenReturn(clientResponse);

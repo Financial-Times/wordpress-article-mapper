@@ -17,10 +17,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import com.codahale.metrics.annotation.Timed;
-import com.ft.api.jaxrs.errors.ClientError;
-import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.util.transactionid.TransactionIdUtils;
-import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Content;
 import com.ft.content.model.Identifier;
@@ -57,41 +54,35 @@ public class WordPressArticleTransformerResource {
         this.wordPressResilientClient = wordPressResilientClient;
         this.brandSystemResolver = brandSystemResolver;
     }
-
+    
 	@GET
 	@Timed
 	@Path("/{uuid}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Content getByPostId(@PathParam("uuid") String uuid, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
-
-	    if (requestUri == null || "".equals(requestUri.toString())) {
-	        throw ClientError.status(400).error("No url supplied").exception();
+	public final Content getByPostId(@PathParam("uuid") String uuidString, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
+	    if (requestUri == null) {
+	        throw new IllegalArgumentException("No url supplied");
 	    }
 	    
 	    if (requestUri.getHost() == null) {
-            throw ClientError.status(400).error("Not a valid url").exception();
-        }
-        UUID validUuid = null;
-        try {
-            validUuid = UUID.fromString(uuid);
-        }
-        catch(Exception e){
-            throw ClientError.status(400).error("Not a valid uuid").exception();
+            throw new IllegalArgumentException("Not a valid url");
         }
 	    
-	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, validUuid.toString(), "Publish request");
+	    // throws an IllegalArgumentException with a reasonable message if not valid
+	    UUID uuid = UUID.fromString(uuidString);
+	    
+	    String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, uuid.toString(), "Publish request");
 
-        Post postDetails = doRequest(requestUri, validUuid, transactionId);
+        Post postDetails = doRequest(requestUri, uuid, transactionId);
 
 		if (postDetails == null) {
+		    LOGGER.error("No content was returned for {}", requestUri);
 			throw new NotFoundException();
 		}
 		
 		String body = postDetails.getContent();
 		if (Strings.isNullOrEmpty(body)) {
-            throw ClientError.status(422)
-                    .error("Not a valid WordPress article for publication")
-                    .exception();
+		    throw new UnpublishablePostException(requestUri, uuid, "Not a valid WordPress article for publication");
 		}
 		body = wrapBody(body);
 		
@@ -109,19 +100,21 @@ public class WordPressArticleTransformerResource {
         }
         DateTime datePublished = formatter.parseDateTime(publishedDateStr);
 		
-		LOGGER.info("Returning content for uuid [{}].", validUuid.toString());
+		LOGGER.info("Returning content for uuid [{}].", uuid);
 
 		Brand brand = brandSystemResolver.getBrand(requestUri);
 
         if(brand == null){
-			LOGGER.error("Failed to resolve brand for uri [{}].", requestUri);
-			throw ServerError.status(500).error(String.format("Failed to resolve brand for uri [%s].", requestUri)).exception();
+            String msg = String.format("Failed to resolve brand for uri [%s].", requestUri);
+			LOGGER.error(msg);
+			throw new BrandResolutionException(msg);
         }
 
         String originatingSystemId = brandSystemResolver.getOriginatingSystemId(requestUri);
         if(originatingSystemId == null){
-            LOGGER.error("Failed to resolve originatingSystemId for uri [{}].", requestUri);
-            throw ServerError.status(500).error(String.format("Failed to resolve originatingSystemId for uri [%s].", requestUri)).exception();
+            String msg = String.format("Failed to resolve originatingSystemId for uri [%s].", requestUri);
+            LOGGER.error(msg);
+            throw new BrandResolutionException(msg);
         }
 
         SortedSet<Brand> resolvedBrandWrappedInASet = new TreeSet<>();
@@ -130,13 +123,13 @@ public class WordPressArticleTransformerResource {
         return Content.builder().withTitle(postDetails.getTitle())
                 .withPublishedDate(datePublished.toDate())
                 .withXmlBody(tidiedUpBody(body, transactionId))
-                .withByline(createBylineFromAuthors(postDetails))
+                .withByline(createBylineFromAuthors(postDetails, requestUri))
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                 .withBrands(resolvedBrandWrappedInASet)
-                .withUuid(validUuid).build();
+                .withUuid(uuid).build();
 	}
 
-    private String createBylineFromAuthors(Post postDetails) {
+    private String createBylineFromAuthors(Post postDetails, URI requestUri) {
         List<Author> authorsList = postDetails.getAuthors();
         
         if (authorsList != null) {
@@ -145,16 +138,11 @@ public class WordPressArticleTransformerResource {
             return postDetails.getAuthor().getName();
         }
         LOGGER.error("Failed to construct byline");
-        throw ServerError.status(500).error("article has no authors").exception();
+        throw new WordPressApiException("article has no authors", requestUri);
     }
 
     private String tidiedUpBody(String body, String transactionId) {
-        try {
-		    return bodyProcessingFieldTransformer.transform(body, transactionId);
-        } catch (BodyProcessingException bpe) {
-            LOGGER.error("Failed to transform body",bpe);
-            throw ServerError.status(500).error("article has invalid body").exception(bpe);
-        }
+        return bodyProcessingFieldTransformer.transform(body, transactionId);
 	}
 
 	private String wrapBody(String originalBody) {
@@ -162,30 +150,6 @@ public class WordPressArticleTransformerResource {
 	}
 
 	private Post doRequest(URI requestUri, UUID uuid, String transactionId) {
-		
-		Post post;
-
-        try {
-            post = wordPressResilientClient.getContent(requestUri, uuid, transactionId);
-
-            if (post == null) {
-                LOGGER.error("No content was returned");
-                return null;
-            }
-            return post;
-        } catch (InvalidResponseException e) {
-            throw ClientError.status(400).error(e.getMessage()).exception(e);
-        } catch (UnsupportedPostTypeException e) {
-            throw ClientError.status(404).error(e.getMessage()).exception(e);
-        } catch (PostNotFoundException e) {
-            throw ClientError.status(404).context(uuid).error(e.getMessage()).exception(e);
-        } catch (UnexpectedErrorCodeException | UnexpectedStatusFieldException 
-                | UnexpectedStatusCodeException | InvalidContentTypeException e) {
-            throw ServerError.status(500).error(e.getMessage()).exception(e);
-        } catch (RequestFailedException | CannotConnectToWordPressException e) {
-            throw ServerError.status(503).error(e.getMessage()).exception(e);
-        }
-
+		return wordPressResilientClient.getContent(requestUri, uuid, transactionId);
     }
-
 }

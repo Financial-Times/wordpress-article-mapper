@@ -29,8 +29,11 @@ import java.util.UUID;
 public class WordPressResilientClient {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressResilientClient.class);
-	public static final String API_KEY_NAME = "api_key";
-
+	private static final String API_KEY_NAME = "api_key";
+	
+	private static final String UNSUPPORTED_POST_TYPE =
+	        "Not a valid post, type is [%s], should be [%s], for content with uuid:[%s]";
+	
 	private final Client client;
 	private final int numberOfConnectionAttempts;
 	private final String wordpressApiKey;
@@ -120,7 +123,7 @@ public class WordPressResilientClient {
                 response = webResource.accept("application/json").get(ClientResponse.class);
                 post = processPostResponse(response, uuid, requestUri);
                 return post;
-            } catch (UnsupportedPostTypeException | PostNotFoundException e) {
+            } catch (UnpublishablePostException | PostNotFoundException e) {
                 LOGGER.info("[REQUEST FAILED] attempt={} exception={}", attemptsCount, e.getMessage());
                 // we don't expect a different response if we retry requests that failed like this so short circuit
                 throw e;
@@ -165,15 +168,18 @@ public class WordPressResilientClient {
 
             if (status == null) {
                 throw new InvalidResponseException(response, requestUri);
-            }else if (WPFormat.STATUS_OK.equals(status)) {
+            }
+            else if (WPFormat.STATUS_OK.equals(status)) {
                 if (isMarketsLive(wordPressResponse)) {
-                    throw new UnsupportedPostTypeException(requestUri, wordPressResponse.getPost().getType(), uuid, WPFormat.POST_TYPE_POST);
+                    throw new UnpublishablePostException(requestUri, uuid, String.format(UNSUPPORTED_POST_TYPE,
+                            wordPressResponse.getPost().getType(), WPFormat.POST_TYPE_POST, uuid));
                 }
                 return wordPressResponse.getPost();
             } else if (WPFormat.STATUS_ERROR.equals(status)) {
                 String error = wordPressResponse.getError();
                 if (isMarketsLive(wordPressResponse)) {
-                    throw new UnsupportedPostTypeException(requestUri, wordPressResponse.getPost().getType(), uuid, WPFormat.POST_TYPE_POST);
+                    throw new UnpublishablePostException(requestUri, uuid, String.format(UNSUPPORTED_POST_TYPE,
+                            wordPressResponse.getPost().getType(), WPFormat.POST_TYPE_POST, uuid));
                 }
                 if (WPFormat.ERROR_NOT_FOUND.equals(error)) {
                     throw new PostNotFoundException(requestUri, wordPressResponse.getError(), uuid);
