@@ -1,4 +1,4 @@
-FROM coco/dropwizardbase
+FROM up-registry.ft.com/coco/dropwizardbase
 
 RUN git clone http://git.svc.ft.com/scm/cp/wordpress-article-transformer.git
 RUN cd wordpress-article-transformer && mvn install
