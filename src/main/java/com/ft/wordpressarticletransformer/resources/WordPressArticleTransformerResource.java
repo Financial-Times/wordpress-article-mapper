@@ -41,7 +41,9 @@ import org.slf4j.LoggerFactory;
 @Path("/content")
 public class WordPressArticleTransformerResource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleTransformerResource.class);
+	private static final String COMMENT_OPEN_STATUS = "open";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleTransformerResource.class);
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
@@ -134,9 +136,17 @@ public class WordPressArticleTransformerResource {
                 .withByline(createBylineFromAuthors(postDetails))
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                 .withBrands(resolvedBrandWrappedInASet)
-                .withComments(Comments.builder().withEnabled(false).build())
+                .withComments(createComments(postDetails.getCommentStatus()))
                 .withUuid(validUuid).build();
 	}
+
+    private Comments createComments(String commentStatus) {
+        return Comments.builder().withEnabled(areCommentsOpen(commentStatus)).build();
+    }
+
+    private boolean areCommentsOpen(String commentStatus) {
+        return COMMENT_OPEN_STATUS.equals(commentStatus);
+    }
 
     private String createBylineFromAuthors(Post postDetails) {
         List<Author> authorsList = postDetails.getAuthors();

@@ -27,13 +27,13 @@ import org.junit.Test;
 public class WordPressArticleTransformerResourceTest {
 
     private static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66");
+    
     @ClassRule
 	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test.yaml");
 	
 	private static final String UUID = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
 	private static final String URL = "url";
 	private DateTime publishedDate = null;
-
 
 	private static final String WORDPRESS_BASE_URL = "http://localhost:15670";
     
@@ -65,7 +65,7 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
 		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
-		assertThat("comments", receivedContent.getComments().isEnabled(), is(false));
+		assertThat("comments", receivedContent.getComments().isEnabled(), is(true));
 	}
 
     @Test
