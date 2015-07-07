@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.content.model.Brand;
+import com.ft.content.model.Comments;
 import com.ft.content.model.Content;
 import com.ft.content.model.Identifier;
 import com.ft.wordpressarticletransformer.response.Author;
@@ -36,6 +37,8 @@ import org.slf4j.LoggerFactory;
 
 @Path("/content")
 public class WordPressArticleTransformerResource {
+	
+	private static final String COMMENT_OPEN_STATUS = "open";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleTransformerResource.class);
 
@@ -126,9 +129,18 @@ public class WordPressArticleTransformerResource {
                 .withByline(createBylineFromAuthors(postDetails, requestUri))
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                 .withBrands(resolvedBrandWrappedInASet)
+                .withComments(createComments(postDetails.getCommentStatus()))
                 .withUuid(uuid).build();
 	}
 
+    private Comments createComments(String commentStatus) {
+        return Comments.builder().withEnabled(areCommentsOpen(commentStatus)).build();
+    }
+
+    private boolean areCommentsOpen(String commentStatus) {
+        return COMMENT_OPEN_STATUS.equals(commentStatus);
+    }
+	
     private String createBylineFromAuthors(Post postDetails, URI requestUri) {
         List<Author> authorsList = postDetails.getAuthors();
         
