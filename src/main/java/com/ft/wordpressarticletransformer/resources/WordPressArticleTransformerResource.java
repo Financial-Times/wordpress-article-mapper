@@ -29,6 +29,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSortedSet;
 import com.sun.jersey.api.NotFoundException;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -123,15 +124,20 @@ public class WordPressArticleTransformerResource {
         SortedSet<Brand> resolvedBrandWrappedInASet = new TreeSet<>();
         resolvedBrandWrappedInASet.add(brand);
 
-        return Content.builder().withTitle(postDetails.getTitle())
+        return Content.builder().withTitle(unescapeHtml4(postDetails.getTitle()))
                 .withPublishedDate(datePublished.toDate())
                 .withXmlBody(tidiedUpBody(body, transactionId))
-                .withByline(createBylineFromAuthors(postDetails, requestUri))
-                .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
-                .withBrands(resolvedBrandWrappedInASet)
-                .withComments(createComments(postDetails.getCommentStatus()))
+                .withByline(unescapeHtml4(createBylineFromAuthors(postDetails, requestUri)))
+                        .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
+                        .withBrands(resolvedBrandWrappedInASet)
+                        .withComments(createComments(postDetails.getCommentStatus()))
                 .withUuid(uuid).build();
 	}
+
+    public static final String unescapeHtml4(String plainTextTitle) {
+        return StringEscapeUtils.unescapeHtml4(plainTextTitle);
+    }
+
 
     private Comments createComments(String commentStatus) {
         return Comments.builder().withEnabled(areCommentsOpen(commentStatus)).build();
