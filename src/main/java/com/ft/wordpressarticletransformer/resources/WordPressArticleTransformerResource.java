@@ -138,7 +138,6 @@ public class WordPressArticleTransformerResource {
         return StringEscapeUtils.unescapeHtml4(plainTextTitle);
     }
 
-
     private Comments createComments(String commentStatus) {
         return Comments.builder().withEnabled(areCommentsOpen(commentStatus)).build();
     }
