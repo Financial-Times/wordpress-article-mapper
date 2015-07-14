@@ -29,7 +29,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSortedSet;
 import com.sun.jersey.api.NotFoundException;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -133,10 +133,6 @@ public class WordPressArticleTransformerResource {
                         .withComments(createComments(postDetails.getCommentStatus()))
                 .withUuid(uuid).build();
 	}
-
-    public static final String unescapeHtml4(String plainTextTitle) {
-        return StringEscapeUtils.unescapeHtml4(plainTextTitle);
-    }
 
     private Comments createComments(String commentStatus) {
         return Comments.builder().withEnabled(areCommentsOpen(commentStatus)).build();

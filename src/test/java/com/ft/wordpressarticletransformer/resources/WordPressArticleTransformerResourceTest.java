@@ -53,28 +53,28 @@ public class WordPressArticleTransformerResourceTest {
 
     @Test
     public void shouldUnescapeHtmlNumericalEntityForTitleAndByline() {
-        final String requestUri = "/request_to_word_press_200_no_html_numerical_entity/?json=1";
+        final String requestUri = "/request_to_word_press_200_no_html_number_entity/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
         Content receivedContent = clientResponse.getEntity(Content.class);
-        assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am “London Cut”")));
+        assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am “London Cut”…")));
         assertThat("byline", receivedContent.getByline(), is(equalTo("<FT Labs Administrator>, <Jan Majek>, <Adam Braimbridge>")));
     }
 
     @Test
     public void shouldUnescapeHtmlNamedEntityForTitleAndByline() {
-        final String requestUri = "/request_to_word_press_200_no_html_named_entity/?json=1";
+        final String requestUri = "/request_to_word_press_200_no_html_name_entity/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
         Content receivedContent = clientResponse.getEntity(Content.class);
-        assertThat("title", receivedContent.getTitle(), is(equalTo("The £64 million pound question")));
-        assertThat("byline", receivedContent.getByline(), is(equalTo("€FT Labs Administrator, £Jan Majek, ¥Adam Braimbridge")));
+        assertThat("title", receivedContent.getTitle(), is(equalTo("The £64 million pound question & what it means for the EU…")));
+        assertThat("byline", receivedContent.getByline(), is(equalTo("€FT Labs Administrator‰, £Jan Majek™, ¥Adam Braimbridge¾")));
     }
 
 
@@ -176,7 +176,7 @@ public class WordPressArticleTransformerResourceTest {
     public void shouldReturn400WhenUuidIsNotValid() {
         final String requestUri = "/no_request_to_word_press_expected/?json=1";
         final URI uri = buildTransformerUrl("ABC-1234", WORDPRESS_BASE_URL + requestUri);
-        
+
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response status", clientResponse, hasProperty("status", equalTo(400)));
     }
@@ -186,7 +186,7 @@ public class WordPressArticleTransformerResourceTest {
         final String requestUri = "/no_request_to_word_press_expected/?json=1";
         final URI uri = buildTransformerUrlWithIdMissing(WORDPRESS_BASE_URL + requestUri);
 
-		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(405)));
 	}
     
@@ -194,7 +194,7 @@ public class WordPressArticleTransformerResourceTest {
     public void shouldReturn400WhenNoUrlSupplied() {
        final URI uri = buildTransformerUrlWithUrlMissing(UUID);
 
-       final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
        assertThat("response", clientResponse, hasProperty("status", equalTo(400)));
     }
 
@@ -223,9 +223,9 @@ public class WordPressArticleTransformerResourceTest {
         final String requestUri = "/request_to_word_press_500/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
-		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
-	}
+    }
 
 
     @Test
@@ -233,7 +233,7 @@ public class WordPressArticleTransformerResourceTest {
         final String requestUri = "/request_to_word_press_cannot_connect/?json=1";
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
-		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(503)));
 	}
 
@@ -253,7 +253,7 @@ public class WordPressArticleTransformerResourceTest {
 		String urlWithKeyAdded = requestUri + "&api_key="+ WP.EXAMPLE_API_KEY + "&cache_buster=" + transactionID;
 
         WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
-	}
+    }
 	
 	@Test
 	public void thatArticleWithEmptyBodyReturns422() {

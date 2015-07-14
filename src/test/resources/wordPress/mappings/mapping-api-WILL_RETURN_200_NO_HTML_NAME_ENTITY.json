@@ -1,6 +1,6 @@
 {
 	"request" : {
-		"urlPattern" : "/request_to_word_press_200_no_html_named_entity.*",
+		"urlPattern" : "/request_to_word_press_200_no_html_name_entity.*",
 		"method" : "GET"
 	},
 	"response" : {
