@@ -6,6 +6,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Date;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,7 +18,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.content.model.Brand;
@@ -30,9 +32,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.sun.jersey.api.NotFoundException;
 
 import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +44,9 @@ public class WordPressArticleTransformerResource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleTransformerResource.class);
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
+
+    private static final DateTimeFormatter PUBLISH_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX");
+
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
     private final BrandSystemResolver brandSystemResolver;
 	
@@ -90,7 +93,6 @@ public class WordPressArticleTransformerResource {
 		}
 		body = wrapBody(body);
 		
-		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
 		String publishedDateStr = null;
         if(postDetails.getModifiedGmt() != null){
             publishedDateStr = postDetails.getModifiedGmt();
@@ -102,8 +104,7 @@ public class WordPressArticleTransformerResource {
             LOGGER.error("Modified and Date GMT fields not found for : " + requestUri);
             publishedDateStr = postDetails.getModified();
         }
-        DateTime datePublished = formatter.parseDateTime(publishedDateStr);
-		
+        Date datePublished = Date.from(OffsetDateTime.parse(publishedDateStr + "Z", PUBLISH_DATE_FMT).toInstant());
 		LOGGER.info("Returning content for uuid [{}].", uuid);
 
 		Brand brand = brandSystemResolver.getBrand(requestUri);
@@ -125,7 +126,7 @@ public class WordPressArticleTransformerResource {
         resolvedBrandWrappedInASet.add(brand);
 
         return Content.builder().withTitle(unescapeHtml4(postDetails.getTitle()))
-                .withPublishedDate(datePublished.toDate())
+                .withPublishedDate(datePublished)
                 .withXmlBody(tidiedUpBody(body, transactionId))
                 .withByline(unescapeHtml4(createBylineFromAuthors(postDetails, requestUri)))
                         .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))

@@ -9,6 +9,8 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
 import java.net.URI;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -19,9 +21,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -36,7 +35,6 @@ public class WordPressArticleTransformerResourceTest {
 	
 	private static final String UUID = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
 	private static final String URL = "url";
-	private DateTime publishedDate = null;
 
 	private static final String WORDPRESS_BASE_URL = "http://localhost:15670";
     
@@ -46,10 +44,7 @@ public class WordPressArticleTransformerResourceTest {
 	public void setup() {
 		client = Client.create();
 		client.setReadTimeout(50000);
-		
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"); //2014-10-21 05:45:30
-        publishedDate = formatter.parseDateTime("2014-10-21 08:45:30");
-	}
+    }
 
     @Test
     public void shouldUnescapeHtmlNumericalEntityForTitleAndByline() {
@@ -77,7 +72,6 @@ public class WordPressArticleTransformerResourceTest {
         assertThat("byline", receivedContent.getByline(), is(equalTo("€FT Labs Administrator‰, £Jan Majek™, ¥Adam Braimbridge¾")));
     }
 
-
     @Test
 	public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPress() {
         final String requestUri = "/request_to_word_press_200_ok_success/?json=1";
@@ -94,9 +88,26 @@ public class WordPressArticleTransformerResourceTest {
 		assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
 		assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
 		assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
-		assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
 		assertThat("comments", receivedContent.getComments().isEnabled(), is(true));
 	}
+
+    @Test
+    public void inputAndOutputPublishedDateWhenFormattedShouldBeUTC() {
+        String expectedOutputDate = "2014-10-21T08:45:30.000Z";
+        String expectedOutputPattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(expectedOutputPattern);
+
+        final String requestUri = "/request_to_word_press_200_ok_success/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        Content receivedContent = clientResponse.getEntity(Content.class);
+
+
+        assertThat("published date",
+                receivedContent.getPublishedDate().toInstant().atOffset(ZoneOffset.UTC).format(fmt),
+                is(expectedOutputDate));
+    }
 
     @Test
     @Deprecated //This should be removed once author gets removed from Wordpress json api.
@@ -115,7 +126,6 @@ public class WordPressArticleTransformerResourceTest {
         assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
         assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
         assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
-        assertThat("published date", receivedContent.getPublishedDate(), is(publishedDate.toDate()));
     }
 
     @Test
