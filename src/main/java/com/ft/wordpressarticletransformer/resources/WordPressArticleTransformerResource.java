@@ -86,7 +86,7 @@ public class WordPressArticleTransformerResource {
 		
 		String body = postDetails.getContent();
 		if (Strings.isNullOrEmpty(body)) {
-		    throw new UnpublishablePostException(requestUri, uuid, "Not a valid WordPress article for publication");
+		    throw new UnpublishablePostException(requestUri, uuid, "Not a valid WordPress article for publication - body of post is empty");
 		}
 		body = wrapBody(body);
 		
