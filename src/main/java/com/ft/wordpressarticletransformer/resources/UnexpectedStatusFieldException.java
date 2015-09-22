@@ -1,6 +1,6 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import com.ft.wordpressarticletransformer.response.WPFormat;
+import com.ft.wordpressarticletransformer.response.WordPressStatus;
 
 import java.net.URI;
 import java.util.Map;
@@ -18,7 +18,7 @@ public class UnexpectedStatusFieldException extends WordPressApiException {
     }
 
     public UnexpectedStatusFieldException(URI requestUri, String status, Map<String,Object> additionalProperties) {
-        super(String.format("Unexpected WordPress status=\"%s\". Expected \"%s\".", status, WPFormat.STATUS_OK), additionalProperties, requestUri);
+        super(String.format("Unexpected WordPress status=\"%s\". Expected \"%s\".", status, WordPressStatus.ok), additionalProperties, requestUri);
         this.status = status;
         this.uuid = null;
     }
