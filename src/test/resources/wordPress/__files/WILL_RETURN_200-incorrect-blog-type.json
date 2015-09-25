@@ -1,8 +1,8 @@
 {
-    "status": "error",
+    "status": "ok",
     "post": {
         "id": 2014692,
-        "type": "markets-live",
+        "type": "foo",
         "slug": "the-6am-london-cut-277",
         "url": "http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/",
         "status": "publish",

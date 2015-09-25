@@ -20,6 +20,7 @@ import org.junit.rules.ExpectedException;
 
 import com.codahale.metrics.MetricRegistry;
 import com.ft.wordpressarticletransformer.response.Post;
+import com.ft.wordpressarticletransformer.response.WordPressPostType;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.google.common.collect.ImmutableList;
 import com.sun.jersey.api.client.Client;
@@ -52,8 +53,6 @@ public class WordPressResilientClientTest {
     private static final String STATUS_OK = "ok";
     private static final String STATUS_ERROR = "error";
     private static final String STATUS_UNKNOWN = "unknown";
-    private static final String POST_TYPE_POST = "post";
-    private static final String POST_TYPE_GET = "get";
     private static final String ERROR_NOT_FOUND = "Not found."; // DOES include a dot
     private static final String ERROR_UNKNOWN = "Unknown";
 
@@ -79,9 +78,12 @@ public class WordPressResilientClientTest {
         wordPressConnection = new WordPressConnection(hostname, path, port);
     }
     
-    private Post mockPost(String postType) {
+    private Post mockPost(WordPressPostType postType) {
         Post expectedPost = new Post();
-        expectedPost.setType(postType);
+        if (postType != null) {
+            expectedPost.setType(postType.getApiPostType());
+        }
+        
         when(mockWordPressResponse.getPost()).thenReturn(expectedPost);
         
         return expectedPost;
@@ -94,7 +96,7 @@ public class WordPressResilientClientTest {
             .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
-        Post expectedPost = mockPost(POST_TYPE_POST);
+        Post expectedPost = mockPost(WordPressPostType.POST);
         
         Post actualPost = wordPressResilientClient.getContent(requestUri, uuid, transactionId());
         assertThat(actualPost, is(equalTo(expectedPost)));
@@ -121,7 +123,7 @@ public class WordPressResilientClientTest {
             .thenReturn(clientResponse);
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
-        Post expectedPost = mockPost(POST_TYPE_POST);
+        Post expectedPost = mockPost(WordPressPostType.POST);
         
         Post actualPost = wordPressResilientClient.getContent(requestUri, uuid, transactionId());
         assertThat(actualPost, is(equalTo(expectedPost)));
@@ -157,7 +159,7 @@ public class WordPressResilientClientTest {
         when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
         when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
         
-        mockPost(POST_TYPE_GET);
+        mockPost(null);
         
         wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }

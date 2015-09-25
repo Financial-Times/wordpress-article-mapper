@@ -1,15 +1,18 @@
 package com.ft.wordpressarticletransformer.resources;
 
+import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
+
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.Date;
-
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,7 +22,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+
 import com.codahale.metrics.annotation.Timed;
+import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
 import com.ft.api.util.transactionid.TransactionIdUtils;
 import com.ft.content.model.Brand;
 import com.ft.content.model.Comments;
@@ -27,6 +32,7 @@ import com.ft.content.model.Content;
 import com.ft.content.model.Identifier;
 import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.Post;
+import com.ft.wordpressarticletransformer.response.WordPressPostType;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSortedSet;
@@ -67,7 +73,7 @@ public class WordPressArticleTransformerResource {
 	@Timed
 	@Path("/{uuid}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Content getByPostId(@PathParam("uuid") String uuidString, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
+	public final Object getByPostId(@PathParam("uuid") String uuidString, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
 	    if (requestUri == null) {
 	        throw new IllegalArgumentException("No url supplied");
 	    }
@@ -125,15 +131,50 @@ public class WordPressArticleTransformerResource {
 
         SortedSet<Brand> resolvedBrandWrappedInASet = new TreeSet<>();
         resolvedBrandWrappedInASet.add(brand);
-
-        return Content.builder().withTitle(unescapeHtml4(postDetails.getTitle()))
-                .withPublishedDate(datePublished)
-                .withXmlBody(tidiedUpBody(body, transactionId))
-                .withByline(unescapeHtml4(createBylineFromAuthors(postDetails, requestUri)))
-                        .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
-                        .withBrands(resolvedBrandWrappedInASet)
-                        .withComments(createComments(postDetails.getCommentStatus()))
-                .withUuid(uuid).build();
+        
+        Object content = null;
+        
+        try {
+        switch (WordPressPostType.fromString(postDetails.getType())) {
+            case POST:
+                Content.Builder builder = Content.builder()
+                                                 .withUuid(uuid)
+                                                 .withTitle(unescapeHtml4(postDetails.getTitle()))
+                                                 .withPublishedDate(datePublished)
+                                                 .withByline(unescapeHtml4(createBylineFromAuthors(postDetails, requestUri)))
+                                                 .withBrands(resolvedBrandWrappedInASet)
+                                                 .withXmlBody(tidiedUpBody(body, transactionId))
+                                                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
+                                                 .withComments(createComments(postDetails.getCommentStatus()));
+                
+                content = builder.build();
+                break;
+                
+            case MARKETS_LIVE:
+            case LIVE_Q_AND_A:
+            case LIVE_BLOG:
+                Map<String,Object> liveBlog = new LinkedHashMap<>();
+                liveBlog.put("uuid", uuid);
+                liveBlog.put("title", unescapeHtml4(postDetails.getTitle()));
+                liveBlog.put("publishedDate", datePublished);
+                liveBlog.put("byline", unescapeHtml4(createBylineFromAuthors(postDetails, requestUri)));
+                liveBlog.put("brands", resolvedBrandWrappedInASet);
+                liveBlog.put("realtime", true);
+                // TODO add webUrl?
+                content = liveBlog;
+                break;
+                
+            default:
+                break;
+        }
+        }
+        catch (IllegalArgumentException e) {/* ignore and throw as below */}
+        
+        if (content == null) {
+            throw new ServerErrorBuilder(SC_UNPROCESSABLE_ENTITY).error("unsupported blog post type").exception();
+        }
+        
+        return content;
 	}
 
     private Comments createComments(String commentStatus) {

@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 public enum WordPressPostType {
     POST("post"),
     MARKETS_LIVE("webchat-markets-live"),
@@ -33,5 +34,19 @@ public enum WordPressPostType {
         }
         
         return stringValues;
+    }
+    
+    public static WordPressPostType fromString(String in) {
+        if (in == null) {
+            return null;
+        }
+        
+        for (WordPressPostType t : WordPressPostType.values()) {
+            if (t.postType.equals(in)) {
+                return t;
+            }
+        }
+        
+        throw new IllegalArgumentException(String.format("No WordPressPostType enum value for %s", in));
     }
 }

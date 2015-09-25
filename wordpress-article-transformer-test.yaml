@@ -102,7 +102,7 @@ blogApiEndpointMetadata:
       id: FT-LABS-WP-1-332
 
 jerseyClient:
-    timeout: 100ms
+    timeout: 200ms
 numberOfConnectionAttempts: 3
 
 server:

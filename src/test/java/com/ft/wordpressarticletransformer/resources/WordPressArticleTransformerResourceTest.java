@@ -179,7 +179,7 @@ public class WordPressArticleTransformerResourceTest {
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response status", clientResponse, hasProperty("status", equalTo(SC_UNPROCESSABLE_ENTITY)));
-        assertThat("response message", clientResponse.getEntity(String.class), containsString("markets-live"));
+        assertThat("response message", clientResponse.getEntity(String.class), containsString("foo"));
     }
 
     @Test

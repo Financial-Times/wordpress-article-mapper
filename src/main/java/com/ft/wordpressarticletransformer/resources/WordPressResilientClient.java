@@ -2,11 +2,14 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ft.wordpressarticletransformer.response.WordPressPostType;
 import com.ft.wordpressarticletransformer.response.WordPressStatus;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
@@ -22,11 +25,9 @@ import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-
-import java.util.List;
-import java.util.UUID;
 
 
 public class WordPressResilientClient {
@@ -90,11 +91,9 @@ public class WordPressResilientClient {
                 LOGGER.info("[REQUEST FINISHED] attempt={} time_ms={}", attemptsCount, timeTakenMillis);
             }
         }
-
-        Throwable cause = lastException.getCause();
-        if(cause instanceof IOException) {
-            throw new CannotConnectToWordPressException(wordPressRecentPostsUrl, cause);
-        }
+        
+        checkForWordPressConnectivityException(wordPressRecentPostsUrl, lastException.getCause());
+        
         throw lastException;
     }
 
@@ -106,8 +105,13 @@ public class WordPressResilientClient {
                 .queryParam("count", 1)
 				.build();
     }
-
-
+    
+    private void checkForWordPressConnectivityException(URI wordPressUrl, Throwable cause) {
+        if ((cause instanceof IOException) && !(cause instanceof JsonProcessingException)) {
+            throw new CannotConnectToWordPressException(wordPressUrl, cause);
+        }
+    }
+    
 	public Post getContent(URI requestUri, UUID uuid, String transactionId) {
 
         ClientResponse response = null;
@@ -147,12 +151,9 @@ public class WordPressResilientClient {
             }
         }
         
-        Throwable cause = lastException.getCause();
-        if(cause instanceof IOException) {
-            throw new CannotConnectToWordPressException(requestUri, cause);
-        }
+        checkForWordPressConnectivityException(requestUri, lastException.getCause());
+        
         throw lastException;
-
 	}
 
     private Post processPostResponse(ClientResponse response, UUID uuid, URI requestUri) {
@@ -169,14 +170,15 @@ public class WordPressResilientClient {
                 throw new InvalidContentTypeException(contentTypes, response, requestUri);
             }
             
-            wordPressResponse = response.getEntity(WordPressResponse.class);
-            String status = wordPressResponse.getStatus();
-
-            if (status == null) {
-                throw new InvalidResponseException(response, requestUri);
-            }
-            
+            String status = null;
             try {
+                wordPressResponse = response.getEntity(WordPressResponse.class);
+                
+                status = wordPressResponse.getStatus();
+                if (status == null) {
+                    throw new InvalidResponseException(response, requestUri);
+                }
+                
                 switch (WordPressStatus.valueOf(status)) {
                     case ok:
                         if (!isSupportedPostType(wordPressResponse)) {
@@ -190,7 +192,16 @@ public class WordPressResilientClient {
                         
                 }
             }
+            catch (ClientHandlerException e) {
+                checkForWordPressConnectivityException(requestUri, e.getCause());
+                throw e;
+            }
             catch (IllegalArgumentException e) { /* ignore and throw as below */ }
+            finally {
+                if (response != null) {
+                    response.close();
+                }
+            }
             
             throw new UnexpectedStatusFieldException(requestUri, status, uuid);
         }
