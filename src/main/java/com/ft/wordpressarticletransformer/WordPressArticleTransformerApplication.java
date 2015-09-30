@@ -12,7 +12,6 @@ import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
-import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
@@ -69,7 +68,6 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 		environment.healthChecks().register(healthCheckName,
 				new ConnectivityToWordPressHealthCheck(healthCheckName,
 						wordPressResilientClient,
-						SystemId.systemIdFromCode("wordpress-article-transformer"), // TODO proper name
 						"https://sites.google.com/a/ft.com/dynamic-publishing-team/", // TODO proper link
 						configuration.getWordPressConnections()
 				));

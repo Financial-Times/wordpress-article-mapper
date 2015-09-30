@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ft.content.model.Brand;
+import com.ft.wordpressarticletransformer.model.Brand;
 import org.junit.Before;
 import org.junit.Test;
 

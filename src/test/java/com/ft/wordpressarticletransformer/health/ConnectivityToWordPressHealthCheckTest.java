@@ -19,7 +19,6 @@ import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
 import com.ft.wordpressarticletransformer.resources.UnexpectedStatusCodeException;
 import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
-import com.ft.messaging.standards.message.v1.SystemId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +40,7 @@ public class ConnectivityToWordPressHealthCheckTest {
 		WordPressConnection dummyConnection = new WordPressConnection("localhost","/path",8080);
 
 		List<WordPressConnection> list = Collections.singletonList(dummyConnection);
-		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", wordPressResilientClient, SystemId.systemIdFromCode("test-fastft"), "", list);
+		healthCheck = new ConnectivityToWordPressHealthCheck("test health check", wordPressResilientClient, "", list);
 	}
 
 	@Test

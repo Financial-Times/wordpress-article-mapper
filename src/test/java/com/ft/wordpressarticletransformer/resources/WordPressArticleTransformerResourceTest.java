@@ -15,8 +15,10 @@ import java.time.format.DateTimeFormatter;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.api.util.transactionid.TransactionIdUtils;
-import com.ft.content.model.Brand;
-import com.ft.content.model.Content;
+import com.ft.wordpressarticletransformer.model.Brand;
+import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
+import com.ft.wordpressarticletransformer.model.WordPressContent;
+import com.ft.wordpressarticletransformer.model.WordPressLiveBlogContent;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -54,7 +56,7 @@ public class WordPressArticleTransformerResourceTest {
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
-        Content receivedContent = clientResponse.getEntity(Content.class);
+        WordPressContent receivedContent = clientResponse.getEntity(WordPressBlogPostContent.class);
         assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am “London Cut”…")));
         assertThat("byline", receivedContent.getByline(), is(equalTo("<FT Labs Administrator>, <Jan Majek>, <Adam Braimbridge>")));
     }
@@ -67,7 +69,7 @@ public class WordPressArticleTransformerResourceTest {
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
-        Content receivedContent = clientResponse.getEntity(Content.class);
+        WordPressContent receivedContent = clientResponse.getEntity(WordPressBlogPostContent.class);
         assertThat("title", receivedContent.getTitle(), is(equalTo("The £64 million pound question & what it means for the EU…")));
         assertThat("byline", receivedContent.getByline(), is(equalTo("€FT Labs Administrator‰, £Jan Majek™, ¥Adam Braimbridge¾")));
     }
@@ -79,8 +81,8 @@ public class WordPressArticleTransformerResourceTest {
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
-
-		Content receivedContent = clientResponse.getEntity(Content.class);
+		
+		WordPressBlogPostContent receivedContent = clientResponse.getEntity(WordPressBlogPostContent.class);
 		assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
 		assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
         assertThat("byline", receivedContent.getByline(), is(equalTo("FT Labs Administrator, Jan Majek, Adam Braimbridge")));
@@ -92,6 +94,25 @@ public class WordPressArticleTransformerResourceTest {
 	}
 
     @Test
+    public void shouldReturn200AndCompleteResponseForLiveBlog() {
+        final String requestUri = "/request_to_word_press_200_ok_live_blog/?json=1";
+        final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
+        
+        WordPressLiveBlogContent receivedContent = clientResponse.getEntity(WordPressLiveBlogContent.class);
+        assertThat("title", receivedContent.getTitle(), is(equalTo("Markets Live: Wednesday, 30th September, 2015")));
+        assertThat("byline", receivedContent.getByline(), is(equalTo("Bryce Elder")));
+        assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
+        assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
+        assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://ftalphaville.ft.com/marketslive/2015-09-30/")));
+        assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID)));
+        assertThat("realtime", receivedContent.isRealtime(), is(true));
+        assertThat("comments", receivedContent.getComments().isEnabled(), is(true));
+    }
+
+    @Test
     public void inputAndOutputPublishedDateWhenFormattedShouldBeUTC() {
         String expectedOutputDate = "2014-10-21T08:45:30.000Z";
         String expectedOutputPattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -101,7 +122,7 @@ public class WordPressArticleTransformerResourceTest {
         final URI uri = buildTransformerUrl(UUID, WORDPRESS_BASE_URL + requestUri);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        Content receivedContent = clientResponse.getEntity(Content.class);
+        WordPressContent receivedContent = clientResponse.getEntity(WordPressBlogPostContent.class);
 
 
         assertThat("published date",
@@ -118,7 +139,7 @@ public class WordPressArticleTransformerResourceTest {
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
-        Content receivedContent = clientResponse.getEntity(Content.class);
+        WordPressBlogPostContent receivedContent = clientResponse.getEntity(WordPressBlogPostContent.class);
         assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
         assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
         assertThat("byline", receivedContent.getByline(), is(equalTo("David Keohane")));

@@ -3,7 +3,6 @@ package com.ft.wordpressarticletransformer.health;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.platform.dropwizard.AdvancedHealthCheck;
 import com.ft.platform.dropwizard.AdvancedResult;
 import com.ft.wordpressarticletransformer.configuration.WordPressConnection;
@@ -12,6 +11,7 @@ import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
 import com.ft.wordpressarticletransformer.response.WordPressMostRecentPostsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
@@ -22,13 +22,11 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 	private final String panicGuideUrl;
 	private final List<WordPressConnection> wordPressConnections;
 	private final WordPressResilientClient client;
-	private final SystemId systemId;
 
-	public ConnectivityToWordPressHealthCheck(final String healthCheckName, final WordPressResilientClient client, SystemId systemId,
+	public ConnectivityToWordPressHealthCheck(final String healthCheckName, final WordPressResilientClient client,
 											  String panicGuideUrl, List<WordPressConnection> wordPressConnections) {
 		super(healthCheckName);
 		this.client = client;
-		this.systemId = systemId;
 		this.panicGuideUrl = panicGuideUrl;
 		this.wordPressConnections = wordPressConnections;
 	}
@@ -89,7 +87,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
 	@Override
 	protected String technicalSummary() {
-		return systemId + " is unable to transform WordPress content.";
+		return "WordPress transformer is unable to transform WordPress content.";
 	}
 
 	@Override

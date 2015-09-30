@@ -5,9 +5,7 @@ import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -26,10 +24,12 @@ import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
 import com.ft.api.util.transactionid.TransactionIdUtils;
-import com.ft.content.model.Brand;
-import com.ft.content.model.Comments;
-import com.ft.content.model.Content;
-import com.ft.content.model.Identifier;
+import com.ft.wordpressarticletransformer.model.Brand;
+import com.ft.wordpressarticletransformer.model.Comments;
+import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
+import com.ft.wordpressarticletransformer.model.WordPressContent;
+import com.ft.wordpressarticletransformer.model.WordPressLiveBlogContent;
+import com.ft.wordpressarticletransformer.model.Identifier;
 import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressPostType;
@@ -73,7 +73,7 @@ public class WordPressArticleTransformerResource {
 	@Timed
 	@Path("/{uuid}")
 	@Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
-	public final Object getByPostId(@PathParam("uuid") String uuidString, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
+	public final WordPressContent getByPostId(@PathParam("uuid") String uuidString, @QueryParam("url") URI requestUri, @Context HttpHeaders httpHeaders) {
 	    if (requestUri == null) {
 	        throw new IllegalArgumentException("No url supplied");
 	    }
@@ -132,20 +132,20 @@ public class WordPressArticleTransformerResource {
         SortedSet<Brand> resolvedBrandWrappedInASet = new TreeSet<>();
         resolvedBrandWrappedInASet.add(brand);
         
-        Object content = null;
+        WordPressContent content = null;
         
         try {
         switch (WordPressPostType.fromString(postDetails.getType())) {
             case POST:
-                Content.Builder builder = Content.builder()
-                                                 .withUuid(uuid)
-                                                 .withTitle(unescapeHtml4(postDetails.getTitle()))
+                WordPressBlogPostContent.Builder builder = (WordPressBlogPostContent.Builder)WordPressBlogPostContent.builder()
+                                                 .withUuid(uuid).withTitle(unescapeHtml4(postDetails.getTitle()))
                                                  .withPublishedDate(datePublished)
                                                  .withByline(unescapeHtml4(createBylineFromAuthors(postDetails, requestUri)))
                                                  .withBrands(resolvedBrandWrappedInASet)
-                                                 .withXmlBody(tidiedUpBody(body, transactionId))
                                                  .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
                                                  .withComments(createComments(postDetails.getCommentStatus()));
+                
+                builder = builder.withBody(tidiedUpBody(body, transactionId));
                 
                 content = builder.build();
                 break;
@@ -153,15 +153,7 @@ public class WordPressArticleTransformerResource {
             case MARKETS_LIVE:
             case LIVE_Q_AND_A:
             case LIVE_BLOG:
-                Map<String,Object> liveBlog = new LinkedHashMap<>();
-                liveBlog.put("uuid", uuid);
-                liveBlog.put("title", unescapeHtml4(postDetails.getTitle()));
-                liveBlog.put("publishedDate", datePublished);
-                liveBlog.put("byline", unescapeHtml4(createBylineFromAuthors(postDetails, requestUri)));
-                liveBlog.put("brands", resolvedBrandWrappedInASet);
-                liveBlog.put("realtime", true);
-                // TODO add webUrl?
-                content = liveBlog;
+                content = buildLiveBlogContent(uuid, originatingSystemId, datePublished, resolvedBrandWrappedInASet, postDetails, requestUri);
                 break;
                 
             default:
@@ -177,12 +169,20 @@ public class WordPressArticleTransformerResource {
         return content;
 	}
 
+	private WordPressLiveBlogContent buildLiveBlogContent(UUID uuid, String originatingSystemId, Date datePublished, SortedSet<Brand> brands, Post postDetails, URI requestUri) {
+        WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder)WordPressLiveBlogContent.builder()
+                .withUuid(uuid)
+                .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, postDetails.getUrl())))
+                .withTitle(unescapeHtml4(postDetails.getTitle()))
+                .withByline(unescapeHtml4(createBylineFromAuthors(postDetails, requestUri)))
+                .withPublishedDate(datePublished)
+                .withBrands(brands)
+                .withComments(createComments(postDetails.getCommentStatus()));
+	    
+        return builder.build();
+	}
     private Comments createComments(String commentStatus) {
-        return Comments.builder().withEnabled(areCommentsOpen(commentStatus)).build();
-    }
-
-    private boolean areCommentsOpen(String commentStatus) {
-        return COMMENT_OPEN_STATUS.equals(commentStatus);
+        return new Comments(COMMENT_OPEN_STATUS.equals(commentStatus));
     }
 	
     private String createBylineFromAuthors(Post postDetails, URI requestUri) {
