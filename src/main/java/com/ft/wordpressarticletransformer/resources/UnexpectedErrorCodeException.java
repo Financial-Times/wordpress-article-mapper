@@ -1,6 +1,6 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import com.ft.wordpressarticletransformer.response.WPFormat;
+import com.ft.wordpressarticletransformer.response.WordPressStatus;
 
 import java.net.URI;
 import java.util.Map;
@@ -18,7 +18,7 @@ public class UnexpectedErrorCodeException extends WordPressApiException {
     }
 
     public UnexpectedErrorCodeException(URI requestUri, String error, Map<String, Object> additionalProperties) {
-        super("error code in response not \"" + WPFormat.STATUS_ERROR + "\", was \"" + error + "\"" , additionalProperties, requestUri);
+        super("error code in response not \"" + WordPressStatus.error + "\", was \"" + error + "\"" , additionalProperties, requestUri);
         this.error = error;
         this.uuid = null;
     }

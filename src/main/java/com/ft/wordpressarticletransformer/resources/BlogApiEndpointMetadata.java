@@ -3,7 +3,7 @@ package com.ft.wordpressarticletransformer.resources;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ft.content.model.Brand;
+import com.ft.wordpressarticletransformer.model.Brand;
 
 public class BlogApiEndpointMetadata {
     private final String host;

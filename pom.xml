@@ -102,21 +102,6 @@
             <version>${jersey-version}</version>
         </dependency>
         <dependency>
-            <groupId>com.ft</groupId>
-            <artifactId>content-model</artifactId>
-            <version>${ft.content-model.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jackson-databind</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-annotations</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
             <version>1.17.1</version>
@@ -135,11 +120,6 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.ft</groupId>
-            <artifactId>ft-async-message</artifactId>
-            <version>1.0.13</version>
         </dependency>
         <dependency>
             <groupId>com.ft.bodyprocessing</groupId>
@@ -352,6 +332,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>

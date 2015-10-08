@@ -3,7 +3,7 @@ package com.ft.wordpressarticletransformer.resources;
 import java.net.URI;
 import java.util.List;
 
-import com.ft.content.model.Brand;
+import com.ft.wordpressarticletransformer.model.Brand;
 
 public class BrandSystemResolver {
     private static final String SYSTEM_ID = "http://api.ft.com/system/%s";
