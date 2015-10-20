@@ -77,7 +77,7 @@ public class ConnectivityToWordPressHealthCheck extends AdvancedHealthCheck {
 
     @Override
 	protected int severity() {
-		return 2;
+		return 1;
 	}
 
 	@Override
