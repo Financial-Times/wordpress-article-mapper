@@ -165,6 +165,19 @@ public class WordPressResilientClientTest {
         wordPressResilientClient.getContent(requestUri, uuid, transactionId());
     }
 
+    @Test(expected=UnpublishablePostException.class)
+    public void shouldThrowUnpublishablePostExceptionWhenPostIsNotReturned() {
+        when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
+        when(handler.handle(any(ClientRequest.class)))
+                .thenReturn(clientResponse);
+        when(clientResponse.getStatus()).thenReturn(SUCCESSFUL_RESPONSE_STATUS_CODE);
+        when(mockWordPressResponse.getStatus()).thenReturn(STATUS_OK);
+
+        // no mocking for the post. A response with no post is the default from the declaration of mockWordPressResponse
+
+        wordPressResilientClient.getContent(requestUri, uuid, transactionId());
+    }
+
     @Test(expected=PostNotFoundException.class)
     public void shouldThrowPostNotFoundExceptionWhenStatusErrorAndErrorCodeNotFoundForGetContent() {
         when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
