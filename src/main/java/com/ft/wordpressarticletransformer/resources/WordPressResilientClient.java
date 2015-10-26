@@ -183,7 +183,7 @@ public class WordPressResilientClient {
                     case ok:
                         if (!isSupportedPostType(wordPressResponse)) {
                             throw new UnpublishablePostException(requestUri, uuid, String.format(UNSUPPORTED_POST_TYPE,
-                                    wordPressResponse.getPost().getType(), SUPPORTED_POST_TYPES, uuid));
+                                    findTheType(wordPressResponse), SUPPORTED_POST_TYPES, uuid));
                         }
                         return wordPressResponse.getPost();
                     
@@ -213,10 +213,22 @@ public class WordPressResilientClient {
         }
     }
 
+    private String findTheType(WordPressResponse wordPressResponse) {
+        if(wordPressResponse.getPost()==null) {
+            return null;
+        }
+        return wordPressResponse.getPost().getType();
+    }
+
     private boolean isSupportedPostType(WordPressResponse wordPressResponse) {
         Post post = wordPressResponse.getPost();
-        
-        return (post != null) && SUPPORTED_POST_TYPES.contains(post.getType());
+        if(post != null) {
+            LOGGER.info("post={}, type={}", post.getId(), post.getType());
+            return SUPPORTED_POST_TYPES.contains(post.getType());
+        } else {
+            LOGGER.info("Post was null");
+            return false;
+        }
     }
     
     private WordPressApiException processWordPressErrorResponse(URI requestUri, UUID uuid, WordPressResponse wordPressResponse) {
