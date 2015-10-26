@@ -80,6 +80,7 @@ public class WordPressResilientClientTest {
     
     private Post mockPost(WordPressPostType postType) {
         Post expectedPost = new Post();
+        expectedPost.setId(7357); // leet for "test"?
         if (postType != null) {
             expectedPost.setType(postType.getApiPostType());
         }
@@ -152,7 +153,7 @@ public class WordPressResilientClientTest {
     }
 
     @Test(expected=UnpublishablePostException.class)
-    public void shouldThrowUnpublishablePostExceptionWhenPostTypeIsNotPostForGetContent() {
+    public void shouldThrowUnpublishablePostExceptionWhenPostTypeIsNotSupportedForGetContent() {
         when(clientResponse.getEntity(WordPressResponse.class)).thenReturn(mockWordPressResponse);
         when(handler.handle(any(ClientRequest.class)))
                 .thenReturn(clientResponse);

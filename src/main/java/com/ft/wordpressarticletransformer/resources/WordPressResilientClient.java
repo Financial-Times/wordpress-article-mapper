@@ -215,7 +215,7 @@ public class WordPressResilientClient {
 
     private boolean isSupportedPostType(WordPressResponse wordPressResponse) {
         Post post = wordPressResponse.getPost();
-        
+        LOGGER.info("post={}, type={}", post.getId(), post.getType());
         return (post != null) && SUPPORTED_POST_TYPES.contains(post.getType());
     }
     
