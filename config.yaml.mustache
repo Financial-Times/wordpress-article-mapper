@@ -1,5 +1,5 @@
 
-credentialsPath: /etc/wordpress-article-transformer-credentials.properties
+credentialsPath: {{{credentialsFile}}}{{^credentialsFile}}/etc/wordpress-article-transformer-credentials.properties{{/credentialsFile}}
 
 videoSiteConfig:
     - urlPattern: "https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)"
@@ -62,7 +62,7 @@ blogApiEndpointMetadata:
     - host: blogs.ft.com/westminster
       brand: http://api.ft.com/things/5e5dba2b-8031-4a65-b193-84a58882c62e
       id: FT-LABS-WP-1-12
-    - host: ftalphaville.ft.com
+    - host: {{{alphaville_host}}}{{^alphaville_host}}ftalphaville.ft.com{{/alphaville_host}}
       brand: http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66
       id: FT-LABS-WP-1-24
     - host: blogs.ft.com/mba-blog
@@ -122,11 +122,11 @@ server:
 
   applicationConnectors:
     - type: http
-      port: 8080
+      port: {{{httpPort}}}{{^httpPort}}8080{{/httpPort}}
 
   adminConnectors:
-      - type: http
-        port: 8081
+    - type: http
+      port: {{{adminPort}}}{{^adminPort}}8081{{/adminPort}}
 
   requestLog:
 

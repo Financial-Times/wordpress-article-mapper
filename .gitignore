@@ -7,3 +7,4 @@ target
 /bin
 /target/
 credentials.properties
+/config-component-tests.yml

@@ -7,14 +7,17 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
+import static com.ft.wordpressarticletransformer.WordPressArticleTransformerComponentTestConfigHelper.CONFIG_FILE;
 
 import java.net.URI;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.wordpressarticletransformer.WordPressArticleTransformerComponentTestConfigHelper;
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
@@ -28,11 +31,16 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 public class WordPressArticleTransformerResourceTest {
+    static {
+        WordPressArticleTransformerComponentTestConfigHelper.setUp(
+                Collections.singletonMap("alphaville_host", "localhost")
+                );
+    }
 
     private static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66");
     
     @ClassRule
-	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test.yaml");
+	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule(CONFIG_FILE);
 	
 	private static final String UUID = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
 	private static final String URL = "url";

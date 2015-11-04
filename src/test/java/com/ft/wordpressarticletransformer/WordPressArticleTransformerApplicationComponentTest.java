@@ -1,5 +1,7 @@
 package com.ft.wordpressarticletransformer;
 
+import static com.ft.wordpressarticletransformer.WordPressArticleTransformerComponentTestConfigHelper.CONFIG_FILE;
+
 import com.ft.wordpressarticletransformer.resources.WP;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule;
 
@@ -22,6 +24,9 @@ import static org.junit.Assert.assertThat;
  * @author Simon
  */
 public class WordPressArticleTransformerApplicationComponentTest {
+    static {
+        WordPressArticleTransformerComponentTestConfigHelper.setUp();
+    }
 
 	private static final String MINIMAL_EXAMPLE_POST_LIST_BODY = "{\n" +
 			"\"status\" : \"ok\",\n" +
@@ -50,7 +55,7 @@ public class WordPressArticleTransformerApplicationComponentTest {
 
 
 	@ClassRule
-	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test.yaml");
+	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule(CONFIG_FILE);
 
 
     @Test

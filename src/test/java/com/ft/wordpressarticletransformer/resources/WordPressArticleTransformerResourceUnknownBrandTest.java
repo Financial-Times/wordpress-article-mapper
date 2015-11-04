@@ -4,11 +4,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
+import static com.ft.wordpressarticletransformer.WordPressArticleTransformerComponentTestConfigHelper.CONFIG_FILE;
 
 import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.wordpressarticletransformer.WordPressArticleTransformerComponentTestConfigHelper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -18,9 +20,12 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 public class WordPressArticleTransformerResourceUnknownBrandTest {
+    static {
+        WordPressArticleTransformerComponentTestConfigHelper.setUp();
+    }
 
 	@ClassRule
-	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test-unknown-brand.yaml");
+	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule(CONFIG_FILE);
 
 	private static final String UUID = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
 	private static final String URL = "url";
