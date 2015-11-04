@@ -20,8 +20,9 @@ public class BrandSystemResolver {
             return null;
         }
 
+        String requestHostAndPath = requestUri.getHost().concat(requestUri.getPath());
         for (BlogApiEndpointMetadata hostToBrand : blogApiEndpointMetadata) {
-            if (requestUri.getHost().concat(requestUri.getPath()).contains(hostToBrand.getHost())) {
+            if (requestHostAndPath.contains(hostToBrand.getHost())) {
                 return hostToBrand.getBrand();
             }
         }
