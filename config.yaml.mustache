@@ -38,12 +38,11 @@ videoSiteConfig:
       embedded: false
 
 healthCheckWordPressConnections:
-    - hostName: {{{hostname_1}}}
-      port: {{{port_1}}}
-      path: {{{path_1}}}
-    - hostName: {{{hostname_2}}}
-      port: {{{port_2}}}
-      path: {{{path_2}}}
+{{#healthCheckSites}}
+    - hostName: {{{hostname}}}
+      port: {{{port}}}
+      path: {{{path}}}
+{{/healthCheckSites}}
 
 
 blogApiEndpointMetadata:

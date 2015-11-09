@@ -1,6 +1,8 @@
 package com.ft.wordpressarticletransformer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WordPressArticleTransformerComponentTestConfigHelper {
@@ -15,12 +17,14 @@ public class WordPressArticleTransformerComponentTestConfigHelper {
         hieraData.put("credentialsFile", "junit-credentials.properties");
         hieraData.put("httpPort", "14180");
         hieraData.put("adminPort", "14181");
-        hieraData.put("hostname_1", "localhost");
-        hieraData.put("port_1", "15670");
-        hieraData.put("path_1", "/api/get_recent_posts/");
-        hieraData.put("hostname_2", "localhost");
-        hieraData.put("port_2", "15670");
-        hieraData.put("path_2", "/api/get_recent_posts/");
+        List<Map<String,Object>> sites = new ArrayList<>();
+        Map<String,Object> site = new HashMap<>();
+        site.put("hostname", "localhost");
+        site.put("port", "15670");
+        site.put("path", "/api/get_recent_posts/");
+        sites.add(site);
+        hieraData.put("healthCheckSites", sites);
+        
         hieraData.put("jerseyClientTimeout", "200ms");
         if (additionalConfig != null) {
             hieraData.putAll(additionalConfig);
