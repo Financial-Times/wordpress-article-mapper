@@ -103,6 +103,12 @@ blogApiEndpointMetadata:
     - host: blogs.ft.com/larry-summers
       brand: http://api.ft.com/things/556f7ab4-474c-40e9-b7a3-c3af60d34156
       id: FT-LABS-WP-1-333
+    - host: www.ft.com/fastft
+      brand: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
+      id: FT-LABS-WP-1-335
+    - host: blogs.ft.com/fastft
+      brand: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
+      id: FT-LABS-WP-1-335
 
 jerseyClient:
     timeout: 200ms
