@@ -48,6 +48,8 @@ healthCheckWordPressConnections:
       port: 80
       path: /fastft/api/get_recent_posts/
 
+ftBrandId: http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54
+
 blogApiEndpointMetadata:
     - host: blogs.ft.com/the-world
       brand: http://api.ft.com/things/806d05b8-3d29-4e81-8668-e9cdae0ab086
@@ -98,7 +100,7 @@ blogApiEndpointMetadata:
       brand: http://api.ft.com/things/72349b8e-1cac-45b4-89df-a1afb55b782e
       id: FT-LABS-WP-1-292
     - host: blogs.ft.com/lex-live
-      brand: http://api.ft.com/things/e363dfb8-f6d9-4f2c-beba-5162b334272b
+      brand: http://api.ft.com/things/e363dfb8-f6d9-4f2c-beba-5162b334272b,http://api.ft.com/things/2d3e16e0-61cb-4322-8aff-3b01c59f4daa
       id: FT-LABS-WP-1-302
     - host: blogs.ft.com/andrew-mcafee
       brand: http://api.ft.com/things/e180d0e0-9d13-4212-9696-f86ef197d2bd

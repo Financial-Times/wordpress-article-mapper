@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
 import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressPostType;
@@ -38,13 +39,14 @@ public class WordPressArticleTransformerResource {
 
 	private final WordPressBlogPostContentTransformer blogTransformer;
 	private final WordPressLiveBlogContentTransformer liveBlogTransformer;
-	private WordPressResilientClient wordPressResilientClient;
+	private final Brand ftBrand;
+    private WordPressResilientClient wordPressResilientClient;
 
 	public WordPressArticleTransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
-                                WordPressResilientClient wordPressResilientClient, BrandSystemResolver brandSystemResolver) {
+                                WordPressResilientClient wordPressResilientClient, BrandSystemResolver brandSystemResolver, Brand ftBrand) {
 
         this.wordPressResilientClient = wordPressResilientClient;
-        
+        this.ftBrand = ftBrand;
         this.blogTransformer = new WordPressBlogPostContentTransformer(brandSystemResolver, bodyProcessingFieldTransformer);
         this.liveBlogTransformer = new WordPressLiveBlogContentTransformer(brandSystemResolver);
     }
@@ -74,7 +76,7 @@ public class WordPressArticleTransformerResource {
 			throw new NotFoundException();
 		}
 		
-        return transformerFor(postDetails).transform(transactionId, requestUri, postDetails, uuid);
+        return transformerFor(postDetails).transform(transactionId, requestUri, postDetails, uuid, ftBrand);
 	}
 
 	private Post doRequest(URI requestUri, UUID uuid, String transactionId) {

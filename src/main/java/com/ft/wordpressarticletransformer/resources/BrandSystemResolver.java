@@ -14,7 +14,7 @@ public class BrandSystemResolver {
     }
 
 
-    public Brand getBrand(URI requestUri) {
+    public List<Brand> getBrand(URI requestUri) {
 
         if (requestUri == null || requestUri.getHost() == null) {
             return null;
@@ -23,7 +23,7 @@ public class BrandSystemResolver {
         String requestHostAndPath = requestUri.getHost().concat(requestUri.getPath());
         for (BlogApiEndpointMetadata hostToBrand : blogApiEndpointMetadata) {
             if (requestHostAndPath.contains(hostToBrand.getHost())) {
-                return hostToBrand.getBrand();
+                return hostToBrand.getBrands();
             }
         }
         return null;
