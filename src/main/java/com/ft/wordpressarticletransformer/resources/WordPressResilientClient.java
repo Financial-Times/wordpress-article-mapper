@@ -3,6 +3,7 @@ package com.ft.wordpressarticletransformer.resources;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,10 +47,11 @@ public class WordPressResilientClient {
 	private final int numberOfConnectionAttempts;
 	private final String wordpressApiKey;
 	private final Timer requests;
+    private static Random bust = new Random();
 
     public WordPressResilientClient(Client client, MetricRegistry appMetrics, int numberOfConnectionAttempts, String wordpressApiKey) {
 
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(wordpressApiKey),"No WordPress API key provided");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(wordpressApiKey), "No WordPress API key provided");
 
         this.client = client;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
@@ -103,6 +105,7 @@ public class WordPressResilientClient {
                 .host(wordPressConnection.getHostName())
                 .port(wordPressConnection.getPort())
                 .queryParam("count", 1)
+                .queryParam("cacheBust", bust.nextInt())
 				.build();
     }
     
