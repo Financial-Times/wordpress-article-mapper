@@ -11,7 +11,12 @@ import org.junit.Test;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -31,21 +36,21 @@ public class WordPressArticleTransformerApplicationComponentTest {
 			"\"posts\": [ ] }";
 
     private static final String ADDITIONAL_PROPERTIES_EXAMPLE_BODY = "{\n"+
-            "    \"status\": \"error\",\n"+
-            "    \"error\": \"error\",\n"+
-            "    \"foo\" : \"bar\",\n"+
-            "    \"baz\" : {\n"+
-            "        \"spong\" : \"bip\"\n"+
-            "    }\n"+
+            "\"status\": \"error\",\n"+
+            "\"error\": \"error\",\n"+
+            "\"foo\" : \"bar\",\n"+
+            "\"baz\" : {\n"+
+            "\"spong\" : \"bip\"\n"+
+            "}\n"+
             "}";
 
     private static final String UNUSUAL_ADDITIONAL_PROPERTIES_EXAMPLE_BODY = "{\n"+
-            "    \"status\": \"unable to serve content due to an unexpected disaster involving blancmange\",\n"+
-            "    \"error\": \"error\",\n"+
-            "    \"foo\" : \"bar\",\n"+
-            "    \"baz\" : {\n"+
-            "        \"spong\" : \"bip\"\n"+
-            "    }\n"+
+            "\"status\": \"unable to serve content due to an unexpected disaster involving blancmange\",\n"+
+            "\"error\": \"error\",\n"+
+            "\"foo\" : \"bar\",\n"+
+            "\"baz\" : {\n"+
+            "\"spong\" : \"bip\"\n"+
+            "}\n"+
             "}";
 
 
@@ -123,7 +128,7 @@ public class WordPressArticleTransformerApplicationComponentTest {
 		try {
 			assertThat(response.getStatus(),is(200));
 
-			verify(getRequestedFor(urlEqualTo(recentPostsListPathWithApiKey())));
+			verify(getRequestedFor(urlMatching(recentPostsListPathWithApiKey())));
 		} finally {
 			response.close();
 		}
@@ -131,14 +136,14 @@ public class WordPressArticleTransformerApplicationComponentTest {
 	}
 
     private void stubWPHealthCheckEndpoint(String body) {
-        stubFor(get(urlEqualTo(recentPostsListPathWithApiKey())).willReturn(
+        stubFor(get(urlMatching(recentPostsListPathWithApiKey())).willReturn(
                 aResponse()
                     .withBody(body)
                     .withHeader("Content-Type", "application/json")));
     }
 
     private String recentPostsListPathWithApiKey() {
-		return "/api/get_recent_posts/?count=1&api_key=" + WP.EXAMPLE_API_KEY;
+        return "/api/get_recent_posts/\\?count=1&cacheBust=(-?[0-9]+)&api_key=" + WP.EXAMPLE_API_KEY;
 	}
 
 

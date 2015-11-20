@@ -77,7 +77,7 @@ public class WordPressResilientClient {
 
             try {
                 //Add API Key to URI here so that we don't log it in this class
-                response = webResource.queryParam(API_KEY_NAME,wordpressApiKey).accept("application/json").get(ClientResponse.class);
+                response = webResource.queryParam(API_KEY_NAME, wordpressApiKey).accept("application/json").get(ClientResponse.class);
                 wordPressMostRecentPostsResponse = processListResponse(response, wordPressRecentPostsUrl);
                 return wordPressMostRecentPostsResponse;
             } catch (RuntimeException e) {
