@@ -11,6 +11,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -91,7 +92,7 @@ public class BrandSystemResolverTest {
 
     @Test
     public void testShouldReturnTwoBrandsWhenKnownRequestUriForNestedBrandLevelsIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getBrand(new URI("http://blogs.ft.com/compound/api/get_post/?id=135790")), contains(ALPHA_VILLE_BRAND,OTHER_BRAND));
+        assertThat(brandSystemResolver.getBrand(new URI("http://blogs.ft.com/compound/api/get_post/?id=135790")), containsInAnyOrder(ALPHA_VILLE_BRAND, OTHER_BRAND));
     }
 
     // System Id tests

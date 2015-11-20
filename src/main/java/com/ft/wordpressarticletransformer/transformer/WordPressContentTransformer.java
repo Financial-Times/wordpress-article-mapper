@@ -8,7 +8,6 @@ import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.resources.WordPressApiException;
 import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.Post;
-import com.google.common.collect.ImmutableSortedSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +16,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -38,7 +38,7 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
     public C transform(String transactionId, URI requestUri, Post post, UUID uuid, Brand ftBrand) {
         Date publishedDate = extractPublishedDate(requestUri, post);
 
-        List<Brand> brandList = extractBrand(requestUri);
+        Set<Brand> brandList = extractBrand(requestUri);
         SortedSet<Brand> brands = new TreeSet<>(brandList);
         brands.add(ftBrand);
 
@@ -50,8 +50,8 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
 
     protected abstract C doTransform(String transactionId, URI requestUri, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId);
 
-    private List<Brand> extractBrand(URI requestUri) {
-        List<Brand> brand = brandSystemResolver.getBrand(requestUri);
+    private Set<Brand> extractBrand(URI requestUri) {
+        Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
 
         if (brand == null) {
             String msg = String.format("Failed to resolve brand for uri [%s].", requestUri);

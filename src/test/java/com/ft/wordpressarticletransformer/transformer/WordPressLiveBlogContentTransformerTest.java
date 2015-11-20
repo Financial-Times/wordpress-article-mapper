@@ -12,7 +12,9 @@ import org.junit.Test;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -29,7 +31,7 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final UUID POST_UUID = UUID.randomUUID();
     private static final String PUBLISHED_DATE = "2015-09-30 15:30:00";
     private static final Brand FT_BRAND = new Brand("FT-BRAND");
-    private static final List<Brand> SPECIFIC_BRANDS = new ArrayList<Brand>(){{
+    private static final Set<Brand> SPECIFIC_BRANDS = new HashSet<Brand>(){{
         add(new Brand("JUNIT-BLOG-BRAND"));
     }};
     private static final List<Brand> BRANDS = new ArrayList<Brand>() {{

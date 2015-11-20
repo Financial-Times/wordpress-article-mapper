@@ -2,6 +2,7 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 import com.ft.wordpressarticletransformer.model.Brand;
 
@@ -14,7 +15,7 @@ public class BrandSystemResolver {
     }
 
 
-    public List<Brand> getBrand(URI requestUri) {
+    public Set<Brand> getBrand(URI requestUri) {
 
         if (requestUri == null || requestUri.getHost() == null) {
             return null;
