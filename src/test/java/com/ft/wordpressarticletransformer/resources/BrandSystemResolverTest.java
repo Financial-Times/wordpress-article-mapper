@@ -7,6 +7,8 @@ import org.junit.Test;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,7 +26,6 @@ public class BrandSystemResolverTest {
     public static final Brand THIRD_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b24");
     public static final Brand FINAL_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b55");
     public static final Brand BEYONDBRICS_BRAND = new Brand("http://api.ft.com/things/3a37a89e-14ce-4ac8-af12-961a9630dce3");
-    public static final String COMPOUND_BRAND_URIS = "http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54,http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b142";
 
     private static final String AUTHORITY_PREFIX = "http://api.ft.com/system/";
     public static final String ALPHA_VILLE_ID = "FT-LABS-WP-1-24";
@@ -38,12 +39,12 @@ public class BrandSystemResolverTest {
     public void setUp() {
 
         List<BlogApiEndpointMetadata> blogApiEndpointMetadata = new ArrayList<>();
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("ftalphaville.ft.com", ALPHA_VILLE_BRAND.getId(), ALPHA_VILLE_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("othersite.ft.com", OTHER_BRAND.getId(), OTHER_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("thirdsite.ft.com", THIRD_BRAND.getId(), THIRD_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("finalsite.ft.com", FINAL_BRAND.getId(), FINAL_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/beyond-brics", BEYONDBRICS_BRAND.getId(), BEYONDBRICS_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/compound/", COMPOUND_BRAND_URIS, ALPHA_VILLE_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("ftalphaville.ft.com", new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND.getId())), ALPHA_VILLE_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("othersite.ft.com", new HashSet<>(Arrays.asList(OTHER_BRAND.getId())), OTHER_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("thirdsite.ft.com", new HashSet<>(Arrays.asList(THIRD_BRAND.getId())), THIRD_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("finalsite.ft.com", new HashSet<>(Arrays.asList(FINAL_BRAND.getId())), FINAL_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/beyond-brics", new HashSet<>(Arrays.asList(BEYONDBRICS_BRAND.getId())), BEYONDBRICS_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/compound/", new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND.getId(), OTHER_BRAND.getId())), ALPHA_VILLE_ID));
 
         brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadata);
 

@@ -59,7 +59,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 
 
         environment.jersey().register(new WordPressArticleTransformerResource(getBodyProcessingFieldTransformer(videoMatcher),
-                wordPressResilientClient, new BrandSystemResolver(configuration.getHostToBrands()), configuration.getFtBrand()));
+                wordPressResilientClient, new BrandSystemResolver(configuration.getHostToBrands())));
 
         String healthCheckName = "Connectivity to WordPress";
         environment.healthChecks().register(healthCheckName,

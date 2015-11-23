@@ -13,14 +13,13 @@ public class BlogApiEndpointMetadata {
     private final String id;
 
     public BlogApiEndpointMetadata(@JsonProperty("host") String host,
-                                   @JsonProperty("brand") String brands,
+                                   @JsonProperty("brands") Set<String> brands,
                                    @JsonProperty("id") String id) {
         super();
         this.host = host;
         this.brands = new HashSet<>();
-        String[] brandUris = brands.split(",");
 
-        for (String brandUri : brandUris) {
+        for (String brandUri : brands) {
             Brand brand = new Brand(brandUri);
             this.brands.add(brand);
         }

@@ -39,14 +39,12 @@ public class WordPressArticleTransformerResource {
 
 	private final WordPressBlogPostContentTransformer blogTransformer;
 	private final WordPressLiveBlogContentTransformer liveBlogTransformer;
-	private final Brand ftBrand;
     private WordPressResilientClient wordPressResilientClient;
 
 	public WordPressArticleTransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
-                                WordPressResilientClient wordPressResilientClient, BrandSystemResolver brandSystemResolver, Brand ftBrand) {
+                                WordPressResilientClient wordPressResilientClient, BrandSystemResolver brandSystemResolver) {
 
         this.wordPressResilientClient = wordPressResilientClient;
-        this.ftBrand = ftBrand;
         this.blogTransformer = new WordPressBlogPostContentTransformer(brandSystemResolver, bodyProcessingFieldTransformer);
         this.liveBlogTransformer = new WordPressLiveBlogContentTransformer(brandSystemResolver);
     }
@@ -76,7 +74,7 @@ public class WordPressArticleTransformerResource {
 			throw new NotFoundException();
 		}
 		
-        return transformerFor(postDetails).transform(transactionId, requestUri, postDetails, uuid, ftBrand);
+        return transformerFor(postDetails).transform(transactionId, requestUri, postDetails, uuid);
 	}
 
 	private Post doRequest(URI requestUri, UUID uuid, String transactionId) {

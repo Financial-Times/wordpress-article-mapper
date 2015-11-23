@@ -35,12 +35,10 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         this.brandSystemResolver = brandSystemResolver;
     }
 
-    public C transform(String transactionId, URI requestUri, Post post, UUID uuid, Brand ftBrand) {
+    public C transform(String transactionId, URI requestUri, Post post, UUID uuid) {
         Date publishedDate = extractPublishedDate(requestUri, post);
 
-        Set<Brand> brandList = extractBrand(requestUri);
-        SortedSet<Brand> brands = new TreeSet<>(brandList);
-        brands.add(ftBrand);
+        SortedSet<Brand> brands = new TreeSet<>(extractBrand(requestUri));
 
         String originatingSystemId = extractSystemId(requestUri);
 

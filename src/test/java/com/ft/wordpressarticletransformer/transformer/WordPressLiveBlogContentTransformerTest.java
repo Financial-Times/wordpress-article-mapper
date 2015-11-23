@@ -30,13 +30,8 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final String POST_URL = "http://junit.example.org/some-post/";
     private static final UUID POST_UUID = UUID.randomUUID();
     private static final String PUBLISHED_DATE = "2015-09-30 15:30:00";
-    private static final Brand FT_BRAND = new Brand("FT-BRAND");
-    private static final Set<Brand> SPECIFIC_BRANDS = new HashSet<Brand>(){{
+    private static final Set<Brand> BRANDS = new HashSet<Brand>(){{
         add(new Brand("JUNIT-BLOG-BRAND"));
-    }};
-    private static final List<Brand> BRANDS = new ArrayList<Brand>() {{
-        addAll(SPECIFIC_BRANDS);
-        add(FT_BRAND);
     }};
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
     private static final String TITLE = "Test LiveBlog";
@@ -51,7 +46,7 @@ public class WordPressLiveBlogContentTransformerTest {
     public void setUp() {
         transformer = new WordPressLiveBlogContentTransformer(brandResolver);
 
-        when(brandResolver.getBrand(REQUEST_URI)).thenReturn(SPECIFIC_BRANDS);
+        when(brandResolver.getBrand(REQUEST_URI)).thenReturn(BRANDS);
         when(brandResolver.getOriginatingSystemId(REQUEST_URI)).thenReturn(SYSTEM_ID);
         AUTHOR.setName(AUTHOR_NAME);
     }
@@ -65,7 +60,7 @@ public class WordPressLiveBlogContentTransformerTest {
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
 
-        WordPressLiveBlogContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, FT_BRAND);
+        WordPressLiveBlogContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
