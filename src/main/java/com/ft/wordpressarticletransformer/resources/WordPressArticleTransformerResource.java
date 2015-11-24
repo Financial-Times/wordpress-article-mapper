@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
 import com.ft.api.util.transactionid.TransactionIdUtils;
+import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressPostType;
@@ -38,13 +39,12 @@ public class WordPressArticleTransformerResource {
 
 	private final WordPressBlogPostContentTransformer blogTransformer;
 	private final WordPressLiveBlogContentTransformer liveBlogTransformer;
-	private WordPressResilientClient wordPressResilientClient;
+    private WordPressResilientClient wordPressResilientClient;
 
 	public WordPressArticleTransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
                                 WordPressResilientClient wordPressResilientClient, BrandSystemResolver brandSystemResolver) {
 
         this.wordPressResilientClient = wordPressResilientClient;
-        
         this.blogTransformer = new WordPressBlogPostContentTransformer(brandSystemResolver, bodyProcessingFieldTransformer);
         this.liveBlogTransformer = new WordPressLiveBlogContentTransformer(brandSystemResolver);
     }

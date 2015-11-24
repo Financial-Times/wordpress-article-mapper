@@ -1,9 +1,5 @@
 package com.ft.wordpressarticletransformer.configuration;
 
-import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
 import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
@@ -11,10 +7,15 @@ import com.google.common.base.Objects;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.List;
+
 public class WordPressArticleTransformerConfiguration extends Configuration {
 
 	private final List<WordPressConnection> wordPressConnections;
     private final List<BlogApiEndpointMetadata> hostToBrands;
+
 	private final JerseyClientConfiguration jerseyClientConfiguration;
 	private final int numberOfConnectionAttempts;
     private String credentialsPath;
@@ -53,7 +54,7 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
         return hostToBrands;
     }
 
-	@NotNull
+    @NotNull
 	public JerseyClientConfiguration getJerseyClientConfiguration() {
 		return jerseyClientConfiguration;
 	}
@@ -75,7 +76,7 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 				.add("jerseyClient", jerseyClientConfiguration)
 				.add("numberOfConnectionAttempts", numberOfConnectionAttempts);
     }
-    
+
     @Override
     public String toString() {
         return toStringHelper().toString();

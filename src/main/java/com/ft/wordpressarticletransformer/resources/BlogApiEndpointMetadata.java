@@ -1,21 +1,28 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.wordpressarticletransformer.model.Brand;
 
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
+
 public class BlogApiEndpointMetadata {
     private final String host;
-    private final Brand brand;
+    private final Set<Brand> brands;
     private final String id;
 
     public BlogApiEndpointMetadata(@JsonProperty("host") String host,
-                                   @JsonProperty("brand") String brandUri,
-                                   @JsonProperty("id") String id){
+                                   @JsonProperty("brands") Set<String> brands,
+                                   @JsonProperty("id") String id) {
         super();
         this.host = host;
-        this.brand = new Brand(brandUri);
+        this.brands = new HashSet<>();
+
+        for (String brandUri : brands) {
+            Brand brand = new Brand(brandUri);
+            this.brands.add(brand);
+        }
         this.id = id;
     }
 
@@ -25,8 +32,8 @@ public class BlogApiEndpointMetadata {
     }
 
     @NotNull
-    public Brand getBrand() {
-        return brand;
+    public Set<Brand> getBrands() {
+        return brands;
     }
 
     @NotNull

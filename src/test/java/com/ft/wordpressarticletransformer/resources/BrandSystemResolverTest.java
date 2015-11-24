@@ -1,18 +1,22 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNull.nullValue;
+import com.ft.wordpressarticletransformer.model.Brand;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
-import com.ft.wordpressarticletransformer.model.Brand;
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.nullValue;
 
 public class BrandSystemResolverTest {
 
@@ -35,75 +39,81 @@ public class BrandSystemResolverTest {
     public void setUp() {
 
         List<BlogApiEndpointMetadata> blogApiEndpointMetadata = new ArrayList<>();
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("ftalphaville.ft.com", ALPHA_VILLE_BRAND.getId(), ALPHA_VILLE_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("othersite.ft.com", OTHER_BRAND.getId(), OTHER_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("thirdsite.ft.com", THIRD_BRAND.getId(), THIRD_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("finalsite.ft.com", FINAL_BRAND.getId(), FINAL_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/beyond-brics", BEYONDBRICS_BRAND.getId(), BEYONDBRICS_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("ftalphaville.ft.com", new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND.getId())), ALPHA_VILLE_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("othersite.ft.com", new HashSet<>(Arrays.asList(OTHER_BRAND.getId())), OTHER_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("thirdsite.ft.com", new HashSet<>(Arrays.asList(THIRD_BRAND.getId())), THIRD_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("finalsite.ft.com", new HashSet<>(Arrays.asList(FINAL_BRAND.getId())), FINAL_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/beyond-brics", new HashSet<>(Arrays.asList(BEYONDBRICS_BRAND.getId())), BEYONDBRICS_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/compound/", new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND.getId(), OTHER_BRAND.getId())), ALPHA_VILLE_ID));
 
         brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadata);
 
     }
 
     @Test
-    public void testShouldReturnNullWhenNullUriIsPassed(){
+    public void testShouldReturnNullWhenNullUriIsPassed() {
         assertThat(brandSystemResolver.getBrand(null), is(nullValue()));
     }
 
     @Test
     public void testShouldReturnNullWhenEmptyUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getBrand(new URI("")), is (nullValue()));
+        assertThat(brandSystemResolver.getBrand(new URI("")), is(nullValue()));
     }
 
     @Test
-    public void testShouldReturnNullWhenUnknownRequestUriIsPassed() throws URISyntaxException{
+    public void testShouldReturnNullWhenUnknownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getBrand(new URI("http://www.this-is-fake.com")), is(nullValue()));
     }
 
     @Test
-     public void testShouldReturnAlphaVilleBrandWhenKnownRequestUriIsPassed() throws URISyntaxException{
-        assertThat(brandSystemResolver.getBrand(new URI("http://uat.ftalphaville.ft.com/api/get_post/?id=2014172")), is(equalTo(ALPHA_VILLE_BRAND)));
+    public void testShouldReturnAlphaVilleBrandWhenKnownRequestUriIsPassed() throws URISyntaxException {
+        assertThat(brandSystemResolver.getBrand(new URI("http://uat.ftalphaville.ft.com/api/get_post/?id=2014172")), contains(ALPHA_VILLE_BRAND));
     }
 
     @Test
     public void testShouldReturnOtherBrandWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getBrand(new URI("http://test.othersite.ft.com/api/get_post/?id=1234567")), is (equalTo(OTHER_BRAND)));
+        assertThat(brandSystemResolver.getBrand(new URI("http://test.othersite.ft.com/api/get_post/?id=1234567")), contains(OTHER_BRAND));
     }
 
     @Test
     public void testShouldReturnThirdBrandWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getBrand(new URI("http://test.thirdsite.ft.com/api/get_post/?id=9876543")), is (equalTo(THIRD_BRAND)));
+        assertThat(brandSystemResolver.getBrand(new URI("http://test.thirdsite.ft.com/api/get_post/?id=9876543")), contains(THIRD_BRAND));
     }
 
     @Test
     public void testShouldReturnFinalBrandWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getBrand(new URI("http://test.finalsite.ft.com/api/get_post/?id=135790")), is (equalTo(FINAL_BRAND)));
+        assertThat(brandSystemResolver.getBrand(new URI("http://test.finalsite.ft.com/api/get_post/?id=135790")), contains(FINAL_BRAND));
     }
 
 
     @Test
     public void testShouldReturnBeyondBricsBrandWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getBrand(new URI("http://blogs.ft.com/beyond-brics/api/get_post/?id=135790")), is (equalTo(BEYONDBRICS_BRAND)));
+        assertThat(brandSystemResolver.getBrand(new URI("http://blogs.ft.com/beyond-brics/api/get_post/?id=135790")), contains(BEYONDBRICS_BRAND));
+    }
+
+    @Test
+    public void testShouldReturnTwoBrandsWhenKnownRequestUriForNestedBrandLevelsIsPassed() throws URISyntaxException {
+        assertThat(brandSystemResolver.getBrand(new URI("http://blogs.ft.com/compound/api/get_post/?id=135790")), containsInAnyOrder(ALPHA_VILLE_BRAND, OTHER_BRAND));
     }
 
     // System Id tests
     @Test
-    public void testShouldReturnNullSystemIdWhenNullUriIsPassed(){
+    public void testShouldReturnNullSystemIdWhenNullUriIsPassed() {
         assertThat(brandSystemResolver.getOriginatingSystemId(null), is(nullValue()));
     }
 
     @Test
     public void testShouldReturnNullSystemIdWhenEmptyUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("")), is (nullValue()));
+        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("")), is(nullValue()));
     }
 
     @Test
-    public void testShouldReturnNullSystemIdWhenUnknownRequestUriIsPassed() throws URISyntaxException{
+    public void testShouldReturnNullSystemIdWhenUnknownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://www.this-is-fake.com")), is(nullValue()));
     }
 
     @Test
-    public void testShouldReturnAlphaVilleSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException{
+    public void testShouldReturnAlphaVilleSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://uat.ftalphaville.ft.com/api/get_post/?id=2014172")),
                 is(equalTo(AUTHORITY_PREFIX + ALPHA_VILLE_ID)));
     }
@@ -111,28 +121,27 @@ public class BrandSystemResolverTest {
     @Test
     public void testShouldReturnOtherSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.othersite.ft.com/api/get_post/?id=1234567")),
-                is (equalTo(AUTHORITY_PREFIX + OTHER_ID)));
+                is(equalTo(AUTHORITY_PREFIX + OTHER_ID)));
     }
 
     @Test
     public void testShouldReturnThirdSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.thirdsite.ft.com/api/get_post/?id=9876543")),
-                is (equalTo(AUTHORITY_PREFIX + THIRD_ID)));
+                is(equalTo(AUTHORITY_PREFIX + THIRD_ID)));
     }
 
     @Test
     public void testShouldReturnFinalSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.finalsite.ft.com/api/get_post/?id=135790")),
-                is (equalTo(AUTHORITY_PREFIX + FINAL_ID)));
+                is(equalTo(AUTHORITY_PREFIX + FINAL_ID)));
     }
 
 
     @Test
     public void testShouldReturnBeyondBricsSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://blogs.ft.com/beyond-brics/api/get_post/?id=135790")),
-                is (equalTo(AUTHORITY_PREFIX + BEYONDBRICS_ID)));
+                is(equalTo(AUTHORITY_PREFIX + BEYONDBRICS_ID)));
     }
-
 
 
 }

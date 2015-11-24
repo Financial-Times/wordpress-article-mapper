@@ -2,6 +2,7 @@ package com.ft.wordpressarticletransformer.resources;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 import com.ft.wordpressarticletransformer.model.Brand;
 
@@ -14,7 +15,7 @@ public class BrandSystemResolver {
     }
 
 
-    public Brand getBrand(URI requestUri) {
+    public Set<Brand> getBrand(URI requestUri) {
 
         if (requestUri == null || requestUri.getHost() == null) {
             return null;
@@ -23,7 +24,7 @@ public class BrandSystemResolver {
         String requestHostAndPath = requestUri.getHost().concat(requestUri.getPath());
         for (BlogApiEndpointMetadata hostToBrand : blogApiEndpointMetadata) {
             if (requestHostAndPath.contains(hostToBrand.getHost())) {
-                return hostToBrand.getBrand();
+                return hostToBrand.getBrands();
             }
         }
         return null;

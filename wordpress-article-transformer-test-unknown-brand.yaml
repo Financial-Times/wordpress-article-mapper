@@ -44,7 +44,7 @@ healthCheckWordPressConnections:
 
 blogApiEndpointMetadata:
     - host: unlocalhost
-      brand: http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54
+      brands: ["http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-24
 
 jerseyClient:
