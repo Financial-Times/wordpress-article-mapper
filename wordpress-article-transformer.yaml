@@ -38,13 +38,13 @@ videoSiteConfig:
       embedded: false
 
 healthCheckWordPressConnections:
-    - hostName: int.ftalphaville.ft.com
+    - hostName: ftalphaville.ft.com
       port: 80
       path: /api/get_recent_posts/
-    - hostName: int.blogs.ft.com
+    - hostName: blogs.ft.com
       port: 80
       path: /beyond-brics/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
+    - hostName: blogs.ft.com
       port: 80
       path: /photo-diary/api/get_recent_posts/
 
