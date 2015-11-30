@@ -1,7 +1,7 @@
 # Wordpress Article Transformer
 
 Wordpress Article Transformer is a Dropwizard application which responds to a request for a blogpost, obtains it from Wordpress   
-and converts it into the canonical universal publishing json format. Currently only Alphaville blogposts are supported.
+and converts it into the canonical universal publishing json format.
 
 ## Introduction
 This application picks up a message from the Kafka queue which contains a line of content. This content contains the uri  
