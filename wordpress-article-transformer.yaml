@@ -46,7 +46,7 @@ healthCheckWordPressConnections:
       path: /beyond-brics/api/get_recent_posts/
     - hostName: int.blogs.ft.com
       port: 80
-      path: /fastft/api/get_recent_posts/
+      path: /photo-diary/api/get_recent_posts/
 
 blogApiEndpointMetadata:
     - host: blogs.ft.com/the-world
