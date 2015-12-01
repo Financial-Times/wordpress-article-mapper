@@ -38,15 +38,15 @@ videoSiteConfig:
       embedded: false
 
 healthCheckWordPressConnections:
-    - hostName: ftalphaville.ft.com
+    - hostName: int.ftalphaville.ft.com
       port: 80
       path: /api/get_recent_posts/
-    - hostName: blogs.ft.com
+    - hostName: int.blogs.ft.com
       port: 80
       path: /beyond-brics/api/get_recent_posts/
-    - hostName: blogs.ft.com
+    - hostName: int.blogs.ft.com
       port: 80
-      path: /photo-diary/api/get_recent_posts/
+      path: /fastft/api/get_recent_posts/
 
 blogApiEndpointMetadata:
     - host: blogs.ft.com/the-world
