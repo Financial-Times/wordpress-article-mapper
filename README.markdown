@@ -3,11 +3,6 @@
 Wordpress Article Transformer is a Dropwizard application which responds to a request for a blogpost, obtains it from Wordpress   
 and converts it into the canonical universal publishing json format.
 
-## Introduction
-This application picks up a message from the Kafka queue which contains a line of content. This content contains the uri  
-of a newly published blogpost and the corresponding uuid.The app uses this information to retrieve the blogpost from   
-Wordpress and converts it to json after which it is sent to the Ingester
-
 ## Running
 In order to run the project, please run com.ft.wordpressarticletransformer.WordPressArticleTransformerApplication with the following  
 program parameters: server wordpress-article-transformer.yaml
