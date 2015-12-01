@@ -6,7 +6,7 @@ RUN apk --update add git \
  && HASH=$(git log -1 --pretty=format:%H) \
  && BUILD_NUMBER=$(cat ./buildnum.txt) \
  && BUILD_URL=$(cat ./buildurl.txt) \
- && mvn install -Dbuild.git.revision=$HASH -Dbuild.git.revision=$HASH -Dbuild.number=$BUILD_NUMBER -Dbuild.url=$BUILD_URL -Djava.net.preferIPv4Stack=true \
+ && mvn install -Dbuild.git.revision=$HASH -Dbuild.number=$BUILD_NUMBER -Dbuild.url=$BUILD_URL -Djava.net.preferIPv4Stack=true \
  && rm -f target/wordpress-article-transformer-*sources.jar \
  && mv target/wordpress-article-transformer-*.jar /app.jar \
  && mv wordpress-article-transformer.yaml /config.yaml \
