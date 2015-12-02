@@ -1,10 +1,28 @@
 FROM up-registry.ft.com/coco/dropwizardbase
 
-RUN git clone http://git.svc.ft.com/scm/cp/wordpress-article-transformer.git
-RUN cd wordpress-article-transformer && mvn install
+ADD . /
 
-RUN cp /wordpress-article-transformer/target/wordpress-article-transformer-0.0.1-SNAPSHOT.jar /app.jar
-RUN cp /wordpress-article-transformer/wordpress-article-transformer.yaml /config.yaml
+RUN apk --update add git \
+ && HASH=$(git log -1 --pretty=format:%H) \
+ && BUILD_NUMBER=$(cat ./buildnum.txt) \
+ && BUILD_URL=$(cat ./buildurl.txt) \
+ && mvn install -Dbuild.git.revision=$HASH -Dbuild.number=$BUILD_NUMBER -Dbuild.url=$BUILD_URL -Djava.net.preferIPv4Stack=true \
+ && rm -f target/wordpress-article-transformer-*sources.jar \
+ && mv target/wordpress-article-transformer-*.jar /app.jar \
+ && mv wordpress-article-transformer.yaml /config.yaml \
+ && apk del git \
+ && rm -rf /var/cache/apk/* \
+ && rm -rf /root/.m2/*
 
-CMD echo wordpress.contentApi.key=$WORDPRESS_CONTENTAPI_KEY > /credentials.properties && java -Ddw.credentialsPath=/credentials.properties -Ddw.healthCheckWordPressConnections[0].hostName=ftalphaville.ft.com -Ddw.healthCheckWordPressConnections[1].hostName=blogs.ft.com -Ddw.server.applicationConnectors[0].port=8080 -Ddw.server.adminConnectors[0].port=8081 -jar app.jar server config.yaml
+EXPOSE 8080 8081
 
+CMD echo -e "wordpress.contentApi.key=$WORDPRESS_CONTENT_API_KEY" > /credentials.properties && \
+    chmod 400 /credentials.properties && \
+    java -Ddw.server.applicationConnectors[0].port=8080 \
+     -Ddw.server.adminConnectors[0].port=8081 \
+     -Ddw.logging.appenders[0].logFormat="%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %replace(%m%n[%thread]%xEx){'\n', '|'}%nopex%n" \
+     -Ddw.healthCheckWordPressConnections[0].hostName="ftalphaville.ft.com" \
+     -Ddw.healthCheckWordPressConnections[1].hostName="blogs.ft.com" \
+     -Ddw.healthCheckWordPressConnections[2].hostName="blogs.ft.com" \
+     -Ddw.healthCheckWordPressConnections[2].path="/photo-diary/api/get_recent_posts/" \
+     -jar app.jar server config.yaml
