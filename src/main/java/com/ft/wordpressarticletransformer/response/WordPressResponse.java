@@ -18,6 +18,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "status",
+    "apiUrl",
     "error",
     "post",
     "previous_url"
@@ -26,6 +27,8 @@ public class WordPressResponse {
 
     @JsonProperty("status")
     private String status;
+    @JsonProperty("apiUrl")
+    private String apiUrl;
     @JsonProperty("error")
     private String error;
     @JsonProperty("post")
@@ -115,6 +118,14 @@ public class WordPressResponse {
         this.previousUrl = previousUrl;
     }
 
+    public String getApiUrl() {
+        return apiUrl;
+    }
+
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
     @Override
     public String toString() {
         //TODO replace with non-reflection based version
@@ -133,7 +144,7 @@ public class WordPressResponse {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(status).append(error).append(post).append(previousUrl).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(status).append(error).append(post).append(previousUrl).append(apiUrl).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -145,7 +156,7 @@ public class WordPressResponse {
             return false;
         }
         WordPressResponse rhs = ((WordPressResponse) other);
-        return new EqualsBuilder().append(status, rhs.status).append(error, rhs.error).append(post, rhs.post).append(previousUrl, rhs.previousUrl).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(status, rhs.status).append(error, rhs.error).append(post, rhs.post).append(previousUrl, rhs.previousUrl).append(apiUrl, rhs.apiUrl).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

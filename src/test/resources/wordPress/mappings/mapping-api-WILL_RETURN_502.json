@@ -1,0 +1,9 @@
+{
+	"request" : {
+		"urlPattern" : "/.*5c652c7e-c81e-4be7-8669-adeb5a5621d5",
+		"method" : "GET"
+	},
+	"response" : {
+		"status" : 502
+	}
+}

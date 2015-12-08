@@ -1,4 +1,4 @@
-package com.ft.wordpressarticletransformer.resources;
+package com.ft.wordpressarticletransformer.exception;
 
 
 public class BrandResolutionException

@@ -1,10 +1,10 @@
 {
 	"request" : {
-		"urlPattern" : "/request_to_word_press_500.*",
+		"urlPattern" : "/.*5c652c7e-c81e-4be7-8669-adeb5a5621d4",
 		"method" : "GET"
 	},
 	"response" : {
-		"status" : 150,
+		"status" : 503,
 		"bodyFileName" : "WILL_RETURN_200-body-from-wordpress.json",
 		"headers" : {
 			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",

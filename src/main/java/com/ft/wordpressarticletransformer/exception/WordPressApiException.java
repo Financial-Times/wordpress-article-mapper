@@ -1,4 +1,4 @@
-package com.ft.wordpressarticletransformer.resources;
+package com.ft.wordpressarticletransformer.exception;
 
 import java.net.URI;
 import java.util.Map;
@@ -19,10 +19,9 @@ public class WordPressApiException extends RuntimeException {
         this.requestUri = requestUri;
     }
 
-    public WordPressApiException(String message, URI requestUri) {
+    public WordPressApiException(String message) {
         super(message);
         this.additionalProperties = null;
-        this.requestUri = requestUri;
     }
 
     public WordPressApiException(String message, Map<String, Object> additionalProperties, URI requestUri) {

@@ -23,7 +23,7 @@ public class WordPressLiveBlogContentTransformer
     }
     
     @Override
-    protected WordPressLiveBlogContent doTransform(String transactionId, URI requestUri, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
+    protected WordPressLiveBlogContent doTransform(String transactionId, URI requestUri, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder)WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, post.getUrl())))

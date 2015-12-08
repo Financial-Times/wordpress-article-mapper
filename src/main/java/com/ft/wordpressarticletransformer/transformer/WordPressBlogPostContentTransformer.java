@@ -5,13 +5,12 @@ import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 import java.net.URI;
 import java.util.Date;
 import java.util.SortedSet;
-import java.util.UUID;
 
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.Identifier;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
-import com.ft.wordpressarticletransformer.resources.UnpublishablePostException;
+import com.ft.wordpressarticletransformer.exception.UnpublishablePostException;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSortedSet;
@@ -30,10 +29,10 @@ public class WordPressBlogPostContentTransformer
     }
     
     @Override
-    protected WordPressBlogPostContent doTransform(String transactionId, URI requestUri, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
+    protected WordPressBlogPostContent doTransform(String transactionId, URI requestUri, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
-            throw new UnpublishablePostException(requestUri, uuid, "Not a valid WordPress article for publication - body of post is empty");
+            throw new UnpublishablePostException(uuid, "Not a valid WordPress article for publication - body of post is empty");
         }
         body = wrapBody(body);
         

@@ -12,11 +12,11 @@ import org.junit.runners.model.Statement;
 
 public class WordPressArticleTransformerAppRule implements TestRule {
 
-	private static final int WORDPRESS_PORT = 15670;
+	private static final int NATIVERW_PORT = 8080;
 
 	private WireMockClassRule wordPressWireMockRule = new WireMockClassRule(WireMockConfiguration.wireMockConfig()
 			.withRootDirectory("src/test/resources/wordPress")
-			.port(WORDPRESS_PORT)
+			.port(NATIVERW_PORT)
 	);
 
 	private final DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule;

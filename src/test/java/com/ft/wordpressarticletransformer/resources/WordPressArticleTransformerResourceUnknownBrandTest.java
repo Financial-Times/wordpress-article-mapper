@@ -1,5 +1,6 @@
 package com.ft.wordpressarticletransformer.resources;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
@@ -22,11 +23,7 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 	@ClassRule
 	public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test-unknown-brand.yaml");
 
-	private static final String UUID = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
-	private static final String URL = "url";
-
-
-	private static final String WILL_RETURN_500 = "http://localhost:15670/request_to_word_press_200_ok_success/?json=1";
+    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS = "5c652c7e-c81e-4be7-8669-adeb5a5621dd";
 
 	private Client client;
 
@@ -41,14 +38,13 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 	// ergo brand is unknown and cannot be assigned.
 	@Test
 	public void shouldReturn500WhenUnknownBrand() {
-		final URI uri = buildTransformerUrl(UUID, WILL_RETURN_500);
+		final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS);
 
 		final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
 
 		ErrorEntity receivedContent = clientResponse.getEntity(ErrorEntity.class);
-		assertThat("title", receivedContent.getMessage(), is(equalTo(String.format("Failed to resolve brand for uri [%s].",
-				WILL_RETURN_500))));
+		assertThat("title", receivedContent.getMessage(), containsString("Failed to resolve brand for uri "));
 	}
 
 
@@ -57,14 +53,13 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 		WireMock.resetToDefault();
 	}
 
-	private URI buildTransformerUrl(String uuid, String requestUri) {
+	private URI buildTransformerUrl(String uuid) {
 		return UriBuilder
 				.fromPath("content")
 				.path("{uuid}")
 				.scheme("http")
 				.host("localhost")
 				.port(wordPressArticleTransformerAppRule.getWordPressArticleTransformerLocalPort())
-				.queryParam(URL, requestUri)
 				.build(uuid);
 	}
 }

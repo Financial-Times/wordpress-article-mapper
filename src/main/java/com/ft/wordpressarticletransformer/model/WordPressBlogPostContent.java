@@ -15,7 +15,7 @@ public class WordPressBlogPostContent
 
     private final String body;
 
-    private WordPressBlogPostContent(UUID uuid,
+    private WordPressBlogPostContent(String uuid,
                    String title,
                    List<String> titles,
                    String byline,

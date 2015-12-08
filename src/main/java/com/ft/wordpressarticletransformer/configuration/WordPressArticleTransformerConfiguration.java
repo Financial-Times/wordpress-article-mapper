@@ -13,40 +13,23 @@ import java.util.List;
 
 public class WordPressArticleTransformerConfiguration extends Configuration {
 
-	private final List<WordPressConnection> wordPressConnections;
     private final List<BlogApiEndpointMetadata> hostToBrands;
 
-	private final JerseyClientConfiguration jerseyClientConfiguration;
 	private final int numberOfConnectionAttempts;
-    private String credentialsPath;
     private final List<VideoSiteConfiguration> videoSiteConfig;
+    private final NativeReaderConfiguration nativeReaderConfiguration;
 
     public WordPressArticleTransformerConfiguration(
-													@JsonProperty("credentialsPath") String credentialsPath,
-													@JsonProperty("healthCheckWordPressConnections") List<WordPressConnection> wordPressConnections,
                                                     @JsonProperty("blogApiEndpointMetadata")List<BlogApiEndpointMetadata> blogApiEndpointMetadataList,
-                                                    @JsonProperty("jerseyClient") JerseyClientConfiguration jerseyClientConfiguration,
                                                     @JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts,
-                                                    @JsonProperty("videoSiteConfig") List<VideoSiteConfiguration> videoSiteConfig){
+                                                    @JsonProperty("videoSiteConfig") List<VideoSiteConfiguration> videoSiteConfig,
+                                                    @JsonProperty("nativeReaderConfiguration") final NativeReaderConfiguration nativeReaderConfiguration){
 		super();
-		this.credentialsPath = credentialsPath;
-		this.wordPressConnections = wordPressConnections;
         this.hostToBrands = blogApiEndpointMetadataList;
-		this.jerseyClientConfiguration = jerseyClientConfiguration;
 		this.numberOfConnectionAttempts = numberOfConnectionAttempts;
         this.videoSiteConfig = videoSiteConfig;
-	}
-
-    @Valid @NotNull
-    public String getCredentialsPath() {
-        return credentialsPath;
+        this.nativeReaderConfiguration = nativeReaderConfiguration;
     }
-
-	@Valid
-	@NotNull
-	public List<WordPressConnection> getWordPressConnections() {
-		return wordPressConnections;
-	}
 
     @Valid
     @NotNull
@@ -55,25 +38,18 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
     }
 
     @NotNull
-	public JerseyClientConfiguration getJerseyClientConfiguration() {
-		return jerseyClientConfiguration;
-	}
-
-	@NotNull
-	public int getNumberOfConnectionAttempts() {
-		return numberOfConnectionAttempts;
-	}
-
-    @NotNull
     public List<VideoSiteConfiguration> getVideoSiteConfiguration() {
         return videoSiteConfig;
+    }
+
+    @NotNull
+    public NativeReaderConfiguration getNativeReaderConfiguration() {
+        return nativeReaderConfiguration;
     }
 
     protected Objects.ToStringHelper toStringHelper() {
         return Objects.toStringHelper(this)
                 .add("super", super.toString())
-                .add("wordPressConnections", wordPressConnections)
-				.add("jerseyClient", jerseyClientConfiguration)
 				.add("numberOfConnectionAttempts", numberOfConnectionAttempts);
     }
 

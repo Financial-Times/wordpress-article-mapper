@@ -29,7 +29,7 @@ public abstract class WordPressContent {
     private final Comments comments;
     private final String publishReference;
 
-    protected WordPressContent(UUID uuid,
+    protected WordPressContent(String uuid,
                    String title,
                    List<String> titles,
                    String byline,
@@ -184,7 +184,7 @@ public abstract class WordPressContent {
 
     public abstract static class Builder<C extends WordPressContent> {
 
-        private UUID uuid;
+        private String uuid;
         private String title;
         private List<String> titles;
         private String byline;
@@ -201,12 +201,12 @@ public abstract class WordPressContent {
         private Comments comments;
         private String transactionId;
 
-        public Builder<C> withUuid(UUID uuid) {
+        public Builder<C> withUuid(String uuid) {
             this.uuid = uuid;
             return this;
         }
         
-        public UUID getUuid() {
+        public String getUuid() {
             return uuid;
         }
         
@@ -359,7 +359,7 @@ public abstract class WordPressContent {
             		.withByline(content.getByline())
             		.withBrands(content.getBrands())
                     .withIdentifiers(content.getIdentifiers())
-                    .withUuid(UUID.fromString(content.getUuid()))
+                    .withUuid(content.getUuid())
                     .withPublishedDate(content.getPublishedDate())
                     .withDescription(content.getDescription())
                     .withMediaType(content.getMediaType())

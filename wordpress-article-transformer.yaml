@@ -1,6 +1,3 @@
-
-credentialsPath: credentials.properties
-
 videoSiteConfig:
     - urlPattern: "https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)"
       template: "https://www.youtube.com/watch?v=%s"
@@ -36,17 +33,6 @@ videoSiteConfig:
     - urlPattern: "https?://video.ft.com/(?<id>[0-9]+)/"
       template: null
       embedded: false
-
-healthCheckWordPressConnections:
-    - hostName: int.ftalphaville.ft.com
-      port: 80
-      path: /api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /beyond-brics/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
-      port: 80
-      path: /fastft/api/get_recent_posts/
 
 blogApiEndpointMetadata:
     - host: blogs.ft.com/the-world
@@ -116,9 +102,17 @@ blogApiEndpointMetadata:
       brands: ["http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-335
 
-jerseyClient:
-    timeout: 3000ms
-numberOfConnectionAttempts: 3
+nativeReaderConfiguration:
+    endpointConfiguration:
+        shortName: "nativeStore"
+        path: wordpress/{uuid}
+        jerseyClient:
+            timeout: 5000ms
+        primaryNodes: ["localhost:8080:8080", "localhost:8080:8080"]
+        secondaryNodes: null
+        resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    numberOfConnectionAttempts: 3
+    timeoutMultiplier: 1000
 
 server:
 
