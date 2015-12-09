@@ -16,6 +16,7 @@ import java.net.URI;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.*;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -27,19 +28,6 @@ import static org.junit.Assert.assertThat;
 public class WordPressArticleTransformerResourceTest {
 
     private static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66");
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NUMBER_ENTITY = "5c652c7e-c81e-4be7-8669-adeb5a5621da";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NAME_ENTITY = "5c652c7e-c81e-4be7-8669-adeb5a5621dc";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS = "5c652c7e-c81e-4be7-8669-adeb5a5621dd";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND = "5c652c7e-c81e-4be7-8669-adeb5a5621de";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_404 = "5c652c7e-c81e-4be7-8669-adeb5a5621df";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_INVALID_CONTENT_TYPE = "5c652c7e-c81e-4be7-8669-adeb5a5621d0";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NOT_TYPE_POST = "5c652c7e-c81e-4be7-8669-adeb5a5621d1";
-    private static final String UUID_MAP_TO_NO_REQUEST_TO_WORD_PRESS_EXPECTED = "ABC-1234";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_NON_WORD_PRESS_RESPONSE = "5c652c7e-c81e-4be7-8669-adeb5a5621d2";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_500 = "5c652c7e-c81e-4be7-8669-adeb5a5621d3";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_CANNOT_CONNECT = "5c652c7e-c81e-4be7-8669-adeb5a5621d4";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_502 = "5c652c7e-c81e-4be7-8669-adeb5a5621d5";
-    private static final String UUID_MAP_TO_REQUEST_TO_WORDPRESS_NO_APIURL_ON_RESPONSE = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
 
     @ClassRule
     public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test.yaml");

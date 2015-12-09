@@ -43,10 +43,10 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         String originatingSystemId = extractSystemId(requestUri);
 
         LOG.info("Returning content for uuid [{}].", uuid);
-        return doTransform(transactionId, requestUri, post, uuid.toString(), publishedDate, brands, originatingSystemId);
+        return doTransform(transactionId, post, uuid.toString(), publishedDate, brands, originatingSystemId);
     }
 
-    protected abstract C doTransform(String transactionId, URI requestUri, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId);
+    protected abstract C doTransform(String transactionId, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
@@ -85,7 +85,7 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         return Date.from(OffsetDateTime.parse(publishedDateStr + "Z", PUBLISH_DATE_FMT).toInstant());
     }
 
-    protected String createBylineFromAuthors(Post postDetails, URI requestUri) {
+    protected String createBylineFromAuthors(Post postDetails) {
         Author singleAuthor = postDetails.getAuthor();
         List<Author> authorsList = postDetails.getAuthors();
 

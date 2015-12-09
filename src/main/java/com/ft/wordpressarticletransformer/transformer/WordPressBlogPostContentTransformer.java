@@ -2,7 +2,6 @@ package com.ft.wordpressarticletransformer.transformer;
 
 import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.SortedSet;
 
@@ -29,7 +28,7 @@ public class WordPressBlogPostContentTransformer
     }
     
     @Override
-    protected WordPressBlogPostContent doTransform(String transactionId, URI requestUri, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
+    protected WordPressBlogPostContent doTransform(String transactionId, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
             throw new UnpublishablePostException(uuid, "Not a valid WordPress article for publication - body of post is empty");
@@ -39,7 +38,7 @@ public class WordPressBlogPostContentTransformer
         WordPressBlogPostContent.Builder builder = (WordPressBlogPostContent.Builder)WordPressBlogPostContent.builder()
                 .withUuid(uuid).withTitle(unescapeHtml4(post.getTitle()))
                 .withPublishedDate(publishedDate)
-                .withByline(unescapeHtml4(createBylineFromAuthors(post, requestUri)))
+                .withByline(unescapeHtml4(createBylineFromAuthors(post)))
                 .withBrands(brands)
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, post.getUrl())))
                 .withComments(createComments(post.getCommentStatus()));

@@ -27,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.UUID;
@@ -64,11 +65,12 @@ public class WordPressArticleTransformerResource {
         try {
             return getWordpressContent(uuid, transactionId);
         } catch (NativeStoreReaderUnavailableException e) {
-            throw ServerError.status(503).error(String.format(NATIVE_READER_ERROR_WITH_STATUS_CODE, 503)).exception(e);
+            throw ServerError.status(Response.Status.SERVICE_UNAVAILABLE.getStatusCode())
+                    .error(String.format(NATIVE_READER_ERROR_WITH_STATUS_CODE, 503)).exception(e);
         } catch (UnexpectedNativeStoreReaderException e) {
-            throw ServerError.status(500).error(e.getMessage()).exception(e);
+            throw ServerError.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).error(e.getMessage()).exception(e);
         } catch (NativeStoreReaderUnreachableException e) {
-            throw ServerError.status(500).error(NATIVE_READER_NOT_REACHABLE).exception(e);
+            throw ServerError.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).error(NATIVE_READER_NOT_REACHABLE).exception(e);
         }
     }
 
