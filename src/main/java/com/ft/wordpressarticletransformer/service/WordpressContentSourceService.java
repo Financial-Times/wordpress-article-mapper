@@ -13,6 +13,8 @@ import java.util.Map;
 
 public class WordpressContentSourceService {
 
+    private static final int NOT_FOUND = 404;
+    private static final int SERVICE_UNAVAILABLE = 503;
     private final WordpressResponseValidator wordpressResponseValidator;
     private final NativeReaderClient nativeReaderClient;
 
@@ -30,9 +32,9 @@ public class WordpressContentSourceService {
 
         } catch (RemoteApiException rae) {
             switch (rae.getStatus()) {
-                case 404:
+                case NOT_FOUND:
                     throw new PostNotFoundException(uuid);
-                case 503:
+                case SERVICE_UNAVAILABLE:
                     throw new NativeStoreReaderUnavailableException(rae.getMessage());
                 default:
                     throw new UnexpectedNativeStoreReaderException(rae.getStatus(), rae);
