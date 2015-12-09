@@ -69,7 +69,6 @@ public class WordPressArticleTransformerResourceTest {
         final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
-        System.out.println(clientResponse.toString());
         assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
         WordPressBlogPostContent receivedContent = clientResponse.getEntity(WordPressBlogPostContent.class);

@@ -65,8 +65,9 @@ public class WordPressArticleTransformerResource {
         try {
             return getWordpressContent(uuid, transactionId);
         } catch (NativeStoreReaderUnavailableException e) {
-            throw ServerError.status(Response.Status.SERVICE_UNAVAILABLE.getStatusCode())
-                    .error(String.format(NATIVE_READER_ERROR_WITH_STATUS_CODE, 503)).exception(e);
+            int status = Response.Status.SERVICE_UNAVAILABLE.getStatusCode();
+            throw ServerError.status(status)
+                    .error(String.format(NATIVE_READER_ERROR_WITH_STATUS_CODE, status)).exception(e);
         } catch (UnexpectedNativeStoreReaderException e) {
             throw ServerError.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).error(e.getMessage()).exception(e);
         } catch (NativeStoreReaderUnreachableException e) {
