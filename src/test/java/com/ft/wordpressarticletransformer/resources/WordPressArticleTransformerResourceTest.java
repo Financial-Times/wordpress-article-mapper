@@ -231,9 +231,11 @@ public class WordPressArticleTransformerResourceTest {
                 .get(ClientResponse.class);
 		assertThat("response", clientResponse, hasProperty("status", equalTo(200)));
 
-		String urlWithKeyAdded = requestUri + "&api_key="+ WP.EXAMPLE_API_KEY + "&cache_buster=" + transactionID;
-
-        WireMock.verify(WireMock.getRequestedFor(WireMock.urlEqualTo(urlWithKeyAdded)));
+        WireMock.verify(
+                WireMock.getRequestedFor(WireMock.urlPathEqualTo(requestUri))
+                        .withQueryParam("api_key", WireMock.equalTo(WP.EXAMPLE_API_KEY))
+                        .withQueryParam("cache_buster", WireMock.equalTo(transactionID))
+                       );
     }
 
     @After

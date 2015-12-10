@@ -1,5 +1,7 @@
 package com.ft.wordpressarticletransformer.resources;
 
+import static javax.ws.rs.core.HttpHeaders.USER_AGENT;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -76,8 +78,7 @@ public class WordPressResilientClient {
             WordPressMostRecentPostsResponse wordPressMostRecentPostsResponse;
 
             try {
-                //Add API Key to URI here so that we don't log it in this class
-                response = webResource.queryParam(API_KEY_NAME, wordpressApiKey).accept("application/json").get(ClientResponse.class);
+                response = doWordPressRequest(webResource);
                 wordPressMostRecentPostsResponse = processListResponse(response, wordPressRecentPostsUrl);
                 return wordPressMostRecentPostsResponse;
             } catch (RuntimeException e) {
@@ -109,6 +110,14 @@ public class WordPressResilientClient {
 				.build();
     }
     
+    private ClientResponse doWordPressRequest(WebResource resource) {
+        //Add API Key to URI here so that we don't log it in this class
+        return resource.queryParam(API_KEY_NAME, wordpressApiKey)
+                .accept("application/json")
+                .header(USER_AGENT, "FT Universal Publishing Platform WPAT")
+                .get(ClientResponse.class);
+    }
+    
     private void checkForWordPressConnectivityException(URI wordPressUrl, Throwable cause) {
         if ((cause instanceof IOException) && !(cause instanceof JsonProcessingException)) {
             throw new CannotConnectToWordPressException(wordPressUrl, cause);
@@ -120,7 +129,6 @@ public class WordPressResilientClient {
         ClientResponse response = null;
 
 	    WebResource webResource = client.resource(requestUri)
-                    .queryParam(API_KEY_NAME,wordpressApiKey)
                     .queryParam("cache_buster",transactionId);
 
         
@@ -133,7 +141,7 @@ public class WordPressResilientClient {
             Post post;
             
             try {
-                response = webResource.accept("application/json").get(ClientResponse.class);
+                response = doWordPressRequest(webResource);
                 post = processPostResponse(response, uuid, requestUri);
                 return post;
             } catch (UnpublishablePostException | PostNotFoundException e) {

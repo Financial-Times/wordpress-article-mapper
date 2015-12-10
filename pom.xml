@@ -148,7 +148,7 @@
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
             <scope>test</scope>
-            <version>1.35</version>
+            <version>1.53</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jackson-core</artifactId>
