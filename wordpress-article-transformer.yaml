@@ -44,7 +44,7 @@ healthCheckWordPressConnections:
     - hostName: int.blogs.ft.com
       port: 80
       path: /beyond-brics/api/get_recent_posts/
-    - hostName: int.blogs.ft.com
+    - hostName: int.www.ft.com
       port: 80
       path: /fastft/api/get_recent_posts/
 

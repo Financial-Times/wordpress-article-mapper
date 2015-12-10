@@ -23,6 +23,5 @@ CMD echo -e "wordpress.contentApi.key=$WORDPRESS_CONTENT_API_KEY" > /credentials
      -Ddw.logging.appenders[0].logFormat="%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %replace(%m%n[%thread]%xEx){'\n', '|'}%nopex%n" \
      -Ddw.healthCheckWordPressConnections[0].hostName="ftalphaville.ft.com" \
      -Ddw.healthCheckWordPressConnections[1].hostName="blogs.ft.com" \
-     -Ddw.healthCheckWordPressConnections[2].hostName="blogs.ft.com" \
-     -Ddw.healthCheckWordPressConnections[2].path="/photo-diary/api/get_recent_posts/" \
+     -Ddw.healthCheckWordPressConnections[2].hostName="www.ft.com" \
      -jar app.jar server config.yaml
