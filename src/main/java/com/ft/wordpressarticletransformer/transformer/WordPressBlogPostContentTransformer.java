@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 
 import java.util.Date;
 import java.util.SortedSet;
+import java.util.UUID;
 
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.Identifier;
@@ -28,10 +29,10 @@ public class WordPressBlogPostContentTransformer
     }
     
     @Override
-    protected WordPressBlogPostContent doTransform(String transactionId, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
+    protected WordPressBlogPostContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
-            throw new UnpublishablePostException(uuid, "Not a valid WordPress article for publication - body of post is empty");
+            throw new UnpublishablePostException(uuid.toString(), "Not a valid WordPress article for publication - body of post is empty");
         }
         body = wrapBody(body);
         

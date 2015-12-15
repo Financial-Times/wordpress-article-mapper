@@ -1,6 +1,6 @@
 package com.ft.wordpressarticletransformer.exception;
 
-public class UnexpectedStatusFieldException extends WordPressApiException {
+public class UnexpectedStatusFieldException extends WordPressContentException {
 
     private final String status;
     private final String uuid;

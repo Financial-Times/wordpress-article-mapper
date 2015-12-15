@@ -1,10 +1,10 @@
 package com.ft.wordpressarticletransformer.transformer;
 
+import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.exception.UnpublishablePostException;
-import com.ft.wordpressarticletransformer.exception.WordPressApiException;
 import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.Post;
 import org.hamcrest.Matcher;
@@ -101,7 +101,7 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("comments", actual.getComments().isEnabled(), is(true));
     }
 
-    @Test(expected = WordPressApiException.class)
+    @Test(expected = WordPressContentException.class)
     public void thatTransformerFailsWhenThereAreNoAuthors() {
         Post post = new Post();
         post.setTitle(TITLE);

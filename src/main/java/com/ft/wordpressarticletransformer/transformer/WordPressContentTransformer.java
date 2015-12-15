@@ -1,11 +1,11 @@
 package com.ft.wordpressarticletransformer.transformer;
 
+import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.Comments;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
 import com.ft.wordpressarticletransformer.exception.BrandResolutionException;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
-import com.ft.wordpressarticletransformer.exception.WordPressApiException;
 import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.Post;
 import org.slf4j.Logger;
@@ -43,10 +43,10 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         String originatingSystemId = extractSystemId(requestUri);
 
         LOG.info("Returning content for uuid [{}].", uuid);
-        return doTransform(transactionId, post, uuid.toString(), publishedDate, brands, originatingSystemId);
+        return doTransform(transactionId, post, uuid, publishedDate, brands, originatingSystemId);
     }
 
-    protected abstract C doTransform(String transactionId, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId);
+    protected abstract C doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
@@ -96,7 +96,7 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         }
 
         LOG.error("Failed to construct byline");
-        throw new WordPressApiException("article has no authors");
+        throw new WordPressContentException("article has no authors");
     }
 
     protected Comments createComments(String commentStatus) {

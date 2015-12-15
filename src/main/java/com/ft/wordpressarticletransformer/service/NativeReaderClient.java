@@ -41,11 +41,22 @@ public class NativeReaderClient {
     public Map<String, Object> getWordpressContent(final String uuid, final String transactionId) {
         final URI fileByUuidUri = requestUrlBuilder().build(uuid);
         LOGGER.debug("Making GET request to Native Reader on URI: {}", fileByUuidUri);
-
-        final ClientResponse clientResponse = httpCall(fileByUuidUri, transactionId);
-        handleNonOkStatus(clientResponse, fileByUuidUri);
+        ClientResponse clientResponse = null;
+        try {
+            clientResponse = httpCall(fileByUuidUri, transactionId);
+            handleNonOkStatus(clientResponse, fileByUuidUri);
 
         return clientResponse.getEntity(Map.class);
+        }
+        finally {
+            if (clientResponse != null) {
+                try {
+                    clientResponse.getEntityInputStream().close();
+                } catch (IOException e) {
+                    LOGGER.debug("Error occurred while trying to prevent connections from staying open. Could not close response stream.", e);
+                }
+            }
+        }
     }
 
     /**
@@ -78,14 +89,16 @@ public class NativeReaderClient {
     }
 
     protected void handleNonOkStatus(final ClientResponse clientResponse, final URI fileByUuidUri) {
-        if (Response.Status.OK.getStatusCode() != clientResponse.getStatus()) {
-            final int status = clientResponse.getStatus();
-            try {
-                throw new RemoteApiException(fileByUuidUri, GET, status, clientResponse.getEntity(ErrorEntity.class));
-            } catch (ClientHandlerException | UniformInterfaceException ex) {
-                LOGGER.warn("Failed to parse ErrorEntity when handling API transaction failure.", ex);
-                throw new RemoteApiException(fileByUuidUri, GET, status);
-            }
+        if (Response.Status.OK.getStatusCode() == clientResponse.getStatus()) {
+            return;
         }
+        final int status = clientResponse.getStatus();
+        ErrorEntity errorEntity = null;
+        try {
+            errorEntity = clientResponse.getEntity(ErrorEntity.class);
+        } catch (ClientHandlerException ex) {
+            LOGGER.warn("Failed to parse ErrorEntity when handling API transaction failure.", ex);
+        }
+        throw new RemoteApiException(fileByUuidUri, GET, status, errorEntity);
     }
 }

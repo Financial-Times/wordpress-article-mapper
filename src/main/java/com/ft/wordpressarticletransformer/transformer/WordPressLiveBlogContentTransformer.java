@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 
 import java.util.Date;
 import java.util.SortedSet;
+import java.util.UUID;
 
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.Identifier;
@@ -21,7 +22,7 @@ public class WordPressLiveBlogContentTransformer
     }
     
     @Override
-    protected WordPressLiveBlogContent doTransform(String transactionId, Post post, String uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
+    protected WordPressLiveBlogContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder)WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, post.getUrl())))

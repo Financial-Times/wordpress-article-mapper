@@ -1,6 +1,6 @@
 package com.ft.wordpressarticletransformer.exception;
 
-public class PostNotFoundException extends WordPressApiException {
+public class PostNotFoundException extends WordPressContentException {
 
     private final String uuid;
 

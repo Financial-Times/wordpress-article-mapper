@@ -15,7 +15,7 @@ public class NativeReaderPingHealthCheck extends AdvancedHealthCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NativeReaderPingHealthCheck.class);
 
-    private EndpointConfiguration endpointConfiguration;
+    private final EndpointConfiguration endpointConfiguration;
     private final Client client;
 
     public NativeReaderPingHealthCheck(Client client, EndpointConfiguration endpointConfiguration) {
@@ -74,7 +74,7 @@ public class NativeReaderPingHealthCheck extends AdvancedHealthCheck {
 
     @Override
     protected int severity() {
-        return 2;
+        return 1;
     }
 
     @Override

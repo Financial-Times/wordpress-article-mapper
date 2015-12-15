@@ -29,7 +29,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 import java.util.UUID;
 
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
@@ -93,29 +92,26 @@ public class WordPressArticleTransformerResource {
     }
 
     private WordPressContentTransformer<?> transformerFor(Post post) {
-        WordPressContentTransformer<?> transformer = null;
+        WordPressPostType wordPressPostType = null;
         try {
-            switch (WordPressPostType.fromString(post.getType())) {
-                case POST:
-                    transformer = blogTransformer;
-                    break;
-
-                case MARKETS_LIVE:
-                case LIVE_Q_AND_A:
-                case LIVE_BLOG:
-                    transformer = liveBlogTransformer;
-                    break;
-
-                default:
-                    break;
-            }
+            wordPressPostType = WordPressPostType.fromString(post.getType());
         } catch (IllegalArgumentException e) {/* ignore and throw as below */}
 
-        if (transformer == null) {
+        if (wordPressPostType == null) {
             throw new ServerErrorBuilder(SC_UNPROCESSABLE_ENTITY).error("unsupported blog post type").exception();
         }
 
-        return transformer;
+        switch (wordPressPostType) {
+            case POST:
+                return blogTransformer;
+            case MARKETS_LIVE:
+            case LIVE_Q_AND_A:
+            case LIVE_BLOG:
+                return liveBlogTransformer;
+            default:
+                throw new ServerErrorBuilder(SC_UNPROCESSABLE_ENTITY).error("unsupported blog post type").exception();
+        }
+
     }
 
 }

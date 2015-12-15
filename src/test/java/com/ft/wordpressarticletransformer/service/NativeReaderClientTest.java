@@ -21,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +33,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -117,7 +120,36 @@ public class NativeReaderClientTest {
     }
 
     @Test
-    public void testFindFileByUuidHappyCase() throws Exception {
+    public void testGetWordpressContentNormally() throws Exception {
+        ClientResponse clientResponse = prepareMockedClientResponse();
+
+        InputStream mockedEntityInputStream = mock(InputStream.class);
+        when(clientResponse.getEntityInputStream()).thenReturn(mockedEntityInputStream);
+        doNothing().when(mockedEntityInputStream).close();
+
+        final Map<String, Object> wordpressContent = nativeReaderClient.getWordpressContent(UUID, TRANSACTION_ID);
+
+        assertFalse(wordpressContent.isEmpty());
+        assertThat(wordpressContent, hasEntry("apiUrl", "actualApiUrl"));
+        assertThat(wordpressContent, hasEntry("post", Collections.singletonMap("uuid", UUID)));
+    }
+
+    @Test
+    public void testGetWordpressContentNormallyWhenClientResponseEntityInputStreamIsNotClosedGracefully() throws Exception {
+        ClientResponse clientResponse = prepareMockedClientResponse();
+
+        InputStream mockedEntityInputStream = mock(InputStream.class);
+        when(clientResponse.getEntityInputStream()).thenReturn(mockedEntityInputStream);
+        doThrow(IOException.class).when(mockedEntityInputStream).close();
+
+        final Map<String, Object> wordpressContent = nativeReaderClient.getWordpressContent(UUID, TRANSACTION_ID);
+
+        assertFalse(wordpressContent.isEmpty());
+        assertThat(wordpressContent, hasEntry("apiUrl", "actualApiUrl"));
+        assertThat(wordpressContent, hasEntry("post", Collections.singletonMap("uuid", UUID)));
+    }
+
+    private ClientResponse prepareMockedClientResponse() {
         WebResource webResource = mock(WebResource.class);
         when(jerseyClient.resource(uri)).thenReturn(webResource);
         WebResource.Builder builder1 = mock(WebResource.Builder.class);
@@ -132,12 +164,7 @@ public class NativeReaderClientTest {
         expectedEomFile.put("post", Collections.singletonMap("uuid", UUID));
         when(clientResponse.getStatus()).thenReturn(ClientResponse.Status.OK.getStatusCode());
         when(clientResponse.getEntity(Map.class)).thenReturn(expectedEomFile);
-
-        final Map<String, Object> wordpressContent = nativeReaderClient.getWordpressContent(UUID, TRANSACTION_ID);
-
-        assertFalse(wordpressContent.isEmpty());
-        assertThat(wordpressContent, hasEntry("apiUrl", "actualApiUrl"));
-        assertThat(wordpressContent, hasEntry("post", Collections.singletonMap("uuid", UUID)));
+        return clientResponse;
     }
 
     private Matcher<RemoteApiException> equalsRemoteApiExceptionStatus(final int status) {

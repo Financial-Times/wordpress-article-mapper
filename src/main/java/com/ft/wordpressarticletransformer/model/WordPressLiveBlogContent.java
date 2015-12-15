@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class WordPressLiveBlogContent
         extends WordPressContent {
 
-    private WordPressLiveBlogContent(String uuid,
+    private WordPressLiveBlogContent(UUID uuid,
                    String title,
                    List<String> titles,
                    String byline,

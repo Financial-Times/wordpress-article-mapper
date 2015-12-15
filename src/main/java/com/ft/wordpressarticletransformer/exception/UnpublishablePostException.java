@@ -9,7 +9,7 @@ package com.ft.wordpressarticletransformer.exception;
  * </ul>
  */
 public class UnpublishablePostException
-        extends WordPressApiException {
+        extends WordPressContentException {
 
     private final String uuid;
 
