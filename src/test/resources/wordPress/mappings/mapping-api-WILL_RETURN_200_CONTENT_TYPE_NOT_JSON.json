@@ -1,6 +1,6 @@
 {
 	"request" : {
-		"urlPattern" : "/request_to_word_press_invalid_content_type.*",
+		"urlPattern" : "/.*5c652c7e-c81e-4be7-8669-adeb5a5621d0",
 		"method" : "GET"
 	},
 	"response" : {

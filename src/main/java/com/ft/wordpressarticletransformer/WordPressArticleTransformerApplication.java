@@ -5,28 +5,30 @@ import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.buildinfo.VersionResource;
 import com.ft.api.util.transactionid.TransactionIdFilter;
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
+import com.ft.jerseyhttpwrapper.ResilientClientBuilder;
+import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
+import com.ft.jerseyhttpwrapper.continuation.ExponentialBackoffContinuationPolicy;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
+import com.ft.wordpressarticletransformer.configuration.NativeReaderConfiguration;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
-import com.ft.wordpressarticletransformer.health.ConnectivityToWordPressHealthCheck;
+import com.ft.wordpressarticletransformer.health.NativeReaderPingHealthCheck;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerExceptionMapper;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
-import com.ft.wordpressarticletransformer.resources.WordPressResilientClient;
+import com.ft.wordpressarticletransformer.service.NativeReaderClient;
+import com.ft.wordpressarticletransformer.service.WordpressContentSourceService;
+import com.ft.wordpressarticletransformer.service.WordpressResponseValidator;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
 import com.sun.jersey.api.client.Client;
 import io.dropwizard.Application;
-import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
-import java.io.File;
-import java.io.FileReader;
 import java.util.EnumSet;
-import java.util.Properties;
 
 public class WordPressArticleTransformerApplication extends Application<WordPressArticleTransformerConfiguration> {
 
@@ -44,31 +46,34 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
     @Override
     public void run(final WordPressArticleTransformerConfiguration configuration, final Environment environment) throws Exception {
         LOGGER.info("running with configuration: {}", configuration);
-        Client client = new JerseyClientBuilder(environment).using(configuration.getJerseyClientConfiguration()).build("Health check connection to WordPress");
 
         environment.jersey().register(new BuildInfoResource());
         environment.jersey().register(new VersionResource());
 
         VideoMatcher videoMatcher = new VideoMatcher(configuration.getVideoSiteConfiguration());
 
-        Properties credentials = new Properties();
-        credentials.load(new FileReader(new File(configuration.getCredentialsPath())));
+        NativeReaderConfiguration nativeReaderConfiguration = configuration.getNativeReaderConfiguration();
+        EndpointConfiguration nativeReaderEndpointConfiguration = nativeReaderConfiguration.getEndpointConfiguration();
+        Client nativeReaderClient = ResilientClientBuilder.in(environment).using(nativeReaderEndpointConfiguration).withContinuationPolicy(
+                new ExponentialBackoffContinuationPolicy(
+                        nativeReaderConfiguration.getNumberOfConnectionAttempts(),
+                        nativeReaderConfiguration.getTimeoutMultiplier()
+                )
+        ).build();
 
-        WordPressResilientClient wordPressResilientClient = new WordPressResilientClient(client, environment.metrics(),
-                configuration.getNumberOfConnectionAttempts(), credentials.getProperty("wordpress.contentApi.key"));
+        WordPressArticleTransformerResource wordPressArticleTransformerResource =
+                new WordPressArticleTransformerResource(
+                        getBodyProcessingFieldTransformer(videoMatcher),
+                        new BrandSystemResolver(configuration.getHostToBrands()),
+                        new WordpressContentSourceService(
+                                new WordpressResponseValidator(),
+                                new NativeReaderClient(nativeReaderClient, nativeReaderEndpointConfiguration)
+                        )
+                );
+        environment.jersey().register(wordPressArticleTransformerResource);
 
-
-        environment.jersey().register(new WordPressArticleTransformerResource(getBodyProcessingFieldTransformer(videoMatcher),
-                wordPressResilientClient, new BrandSystemResolver(configuration.getHostToBrands())));
-
-        String healthCheckName = "Connectivity to WordPress";
-        environment.healthChecks().register(healthCheckName,
-                new ConnectivityToWordPressHealthCheck(healthCheckName,
-                        wordPressResilientClient,
-                        "https://sites.google.com/a/ft.com/dynamic-publishing-team/", // TODO proper link
-                        configuration.getWordPressConnections()
-                ));
-
+        environment.healthChecks().register("Native Reader ping", new NativeReaderPingHealthCheck(nativeReaderClient,
+                nativeReaderEndpointConfiguration));
         environment.jersey().register(WordPressArticleTransformerExceptionMapper.class);
         Errors.customise(new WordPressArticleTransformerErrorEntityFactory());
         environment.servlets().addFilter("Transaction ID Filter",

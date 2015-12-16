@@ -5,7 +5,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
-import static org.apache.http.HttpStatus.SC_SERVICE_UNAVAILABLE;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 
 import java.util.Collections;
@@ -14,6 +13,11 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import com.ft.wordpressarticletransformer.exception.BrandResolutionException;
+import com.ft.wordpressarticletransformer.exception.InvalidResponseException;
+import com.ft.wordpressarticletransformer.exception.PostNotFoundException;
+import com.ft.wordpressarticletransformer.exception.UnpublishablePostException;
+import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +31,8 @@ public class WordPressArticleTransformerExceptionMapper
     
     @Override
     public Response toResponse(RuntimeException exception) {
-        if (exception instanceof WordPressApiException) {
-            return toResponse((WordPressApiException)exception);
+        if (exception instanceof WordPressContentException) {
+            return toResponse((WordPressContentException)exception);
         }
         
         if (exception instanceof IllegalArgumentException) {
@@ -46,7 +50,7 @@ public class WordPressArticleTransformerExceptionMapper
         return super.toResponse(exception);
     }
     
-    private Response toResponse(WordPressApiException wpe) {
+    private Response toResponse(WordPressContentException wpe) {
         if (wpe instanceof PostNotFoundException) {
             return respondWith(SC_NOT_FOUND, wpe.getMessage(), wpe,
                     Collections.singletonMap("uuid", ((PostNotFoundException)wpe).getUuid())
@@ -60,13 +64,7 @@ public class WordPressArticleTransformerExceptionMapper
         if (wpe instanceof InvalidResponseException) {
             return respondWith(SC_BAD_REQUEST, wpe.getMessage(), wpe);
         }
-        
-        if (wpe instanceof RequestFailedException
-                || wpe instanceof CannotConnectToWordPressException) {
-            
-            return respondWith(SC_SERVICE_UNAVAILABLE, wpe.getMessage(), wpe);
-        }
-        
+
         return respondWith(SC_INTERNAL_SERVER_ERROR, wpe.getMessage(), wpe);
     }
     

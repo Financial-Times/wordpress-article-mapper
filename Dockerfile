@@ -16,12 +16,7 @@ RUN apk --update add git \
 
 EXPOSE 8080 8081
 
-CMD echo -e "wordpress.contentApi.key=$WORDPRESS_CONTENT_API_KEY" > /credentials.properties && \
-    chmod 400 /credentials.properties && \
-    java -Ddw.server.applicationConnectors[0].port=8080 \
+CMD java -Ddw.server.applicationConnectors[0].port=8080 \
      -Ddw.server.adminConnectors[0].port=8081 \
      -Ddw.logging.appenders[0].logFormat="%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %replace(%m%n[%thread]%xEx){'\n', '|'}%nopex%n" \
-     -Ddw.healthCheckWordPressConnections[0].hostName="ftalphaville.ft.com" \
-     -Ddw.healthCheckWordPressConnections[1].hostName="blogs.ft.com" \
-     -Ddw.healthCheckWordPressConnections[2].hostName="www.ft.com" \
      -jar app.jar server config.yaml

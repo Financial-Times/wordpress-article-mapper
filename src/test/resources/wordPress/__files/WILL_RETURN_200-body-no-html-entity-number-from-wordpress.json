@@ -1,5 +1,6 @@
 {
   "status": "ok",
+  "apiUrl": "http://localhost:8080/fake-url",
   "post": {
     "id": 2014692,
     "type": "post",
