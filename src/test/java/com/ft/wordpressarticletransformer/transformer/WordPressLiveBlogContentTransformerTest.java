@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final String POST_URL = "http://junit.example.org/some-post/";
     private static final UUID POST_UUID = UUID.randomUUID();
     private static final String PUBLISHED_DATE = "2015-09-30 15:30:00";
+    private static final Date LAST_MODIFIED = new Date();
     private static final Set<Brand> BRANDS = new HashSet<Brand>(){{
         add(new Brand("JUNIT-BLOG-BRAND"));
     }};
@@ -58,7 +60,7 @@ public class WordPressLiveBlogContentTransformerTest {
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
 
-        WordPressLiveBlogContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
+        WordPressLiveBlogContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
@@ -68,5 +70,6 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
         assertThat("realtime", actual.isRealtime(), is(true));
         assertThat("comments", actual.getComments().isEnabled(), is(true));
+        assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
     }
 }

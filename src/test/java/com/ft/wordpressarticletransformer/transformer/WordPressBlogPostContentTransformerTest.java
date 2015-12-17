@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -41,6 +42,7 @@ public class WordPressBlogPostContentTransformerTest {
     private static final String BODY_TEXT = "Some simple text";
     private static final String WRAPPED_BODY = "<body>" + BODY_TEXT + "</body>";
     private static final String COMMENTS_OPEN = "open";
+    private static final Date LAST_MODIFIED = new Date();
 
     private WordPressBlogPostContentTransformer transformer;
     private BrandSystemResolver brandResolver = mock(BrandSystemResolver.class);
@@ -67,7 +69,7 @@ public class WordPressBlogPostContentTransformerTest {
         post.setContent(BODY_TEXT);
         post.setCommentStatus(COMMENTS_OPEN);
 
-        WordPressBlogPostContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
+        WordPressBlogPostContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
@@ -76,6 +78,7 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));
         assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
         assertThat("comments", actual.getComments().isEnabled(), is(true));
+        assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
     }
 
     @Deprecated
@@ -89,7 +92,7 @@ public class WordPressBlogPostContentTransformerTest {
         post.setContent(BODY_TEXT);
         post.setCommentStatus(COMMENTS_OPEN);
 
-        WordPressBlogPostContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
+        WordPressBlogPostContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
@@ -99,6 +102,7 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));
         assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
         assertThat("comments", actual.getComments().isEnabled(), is(true));
+        assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
     }
 
     @Test(expected = WordPressContentException.class)
@@ -110,7 +114,7 @@ public class WordPressBlogPostContentTransformerTest {
         post.setContent(BODY_TEXT);
         post.setCommentStatus(COMMENTS_OPEN);
 
-        transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
+        transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, LAST_MODIFIED);
     }
 
     @Test(expected = UnpublishablePostException.class)
@@ -122,6 +126,6 @@ public class WordPressBlogPostContentTransformerTest {
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
 
-        transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
+        transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, LAST_MODIFIED);
     }
 }

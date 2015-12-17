@@ -1,11 +1,12 @@
-
 package com.ft.wordpressarticletransformer.response;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,8 +36,8 @@ public class WordPressResponse {
     private Post post;
     @JsonProperty("previous_url")
     private String previousUrl;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonProperty("lastModified")
+    private Date lastModified;
 
     /**
      * 
@@ -142,9 +143,24 @@ public class WordPressResponse {
         this.additionalProperties.put(name, value);
     }
 
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @JsonProperty("lastModified")
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    @JsonProperty("lastModified")
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
+    }
+
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(status).append(error).append(post).append(previousUrl).append(apiUrl).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(status).append(error).append(post).append(previousUrl).append(apiUrl).append(additionalProperties).append(lastModified).toHashCode();
     }
 
     @Override
@@ -156,7 +172,7 @@ public class WordPressResponse {
             return false;
         }
         WordPressResponse rhs = ((WordPressResponse) other);
-        return new EqualsBuilder().append(status, rhs.status).append(error, rhs.error).append(post, rhs.post).append(previousUrl, rhs.previousUrl).append(apiUrl, rhs.apiUrl).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(status, rhs.status).append(error, rhs.error).append(post, rhs.post).append(previousUrl, rhs.previousUrl).append(apiUrl, rhs.apiUrl).append(additionalProperties, rhs.additionalProperties).append(lastModified, rhs.lastModified).isEquals();
     }
 
 }
