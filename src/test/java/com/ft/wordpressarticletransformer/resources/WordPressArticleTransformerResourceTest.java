@@ -16,7 +16,21 @@ import java.net.URI;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.*;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_NO_REQUEST_TO_WORD_PRESS_EXPECTED;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORDPRESS_NO_APIURL_ON_RESPONSE;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NOT_TYPE_POST;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NAME_ENTITY;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NUMBER_ENTITY;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_404;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_500;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_502;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_CANNOT_CONNECT;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_UNKNOWN;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_INVALID_CONTENT_TYPE;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_NON_WORD_PRESS_RESPONSE;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_STATUS_UNKNOWN;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -101,12 +115,33 @@ public class WordPressArticleTransformerResourceTest {
 
     @Test
     // this is what happens for posts that are in status=Pending, status=Draft, or visibility=Private....and deleted?
-    public void shouldReturn500WithUuidWhenWordpressReturnsStatusErrorAndErrorNotFound() {
-        final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND);
+    public void shouldReturn500WithUuidWhenWordpressReturnsUnexpectedWordpressResponseStatus() {
+        final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_STATUS_UNKNOWN);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
-        assertThat("response", clientResponse.getEntity(String.class), containsString("Unexpected WordPress status=\\\"error\\\""));
+        assertThat("response", clientResponse.getEntity(String.class),
+                containsString(String.format("Unexpected WordPress status=\\\"Unknown\\\" for uuid=\\\"%s\\\"", UUID_MAP_TO_REQUEST_TO_WORD_PRESS_STATUS_UNKNOWN)));
+    }
+
+    @Test
+    public void shouldReturn500WithUuidWhenWordpressReturnsStatusErrorAndUnknownErrorMessage() {
+        final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_UNKNOWN);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
+        assertThat("response", clientResponse.getEntity(String.class),
+                containsString(String.format("Unexpected error from WordPress: [Unknown error occurred.] for uuid [%s].", UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_UNKNOWN)));
+    }
+
+    @Test
+    public void shouldReturn404WithUuidWhenWordpressReturnsStatusErrorAndErrorNotFound() {
+        final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+        assertThat("response", clientResponse.getEntity(String.class),
+                containsString(String.format("Error. Content with uuid: [%s] not found", UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND)));
     }
 
     @Test

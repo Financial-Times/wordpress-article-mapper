@@ -1,8 +1,11 @@
 package com.ft.wordpressarticletransformer.service;
 
 import com.ft.wordpressarticletransformer.exception.InvalidResponseException;
+import com.ft.wordpressarticletransformer.exception.PostNotFoundException;
+import com.ft.wordpressarticletransformer.exception.UnexpectedErrorCodeException;
 import com.ft.wordpressarticletransformer.exception.UnexpectedStatusFieldException;
 import com.ft.wordpressarticletransformer.exception.UnpublishablePostException;
+import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import com.ft.wordpressarticletransformer.response.Post;
 import com.ft.wordpressarticletransformer.response.WordPressPostType;
 import com.ft.wordpressarticletransformer.response.WordPressResponse;
@@ -19,6 +22,7 @@ public class WordpressResponseValidator {
             "Not a valid post, type [%s] is not in supported types %s, for content with uuid:[%s]";
 
     private static final Set<String> SUPPORTED_POST_TYPES = WordPressPostType.stringValues();
+    private static final String ERROR_NOT_FOUND = "Not found."; // DOES include a dot
 
     public void validateWordpressResponse(WordPressResponse wordPressResponse, String uuid) {
 
@@ -26,16 +30,24 @@ public class WordpressResponseValidator {
         if (status == null) {
             throw new InvalidResponseException("Response not a valid WordPressResponse. Response status is null");
         }
-        WordPressStatus wordPressStatus = WordPressStatus.valueOf(status);
 
-        if (wordPressStatus == WordPressStatus.ok) {
-            if (!isSupportedPostType(wordPressResponse)) {
-                throw new UnpublishablePostException(uuid, String.format(UNSUPPORTED_POST_TYPE,
-                        findTheType(wordPressResponse), SUPPORTED_POST_TYPES, uuid));
-            }
-
-        } else {
+        WordPressStatus wordPressStatus;
+        try {
+            wordPressStatus = WordPressStatus.valueOf(status);
+        } catch (IllegalArgumentException ignored) {
             throw new UnexpectedStatusFieldException(status, uuid);
+        }
+        switch (wordPressStatus) {
+            case ok:
+                if (!isSupportedPostType(wordPressResponse)) {
+                    throw new UnpublishablePostException(uuid, String.format(UNSUPPORTED_POST_TYPE,
+                            findTheType(wordPressResponse), SUPPORTED_POST_TYPES, uuid));
+                }
+
+                break;
+            case error:
+                throw processWordPressErrorResponse(uuid, wordPressResponse);
+
         }
 
     }
@@ -56,5 +68,21 @@ public class WordpressResponseValidator {
             LOGGER.info("Post was null");
             return false;
         }
+    }
+
+    private WordPressContentException processWordPressErrorResponse(String uuid, WordPressResponse wordPressResponse) {
+        String error = wordPressResponse.getError();
+        if (ERROR_NOT_FOUND.equals(error)) {
+            return new PostNotFoundException(uuid);
+        }
+
+        Post post = wordPressResponse.getPost();
+        if ((post != null) && !isSupportedPostType(wordPressResponse)) {
+            return new UnpublishablePostException(uuid,
+                    String.format(UNSUPPORTED_POST_TYPE, post.getType(), SUPPORTED_POST_TYPES, uuid));
+        }
+
+        // It says it's an error, but we don't understand this kind of error
+        return new UnexpectedErrorCodeException(error, uuid);
     }
 }
