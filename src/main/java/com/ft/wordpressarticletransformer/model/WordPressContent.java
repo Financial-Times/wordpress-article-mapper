@@ -353,7 +353,7 @@ public abstract class WordPressContent {
             return transactionId;
         }
         
-        public Builder<C> withValuesFrom(C content) {
+        public Builder<C> withValuesFrom(WordPressContent content) {
             return withTitle(content.getTitle())
             		.withTitles(content.getTitles())
             		.withByline(content.getByline())

@@ -2,11 +2,15 @@ package com.ft.wordpressarticletransformer.transformer;
 
 import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import com.ft.wordpressarticletransformer.model.Brand;
+import com.ft.wordpressarticletransformer.model.Temporal;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
+import com.ft.wordpressarticletransformer.model.WordPressLiveBlogContent;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.exception.UnpublishablePostException;
 import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.Post;
+import com.ft.wordpressarticletransformer.response.WordPressPostType;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +21,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,13 +67,7 @@ public class WordPressBlogPostContentTransformerTest {
 
     @Test
     public void thatBlogPostIsTransformed() {
-        Post post = new Post();
-        post.setTitle(TITLE);
-        post.setDateGmt(PUBLISHED_DATE);
-        post.setAuthors(Collections.singletonList(AUTHOR));
-        post.setUrl(POST_URL);
-        post.setContent(BODY_TEXT);
-        post.setCommentStatus(COMMENTS_OPEN);
+        Post post = defaultPostExample();
 
         WordPressBlogPostContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
@@ -76,6 +78,30 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));
         assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
         assertThat("comments", actual.getComments().isEnabled(), is(true));
+    }
+
+    @Test
+    public void thatBlogTemporalBlockIsNotReturnedForNormalWPArticle() {
+        Post post = defaultPostExample();
+
+        WordPressBlogPostContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
+
+        assertThat(
+                "temporal block should be null for conventional articles",
+                actual.toString(),
+                not(containsString("temporal"))
+            );
+    }
+
+    private Post defaultPostExample() {
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE);
+        post.setAuthors(singletonList(AUTHOR));
+        post.setUrl(POST_URL);
+        post.setContent(BODY_TEXT);
+        post.setCommentStatus(COMMENTS_OPEN);
+        return post;
     }
 
     @Deprecated
@@ -118,7 +144,7 @@ public class WordPressBlogPostContentTransformerTest {
         Post post = new Post();
         post.setTitle(TITLE);
         post.setDateGmt(PUBLISHED_DATE);
-        post.setAuthors(Collections.singletonList(AUTHOR));
+        post.setAuthors(singletonList(AUTHOR));
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
 

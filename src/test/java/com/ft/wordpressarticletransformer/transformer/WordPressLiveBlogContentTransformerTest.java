@@ -4,7 +4,9 @@ import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressLiveBlogContent;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.response.Author;
+import com.ft.wordpressarticletransformer.response.CustomFields;
 import com.ft.wordpressarticletransformer.response.Post;
+import com.ft.wordpressarticletransformer.response.WordPressPostType;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +17,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -51,12 +55,7 @@ public class WordPressLiveBlogContentTransformerTest {
 
     @Test
     public void thatLiveBlogPostIsTransformed() {
-        Post post = new Post();
-        post.setTitle(TITLE);
-        post.setDateGmt(PUBLISHED_DATE);
-        post.setAuthors(Collections.singletonList(AUTHOR));
-        post.setUrl(POST_URL);
-        post.setCommentStatus(COMMENTS_OPEN);
+        Post post = defaultLiveBlogExample();
 
         WordPressLiveBlogContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
 
@@ -68,5 +67,38 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
         assertThat("realtime", actual.isRealtime(), is(true));
         assertThat("comments", actual.getComments().isEnabled(), is(true));
+    }
+
+    @Test
+    public void thatInProgressFlagDefaultsToTrueForLiveBlog() {
+        Post post = defaultLiveBlogExample();
+
+        WordPressLiveBlogContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
+
+        assertThat("temporal", actual.getTemporal() , notNullValue());
+        assertThat("inProgress", actual.getTemporal().isInProgress(), is(true));
+    }
+
+    @Test
+    public void thatInProgressFlagIsSetFalseForClosedLiveBlog() {
+        Post post = defaultLiveBlogExample();
+        post.setCustomFields(new CustomFields());
+        post.getCustomFields().setClosed(singletonList("1"));
+
+        WordPressLiveBlogContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID);
+
+        assertThat(actual.getTemporal().isInProgress(),is(false));
+
+    }
+
+    private Post defaultLiveBlogExample() {
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE);
+        post.setAuthors(Collections.singletonList(AUTHOR));
+        post.setUrl(POST_URL);
+        post.setCommentStatus(COMMENTS_OPEN);
+        post.setType(WordPressPostType.MARKETS_LIVE.getApiPostType());
+        return post;
     }
 }

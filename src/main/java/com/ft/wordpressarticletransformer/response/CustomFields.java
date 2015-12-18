@@ -34,6 +34,9 @@ public class CustomFields {
     private List<String> assankaAtompush = new ArrayList<String>();
     @JsonProperty("emailscrape_include")
     private List<String> emailscrapeInclude = new ArrayList<String>();
+    @JsonProperty("is_closed")
+    private List<String> isClosed = new ArrayList<String>();
+
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -115,6 +118,16 @@ public class CustomFields {
     @JsonProperty("emailscrape_include")
     public void setEmailscrapeInclude(List<String> emailscrapeInclude) {
         this.emailscrapeInclude = emailscrapeInclude;
+    }
+
+    @JsonProperty("is_closed")
+    public List<String> getClosed() {
+        return isClosed;
+    }
+
+    @JsonProperty("is_closed")
+    public void setClosed(List<String> closed) {
+        isClosed = closed;
     }
 
     @Override
