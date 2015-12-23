@@ -1,5 +1,20 @@
 package com.ft.wordpressarticletransformer.transformer;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressLiveBlogContent;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
@@ -9,25 +24,13 @@ import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class WordPressLiveBlogContentTransformerTest {
     private static final String TX_ID = "junitTransaction";
     private static final URI REQUEST_URI = URI.create("http://junit.example.org/");
     private static final String POST_URL = "http://junit.example.org/some-post/";
     private static final UUID POST_UUID = UUID.randomUUID();
-    private static final String PUBLISHED_DATE = "2015-09-30 15:30:00";
+    private static final OffsetDateTime PUBLISHED_DATE = OffsetDateTime.parse("2015-09-30T15:30:00.000Z");
+    private static final String PUBLISHED_DATE_STR = PUBLISHED_DATE.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     private static final Set<Brand> BRANDS = new HashSet<Brand>(){{
         add(new Brand("JUNIT-BLOG-BRAND"));
     }};
@@ -53,7 +56,7 @@ public class WordPressLiveBlogContentTransformerTest {
     public void thatLiveBlogPostIsTransformed() {
         Post post = new Post();
         post.setTitle(TITLE);
-        post.setDateGmt(PUBLISHED_DATE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
         post.setAuthors(Collections.singletonList(AUTHOR));
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
@@ -68,5 +71,6 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
         assertThat("realtime", actual.isRealtime(), is(true));
         assertThat("comments", actual.getComments().isEnabled(), is(true));
+        assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
     }
 }
