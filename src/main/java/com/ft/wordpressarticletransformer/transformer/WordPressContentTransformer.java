@@ -73,10 +73,10 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
 
     private Date extractPublishedDate(URI requestUri, Post post) {
         String publishedDateStr = null;
-        if (post.getModifiedGmt() != null) {
-            publishedDateStr = post.getModifiedGmt();
-        } else if (post.getDateGmt() != null) {
+        if (post.getDateGmt() != null) {
             publishedDateStr = post.getDateGmt();
+        } else if (post.getModifiedGmt() != null) {
+            publishedDateStr = post.getModifiedGmt();
         } else {
             LOG.error("Modified and Date GMT fields not found for : " + requestUri);
             publishedDateStr = post.getModified();
