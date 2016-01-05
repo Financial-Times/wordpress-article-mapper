@@ -1,0 +1,16 @@
+{
+	"request" : {
+		"urlPattern" : "/.*5c652c7e-c81e-4be7-8669-adeb5a5621d7",
+		"method" : "GET"
+	},
+	"response" : {
+		"status" : 200,
+		"bodyFileName" : "WILL_RETURN_STATUS_UNKNOWN-body-from-wordpress.json",
+		"headers" : {
+			"Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
+			"Content-Type" : "application/json",
+			"Vary" : "Accept-Encoding, User-Agent",
+			"Transfer-Encoding" : "chunked"
+		}
+	}
+}

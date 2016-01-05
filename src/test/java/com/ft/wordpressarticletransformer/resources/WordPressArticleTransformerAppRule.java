@@ -17,6 +17,8 @@ public class WordPressArticleTransformerAppRule implements TestRule {
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NAME_ENTITY = "5c652c7e-c81e-4be7-8669-adeb5a5621dc";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS = "5c652c7e-c81e-4be7-8669-adeb5a5621dd";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND = "5c652c7e-c81e-4be7-8669-adeb5a5621de";
+    protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_UNKNOWN = "5c652c7e-c81e-4be7-8669-adeb5a5621d6";
+    protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_STATUS_UNKNOWN = "5c652c7e-c81e-4be7-8669-adeb5a5621d7";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_404 = "5c652c7e-c81e-4be7-8669-adeb5a5621df";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_INVALID_CONTENT_TYPE = "5c652c7e-c81e-4be7-8669-adeb5a5621d0";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NOT_TYPE_POST = "5c652c7e-c81e-4be7-8669-adeb5a5621d1";
