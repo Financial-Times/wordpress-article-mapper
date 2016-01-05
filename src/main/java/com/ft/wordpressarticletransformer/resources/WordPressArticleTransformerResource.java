@@ -29,6 +29,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.util.Date;
 import java.util.UUID;
 
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
@@ -88,7 +90,9 @@ public class WordPressArticleTransformerResource {
             throw new IllegalArgumentException("No apiUrl supplied");
         }
 
-        return transformerFor(postDetails).transform(transactionId, UriBuilder.fromUri(apiUrl).build(), postDetails, uuid);
+        URI requestUri = UriBuilder.fromUri(apiUrl).build();
+        Date lastModified = wordpressResponse.getLastModified();
+        return transformerFor(postDetails).transform(transactionId, requestUri, postDetails, uuid, lastModified);
     }
 
     private WordPressContentTransformer<?> transformerFor(Post post) {

@@ -35,7 +35,7 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         this.brandSystemResolver = brandSystemResolver;
     }
 
-    public C transform(String transactionId, URI requestUri, Post post, UUID uuid) {
+    public C transform(String transactionId, URI requestUri, Post post, UUID uuid, Date lastModified) {
         Date publishedDate = extractPublishedDate(requestUri, post);
 
         SortedSet<Brand> brands = new TreeSet<>(extractBrand(requestUri));
@@ -43,10 +43,11 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         String originatingSystemId = extractSystemId(requestUri);
 
         LOG.info("Returning content for uuid [{}].", uuid);
-        return doTransform(transactionId, post, uuid, publishedDate, brands, originatingSystemId);
+        return doTransform(transactionId, post, uuid, publishedDate, brands, originatingSystemId, lastModified);
     }
 
-    protected abstract C doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId);
+    protected abstract C doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, 
+                                     SortedSet<Brand> brands, String originatingSystemId, Date lastModified);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);

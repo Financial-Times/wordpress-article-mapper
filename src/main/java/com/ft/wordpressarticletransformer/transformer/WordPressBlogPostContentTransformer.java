@@ -29,7 +29,8 @@ public class WordPressBlogPostContentTransformer
     }
     
     @Override
-    protected WordPressBlogPostContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
+    protected WordPressBlogPostContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, 
+                                                   SortedSet<Brand> brands, String originatingSystemId, Date lastModified) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
             throw new UnpublishablePostException(uuid.toString(), "Not a valid WordPress article for publication - body of post is empty");
@@ -42,7 +43,8 @@ public class WordPressBlogPostContentTransformer
                 .withByline(unescapeHtml4(createBylineFromAuthors(post)))
                 .withBrands(brands)
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, post.getUrl())))
-                .withComments(createComments(post.getCommentStatus()));
+                .withComments(createComments(post.getCommentStatus()))
+                .withLastModified(lastModified);
         
         builder = builder.withBody(tidiedUpBody(body, transactionId));
 

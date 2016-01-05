@@ -22,7 +22,8 @@ public class WordPressLiveBlogContentTransformer
     }
     
     @Override
-    protected WordPressLiveBlogContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, SortedSet<Brand> brands, String originatingSystemId) {
+    protected WordPressLiveBlogContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, 
+                                                   SortedSet<Brand> brands, String originatingSystemId, Date lastModified) {
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder)WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, post.getUrl())))
@@ -30,7 +31,8 @@ public class WordPressLiveBlogContentTransformer
                 .withByline(unescapeHtml4(createBylineFromAuthors(post)))
                 .withPublishedDate(publishedDate)
                 .withBrands(brands)
-                .withComments(createComments(post.getCommentStatus()));
+                .withComments(createComments(post.getCommentStatus()))
+                .withLastModified(lastModified);
         
         return builder.build();
     }

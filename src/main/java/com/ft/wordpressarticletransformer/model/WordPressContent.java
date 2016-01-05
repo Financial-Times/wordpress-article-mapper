@@ -10,7 +10,6 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.base.Objects;
 
-
 public abstract class WordPressContent {
     private final String uuid;
     private final String title;
@@ -28,6 +27,7 @@ public abstract class WordPressContent {
     private final String mainImage;
     private final Comments comments;
     private final String publishReference;
+    private final Date lastModified;
 
     protected WordPressContent(UUID uuid,
                    String title,
@@ -44,7 +44,8 @@ public abstract class WordPressContent {
                    String externalBinaryUrl,
                    String mainImage,
                    Comments comments,
-                   String publishReference) {
+                   String publishReference, 
+                   Date lastModified) {
         this.identifiers = identifiers;
         this.comments = comments;
         this.uuid = uuid == null ? null : uuid.toString();
@@ -61,6 +62,7 @@ public abstract class WordPressContent {
         this.externalBinaryUrl = externalBinaryUrl;
         this.mainImage = mainImage;
         this.publishReference = publishReference;
+        this.lastModified = lastModified;
     }
 
     public String getUuid() {
@@ -132,6 +134,11 @@ public abstract class WordPressContent {
         return publishReference;
     }
 
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
+    public Date getLastModified() {
+        return lastModified;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this.getClass())
@@ -150,6 +157,7 @@ public abstract class WordPressContent {
                 .add("mainImage", mainImage)
                 .add("comments", comments)
                 .add("publishReference", publishReference)
+                .add("lastModified", lastModified)
                 .toString();
     }
 
@@ -174,12 +182,15 @@ public abstract class WordPressContent {
                 && Objects.equal(this.externalBinaryUrl, that.externalBinaryUrl)
                 && Objects.equal(this.mainImage, that.mainImage)
                 && Objects.equal(this.comments, that.comments)
-                && Objects.equal(this.publishReference, that.publishReference);
+                && Objects.equal(this.publishReference, that.publishReference)
+                && Objects.equal(this.lastModified, that.lastModified);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference);
+        return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate, 
+                description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl,
+                mainImage, comments, publishReference, lastModified);
     }
 
     public abstract static class Builder<C extends WordPressContent> {
@@ -200,7 +211,8 @@ public abstract class WordPressContent {
         private String mainImage;
         private Comments comments;
         private String transactionId;
-
+        private Date lastModified;
+        
         public Builder<C> withUuid(UUID uuid) {
             this.uuid = uuid;
             return this;
@@ -352,7 +364,16 @@ public abstract class WordPressContent {
         public String getPublishReference() {
             return transactionId;
         }
-        
+
+        public Builder<C> withLastModified(Date lastModified) {
+            this.lastModified = lastModified;
+            return this;
+        }
+
+        public Date getLastModified() {
+            return lastModified;
+        }
+
         public Builder<C> withValuesFrom(C content) {
             return withTitle(content.getTitle())
             		.withTitles(content.getTitles())
@@ -369,7 +390,8 @@ public abstract class WordPressContent {
                     .withExternalBinaryUrl(content.getExternalBinaryUrl())
                     .withMainImage(content.getMainImage())
                     .withComments(content.getComments())
-                    .withPublishReference(content.getPublishReference());
+                    .withPublishReference(content.getPublishReference())
+                    .withLastModified(content.getLastModified());
         }
 
 		public abstract C build();

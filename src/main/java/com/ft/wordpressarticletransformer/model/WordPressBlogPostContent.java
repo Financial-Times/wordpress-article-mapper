@@ -31,10 +31,11 @@ public class WordPressBlogPostContent
                    String externalBinaryUrl,
                    String mainImage,
                    Comments comments,
-                   String publishReference) {
+                   String publishReference, 
+                   Date lastModified) {
         
-        super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl,
-                mainImage, comments, publishReference);
+        super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth, 
+                pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified);
         
         this.body = body;
     }
@@ -83,7 +84,7 @@ public class WordPressBlogPostContent
                     getBrands(), getIdentifiers(), getPublishedDate(), body, getDescription(),
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
-                    getMainImage(), getComments(), getPublishReference());
+                    getMainImage(), getComments(), getPublishReference(), getLastModified());
         }
     }
 }
