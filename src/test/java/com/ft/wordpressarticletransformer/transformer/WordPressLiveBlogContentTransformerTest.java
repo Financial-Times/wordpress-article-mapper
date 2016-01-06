@@ -76,5 +76,6 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("comments", actual.getComments().isEnabled(), is(true));
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
+        assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
     }
 }

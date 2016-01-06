@@ -32,6 +32,7 @@ public class WordPressLiveBlogContentTransformer
                 .withPublishedDate(publishedDate)
                 .withBrands(brands)
                 .withComments(createComments(post.getCommentStatus()))
+                .withPublishReference(transactionId)
                 .withLastModified(lastModified);
         
         return builder.build();
