@@ -44,6 +44,7 @@ public class WordPressBlogPostContentTransformer
                 .withBrands(brands)
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, post.getUrl())))
                 .withComments(createComments(post.getCommentStatus()))
+                .withPublishReference(transactionId)
                 .withLastModified(lastModified);
         
         builder = builder.withBody(tidiedUpBody(body, transactionId));
