@@ -14,7 +14,8 @@ public class WordPressBlogPostContent
         extends WordPressContent {
 
     private final String body;
-
+    private final String opening;
+    
     private WordPressBlogPostContent(UUID uuid,
                    String title,
                    List<String> titles,
@@ -23,6 +24,7 @@ public class WordPressBlogPostContent
                    SortedSet<Identifier> identifiers,
                    Date publishedDate,
                    String body,
+                   String opening,
                    String description,
                    String mediaType,
                    Integer pixelWidth,
@@ -38,26 +40,32 @@ public class WordPressBlogPostContent
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified);
         
         this.body = body;
+        this.opening = opening;
     }
 
     public String getBody() {
         return body;
     }
-
+    
+    public String getOpening() {
+        return opening;
+    }
+    
     @Override
     public String toString() {
-        return String.format("%s[body=%s]", super.toString(), body);
+        return String.format("%s[body=%s,opening=%s]", super.toString(), body, opening);
     }
 
     @Override
     public boolean equals(Object o) {
         return super.equals(o)
-                && Objects.equal(this.body, ((WordPressBlogPostContent)o).body);
+                && Objects.equal(this.body, ((WordPressBlogPostContent)o).body)
+                && Objects.equal(this.opening, ((WordPressBlogPostContent)o).opening);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), body);
+        return Objects.hashCode(super.hashCode(), body, opening);
     }
 
     public static Builder builder() {
@@ -68,9 +76,15 @@ public class WordPressBlogPostContent
             extends WordPressContent.Builder<WordPressBlogPostContent> {
 
         private String body;
-
+        private String opening;
+        
         public Builder withBody(String body) {
             this.body = body;
+            return this;
+        }
+
+        public Builder withOpening(String opening) {
+            this.opening = opening;
             return this;
         }
         
@@ -81,7 +95,7 @@ public class WordPressBlogPostContent
 
 		public WordPressBlogPostContent build() {
             return new WordPressBlogPostContent(getUuid(), getTitle(), getTitles(), getByline(),
-                    getBrands(), getIdentifiers(), getPublishedDate(), body, getDescription(),
+                    getBrands(), getIdentifiers(), getPublishedDate(), body, opening, getDescription(),
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
                     getMainImage(), getComments(), getPublishReference(), getLastModified());

@@ -47,13 +47,14 @@ public class WordPressBlogPostContentTransformer
                 .withPublishReference(transactionId)
                 .withLastModified(lastModified);
         
-        builder = builder.withBody(tidiedUpBody(body, transactionId));
-
+        builder = builder.withBody(transformHtml(body, transactionId))
+                         .withOpening(transformHtml(wrapBody(post.getExcerpt()), transactionId));
+        
         return builder.build();
     }
     
-    private String tidiedUpBody(String body, String transactionId) {
-        return bodyProcessingFieldTransformer.transform(body, transactionId);
+    private String transformHtml(String html, String transactionId) {
+        return bodyProcessingFieldTransformer.transform(html, transactionId);
     }
     
     private String wrapBody(String originalBody) {

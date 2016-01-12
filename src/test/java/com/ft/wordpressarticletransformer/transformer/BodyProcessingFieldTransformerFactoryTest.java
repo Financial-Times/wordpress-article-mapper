@@ -323,6 +323,19 @@ public class BodyProcessingFieldTransformerFactoryTest {
         checkTransformation(imageWithCaptionText, "<body><img alt=\"Alternate Text\" height=\"188\" src=\"http://int.ftalphaville.ft.com/files/2014/11/PubQuizGoldman-272x188.jpg\" width=\"272\"/></body>");
     }
 
+    @Test
+    public void thatReadMoreLinkIsRemoved() {
+        String bodyWithMoreLink = "<body>"
+                + "<p>Blah blah blah</p>"
+                + "<p><a href=\"http://foo.example.com/\" class=\"more-link\" >Read more</a></p>"
+                + "</body>";
+        
+        String expectedTransformed = "<body>"
+                + "<p>Blah blah blah</p>"
+                + "</body>";
+        
+        checkTransformation(bodyWithMoreLink, expectedTransformed);
+    }
 
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
         String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
