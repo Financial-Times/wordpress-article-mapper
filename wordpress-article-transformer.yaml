@@ -108,7 +108,7 @@ nativeReaderConfiguration:
         path: wordpress/{uuid}
         jerseyClient:
             timeout: 5000ms
-        primaryNodes: ["localhost:8080:8080", "localhost:8080:8080"]
+        primaryNodes: ["native-store-rw-api-pr-uk-int.svc.ft.com:8080:8080"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
     numberOfConnectionAttempts: 3
