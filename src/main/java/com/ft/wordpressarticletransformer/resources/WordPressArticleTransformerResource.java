@@ -30,6 +30,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.UUID;
 
@@ -82,7 +86,13 @@ public class WordPressArticleTransformerResource {
 
         if (postDetails == null) {
             LOGGER.error("No content was returned for {}", uuid);
-            throw new PostNotFoundException(uuid.toString());
+            throw new PostNotFoundException(
+                    uuid.toString(),
+                    OffsetDateTime.of(
+                        LocalDateTime.ofInstant(wordpressResponse.getLastModified().toInstant(), ZoneId.of(ZoneOffset.UTC.getId())),
+                        ZoneOffset.UTC
+                    )
+            );
         }
 
         String apiUrl = wordpressResponse.getApiUrl();

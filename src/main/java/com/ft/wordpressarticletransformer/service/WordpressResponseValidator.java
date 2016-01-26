@@ -13,6 +13,10 @@ import com.ft.wordpressarticletransformer.response.WordPressStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Set;
 
 public class WordpressResponseValidator {
@@ -73,7 +77,13 @@ public class WordpressResponseValidator {
     private WordPressContentException processWordPressErrorResponse(String uuid, WordPressResponse wordPressResponse) {
         String error = wordPressResponse.getError();
         if (ERROR_NOT_FOUND.equals(error)) {
-            return new PostNotFoundException(uuid);
+            return new PostNotFoundException(
+                    uuid,
+                    OffsetDateTime.of(
+                            LocalDateTime.ofInstant(wordPressResponse.getLastModified().toInstant(), ZoneId.of(ZoneOffset.UTC.getId())),
+                            ZoneOffset.UTC
+                    )
+            );
         }
 
         Post post = wordPressResponse.getPost();

@@ -7,6 +7,7 @@ import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,9 +53,12 @@ public class WordPressArticleTransformerExceptionMapper
     
     private Response toResponse(WordPressContentException wpe) {
         if (wpe instanceof PostNotFoundException) {
-            return respondWith(SC_NOT_FOUND, wpe.getMessage(), wpe,
-                    Collections.singletonMap("uuid", ((PostNotFoundException)wpe).getUuid())
-                    );
+            Map<String, Object> context = new HashMap<>();
+            context.put("uuid", ((PostNotFoundException)wpe).getUuid());
+            if (((PostNotFoundException)wpe).getLastModified() != null) {
+                context.put("lastModified", ((PostNotFoundException) wpe).getLastModified().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            }
+            return respondWith(SC_NOT_FOUND, wpe.getMessage(), wpe, context);
         }
         
         if (wpe instanceof UnpublishablePostException) {
