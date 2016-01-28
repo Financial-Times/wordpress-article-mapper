@@ -142,13 +142,18 @@ public class WordPressArticleTransformerResourceTest {
     }
 
     @Test
-    public void shouldReturn404WithUuidWhenWordpressReturnsStatusErrorAndErrorNotFound() {
+    public void shouldReturn404WithUuidAndLastModifiedTimeStampWhenWordpressReturnsStatusErrorAndErrorNotFound() {
         final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        String responseBody = clientResponse.getEntity(String.class);
+
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
-        assertThat("response", clientResponse.getEntity(String.class),
-                containsString(String.format("Error. Content with uuid: [%s] not found", UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND)));
+        assertThat("response", responseBody, containsString("2016-01-07T12:22:56.821Z"));
+        assertThat("response", responseBody,
+                containsString(String.format("Error. Content with uuid: [%s] not found", UUID_MAP_TO_REQUEST_TO_WORD_PRESS_ERROR_NOT_FOUND))
+        );
+
     }
 
     @Test
