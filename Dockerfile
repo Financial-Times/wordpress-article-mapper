@@ -17,6 +17,7 @@ RUN apk --update add git \
 EXPOSE 8080 8081
 
 CMD java -Ddw.nativeReaderConfiguration.endpointConfiguration.primaryNodes=$READ_ENDPOINT \
+     -Ddw.urlResolverConfiguration.documentStoreQueryConfiguration.endpointConfiguration.primaryNodes=$READ_ENDPOINT \
      -Ddw.server.applicationConnectors[0].port=8080 \
      -Ddw.server.adminConnectors[0].port=8081 \
      -Ddw.logging.appenders[0].logFormat="%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %replace(%m%n[%thread]%xEx){'\n', '|'}%nopex%n" \

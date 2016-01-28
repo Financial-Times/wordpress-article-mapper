@@ -6,12 +6,15 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
+import static org.mockito.Mockito.mock;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import com.ft.bodyprocessing.richcontent.ConvertParameters;
@@ -23,11 +26,14 @@ import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
 import com.ft.wordpressarticletransformer.transformer.StructuredWordPressSourcedBodyXMLEventHandlerRegistry;
 import com.google.common.collect.ImmutableList;
+import com.sun.jersey.api.client.Client;
+
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.codehaus.stax2.ri.evt.EntityReferenceEventImpl;
 import org.codehaus.stax2.ri.evt.StartElementEventImpl;
@@ -38,7 +44,7 @@ public class BodyProcessingStepDefs {
     private String transformedBodyText;
     private FieldTransformer bodyTransformer;
     private VideoMatcher videoMatcher;
-
+   
     private static final String TRANSACTION_ID = randomChars(10);
     private static final String TEXT = "Some text in between tags";
     private StructuredWordPressSourcedBodyXMLEventHandlerRegistry registry;
@@ -66,11 +72,15 @@ public class BodyProcessingStepDefs {
             new VideoSiteConfiguration("//player.vimeo.com/video/(?<id>[0-9]+)", "https://www.vimeo.com/%s", true, NONE, null, true),
             new VideoSiteConfiguration("https?://video.ft.com/(?<id>[0-9]+)/", null, false, NONE, null, true)
     );
-
+    
+    private Client resolverClient = mock(Client.class);
+    private Client documentStoreQueryClient = mock(Client.class);
+    
     @Before
     public void setup() {
         videoMatcher = new VideoMatcher(DEFAULTS);
-        bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher).newInstance();
+        URI documentStoreQueryUri = URI.create("http://localhost:8080/foo/bar");
+        bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher, Collections.emptySet(), Collections.emptyMap(), resolverClient, documentStoreQueryClient, documentStoreQueryUri).newInstance();
         registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher);
         rulesAndHandlers = new HashMap<String, String>();
         rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS" , "StripElementAndContentsXMLEventHandler");

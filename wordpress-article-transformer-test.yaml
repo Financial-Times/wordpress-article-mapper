@@ -114,6 +114,24 @@ nativeReaderConfiguration:
     numberOfConnectionAttempts: 3
     timeoutMultiplier: 1000
 
+urlResolverConfiguration:
+  patterns: ["https?:\\/\\/on\\.ft\\.com/.*"]
+  brandMappings:
+    - pattern: "https?:\\/\\/[^.]+\\.ft\\.com\\/fastft\\/\\d{4}\\/\\d{2}/\\d{2}\\/.*/"
+      brand: "http://api.ft.com/system/FT-LABS-WP-1-335"
+  resolverConfiguration:
+    timeout: 5000ms
+  documentStoreQueryConfiguration:
+    endpointConfiguration:
+        shortName: "documentStore"
+        path: /content-query
+        jerseyClient:
+            timeout: 5000ms
+        primaryNodes: ["localhost:14180:14181"]
+        secondaryNodes: null
+        resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+
+
 server:
 
   applicationConnectors:

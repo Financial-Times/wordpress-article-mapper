@@ -8,11 +8,15 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.richcontent.RichContentItem;
 import com.ft.bodyprocessing.richcontent.Video;
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
+import com.sun.jersey.api.client.Client;
+
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +34,10 @@ public class BodyProcessingFieldTransformerFactoryTest {
     private FieldTransformer bodyTransformer;
 
     @Mock private VideoMatcher videoMatcher;
-
+    
+    @Mock private Client resolverClient;
+    @Mock private Client documentStoreQueryClient;
+    
     private static final String TRANSACTION_ID = "tid_test";
     private Video exampleYouTubeVideo;
     private Video exampleVimeoVideo;
@@ -45,7 +52,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         exampleYouTubeVideo.setUrl("https://www.youtube.com/watch?v=fRqCVcSWbDc");
         exampleYouTubeVideo.setEmbedded(true);
 
-        bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher).newInstance();
+        bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher, Collections.emptySet(), Collections.emptyMap(), resolverClient, documentStoreQueryClient, null).newInstance();
     }
 
     @Test

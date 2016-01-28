@@ -2,7 +2,11 @@ package com.ft.wordpressarticletransformer.transformer;
 
 import static java.util.Arrays.asList;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.ft.bodyprocessing.BodyProcessor;
 import com.ft.bodyprocessing.BodyProcessorChain;
@@ -15,14 +19,33 @@ import com.ft.bodyprocessing.transformer.FieldTransformerFactory;
 import com.ft.bodyprocessing.xml.StAXTransformingBodyProcessor;
 import com.ft.bodyprocessing.xml.TagSoupCleanupHtmlBodyProcessor;
 import com.ft.bodyprocessing.xml.TagSoupHtmlBodyProcessor;
+import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.transformer.html.RemoveEmptyElementsBodyProcessor;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.sun.jersey.api.client.Client;
 
 public class BodyProcessingFieldTransformerFactory implements FieldTransformerFactory {
 
-    private VideoMatcher videoMatcher;
-
-    public BodyProcessingFieldTransformerFactory(VideoMatcher videoMatcher) {
+    private final VideoMatcher videoMatcher;
+    private final Set<Pattern> shortenerPatterns;
+    private final Map<Pattern,Brand> brandMappings;
+    private final Client resolverClient;
+    private final Client documentStoreQueryClient;
+    private final URI documentStoreQueryUri;
+    
+    public BodyProcessingFieldTransformerFactory(VideoMatcher videoMatcher,
+                                                 Set<Pattern> shortenerPatterns,
+                                                 Map<Pattern,Brand> brandMappings,
+                                                 Client resolverClient,
+                                                 Client documentStoreQueryClient, URI documentStoreQueryUri) {
+      
         this.videoMatcher = videoMatcher;
+        this.shortenerPatterns = ImmutableSet.copyOf(shortenerPatterns);
+        this.brandMappings = ImmutableMap.copyOf(brandMappings);
+        this.resolverClient = resolverClient;
+        this.documentStoreQueryClient = documentStoreQueryClient;
+        this.documentStoreQueryUri = documentStoreQueryUri;
     }
 
     @Override
@@ -41,7 +64,10 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                 new RemoveEmptyElementsBodyProcessor(asList("p"),asList("img")),
                 new Html5SelfClosingTagBodyProcessor(),
 				new RegexReplacerBodyProcessor("</p>(\\r?\\n)+<p>", "</p>" + System.lineSeparator() + "<p>"),
-				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>")
+				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
+                new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
+                        brandMappings,
+                        documentStoreQueryClient, documentStoreQueryUri)
         );
     }
 
