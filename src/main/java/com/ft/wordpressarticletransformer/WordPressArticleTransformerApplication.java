@@ -1,5 +1,6 @@
 package com.ft.wordpressarticletransformer;
 
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.ft.api.jaxrs.errors.Errors;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.buildinfo.VersionResource;
@@ -12,7 +13,7 @@ import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
 import com.ft.wordpressarticletransformer.configuration.ReaderConfiguration;
 import com.ft.wordpressarticletransformer.configuration.UrlResolverConfiguration;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
-import com.ft.wordpressarticletransformer.health.NativeReaderPingHealthCheck;
+import com.ft.wordpressarticletransformer.health.RemoteServiceDependencyHealthCheck;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerExceptionMapper;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
@@ -80,9 +81,20 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
                         )
                 );
         environment.jersey().register(wordPressArticleTransformerResource);
-
-        environment.healthChecks().register("Native Reader ping", new NativeReaderPingHealthCheck(nativeReaderClient,
-                nativeReaderEndpointConfiguration));
+        
+        HealthCheckRegistry healthChecks = environment.healthChecks();
+        healthChecks.register("Native Reader ping",
+          new RemoteServiceDependencyHealthCheck("Native Reader", "nativerw",
+            "Publishing wordpress content won't work",
+            "https://sites.google.com/a/ft.com/technology/systems/dynamic-semantic-publishing/extra-publishing/native-store-reader-writer-run-book",
+            nativeReaderClient, nativeReaderEndpointConfiguration));
+        
+        healthChecks.register("Document Store ping",
+          new RemoteServiceDependencyHealthCheck("Document Store", "document-store-api",
+            "Links to other FT content will not be resolved during publication, reducing data quality.",
+            "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
+            Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreQueryConfiguration().getEndpointConfiguration()));
+        
         environment.jersey().register(WordPressArticleTransformerExceptionMapper.class);
         Errors.customise(new WordPressArticleTransformerErrorEntityFactory());
         environment.servlets().addFilter("Transaction ID Filter",
