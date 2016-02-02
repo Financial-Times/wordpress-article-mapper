@@ -1,21 +1,32 @@
 package com.ft.wordpressarticletransformer.transformer;
 
-
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static com.ft.wordpressarticletransformer.transformer.LinkResolverBodyProcessorTest.ARTICLE_TYPE;
 
+import java.net.URI;
 import java.util.Collections;
+import java.util.UUID;
+import java.util.regex.Pattern;
+
+import javax.ws.rs.core.UriBuilder;
 
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.richcontent.RichContentItem;
 import com.ft.bodyprocessing.richcontent.Video;
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
+import com.ft.wordpressarticletransformer.model.Brand;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
@@ -28,6 +39,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BodyProcessingFieldTransformerFactoryTest {
+  private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
+  private static final String DOC_STORE_QUERY = "http://localhost:8080/content-query";
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -52,7 +65,10 @@ public class BodyProcessingFieldTransformerFactoryTest {
         exampleYouTubeVideo.setUrl("https://www.youtube.com/watch?v=fRqCVcSWbDc");
         exampleYouTubeVideo.setEmbedded(true);
 
-        bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher, Collections.emptySet(), Collections.emptyMap(), resolverClient, documentStoreQueryClient, null).newInstance();
+        bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
+          Collections.singleton(Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*")),
+          Collections.singletonMap(Pattern.compile("http:\\/www\\.ft\\.com\\/resolved\\/.*"), new Brand(BRAND_ID)),
+          resolverClient, documentStoreQueryClient, URI.create(DOC_STORE_QUERY)).newInstance();
     }
 
     @Test
@@ -343,7 +359,44 @@ public class BodyProcessingFieldTransformerFactoryTest {
         
         checkTransformation(bodyWithMoreLink, expectedTransformed);
     }
-
+    
+    @Test
+    public void thatShortenedLinksAreResolvedToContent() {
+      String shortUrl = "http://short.example.com/foobar";
+      String resolvedIdentifier = "http:/www.ft.com/resolved/foo/bar";
+      UUID ftContentUUID = UUID.randomUUID();
+      String bodyWithShortLink = "<body><p>Blah blah blah <a href=\"" + shortUrl
+          + "\">usw</a> ...</p></body>";
+      
+      String expectedTransformed = "<body><p>Blah blah blah <content id=\"" + ftContentUUID
+          + "\" type=\"" + ARTICLE_TYPE + "\">usw</content> ...</p></body>";
+      
+      WebResource resolverBuilder = mock(WebResource.class);
+      when(resolverClient.resource(URI.create(shortUrl))).thenReturn(resolverBuilder);
+      
+      ClientResponse redirectionResponse = mock(ClientResponse.class);
+      when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
+      when(redirectionResponse.getLocation()).thenReturn(URI.create(resolvedIdentifier));
+      when(resolverBuilder.head()).thenReturn(redirectionResponse);
+      
+      WebResource queryResource = mock(WebResource.class);
+      WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+      URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
+                               .queryParam("identifierAuthority", BRAND_ID)
+                               .queryParam("identifierValue", URI.create(resolvedIdentifier))
+                               .build();
+      
+      when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+      when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+      
+      ClientResponse queryResponse = mock(ClientResponse.class);
+      when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
+      when(queryResponse.getLocation()).thenReturn(URI.create("http://www.ft.com/content/" + ftContentUUID));
+      when(queryBuilder.head()).thenReturn(queryResponse);
+      
+      checkTransformation(bodyWithShortLink, expectedTransformed);
+    }
+    
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
         String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
 		assertThat(actualTransformedBody, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformedBody));
