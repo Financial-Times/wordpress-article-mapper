@@ -13,6 +13,7 @@ import com.ft.wordpressarticletransformer.configuration.NativeReaderConfiguratio
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.NativeReaderPingHealthCheck;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
+import com.ft.wordpressarticletransformer.resources.HtmlTransformerResource;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerExceptionMapper;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
 import com.ft.wordpressarticletransformer.service.NativeReaderClient;
@@ -71,6 +72,12 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
                         )
                 );
         environment.jersey().register(wordPressArticleTransformerResource);
+
+        HtmlTransformerResource htmlTransformerResource = new HtmlTransformerResource(
+                getBodyProcessingFieldTransformer(videoMatcher),
+                new BrandSystemResolver(configuration.getHostToBrands())
+        );
+        environment.jersey().register(htmlTransformerResource);
 
         environment.healthChecks().register("Native Reader ping", new NativeReaderPingHealthCheck(nativeReaderClient,
                 nativeReaderEndpointConfiguration));
