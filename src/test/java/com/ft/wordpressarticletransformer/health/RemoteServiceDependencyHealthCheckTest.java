@@ -23,9 +23,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NativeReaderPingHealthCheckTest {
+public class RemoteServiceDependencyHealthCheckTest {
 
-    private NativeReaderPingHealthCheck healthCheck;
+    private RemoteServiceDependencyHealthCheck healthCheck;
 
     @Mock
     private EndpointConfiguration mockEndpointConfiguration;
@@ -49,7 +49,7 @@ public class NativeReaderPingHealthCheckTest {
         when(mockResource.header(any(String.class), any(String.class))).thenReturn(mockBuilder);
         when(mockBuilder.get(ClientResponse.class)).thenReturn(mockClientResponse);
 
-        healthCheck = new NativeReaderPingHealthCheck(mockClient, mockEndpointConfiguration);
+        healthCheck = new RemoteServiceDependencyHealthCheck("name", "host", "businessImpact", "panicGuideUrl", mockClient, mockEndpointConfiguration);
     }
 
     @Test

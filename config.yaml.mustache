@@ -98,9 +98,6 @@ blogApiEndpointMetadata:
     - host: www.ft.com/fastft
       brands: ["http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-335
-    - host: blogs.ft.com/fastft
-      brands: ["http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
-      id: FT-LABS-WP-1-335
 
 nativeReaderConfiguration:
     endpointConfiguration:
@@ -113,6 +110,24 @@ nativeReaderConfiguration:
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
     numberOfConnectionAttempts: 3
     timeoutMultiplier: 1000
+
+urlResolverConfiguration:
+  patterns: ["https?:\\/\\/on\\.ft\\.com/.*"]
+  brandMappings:
+    - pattern: "https?:\\/\\/[^.]+\\.ft\\.com\\/fastft\\/\\d{4}\\/\\d{2}/\\d{2}\\/.*/"
+      brand: "http://api.ft.com/system/FT-LABS-WP-1-335"
+  resolverConfiguration:
+    timeout: 5000ms
+  documentStoreQueryConfiguration:
+    endpointConfiguration:
+        shortName: "documentStore"
+        path: /content-query
+        jerseyClient:
+            timeout: {{{queryClientTimeout}}}
+        primaryNodes: {{{queryReaderPrimaryNodes}}}
+        secondaryNodes: null
+        resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+
 
 server:
 
