@@ -262,13 +262,16 @@ public class LinkResolverBodyProcessor
                                      .queryParam("identifierValue", identifier.getIdentifierValue())
                                      .build();
             
+            LOG.info("query URI: {}", queryURI);
             ClientResponse response = documentStoreClient.resource(queryURI)
                                                          .header("Host", "document-store-api")
                                                          .head();
             
             int status = response.getStatus();
+            LOG.info("query response: {}", status);
             if ((status == SC_MOVED_PERMANENTLY) || (status == SC_MOVED_TEMPORARILY)) {
                 String contentURI = response.getLocation().toString();
+                LOG.info("query response redirected to: {}", contentURI);
                 Matcher m = CONTENT_UUID.matcher(contentURI);
                 if (m.matches()) {
                     uuid = UUID.fromString(m.group(1));
