@@ -21,4 +21,5 @@ CMD java -Ddw.nativeReaderConfiguration.endpointConfiguration.primaryNodes=$READ
      -Ddw.server.applicationConnectors[0].port=8080 \
      -Ddw.server.adminConnectors[0].port=8081 \
      -Ddw.logging.appenders[0].logFormat="%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %replace(%m%n[%thread]%xEx){'\n', '|'}%nopex%n" \
+     -Dsun.net.http.allowRestrictedHeaders=true \
      -jar app.jar server config.yaml
