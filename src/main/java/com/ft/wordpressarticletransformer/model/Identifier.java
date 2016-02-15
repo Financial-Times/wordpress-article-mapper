@@ -1,10 +1,11 @@
 package com.ft.wordpressarticletransformer.model;
 
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 
 import javax.validation.constraints.NotNull;
+
 
 public class Identifier implements Comparable<Identifier> {
     private String authority;
@@ -17,7 +18,6 @@ public class Identifier implements Comparable<Identifier> {
         this.identifierValue = identifierValue;
     }
 
-    @NotNull
     public String getAuthority() {
         return authority;
     }
@@ -30,23 +30,25 @@ public class Identifier implements Comparable<Identifier> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Identifier)) return false;
+        if ((o == null) || !(o.getClass() == Identifier.class)) return false;
 
         Identifier that = (Identifier) o;
 
-        if (identifierValue != null ? !identifierValue.equals(that.identifierValue) : that.identifierValue != null)
-            return false;
-        if (authority != null ? !authority.equals(that.authority) : that.authority != null)
-            return false;
-
-        return true;
+        return Objects.equals(this.authority, that.authority)
+                && Objects.equals(this.identifierValue, that.identifierValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(identifierValue, authority);
+        return Objects.hash(identifierValue, authority);
     }
-
+    
+    @Override
+    public String toString() {
+        return String.format("%s[authority=%s,identifierValue=%s]",
+                super.toString(), authority, identifierValue); 
+    }
+    
     @Override
     public int compareTo(Identifier that) {
         return ComparisonChain.start()

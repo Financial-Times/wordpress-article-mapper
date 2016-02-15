@@ -11,15 +11,26 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
-public class NativeReaderPingHealthCheck extends AdvancedHealthCheck {
+public class RemoteServiceDependencyHealthCheck extends AdvancedHealthCheck {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NativeReaderPingHealthCheck.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteServiceDependencyHealthCheck.class);
 
     private final EndpointConfiguration endpointConfiguration;
     private final Client client;
-
-    public NativeReaderPingHealthCheck(Client client, EndpointConfiguration endpointConfiguration) {
-        super("Native Reader is up and running");
+    private final String remoteServiceName;
+    private final String remoteHost;
+    private final String businessImpact;
+    private final String panicGuideUrl;
+    
+    public RemoteServiceDependencyHealthCheck(String remoteServiceName, String remoteServiceHost,
+                                              String businessImpact, String panicGuideUrl,
+                                              Client client, EndpointConfiguration endpointConfiguration) {
+      
+        super(String.format("%s is up and running", remoteServiceName));
+        this.remoteServiceName = remoteServiceName;
+        this.remoteHost = remoteServiceHost;
+        this.businessImpact = businessImpact;
+        this.panicGuideUrl = panicGuideUrl;
         this.endpointConfiguration = endpointConfiguration;
         this.client = client;
     }
@@ -36,7 +47,7 @@ public class NativeReaderPingHealthCheck extends AdvancedHealthCheck {
         ClientResponse response = null;
         try {
             response = client.resource(pingUri)
-                    .header("Host", "nativerw")
+                    .header("Host", remoteHost)
                     .get(ClientResponse.class);
 
             if (response.getStatus() != 200) {
@@ -64,12 +75,12 @@ public class NativeReaderPingHealthCheck extends AdvancedHealthCheck {
 
     @Override
     protected String businessImpact() {
-        return "Publishing wordpress content won't work";
+        return businessImpact;
     }
 
     @Override
     protected String panicGuideUrl() {
-        return "https://sites.google.com/a/ft.com/technology/systems/dynamic-semantic-publishing/extra-publishing/native-store-reader-writer-run-book";
+        return panicGuideUrl;
     }
 
     @Override
@@ -79,7 +90,6 @@ public class NativeReaderPingHealthCheck extends AdvancedHealthCheck {
 
     @Override
     protected String technicalSummary() {
-        return "Tests that the /__health endpoint for the Native Reader returns 200 HTTP status response";
+        return String.format("Tests that the /__health endpoint for the %s returns 200 HTTP status response", remoteServiceName);
     }
-
 }
