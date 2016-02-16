@@ -16,7 +16,7 @@ RUN apk --update add git \
 
 EXPOSE 8080 8081
 
-CMD java -Ddw.nativeReaderConfiguration.endpointConfiguration.primaryNodes=$READ_ENDPOINT \
+CMD exec java -Ddw.nativeReaderConfiguration.endpointConfiguration.primaryNodes=$READ_ENDPOINT \
      -Ddw.urlResolverConfiguration.documentStoreQueryConfiguration.endpointConfiguration.primaryNodes=$READ_ENDPOINT \
      -Ddw.server.applicationConnectors[0].port=8080 \
      -Ddw.server.adminConnectors[0].port=8081 \
