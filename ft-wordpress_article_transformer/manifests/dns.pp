@@ -5,7 +5,7 @@ class wordpress_article_transformer::dns {
     # which causes redirects and healthchecks to fail
     
     case "${::ft_environment}" {
-        'd', 'qa', 'int', 't',: {
+        'd', 'qa', 'int', 't': {
             
             /etc/resolv.conf:
             ensure  => present,
