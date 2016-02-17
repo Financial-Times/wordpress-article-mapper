@@ -1,5 +1,5 @@
 name    'ft-wordpress_article_transformer'
-version '0.1.127'
+version 'version_replaced_by_build_job'
 source 'UNKNOWN'
 author 'ft'
 license 'Apache License, Version 2.0'
