@@ -3,7 +3,7 @@
 export PATH=$PATH:/usr/local/bin:/usr/bin:/usr/sbin:/bin
 
 start_time=`date +%s`
-MODULEFULLPATH="${project.build.directory}/ft-wordpress_article_transformer"
+MODULEFULLPATH="${WORKSPACE}/ft-wordpress_article_transformer"
 
 /usr/local/bin/forge-admin.py --publish --source "$MODULEFULLPATH"
 ERROR_CODE=$?
