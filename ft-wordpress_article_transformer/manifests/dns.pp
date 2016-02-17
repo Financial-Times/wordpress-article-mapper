@@ -7,9 +7,10 @@ class wordpress_article_transformer::dns {
     case "${::ft_environment}" {
         'd', 'qa', 'int', 't': {
             
-            /etc/resolv.conf:
+            file { /etc/resolv.conf:
             ensure  => present,
             source  => "puppet:///modules/$module_name/resolv.conf",
+            }
             
         }
     }
