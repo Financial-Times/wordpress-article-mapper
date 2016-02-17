@@ -1,0 +1,39 @@
+{
+  "dependencies": [
+    {
+      "version_requirement": "1.x.x",
+      "name": "ft/content_runnablejar"
+    },
+    {
+      "version_requirement": "1.x.x",
+      "name": "ft/content_platform_nagios"
+    },
+    {
+      "version_requirement": ">=0.0.1",
+      "name": "ft/sudoers_sudocont"
+    },
+    {
+      "version_requirement": ">=0.0.1",
+      "name": "ft/common_pp_up"
+    }
+  ],
+  "summary": "UNKNOWN",
+  "source": "UNKNOWN",
+  "author": "ft",
+  "checksums": {
+    "templates/config.yml.erb": "45918e1f43d7a03e20fd647a6563ea2a",
+    "Modulefile": "943e4ee397acbbd70b1660e61335c2dd",
+    "templates/sysconfig.erb": "8d6f3c13a1aa96022de27ed5de5ee501",
+    "manifests/init.pp": "df0eaa9036648249d61cd4d74033b96c",
+    "manifests/monitoring.pp": "6621495e46a04177ae01820cd14ab1fa",
+    "files/wordpress_article_transformer.jar": "f2b0369fdc761ca730c37ea48eebfd6a"
+  },
+  "project_page": "UNKNOWN",
+  "description": "UNKNOWN",
+  "license": "Apache License, Version 2.0",
+  "version": "0.1.127",
+  "name": "ft-wordpress_article_transformer",
+  "types": [
+
+  ]
+}

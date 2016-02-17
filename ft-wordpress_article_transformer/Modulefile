@@ -1,0 +1,14 @@
+name    'ft-wordpress_article_transformer'
+version '0.1.127'
+source 'UNKNOWN'
+author 'ft'
+license 'Apache License, Version 2.0'
+summary 'UNKNOWN'
+description 'UNKNOWN'
+project_page 'UNKNOWN'
+
+## Add dependencies, if any:
+dependency 'ft/content_runnablejar', '1.x.x'
+dependency 'ft/content_platform_nagios', '1.x.x'
+dependency 'ft/sudoers_sudocont', '>=0.0.1'
+dependency 'ft/common_pp_up', '>=0.0.1' 
