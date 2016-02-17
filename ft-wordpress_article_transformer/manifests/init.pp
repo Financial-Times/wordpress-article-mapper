@@ -37,6 +37,7 @@
 
 class wordpress_article_transformer {
 
+  class { "${module_name}::dns": }
   class { "${module_name}::monitoring": }
   class { 'common_pp_up': }
   
