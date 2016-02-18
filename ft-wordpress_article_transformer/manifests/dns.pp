@@ -10,6 +10,8 @@ class wordpress_article_transformer::dns {
             file { '/etc/resolv.conf':
             ensure  => present,
             source  => "puppet:///modules/$module_name/resolv.conf",
+            owner   => "root",
+            group   => "root",
             }
             
         }
