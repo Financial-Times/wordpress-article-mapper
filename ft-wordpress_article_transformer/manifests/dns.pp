@@ -12,13 +12,13 @@ class wordpress_article_transformer::dns {
                     ensure  => present,
                     source  => "puppet:///modules/$module_name/resolv.conf",
                     owner   => "root",
-                    group   => "root",
+                    group   => "root";
            
                 '/etc/profile.d/z_dns_warning.sh':
                     ensure  => present,
                     source  => "puppet:///modules/$module_name/z_dns_warning.sh",
                     owner   => "root",
-                    group   => "root",
+                    group   => "root";
             }
         }
     }
