@@ -7,14 +7,19 @@ class wordpress_article_transformer::dns {
     case "${::ft_environment}" {
         'd', 'qa', 'int', 't': {
             
-            file { '/etc/resolv.conf':
-            ensure  => present,
-            source  => "puppet:///modules/$module_name/resolv.conf",
-            owner   => "root",
-            group   => "root",
+            file {
+                '/etc/resolv.conf':
+                    ensure  => present,
+                    source  => "puppet:///modules/$module_name/resolv.conf",
+                    owner   => "root",
+                    group   => "root",
+           
+                '/etc/profile.d/z_dns_warning.sh':
+                    ensure  => present,
+                    source  => "puppet:///modules/$module_name/z_dns_warning.sh",
+                    owner   => "root",
+                    group   => "root",
             }
-            
         }
     }
-
 }
