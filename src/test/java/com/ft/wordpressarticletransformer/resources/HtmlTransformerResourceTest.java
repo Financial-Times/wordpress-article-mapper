@@ -38,7 +38,7 @@ public class HtmlTransformerResourceTest {
 
     private URI buildTransformerURI() {
         return UriBuilder
-                .fromPath("content-transformer")
+                .fromPath("content-transform")
                 .scheme("http")
                 .host("localhost")
                 .port(wordPressArticleTransformerAppRule.getWordPressArticleTransformerLocalPort())
