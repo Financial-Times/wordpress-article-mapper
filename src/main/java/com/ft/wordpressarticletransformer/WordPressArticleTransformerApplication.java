@@ -15,6 +15,7 @@ import com.ft.wordpressarticletransformer.configuration.UrlResolverConfiguration
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.RemoteServiceDependencyHealthCheck;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
+import com.ft.wordpressarticletransformer.resources.HtmlTransformerResource;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerExceptionMapper;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
 import com.ft.wordpressarticletransformer.service.NativeReaderClient;
@@ -81,7 +82,13 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
                         )
                 );
         environment.jersey().register(wordPressArticleTransformerResource);
-        
+
+        HtmlTransformerResource htmlTransformerResource = new HtmlTransformerResource(
+                getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration()),
+                new BrandSystemResolver(configuration.getHostToBrands())
+        );
+        environment.jersey().register(htmlTransformerResource);
+
         HealthCheckRegistry healthChecks = environment.healthChecks();
         healthChecks.register("Native Reader ping",
           new RemoteServiceDependencyHealthCheck("Native Reader", "nativerw",
