@@ -7,11 +7,18 @@ import com.ft.wordpressarticletransformer.model.WordPressContent;
 import com.ft.wordpressarticletransformer.exception.BrandResolutionException;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.response.Author;
+import com.ft.wordpressarticletransformer.response.WordPressImage;
+import com.ft.wordpressarticletransformer.response.MainImage;
 import com.ft.wordpressarticletransformer.response.Post;
+import com.ft.wordpressarticletransformer.util.ImageModelUuidGenerator;
+import com.ft.wordpressarticletransformer.util.ImageSetUuidGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -102,5 +109,29 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
 
     protected Comments createComments(String commentStatus) {
         return new Comments(COMMENT_OPEN_STATUS.equals(commentStatus));
+    }
+    
+    protected UUID createMainImageUuid(Post post) {
+      MainImage img = post.getMainImage();
+      if (img == null) {
+        LOG.debug("no main image for post {}", post.getUuid());
+        return null;
+      }
+      
+      WordPressImage fullImage = img.getImages().get("full");
+      if (fullImage == null) {
+        LOG.warn("no full-size image for post {}", post.getUuid());
+        return null;
+      }
+      
+      String imageUrl = fullImage.getUrl();
+      try {
+        URL u = new URL(imageUrl);
+        UUID imageModelUuid = ImageModelUuidGenerator.fromURL(u);
+        return ImageSetUuidGenerator.fromImageUuid(imageModelUuid);
+      } catch (MalformedURLException e) {
+        LOG.error("unable to construct UUID for featured image", e);
+        throw new WordPressContentException("unable to construct UUID for featured image", e);
+      }
     }
 }

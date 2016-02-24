@@ -88,6 +88,8 @@ public class Post {
     private String commentStatus;
     @JsonProperty("custom_fields")
     private CustomFields customFields;
+    private String uuid;
+    private MainImage mainImage;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -511,6 +513,24 @@ public class Post {
     @JsonProperty("custom_fields")
     public void setCustomFields(CustomFields customFields) {
         this.customFields = customFields;
+    }
+    
+    @JsonProperty("uuid")
+    public void setUuid(String uuid) {
+      this.uuid = uuid;
+    }
+    
+    public String getUuid() {
+      return uuid;
+    }
+    
+    @JsonProperty("main_image")
+    public void setMainImage(MainImage image) {
+      this.mainImage = image;
+    }
+    
+    public MainImage getMainImage() {
+      return mainImage;
     }
 
     @Override
