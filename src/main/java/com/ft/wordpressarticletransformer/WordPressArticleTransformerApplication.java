@@ -106,6 +106,8 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
         Errors.customise(new WordPressArticleTransformerErrorEntityFactory());
         environment.servlets().addFilter("Transaction ID Filter",
                 new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
+        environment.servlets().addFilter("Transaction ID Filter",
+                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/transform-html-fragment/*");
 
     }
 

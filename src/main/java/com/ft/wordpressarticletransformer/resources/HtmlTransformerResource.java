@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.UUID;
 
 
-@Path("/content-transform")
+@Path("/transform-html-fragment")
 public class HtmlTransformerResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(HtmlTransformerResource.class);
 
