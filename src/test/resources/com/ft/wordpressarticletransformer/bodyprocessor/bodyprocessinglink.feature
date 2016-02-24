@@ -8,7 +8,7 @@ Feature: Body processing links
 
   Examples:
     | internal link html                                                               | transformed link html                                                            |
-    | <p>Good stories <a href="http://on.ft.com/1NVIQzo">link to</a> other stories</p> | <p>Good stories <content id="8adad508-077b-3795-8569-18e532cabf96" type="http://www.ft.com/ontology/content/Article">link to</content> other stories</p> |
+    | <p>Good stories <a href="http://on.ft.com/1NVIQzo">link to</a> other stories</p> | <p>Good stories <a href="http://on.ft.com/1NVIQzo">link to</a> other stories</p> |
 
 
   Scenario Outline:
