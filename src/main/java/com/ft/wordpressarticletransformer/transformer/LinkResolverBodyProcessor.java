@@ -20,6 +20,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.UriBuilder;
@@ -77,10 +78,11 @@ public class LinkResolverBodyProcessor
     private final Client documentStoreClient;
     private final URI documentStoreQueryURI;
     private final int poolSize;
+    private final int maxLinks;
     
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns, Client resolverClient,
             Map<Pattern,Brand> urlPatternToBrandMapping,
-            Client documentStoreClient, URI documentStoreQueryURI, int queryThreadPoolSize) {
+            Client documentStoreClient, URI documentStoreQueryURI, int queryThreadPoolSize, int maxLinks) {
         
         this.urlShortenerPatterns = ImmutableSet.copyOf(urlShortenerPatterns);
         
@@ -94,6 +96,7 @@ public class LinkResolverBodyProcessor
         
         this.documentStoreQueryURI = documentStoreQueryURI;
         this.poolSize = queryThreadPoolSize;
+        this.maxLinks = maxLinks;
     }
     
     @Override
@@ -125,9 +128,19 @@ public class LinkResolverBodyProcessor
                 }
             }
             
+            int linksCount = shortenedLinks.size();
+            if (linksCount > maxLinks) {
+              LOG.warn("Article contains too many short links to resolve. Omitting {}",
+                  shortenedLinks.subList(maxLinks, linksCount).stream()
+                      .map(el -> el.getAttribute("href"))
+                      .collect(Collectors.toList()));
+              
+            }
+            
             ForkJoinPool pool = new ForkJoinPool(poolSize);  
             ForkJoinTask<Boolean> task = pool.submit(() -> {  
-              Optional<Boolean> changed = shortenedLinks.parallelStream()
+              Optional<Boolean> changed = shortenedLinks.subList(0, Math.min(linksCount, maxLinks))
+                  .parallelStream()
                   .map(link -> {
                     try {
                       return resolveAndReplaceTag(link);

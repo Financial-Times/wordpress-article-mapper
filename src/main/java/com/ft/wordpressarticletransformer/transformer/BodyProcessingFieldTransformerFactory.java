@@ -34,11 +34,12 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
     private final Client documentStoreQueryClient;
     private final URI documentStoreQueryUri;
     private final int resolverThreadPoolSize;
+    private final int maxLinks;
     
     public BodyProcessingFieldTransformerFactory(VideoMatcher videoMatcher,
                                                  Set<Pattern> shortenerPatterns,
                                                  Map<Pattern,Brand> brandMappings,
-                                                 Client resolverClient, int resolverThreadPoolSize,
+                                                 Client resolverClient, int resolverThreadPoolSize, int maxLinks,
                                                  Client documentStoreQueryClient, URI documentStoreQueryUri) {
       
         this.videoMatcher = videoMatcher;
@@ -48,6 +49,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
         this.resolverThreadPoolSize = resolverThreadPoolSize;
         this.documentStoreQueryClient = documentStoreQueryClient;
         this.documentStoreQueryUri = documentStoreQueryUri;
+        this.maxLinks = maxLinks;
     }
 
     @Override
@@ -69,7 +71,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
 				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
                 new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
                         brandMappings,
-                        documentStoreQueryClient, documentStoreQueryUri, resolverThreadPoolSize)
+                        documentStoreQueryClient, documentStoreQueryUri, resolverThreadPoolSize, maxLinks)
         );
     }
 
