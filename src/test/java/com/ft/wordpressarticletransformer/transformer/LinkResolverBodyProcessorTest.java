@@ -42,7 +42,7 @@ public class LinkResolverBodyProcessorTest {
   private LinkResolverBodyProcessor processor = new LinkResolverBodyProcessor(
     Collections.singleton(SHORT_URL_PATTERN), resolverClient,
     Collections.singletonMap(Pattern.compile("http:\\/www\\.ft\\.com\\/resolved\\/.*"), new Brand(BRAND_ID)),
-    documentStoreQueryClient, DOC_STORE_QUERY);
+    documentStoreQueryClient, DOC_STORE_QUERY, 1);
   
   
   @Test

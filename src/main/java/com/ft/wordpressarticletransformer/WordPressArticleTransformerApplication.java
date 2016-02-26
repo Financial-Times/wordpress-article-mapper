@@ -129,7 +129,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
         return (BodyProcessingFieldTransformer) (new BodyProcessingFieldTransformerFactory(videoMatcher,
           configuration.getPatterns(),
           configuration.getBrandMappings(),
-          resolverClient,
+          resolverClient, configuration.getThreadPoolSize(),
           documentStoreQueryClient, documentStoreQueryURI)).newInstance();
     }
     

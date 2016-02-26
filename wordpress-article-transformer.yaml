@@ -105,7 +105,7 @@ nativeReaderConfiguration:
         path: wordpress/{uuid}
         jerseyClient:
             timeout: 5000ms
-        primaryNodes: ["native-store-rw-api-pr-uk-int.svc.ft.com:8080:8080"]
+        primaryNodes: ["localhost:8080:8080"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
     numberOfConnectionAttempts: 3
@@ -116,6 +116,7 @@ urlResolverConfiguration:
   brandMappings:
     - pattern: "https?:\\/\\/[^.]+\\.ft\\.com\\/fastft\\/\\d{4}\\/\\d{2}/\\d{2}\\/.*/"
       brand: "http://api.ft.com/system/FT-LABS-WP-1-335"
+  threadPoolSize: 4
   resolverConfiguration:
     timeout: 5000ms
   documentStoreQueryConfiguration:
@@ -124,7 +125,7 @@ urlResolverConfiguration:
         path: /content-query
         jerseyClient:
             timeout: 5000ms
-        primaryNodes: ["document-store-api-pr-uk-int.svc.ft.com:8080:8081"]
+        primaryNodes: ["localhost:14180:14181"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
 

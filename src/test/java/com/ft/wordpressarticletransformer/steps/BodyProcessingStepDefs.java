@@ -95,7 +95,7 @@ public class BodyProcessingStepDefs {
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
           Collections.singleton(Pattern.compile("https?:\\/\\/on\\.ft\\.com/.*")),
           Collections.singletonMap(Pattern.compile("https?:\\/\\/[^.]+\\.ft\\.com\\/fastft\\/\\d{4}\\/\\d{2}/\\d{2}\\/.*/"), new Brand(fastFT)),
-          resolverClient, documentStoreQueryClient, DOCUMENT_STORE_QUERY_URI)
+          resolverClient, 1, documentStoreQueryClient, DOCUMENT_STORE_QUERY_URI)
           .newInstance();
         
         URI identifierValue = URI.create("http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/");

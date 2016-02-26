@@ -13,8 +13,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,10 +76,11 @@ public class LinkResolverBodyProcessor
     private final Map<Pattern,Brand> urlPatternToBrandMapping;
     private final Client documentStoreClient;
     private final URI documentStoreQueryURI;
+    private final int poolSize;
     
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns, Client resolverClient,
             Map<Pattern,Brand> urlPatternToBrandMapping,
-            Client documentStoreClient, URI documentStoreQueryURI) {
+            Client documentStoreClient, URI documentStoreQueryURI, int queryThreadPoolSize) {
         
         this.urlShortenerPatterns = ImmutableSet.copyOf(urlShortenerPatterns);
         
@@ -89,6 +93,7 @@ public class LinkResolverBodyProcessor
         this.documentStoreClient.setFollowRedirects(false);
         
         this.documentStoreQueryURI = documentStoreQueryURI;
+        this.poolSize = queryThreadPoolSize;
     }
     
     @Override
@@ -108,7 +113,7 @@ public class LinkResolverBodyProcessor
             throw new BodyProcessingException(e);
         }
         
-        List<Node> shortenedLinks = new ArrayList<>();
+        List<Element> shortenedLinks = new ArrayList<>();
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
             final NodeList aTags = (NodeList) xpath.evaluate("//a", document, XPathConstants.NODESET);
@@ -120,10 +125,23 @@ public class LinkResolverBodyProcessor
                 }
             }
             
-            boolean changed = false;
-            for (Node n : shortenedLinks) {
-                changed |= resolveAndReplaceTag((Element)n);
-            }
+            ForkJoinPool pool = new ForkJoinPool(poolSize);  
+            ForkJoinTask<Boolean> task = pool.submit(() -> {  
+              Optional<Boolean> changed = shortenedLinks.parallelStream()
+                  .map(link -> {
+                    try {
+                      return resolveAndReplaceTag(link);
+                    }
+                    catch (Exception e) {
+                      return false;
+                    }
+                  })
+                  .reduce((t, u) -> t | u);
+              
+              return changed.orElse(false);
+            });
+            
+            boolean changed = task.join();
             
             if (changed) {
                 body = serializeBody(document);
