@@ -1,5 +1,6 @@
 package com.ft.wordpressarticletransformer.resources;
 
+import com.ft.wordpressarticletransformer.component.ErbTemplatingHelper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.junit.Before;
@@ -9,6 +10,8 @@ import org.junit.Test;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -17,9 +20,27 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 
 public class HtmlTransformerResourceTest {
+  private static final String CONFIG_FILE = "config-component-tests.yml";
+
+  static {
+    Map<String, Object> hieraData = new HashMap<>();
+    hieraData.put("httpPort", "22040");
+    hieraData.put("adminPort", "22041");
+    hieraData.put("jerseyClientTimeout", "5000ms");
+    hieraData.put("nativeReaderPrimaryNodes", "[\"localhost:8080:8080\"]");
+    hieraData.put("queryClientTimeout", "5000ms");
+    hieraData.put("queryReaderPrimaryNodes", "[\"localhost:14180:14181\"]");
+    
+    try {
+      ErbTemplatingHelper.generateConfigFile("ft-wordpress_article_transformer/templates/config.yml.erb", hieraData,
+          CONFIG_FILE);
+    } catch (Exception e) {
+      throw new ExceptionInInitializerError(e);
+    }
+  }
 
     @ClassRule
-    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test.yaml");
+    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule(CONFIG_FILE);
 
     private Client client;
 

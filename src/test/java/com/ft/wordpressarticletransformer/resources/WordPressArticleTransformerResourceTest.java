@@ -27,13 +27,18 @@ import static org.junit.Assert.assertThat;
 import java.net.URI;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.ws.rs.core.UriBuilder;
 
+import com.ft.wordpressarticletransformer.component.ErbTemplatingHelper;
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -41,9 +46,28 @@ import org.junit.Test;
 public class WordPressArticleTransformerResourceTest {
 
     private static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66");
+    private static final String CONFIG_FILE = "config-component-tests.yml";
+
+    static {
+      Map<String, Object> hieraData = new HashMap<>();
+      hieraData.put("httpPort", "22040");
+      hieraData.put("adminPort", "22041");
+      hieraData.put("jerseyClientTimeout", "5000ms");
+      hieraData.put("nativeReaderPrimaryNodes", "[\"localhost:8080:8080\"]");
+      hieraData.put("queryClientTimeout", "5000ms");
+      hieraData.put("queryReaderPrimaryNodes", "[\"localhost:14180:14181\"]");
+      hieraData.put("alphavilleHost", "localhost");
+      
+      try {
+        ErbTemplatingHelper.generateConfigFile("ft-wordpress_article_transformer/templates/config.yml.erb", hieraData,
+            CONFIG_FILE);
+      } catch (Exception e) {
+        throw new ExceptionInInitializerError(e);
+      }
+    }
 
     @ClassRule
-    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test.yaml");
+    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule(CONFIG_FILE);
 
     private Client client;
 

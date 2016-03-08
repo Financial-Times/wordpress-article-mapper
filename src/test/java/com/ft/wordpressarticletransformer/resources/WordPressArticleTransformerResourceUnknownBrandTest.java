@@ -1,6 +1,8 @@
 package com.ft.wordpressarticletransformer.resources;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
+import com.ft.wordpressarticletransformer.component.ErbTemplatingHelper;
+import com.ft.wordpressarticletransformer.model.Brand;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.junit.Before;
@@ -9,6 +11,8 @@ import org.junit.Test;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -18,8 +22,28 @@ import static org.junit.Assert.assertThat;
 
 public class WordPressArticleTransformerResourceUnknownBrandTest {
 
-    @ClassRule
-    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test-unknown-brand.yaml");
+  private static final String CONFIG_FILE = "config-component-tests.yml";
+
+  static {
+    Map<String, Object> hieraData = new HashMap<>();
+    hieraData.put("httpPort", "22040");
+    hieraData.put("adminPort", "22041");
+    hieraData.put("jerseyClientTimeout", "5000ms");
+    hieraData.put("nativeReaderPrimaryNodes", "[\"localhost:8080:8080\"]");
+    hieraData.put("queryClientTimeout", "5000ms");
+    hieraData.put("queryReaderPrimaryNodes", "[\"localhost:14180:14181\"]");
+    hieraData.put("alphavilleHost", "unlocalhost"); // in fact any value other than localhost (including the default) would do
+    
+    try {
+      ErbTemplatingHelper.generateConfigFile("ft-wordpress_article_transformer/templates/config.yml.erb", hieraData,
+          CONFIG_FILE);
+    } catch (Exception e) {
+      throw new ExceptionInInitializerError(e);
+    }
+  }
+
+  @ClassRule
+  public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule(CONFIG_FILE);
 
     private Client client;
 
