@@ -21,13 +21,16 @@ import static org.junit.Assert.assertThat;
 
 public class HtmlTransformerResourceTest {
   private static final String CONFIG_FILE = "config-component-tests.yml";
+  private static final int NATIVERW_PORT;
 
   static {
+    NATIVERW_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
+    
     Map<String, Object> hieraData = new HashMap<>();
     hieraData.put("httpPort", "22040");
     hieraData.put("adminPort", "22041");
     hieraData.put("jerseyClientTimeout", "5000ms");
-    hieraData.put("nativeReaderPrimaryNodes", "[\"localhost:8080:8080\"]");
+    hieraData.put("nativeReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", NATIVERW_PORT, NATIVERW_PORT));
     hieraData.put("queryClientTimeout", "5000ms");
     hieraData.put("queryReaderPrimaryNodes", "[\"localhost:14180:14181\"]");
     
@@ -40,7 +43,8 @@ public class HtmlTransformerResourceTest {
   }
 
     @ClassRule
-    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule(CONFIG_FILE);
+    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule =
+      new WordPressArticleTransformerAppRule(CONFIG_FILE, NATIVERW_PORT);
 
     private Client client;
 
