@@ -3,6 +3,7 @@ package com.ft.wordpressarticletransformer.transformer;
 import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.UUID;
 
@@ -19,6 +20,10 @@ import com.google.common.collect.ImmutableSortedSet;
 public class WordPressBlogPostContentTransformer
         extends WordPressContentTransformer<WordPressBlogPostContent> {
     
+  private static final String START_BODY = "<body>";
+  private static final String MAIN_IMAGE_XML =
+      "<content data-embedded=\"true\" id=\"%s\" type=\"http://www.ft.com/ontology/content/ImageSet\"></content>";
+  
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
     
     public WordPressBlogPostContentTransformer(BrandSystemResolver brandSystemResolver,
@@ -36,6 +41,7 @@ public class WordPressBlogPostContentTransformer
             throw new UnpublishablePostException(uuid.toString(), "Not a valid WordPress article for publication - body of post is empty");
         }
         body = wrapBody(body);
+        UUID featuredImageUuid = createMainImageUuid(post);
         
         WordPressBlogPostContent.Builder builder = (WordPressBlogPostContent.Builder)WordPressBlogPostContent.builder()
                 .withUuid(uuid).withTitle(unescapeHtml4(post.getTitle()))
@@ -44,20 +50,28 @@ public class WordPressBlogPostContentTransformer
                 .withBrands(brands)
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, post.getUrl())))
                 .withComments(createComments(post.getCommentStatus()))
+                .withMainImage(Objects.toString(featuredImageUuid, null))
                 .withPublishReference(transactionId)
                 .withLastModified(lastModified);
         
-        builder = builder.withBody(transformHtml(body, transactionId))
-                         .withOpening(transformHtml(wrapBody(post.getExcerpt()), transactionId));
+        builder = builder.withBody(transformHtml(body, featuredImageUuid, transactionId))
+                         .withOpening(transformHtml(wrapBody(post.getExcerpt()), featuredImageUuid, transactionId));
         
         return builder.build();
     }
     
-    private String transformHtml(String html, String transactionId) {
-        return bodyProcessingFieldTransformer.transform(html, transactionId);
+    private String transformHtml(String html, UUID featuredImageUuid, String transactionId) {
+        String transformed = bodyProcessingFieldTransformer.transform(html, transactionId);
+        if (featuredImageUuid != null) {
+          int i = transformed.indexOf(START_BODY) + START_BODY.length();
+          transformed = transformed.substring(0,  i)
+              + String.format(MAIN_IMAGE_XML, featuredImageUuid)
+              + transformed.substring(i);
+        }
+        return transformed;
     }
     
     private String wrapBody(String originalBody) {
-        return "<body>" + originalBody + "</body>";
+        return START_BODY + originalBody + "</body>";
     }
 }
