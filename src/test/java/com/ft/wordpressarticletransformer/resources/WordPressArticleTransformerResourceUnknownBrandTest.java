@@ -1,10 +1,8 @@
 package com.ft.wordpressarticletransformer.resources;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -43,12 +41,6 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 
         ErrorEntity receivedContent = clientResponse.getEntity(ErrorEntity.class);
         assertThat("title", receivedContent.getMessage(), containsString("Failed to resolve brand for uri "));
-    }
-
-
-    @After
-    public void reset() {
-        WireMock.resetToDefault();
     }
 
     private URI buildTransformerUrl(String uuid) {

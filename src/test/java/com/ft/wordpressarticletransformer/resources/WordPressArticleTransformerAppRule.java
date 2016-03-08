@@ -3,10 +3,9 @@ package com.ft.wordpressarticletransformer.resources;
 import com.ft.wordpressarticletransformer.WordPressArticleTransformerApplication;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 import io.dropwizard.testing.junit.DropwizardAppRule;
-
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -14,7 +13,7 @@ import org.junit.runners.model.Statement;
 
 public class WordPressArticleTransformerAppRule implements TestRule {
 
-	private static final int NATIVERW_PORT = 8080;
+    private static final int NATIVERW_PORT = 8080;
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NUMBER_ENTITY = "5c652c7e-c81e-4be7-8669-adeb5a5621da";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NAME_ENTITY = "5c652c7e-c81e-4be7-8669-adeb5a5621dc";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS = "5c652c7e-c81e-4be7-8669-adeb5a5621dd";
@@ -31,37 +30,41 @@ public class WordPressArticleTransformerAppRule implements TestRule {
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_502 = "5c652c7e-c81e-4be7-8669-adeb5a5621d5";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORDPRESS_NO_APIURL_ON_RESPONSE = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
 
-	private final DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule;
+    private final DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule;
+
+    private final RuleChain ruleChain;
+
+    private WireMockRule wordPressWireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig()
+        .withRootDirectory("src/test/resources/wordPress")
+        .port(NATIVERW_PORT)
+        );
 
     public WordPressArticleTransformerAppRule(String configurationPath) {
-        appRule = new DropwizardAppRule<>(WordPressArticleTransformerApplication.class, configurationPath);
+      appRule = new DropwizardAppRule<>(WordPressArticleTransformerApplication.class, configurationPath);
 
+      ruleChain = RuleChain
+              .outerRule(wordPressWireMockRule)
+              .around(appRule);
+    }
+    
+    @Override
+    public Statement apply(Statement base, Description description) {
+      final Statement stmt = ruleChain.apply(base, description);
+      
+      return new Statement() {
+        @Override
+        public void evaluate() throws Throwable {
+          try {
+            stmt.evaluate();
+          }
+          finally {
+            wordPressWireMockRule.shutdown();
+          }
+        }
+      };
     }
 
-	@Override
-	public Statement apply(Statement base, Description description) {
-	    return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                WireMockClassRule wordPressWireMockRule = new WireMockClassRule(WireMockConfiguration.wireMockConfig()
-                        .withRootDirectory("src/test/resources/wordPress")
-                        .port(NATIVERW_PORT)
-                        );
-                
-                RuleChain ruleChain = RuleChain
-                        .outerRule(wordPressWireMockRule)
-                        .around(appRule);
-                try {
-                    ruleChain.apply(base, description);
-                }
-                finally {
-                    wordPressWireMockRule.shutdown();
-                }
-            }
-	    };
-	}
-
-	public int getWordPressArticleTransformerLocalPort() {
-		return appRule.getLocalPort();
-	}
+    public int getWordPressArticleTransformerLocalPort() {
+        return appRule.getLocalPort();
+    }
 }

@@ -1,9 +1,7 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -31,14 +29,9 @@ public class HtmlTransformerResourceTest {
         client.setReadTimeout(50000);
     }
 
-    @After
-    public void reset() {
-        WireMock.resetToDefault();
-    }
-
     private URI buildTransformerURI() {
         return UriBuilder
-                .fromPath("content-transform")
+                .fromPath("transform-html-fragment")
                 .scheme("http")
                 .host("localhost")
                 .port(wordPressArticleTransformerAppRule.getWordPressArticleTransformerLocalPort())

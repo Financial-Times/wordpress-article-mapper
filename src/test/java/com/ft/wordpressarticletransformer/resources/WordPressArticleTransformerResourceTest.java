@@ -32,10 +32,8 @@ import javax.ws.rs.core.UriBuilder;
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -237,11 +235,6 @@ public class WordPressArticleTransformerResourceTest {
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response", clientResponse, hasProperty("status", equalTo(500)));
         assertThat("response message", clientResponse.getEntity(String.class), containsString("Unexpected error status from Native Reader: [502]."));
-    }
-
-    @After
-    public void reset() {
-        WireMock.resetToDefault();
     }
 
     private URI buildTransformerUrl(String uuid) {
