@@ -78,13 +78,14 @@ public class LinkResolverBodyProcessor
     private final Client resolverClient;
     private final Map<Pattern,Brand> urlPatternToBrandMapping;
     private final Client documentStoreClient;
+    private final UriBuilder documentStoreContentUriBuilder;
     private final URI documentStoreQueryURI;
     private final int poolSize;
     private final int maxLinks;
     
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns, Client resolverClient,
             Map<Pattern,Brand> urlPatternToBrandMapping,
-            Client documentStoreClient, URI documentStoreQueryURI, int queryThreadPoolSize, int maxLinks) {
+            Client documentStoreClient, URI documentStoreBaseURI, int queryThreadPoolSize, int maxLinks) {
         
         this.urlShortenerPatterns = ImmutableSet.copyOf(urlShortenerPatterns);
         
@@ -96,7 +97,8 @@ public class LinkResolverBodyProcessor
         this.documentStoreClient = documentStoreClient;
         this.documentStoreClient.setFollowRedirects(false);
         
-        this.documentStoreQueryURI = documentStoreQueryURI;
+        this.documentStoreContentUriBuilder = UriBuilder.fromUri(documentStoreBaseURI).path("/content/{uuid}");
+        this.documentStoreQueryURI = UriBuilder.fromUri(documentStoreBaseURI).path("/content-query").build();
         this.poolSize = queryThreadPoolSize;
         this.maxLinks = maxLinks;
     }
@@ -137,8 +139,10 @@ public class LinkResolverBodyProcessor
             boolean anyLinkChanged = false;
             for (Element aTag : ftContentLinks) {
               UUID uuid = extractUUID(aTag);
-              replaceTag(aTag, uuid);
-              anyLinkChanged = true;
+              if (uuid != null) {
+                replaceTag(aTag, uuid);
+                anyLinkChanged = true;
+              }
             }
             
             int linksCount = shortenedLinks.size();
@@ -207,7 +211,10 @@ public class LinkResolverBodyProcessor
         uuid = UUID.fromString(m.group(1));
       }
       
-      // TODO verify it exists like MAT?
+      if (!validateFTContentExists(uuid)) {
+        uuid = null;
+      }
+      
       return uuid;
     }
     
@@ -320,6 +327,26 @@ public class LinkResolverBodyProcessor
         } while (identifier == null);
         
         return identifier;
+    }
+    
+    private boolean validateFTContentExists(UUID uuid) {
+        try {
+            LOG.info("look up content by UUID: {}", uuid);
+            URI queryURI = documentStoreContentUriBuilder.build(uuid);
+            
+            LOG.info("query URI: {}", queryURI);
+            ClientResponse response = documentStoreClient.resource(queryURI)
+                                                         .header("Host", "document-store-api")
+                                                         .head();
+            int status = response.getStatus();
+            LOG.info("query response: {}", status);
+            return (status == SC_OK);
+        }
+        catch (ClientHandlerException e) {
+          LOG.warn("failed to query document store", e);
+        }
+        
+        return false;
     }
     
     private UUID findFTContent(Identifier identifier) {

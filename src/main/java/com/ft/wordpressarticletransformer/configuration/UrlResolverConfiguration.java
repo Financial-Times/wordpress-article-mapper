@@ -16,7 +16,7 @@ public class UrlResolverConfiguration {
   private final Set<Pattern> patterns;
   private final Map<Pattern,Brand> brandMappings;
   private final JerseyClientConfiguration resolverConfiguration;
-  private final ReaderConfiguration documentStoreQueryConfiguration;
+  private final ReaderConfiguration documentStoreConfiguration;
   private final int threadPoolSize;
   private final int linksPerThread;
   
@@ -25,7 +25,7 @@ public class UrlResolverConfiguration {
                                   @JsonProperty("threadPoolSize") int threadPoolSize,
                                   @JsonProperty("linksPerThread") int linksPerThread,
                                   @JsonProperty("resolverConfiguration") JerseyClientConfiguration resolverConfiguration,
-                                  @JsonProperty("documentStoreQueryConfiguration") ReaderConfiguration documentStoreQueryConfiguration) {
+                                  @JsonProperty("documentStoreConfiguration") ReaderConfiguration documentStoreConfiguration) {
     
     this.patterns = ImmutableSet.copyOf(patterns);
     this.brandMappings = brandMappings.stream().collect(
@@ -33,7 +33,7 @@ public class UrlResolverConfiguration {
     this.threadPoolSize = threadPoolSize;
     this.linksPerThread = linksPerThread;
     this.resolverConfiguration = resolverConfiguration;
-    this.documentStoreQueryConfiguration = documentStoreQueryConfiguration;
+    this.documentStoreConfiguration = documentStoreConfiguration;
   }
   
   public Set<Pattern> getPatterns() {
@@ -56,7 +56,7 @@ public class UrlResolverConfiguration {
     return linksPerThread;
   }
   
-  public ReaderConfiguration getDocumentStoreQueryConfiguration() {
-    return documentStoreQueryConfiguration;
+  public ReaderConfiguration getDocumentStoreConfiguration() {
+    return documentStoreConfiguration;
   }
 }

@@ -120,10 +120,9 @@ urlResolverConfiguration:
   linksPerThread: 2
   resolverConfiguration:
     timeout: 5000ms
-  documentStoreQueryConfiguration:
+  documentStoreConfiguration:
     endpointConfiguration:
         shortName: "documentStore"
-        path: /content-query
         jerseyClient:
             timeout: 5000ms
         primaryNodes: ["localhost:14180:14181"]

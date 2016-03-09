@@ -3,6 +3,7 @@ package com.ft.wordpressarticletransformer.transformer;
 import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.assertLogEvent;
 import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.configureMockAppenderFor;
 import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.resetLoggingFor;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
@@ -39,7 +40,9 @@ public class LinkResolverBodyProcessorTest {
   
   private static final Pattern SHORT_URL_PATTERN = Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*");
   private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
-  private static final URI DOC_STORE_QUERY = URI.create("http://localhost:8080/content-query");
+  private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
+  private static final URI DOC_STORE_QUERY = DOC_STORE_URI.resolve("/content-query");
+  private static final URI DOC_STORE_CONTENT = DOC_STORE_URI.resolve("/content");
   
   private Client resolverClient = mock(Client.class);
   private Client documentStoreQueryClient = mock(Client.class);
@@ -47,7 +50,7 @@ public class LinkResolverBodyProcessorTest {
   private LinkResolverBodyProcessor processor = new LinkResolverBodyProcessor(
     Collections.singleton(SHORT_URL_PATTERN), resolverClient,
     Collections.singletonMap(Pattern.compile("http:\\/www\\.ft\\.com\\/resolved\\/.*"), new Brand(BRAND_ID)),
-    documentStoreQueryClient, DOC_STORE_QUERY, 1, 2);
+    documentStoreQueryClient, DOC_STORE_URI, 1, 2);
   
   
   @Test
@@ -60,8 +63,63 @@ public class LinkResolverBodyProcessorTest {
     String expectedTransformed = "<body><p>Blah blah blah <content id=\"" + ftContentUUID
         + "\" type=\"" + ARTICLE_TYPE + "\">usw</content> ...</p></body>";
     
+    WebResource queryResource = mock(WebResource.class);
+    WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+    URI queryURI = UriBuilder.fromUri(DOC_STORE_CONTENT).path("{uuid}").build(ftContentUUID);
+    
+    when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+    when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+    
+    ClientResponse queryResponse = mock(ClientResponse.class);
+    when(queryResponse.getStatus()).thenReturn(SC_OK);
+    when(queryBuilder.head()).thenReturn(queryResponse);
+    
     String actual = processor.process(bodyWithUuidLink, null);
     assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformed));
+  }
+  
+  @Test
+  public void thatUuidLinksNotFoundAreNotTransformed() {
+    UUID ftContentUUID = UUID.randomUUID();
+    URI uuidUrl = URI.create("http://www.ft.com/intl/cms/s/0/" + ftContentUUID + "#axzz425mjpp00");
+    String bodyWithUuidLink = "<body><p>Blah blah blah <a href=\"" + uuidUrl
+        + "\">usw</a> ...</p></body>";
+    
+    WebResource queryResource = mock(WebResource.class);
+    WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+    URI queryURI = UriBuilder.fromUri(DOC_STORE_CONTENT).path("{uuid}").build(ftContentUUID);
+    
+    when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+    when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+    
+    ClientResponse queryResponse = mock(ClientResponse.class);
+    when(queryResponse.getStatus()).thenReturn(SC_NOT_FOUND);
+    when(queryBuilder.head()).thenReturn(queryResponse);
+    
+    String actual = processor.process(bodyWithUuidLink, null);
+    assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(bodyWithUuidLink));
+  }
+  
+  @Test
+  public void thatUuidLinksWithErrorResponseAreNotTransformed() {
+    UUID ftContentUUID = UUID.randomUUID();
+    URI uuidUrl = URI.create("http://www.ft.com/intl/cms/s/0/" + ftContentUUID + "#axzz425mjpp00");
+    String bodyWithUuidLink = "<body><p>Blah blah blah <a href=\"" + uuidUrl
+        + "\">usw</a> ...</p></body>";
+    
+    WebResource queryResource = mock(WebResource.class);
+    WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+    URI queryURI = UriBuilder.fromUri(DOC_STORE_CONTENT).path("{uuid}").build(ftContentUUID);
+    
+    when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+    when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+    
+    ClientResponse queryResponse = mock(ClientResponse.class);
+    when(queryResponse.getStatus()).thenReturn(SC_INTERNAL_SERVER_ERROR);
+    when(queryBuilder.head()).thenReturn(queryResponse);
+    
+    String actual = processor.process(bodyWithUuidLink, null);
+    assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(bodyWithUuidLink));
   }
   
   @Test

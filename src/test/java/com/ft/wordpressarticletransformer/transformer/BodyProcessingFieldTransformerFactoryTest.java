@@ -40,7 +40,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class BodyProcessingFieldTransformerFactoryTest {
   private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
-  private static final String DOC_STORE_QUERY = "http://localhost:8080/content-query";
+  private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
+  private static final URI DOC_STORE_QUERY_URI = DOC_STORE_URI.resolve("/content-query");
+  
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -68,7 +70,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
           Collections.singleton(Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*")),
           Collections.singletonMap(Pattern.compile("http:\\/www\\.ft\\.com\\/resolved\\/.*"), new Brand(BRAND_ID)),
-          resolverClient, 1, 2, documentStoreQueryClient, URI.create(DOC_STORE_QUERY)).newInstance();
+          resolverClient, 1, 2, documentStoreQueryClient, DOC_STORE_URI).newInstance();
     }
 
     @Test
@@ -381,7 +383,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
       
       WebResource queryResource = mock(WebResource.class);
       WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-      URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
+      URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY_URI)
                                .queryParam("identifierAuthority", BRAND_ID)
                                .queryParam("identifierValue", URI.create(resolvedIdentifier))
                                .build();

@@ -100,7 +100,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
           new RemoteServiceDependencyHealthCheck("Document Store", "document-store-api",
             "Links to other FT content will not be resolved during publication, reducing data quality.",
             "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
-            Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreQueryConfiguration().getEndpointConfiguration()));
+            Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreConfiguration().getEndpointConfiguration()));
         
         environment.jersey().register(WordPressArticleTransformerExceptionMapper.class);
         Errors.customise(new WordPressArticleTransformerErrorEntityFactory());
@@ -116,15 +116,15 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
       Client resolverClient = Client.create();
       setClientTimeouts(resolverClient, configuration.getResolverConfiguration());
       
-      EndpointConfiguration queryEndpoint = configuration.getDocumentStoreQueryConfiguration().getEndpointConfiguration();
-      URI documentStoreQueryURI = UriBuilder.fromPath(queryEndpoint.getPath())
+      EndpointConfiguration documentStoreEndpoint = configuration.getDocumentStoreConfiguration().getEndpointConfiguration();
+      URI documentStoreBaseURI = UriBuilder.fromPath("/")
                                             .scheme("http")
-                                            .host(queryEndpoint.getHost())
-                                            .port(queryEndpoint.getPort())
+                                            .host(documentStoreEndpoint.getHost())
+                                            .port(documentStoreEndpoint.getPort())
                                             .build();
       
-      Client documentStoreQueryClient = Client.create();
-      setClientTimeouts(documentStoreQueryClient, configuration.getDocumentStoreQueryConfiguration().getEndpointConfiguration().getJerseyClientConfiguration());
+      Client documentStoreClient = Client.create();
+      setClientTimeouts(documentStoreClient, documentStoreEndpoint.getJerseyClientConfiguration());
       
       int threadPoolSize = configuration.getThreadPoolSize();
       int maxLinks = threadPoolSize * configuration.getLinksPerThread();
@@ -132,7 +132,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
           configuration.getPatterns(),
           configuration.getBrandMappings(),
           resolverClient, threadPoolSize, maxLinks,
-          documentStoreQueryClient, documentStoreQueryURI)).newInstance();
+          documentStoreClient, documentStoreBaseURI)).newInstance();
     }
     
     private void setClientTimeouts(Client client, JerseyClientConfiguration config) {
