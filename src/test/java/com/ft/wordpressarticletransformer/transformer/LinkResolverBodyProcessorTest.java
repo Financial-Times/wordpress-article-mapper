@@ -51,6 +51,20 @@ public class LinkResolverBodyProcessorTest {
   
   
   @Test
+  public void thatUuidLinksAreResolvedToContent() {
+    UUID ftContentUUID = UUID.randomUUID();
+    URI uuidUrl = URI.create("http://www.ft.com/intl/cms/s/0/" + ftContentUUID + "#axzz425mjpp00");
+    String bodyWithUuidLink = "<body><p>Blah blah blah <a href=\"" + uuidUrl
+        + "\">usw</a> ...</p></body>";
+    
+    String expectedTransformed = "<body><p>Blah blah blah <content id=\"" + ftContentUUID
+        + "\" type=\"" + ARTICLE_TYPE + "\">usw</content> ...</p></body>";
+    
+    String actual = processor.process(bodyWithUuidLink, null);
+    assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformed));
+  }
+  
+  @Test
   public void thatShortenedLinksAreResolvedToContent() {
     URI shortUrl = URI.create("http://short.example.com/foobar");
     String resolvedIdentifier = "http:/www.ft.com/resolved/foo/bar";

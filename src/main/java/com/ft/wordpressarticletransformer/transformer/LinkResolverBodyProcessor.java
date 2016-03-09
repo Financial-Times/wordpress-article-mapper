@@ -69,7 +69,9 @@ public class LinkResolverBodyProcessor
     
     private static final Pattern FT_COM = Pattern.compile("https?:\\/\\/[^/]+\\.ft\\.com\\/(.*)");
     private static final Cookie NEXT_COOKIE = new Cookie("FT_SITE", "NEXT", "/", ".ft.com");
-    private static final Pattern CONTENT_UUID = Pattern.compile(".*\\/content\\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$");
+    private static final String UUID_REGEX = "([0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})";
+    private static final Pattern CONTENT_UUID = Pattern.compile(".*\\/content\\/" + UUID_REGEX + "$");
+    private static final Pattern HREF_UUID = Pattern.compile(".*ft\\.com\\/\\S*" + UUID_REGEX + ".*");
     private static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
     
     private final Set<Pattern> urlShortenerPatterns;
@@ -116,6 +118,7 @@ public class LinkResolverBodyProcessor
             throw new BodyProcessingException(e);
         }
         
+        List<Element> ftContentLinks = new ArrayList<>();
         List<Element> shortenedLinks = new ArrayList<>();
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
@@ -123,9 +126,19 @@ public class LinkResolverBodyProcessor
             for (int i = 0; i < aTags.getLength(); i++) {
                 final Element aTag = (Element)aTags.item(i);
                 
-                if (isShortenedLink(aTag)) {
+                if (isFTContentLink(aTag)) {
+                  ftContentLinks.add(aTag);
+                }
+                else if (isShortenedLink(aTag)) {
                     shortenedLinks.add(aTag);
                 }
+            }
+            
+            boolean anyLinkChanged = false;
+            for (Element aTag : ftContentLinks) {
+              UUID uuid = extractUUID(aTag);
+              replaceTag(aTag, uuid);
+              anyLinkChanged = true;
             }
             
             int linksCount = shortenedLinks.size();
@@ -139,7 +152,7 @@ public class LinkResolverBodyProcessor
             
             ForkJoinPool pool = new ForkJoinPool(poolSize);  
             ForkJoinTask<Boolean> task = pool.submit(() -> {  
-              Optional<Boolean> changed = shortenedLinks.subList(0, Math.min(linksCount, maxLinks))
+              Optional<Boolean> shortLinkChanged = shortenedLinks.subList(0, Math.min(linksCount, maxLinks))
                   .parallelStream()
                   .map(link -> {
                     try {
@@ -151,12 +164,12 @@ public class LinkResolverBodyProcessor
                   })
                   .reduce((t, u) -> t | u);
               
-              return changed.orElse(false);
+              return shortLinkChanged.orElse(false);
             });
             
-            boolean changed = task.join();
+            anyLinkChanged |= task.join();
             
-            if (changed) {
+            if (anyLinkChanged) {
                 body = serializeBody(document);
             }
         }
@@ -174,6 +187,28 @@ public class LinkResolverBodyProcessor
         documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         
         return documentBuilderFactory.newDocumentBuilder();
+    }
+    
+    private boolean isFTContentLink(Element aTag) {
+      String url = aTag.getAttribute("href");
+      if (Strings.isNullOrEmpty(url)) {
+          return false;
+      }
+      
+      return HREF_UUID.matcher(url).matches();
+    }
+    
+    private UUID extractUUID(Element aTag) {
+      String url = aTag.getAttribute("href");
+      UUID uuid = null;
+      
+      Matcher m = HREF_UUID.matcher(url);
+      if (m.matches()) {
+        uuid = UUID.fromString(m.group(1));
+      }
+      
+      // TODO verify it exists like MAT?
+      return uuid;
     }
     
     private boolean isShortenedLink(Element aTag) {
@@ -204,7 +239,12 @@ public class LinkResolverBodyProcessor
             return false;
         }
         
-        LOG.info("replace link href={} with FT content UUID={}", url, uuid);
+        replaceTag(aTag, uuid);
+        return true;
+    }
+    
+    private void replaceTag(Element aTag, UUID uuid) {
+        LOG.info("replace link href={} with FT content UUID={}", aTag.getAttribute("href"), uuid);
         Node parent = aTag.getParentNode();
         Element content = aTag.getOwnerDocument().createElement("content");
         content.setAttribute("id", uuid.toString());
@@ -222,8 +262,6 @@ public class LinkResolverBodyProcessor
         
         parent.insertBefore(content, aTag);
         parent.removeChild(aTag);
-        
-        return true;
     }
     
     private Identifier resolveToFTIdentifier(final URI source) {
