@@ -33,19 +33,23 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
     private final Client resolverClient;
     private final Client documentStoreQueryClient;
     private final URI documentStoreQueryUri;
+    private final int resolverThreadPoolSize;
+    private final int maxLinks;
     
     public BodyProcessingFieldTransformerFactory(VideoMatcher videoMatcher,
                                                  Set<Pattern> shortenerPatterns,
                                                  Map<Pattern,Brand> brandMappings,
-                                                 Client resolverClient,
+                                                 Client resolverClient, int resolverThreadPoolSize, int maxLinks,
                                                  Client documentStoreQueryClient, URI documentStoreQueryUri) {
       
         this.videoMatcher = videoMatcher;
         this.shortenerPatterns = ImmutableSet.copyOf(shortenerPatterns);
         this.brandMappings = ImmutableMap.copyOf(brandMappings);
         this.resolverClient = resolverClient;
+        this.resolverThreadPoolSize = resolverThreadPoolSize;
         this.documentStoreQueryClient = documentStoreQueryClient;
         this.documentStoreQueryUri = documentStoreQueryUri;
+        this.maxLinks = maxLinks;
     }
 
     @Override
@@ -64,10 +68,10 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                 new RemoveEmptyElementsBodyProcessor(asList("p"),asList("img")),
                 new Html5SelfClosingTagBodyProcessor(),
 				new RegexReplacerBodyProcessor("</p>(\\r?\\n)+<p>", "</p>" + System.lineSeparator() + "<p>"),
-				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>")/*,
+				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
                 new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
                         brandMappings,
-                        documentStoreQueryClient, documentStoreQueryUri)*/
+                        documentStoreQueryClient, documentStoreQueryUri, resolverThreadPoolSize, maxLinks)
         );
     }
 

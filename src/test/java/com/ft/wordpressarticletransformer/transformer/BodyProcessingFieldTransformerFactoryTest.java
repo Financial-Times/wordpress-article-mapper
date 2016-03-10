@@ -68,7 +68,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
           Collections.singleton(Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*")),
           Collections.singletonMap(Pattern.compile("http:\\/www\\.ft\\.com\\/resolved\\/.*"), new Brand(BRAND_ID)),
-          resolverClient, documentStoreQueryClient, URI.create(DOC_STORE_QUERY)).newInstance();
+          resolverClient, 1, 2, documentStoreQueryClient, URI.create(DOC_STORE_QUERY)).newInstance();
     }
 
     @Test
@@ -360,7 +360,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         checkTransformation(bodyWithMoreLink, expectedTransformed);
     }
     
-    @org.junit.Ignore @Test
+    @Test
     public void thatShortenedLinksAreResolvedToContent() {
       String shortUrl = "http://short.example.com/foobar";
       String resolvedIdentifier = "http:/www.ft.com/resolved/foo/bar";

@@ -1,16 +1,17 @@
 package com.ft.wordpressarticletransformer.resources;
 
 import com.ft.api.jaxrs.errors.ErrorEntity;
-import com.github.tomakehurst.wiremock.client.WireMock;
+import com.ft.wordpressarticletransformer.component.ErbTemplatingHelper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -20,8 +21,32 @@ import static org.junit.Assert.assertThat;
 
 public class WordPressArticleTransformerResourceUnknownBrandTest {
 
-    @ClassRule
-    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule = new WordPressArticleTransformerAppRule("wordpress-article-transformer-test-unknown-brand.yaml");
+  private static final String CONFIG_FILE = "config-component-tests.yml";
+  private static final int NATIVERW_PORT;
+
+  static {
+    NATIVERW_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
+    
+    Map<String, Object> hieraData = new HashMap<>();
+    hieraData.put("httpPort", "22040");
+    hieraData.put("adminPort", "22041");
+    hieraData.put("jerseyClientTimeout", "5000ms");
+    hieraData.put("nativeReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", NATIVERW_PORT, NATIVERW_PORT));
+    hieraData.put("queryClientTimeout", "5000ms");
+    hieraData.put("queryReaderPrimaryNodes", "[\"localhost:14180:14181\"]");
+    hieraData.put("alphavilleHost", "unlocalhost"); // in fact any value other than localhost (including the default) would do
+    
+    try {
+      ErbTemplatingHelper.generateConfigFile("ft-wordpress_article_transformer/templates/config.yml.erb", hieraData,
+          CONFIG_FILE);
+    } catch (Exception e) {
+      throw new ExceptionInInitializerError(e);
+    }
+  }
+
+  @ClassRule
+  public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule =
+    new WordPressArticleTransformerAppRule(CONFIG_FILE, NATIVERW_PORT);
 
     private Client client;
 
@@ -43,12 +68,6 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 
         ErrorEntity receivedContent = clientResponse.getEntity(ErrorEntity.class);
         assertThat("title", receivedContent.getMessage(), containsString("Failed to resolve brand for uri "));
-    }
-
-
-    @After
-    public void reset() {
-        WireMock.resetToDefault();
     }
 
     private URI buildTransformerUrl(String uuid) {

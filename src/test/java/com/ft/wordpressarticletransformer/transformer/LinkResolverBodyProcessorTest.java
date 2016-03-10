@@ -1,5 +1,8 @@
 package com.ft.wordpressarticletransformer.transformer;
 
+import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.assertLogEvent;
+import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.configureMockAppenderFor;
+import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.resetLoggingFor;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
@@ -29,6 +32,8 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+import ch.qos.logback.classic.Logger;
+
 public class LinkResolverBodyProcessorTest {
   static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
   
@@ -42,7 +47,7 @@ public class LinkResolverBodyProcessorTest {
   private LinkResolverBodyProcessor processor = new LinkResolverBodyProcessor(
     Collections.singleton(SHORT_URL_PATTERN), resolverClient,
     Collections.singletonMap(Pattern.compile("http:\\/www\\.ft\\.com\\/resolved\\/.*"), new Brand(BRAND_ID)),
-    documentStoreQueryClient, DOC_STORE_QUERY);
+    documentStoreQueryClient, DOC_STORE_QUERY, 1, 2);
   
   
   @Test
@@ -89,6 +94,67 @@ public class LinkResolverBodyProcessorTest {
     inOrder = inOrder(documentStoreQueryClient);
     inOrder.verify(documentStoreQueryClient).setFollowRedirects(false);
     inOrder.verify(documentStoreQueryClient).resource(queryURI);
+  }
+  
+  @Test
+  public void thatMaximumNumberOfLinksAreResolvedToContent() {
+    URI[] shortUrl = new URI[] {
+        URI.create("http://short.example.com/foobar/1"),
+        URI.create("http://short.example.com/foobar/2"),
+        URI.create("http://short.example.com/foobar/3")
+    };
+    
+    String resolvedIdentifier = "http:/www.ft.com/resolved/foo/bar";
+    UUID ftContentUUID = UUID.randomUUID();
+    String bodyWithShortLink = "<body><p>Blah blah blah "
+        + "<a href=\"" + shortUrl[0] + "\">Link 0</a>"
+        + "<a href=\"" + shortUrl[1] + "\">Link 1</a>"
+        + "<a href=\"" + shortUrl[2] + "\">Link 2</a>"
+        + "...</p></body>";
+    
+    String expectedTransformed = "<body><p>Blah blah blah "
+        + "<content id=\"" + ftContentUUID + "\" type=\"" + ARTICLE_TYPE + "\">Link 0</content>"
+        + "<content id=\"" + ftContentUUID + "\" type=\"" + ARTICLE_TYPE + "\">Link 1</content>"
+        + "<a href=\"" + shortUrl[2] + "\">Link 2</a>"
+        + "...</p></body>";
+    
+    WebResource resolverBuilder = mock(WebResource.class);
+    when(resolverClient.resource(any(URI.class))).thenReturn(resolverBuilder);
+    
+    ClientResponse redirectionResponse = mock(ClientResponse.class);
+    when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
+    when(redirectionResponse.getLocation()).thenReturn(URI.create(resolvedIdentifier));
+    when(resolverBuilder.head()).thenReturn(redirectionResponse);
+    
+    WebResource queryResource = mock(WebResource.class);
+    WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+    URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
+                             .queryParam("identifierAuthority", BRAND_ID)
+                             .queryParam("identifierValue", URI.create(resolvedIdentifier))
+                             .build();
+    
+    when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+    when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+    
+    ClientResponse queryResponse = mock(ClientResponse.class);
+    when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
+    when(queryResponse.getLocation()).thenReturn(URI.create("http://www.ft.com/content/" + ftContentUUID));
+    when(queryBuilder.head()).thenReturn(queryResponse);
+    
+    try {
+      Logger logger = configureMockAppenderFor(LinkResolverBodyProcessor.class);
+      
+      String actual = processor.process(bodyWithShortLink, null);
+      assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformed));
+      
+      verify(resolverClient).resource(shortUrl[0]);
+      verify(resolverClient).resource(shortUrl[1]);
+      verify(resolverClient, never()).resource(shortUrl[2]);
+      assertLogEvent(logger, "Article contains too many short links to resolve\\. Omitting.*" + shortUrl[2] + ".*");
+    }
+    finally {
+      resetLoggingFor(LinkResolverBodyProcessor.class);
+    }
   }
   
   @Test

@@ -126,10 +126,12 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
       Client documentStoreQueryClient = Client.create();
       setClientTimeouts(documentStoreQueryClient, configuration.getDocumentStoreQueryConfiguration().getEndpointConfiguration().getJerseyClientConfiguration());
       
+      int threadPoolSize = configuration.getThreadPoolSize();
+      int maxLinks = threadPoolSize * configuration.getLinksPerThread();
         return (BodyProcessingFieldTransformer) (new BodyProcessingFieldTransformerFactory(videoMatcher,
           configuration.getPatterns(),
           configuration.getBrandMappings(),
-          resolverClient,
+          resolverClient, threadPoolSize, maxLinks,
           documentStoreQueryClient, documentStoreQueryURI)).newInstance();
     }
     
