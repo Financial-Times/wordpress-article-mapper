@@ -73,7 +73,8 @@ public class BodyProcessingStepDefs {
     private static final String CONVERSION_TEMPLATE = "%ss";
     private static final ConvertParameters CONVERT_PARAMETERS = new ConvertParameters(CONVERT_FROM_PARAMETER, CONVERTED_TO_PARAMETER, CONVERSION_TEMPLATE);
     private static final List<ConvertParameters> CONVERT_PARAMETERS_LIST = ImmutableList.of(CONVERT_PARAMETERS);
-    private static final URI DOCUMENT_STORE_QUERY_URI = URI.create("http://localhost:8080/foo/bar");
+    private static final URI DOCUMENT_STORE_URI = URI.create("http://localhost:8080/");
+    private static final URI DOCUMENT_STORE_QUERY_URI = DOCUMENT_STORE_URI.resolve("/content-query");
 
     public static List<VideoSiteConfiguration> DEFAULTS = Arrays.asList(
             new VideoSiteConfiguration("https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", true, T, null, true),
@@ -95,7 +96,7 @@ public class BodyProcessingStepDefs {
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
           Collections.singleton(Pattern.compile("https?:\\/\\/on\\.ft\\.com/.*")),
           Collections.singletonMap(Pattern.compile("https?:\\/\\/[^.]+\\.ft\\.com\\/fastft\\/\\d{4}\\/\\d{2}/\\d{2}\\/.*/"), new Brand(fastFT)),
-          resolverClient, 1, 2, documentStoreQueryClient, DOCUMENT_STORE_QUERY_URI)
+          resolverClient, 1, 2, documentStoreQueryClient, DOCUMENT_STORE_URI)
           .newInstance();
         
         URI identifierValue = URI.create("http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/");

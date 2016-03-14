@@ -31,8 +31,8 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
     private final Set<Pattern> shortenerPatterns;
     private final Map<Pattern,Brand> brandMappings;
     private final Client resolverClient;
-    private final Client documentStoreQueryClient;
-    private final URI documentStoreQueryUri;
+    private final Client documentStoreClient;
+    private final URI documentStoreBaseUri;
     private final int resolverThreadPoolSize;
     private final int maxLinks;
     
@@ -40,15 +40,15 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                                                  Set<Pattern> shortenerPatterns,
                                                  Map<Pattern,Brand> brandMappings,
                                                  Client resolverClient, int resolverThreadPoolSize, int maxLinks,
-                                                 Client documentStoreQueryClient, URI documentStoreQueryUri) {
+                                                 Client documentStoreClient, URI documentStoreBaseUri) {
       
         this.videoMatcher = videoMatcher;
         this.shortenerPatterns = ImmutableSet.copyOf(shortenerPatterns);
         this.brandMappings = ImmutableMap.copyOf(brandMappings);
         this.resolverClient = resolverClient;
         this.resolverThreadPoolSize = resolverThreadPoolSize;
-        this.documentStoreQueryClient = documentStoreQueryClient;
-        this.documentStoreQueryUri = documentStoreQueryUri;
+        this.documentStoreClient = documentStoreClient;
+        this.documentStoreBaseUri = documentStoreBaseUri;
         this.maxLinks = maxLinks;
     }
 
@@ -71,7 +71,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
 				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
                 new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
                         brandMappings,
-                        documentStoreQueryClient, documentStoreQueryUri, resolverThreadPoolSize, maxLinks)
+                        documentStoreClient, documentStoreBaseUri, resolverThreadPoolSize, maxLinks)
         );
     }
 

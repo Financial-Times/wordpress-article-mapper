@@ -15,7 +15,10 @@ import static com.ft.wordpressarticletransformer.resources.WordPressArticleTrans
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_INVALID_CONTENT_TYPE;
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_NON_WORD_PRESS_RESPONSE;
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_STATUS_UNKNOWN;
+import static org.apache.http.HttpStatus.SC_MOVED_PERMANENTLY;
+import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -48,9 +51,11 @@ public class WordPressArticleTransformerResourceTest {
     private static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66");
     private static final String CONFIG_FILE = "config-component-tests.yml";
     private static final int NATIVERW_PORT;
+    private static final int DOC_STORE_PORT;
     
     static {
       NATIVERW_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
+      DOC_STORE_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
       
       Map<String, Object> hieraData = new HashMap<>();
       hieraData.put("httpPort", "22040");
@@ -58,7 +63,7 @@ public class WordPressArticleTransformerResourceTest {
       hieraData.put("jerseyClientTimeout", "5000ms");
       hieraData.put("nativeReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", NATIVERW_PORT, NATIVERW_PORT));
       hieraData.put("queryClientTimeout", "5000ms");
-      hieraData.put("queryReaderPrimaryNodes", "[\"localhost:14180:14181\"]");
+      hieraData.put("queryReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", DOC_STORE_PORT, DOC_STORE_PORT));
       hieraData.put("alphavilleHost", "localhost");
       
       try {
@@ -71,7 +76,7 @@ public class WordPressArticleTransformerResourceTest {
 
     @ClassRule
     public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule =
-      new WordPressArticleTransformerAppRule(CONFIG_FILE, NATIVERW_PORT);
+      new WordPressArticleTransformerAppRule(CONFIG_FILE, NATIVERW_PORT, DOC_STORE_PORT);
 
     private Client client;
 
@@ -107,6 +112,14 @@ public class WordPressArticleTransformerResourceTest {
 
     @Test
     public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPress() {
+      wordPressArticleTransformerAppRule.mockDocumentStoreContentResponse(
+          "3fcac834-58ce-11e4-a31b-00144feab7de", SC_OK);
+      
+      wordPressArticleTransformerAppRule.mockDocumentStoreQueryResponse(
+          "http://api.ft.com/system/FT-LABS-WP-1-335",
+          "http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/",
+          SC_MOVED_PERMANENTLY, "https://next.ft.com/content/8adad508-077b-3795-8569-18e532cabf96");
+      
         final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -114,7 +127,12 @@ public class WordPressArticleTransformerResourceTest {
 
         WordPressBlogPostContent receivedContent = clientResponse.getEntity(WordPressBlogPostContent.class);
         assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
-        assertThat("body", receivedContent.getBody(), containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
+        assertThat("body", receivedContent.getBody(), allOf(
+            containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "),
+            containsString("<content id=\"3fcac834-58ce-11e4-a31b-00144feab7de\""),
+            containsString("<content id=\"8adad508-077b-3795-8569-18e532cabf96\"")
+            ));
+        
         assertThat("byline", receivedContent.getByline(), is(equalTo("FT Labs Administrator, Jan Majek, Adam Braimbridge")));
         assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
         assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));

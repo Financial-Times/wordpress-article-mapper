@@ -69,20 +69,23 @@ public class LinkResolverBodyProcessor
     
     private static final Pattern FT_COM = Pattern.compile("https?:\\/\\/[^/]+\\.ft\\.com\\/(.*)");
     private static final Cookie NEXT_COOKIE = new Cookie("FT_SITE", "NEXT", "/", ".ft.com");
-    private static final Pattern CONTENT_UUID = Pattern.compile(".*\\/content\\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$");
+    private static final String UUID_REGEX = "([0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})";
+    private static final Pattern CONTENT_UUID = Pattern.compile(".*\\/content\\/" + UUID_REGEX + "$");
+    private static final Pattern HREF_UUID = Pattern.compile(".*ft\\.com\\/\\S*" + UUID_REGEX + ".*");
     private static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
     
     private final Set<Pattern> urlShortenerPatterns;
     private final Client resolverClient;
     private final Map<Pattern,Brand> urlPatternToBrandMapping;
     private final Client documentStoreClient;
+    private final UriBuilder documentStoreContentUriBuilder;
     private final URI documentStoreQueryURI;
     private final int poolSize;
     private final int maxLinks;
     
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns, Client resolverClient,
             Map<Pattern,Brand> urlPatternToBrandMapping,
-            Client documentStoreClient, URI documentStoreQueryURI, int queryThreadPoolSize, int maxLinks) {
+            Client documentStoreClient, URI documentStoreBaseURI, int queryThreadPoolSize, int maxLinks) {
         
         this.urlShortenerPatterns = ImmutableSet.copyOf(urlShortenerPatterns);
         
@@ -94,7 +97,8 @@ public class LinkResolverBodyProcessor
         this.documentStoreClient = documentStoreClient;
         this.documentStoreClient.setFollowRedirects(false);
         
-        this.documentStoreQueryURI = documentStoreQueryURI;
+        this.documentStoreContentUriBuilder = UriBuilder.fromUri(documentStoreBaseURI).path("/content/{uuid}");
+        this.documentStoreQueryURI = UriBuilder.fromUri(documentStoreBaseURI).path("/content-query").build();
         this.poolSize = queryThreadPoolSize;
         this.maxLinks = maxLinks;
     }
@@ -116,6 +120,7 @@ public class LinkResolverBodyProcessor
             throw new BodyProcessingException(e);
         }
         
+        List<Element> ftContentLinks = new ArrayList<>();
         List<Element> shortenedLinks = new ArrayList<>();
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
@@ -123,9 +128,21 @@ public class LinkResolverBodyProcessor
             for (int i = 0; i < aTags.getLength(); i++) {
                 final Element aTag = (Element)aTags.item(i);
                 
-                if (isShortenedLink(aTag)) {
+                if (isFTContentLink(aTag)) {
+                  ftContentLinks.add(aTag);
+                }
+                else if (isShortenedLink(aTag)) {
                     shortenedLinks.add(aTag);
                 }
+            }
+            
+            boolean anyLinkChanged = false;
+            for (Element aTag : ftContentLinks) {
+              UUID uuid = extractUUID(aTag);
+              if (uuid != null) {
+                replaceTag(aTag, uuid);
+                anyLinkChanged = true;
+              }
             }
             
             int linksCount = shortenedLinks.size();
@@ -139,7 +156,7 @@ public class LinkResolverBodyProcessor
             
             ForkJoinPool pool = new ForkJoinPool(poolSize);  
             ForkJoinTask<Boolean> task = pool.submit(() -> {  
-              Optional<Boolean> changed = shortenedLinks.subList(0, Math.min(linksCount, maxLinks))
+              Optional<Boolean> shortLinkChanged = shortenedLinks.subList(0, Math.min(linksCount, maxLinks))
                   .parallelStream()
                   .map(link -> {
                     try {
@@ -151,12 +168,12 @@ public class LinkResolverBodyProcessor
                   })
                   .reduce((t, u) -> t | u);
               
-              return changed.orElse(false);
+              return shortLinkChanged.orElse(false);
             });
             
-            boolean changed = task.join();
+            anyLinkChanged |= task.join();
             
-            if (changed) {
+            if (anyLinkChanged) {
                 body = serializeBody(document);
             }
         }
@@ -174,6 +191,31 @@ public class LinkResolverBodyProcessor
         documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         
         return documentBuilderFactory.newDocumentBuilder();
+    }
+    
+    private boolean isFTContentLink(Element aTag) {
+      String url = aTag.getAttribute("href");
+      if (Strings.isNullOrEmpty(url)) {
+          return false;
+      }
+      
+      return HREF_UUID.matcher(url).matches();
+    }
+    
+    private UUID extractUUID(Element aTag) {
+      String url = aTag.getAttribute("href");
+      UUID uuid = null;
+      
+      Matcher m = HREF_UUID.matcher(url);
+      if (m.matches()) {
+        uuid = UUID.fromString(m.group(1));
+      }
+      
+      if (!validateFTContentExists(uuid)) {
+        uuid = null;
+      }
+      
+      return uuid;
     }
     
     private boolean isShortenedLink(Element aTag) {
@@ -204,7 +246,12 @@ public class LinkResolverBodyProcessor
             return false;
         }
         
-        LOG.info("replace link href={} with FT content UUID={}", url, uuid);
+        replaceTag(aTag, uuid);
+        return true;
+    }
+    
+    private void replaceTag(Element aTag, UUID uuid) {
+        LOG.info("replace link href={} with FT content UUID={}", aTag.getAttribute("href"), uuid);
         Node parent = aTag.getParentNode();
         Element content = aTag.getOwnerDocument().createElement("content");
         content.setAttribute("id", uuid.toString());
@@ -222,8 +269,6 @@ public class LinkResolverBodyProcessor
         
         parent.insertBefore(content, aTag);
         parent.removeChild(aTag);
-        
-        return true;
     }
     
     private Identifier resolveToFTIdentifier(final URI source) {
@@ -282,6 +327,26 @@ public class LinkResolverBodyProcessor
         } while (identifier == null);
         
         return identifier;
+    }
+    
+    private boolean validateFTContentExists(UUID uuid) {
+        try {
+            LOG.info("look up content by UUID: {}", uuid);
+            URI queryURI = documentStoreContentUriBuilder.build(uuid);
+            
+            LOG.info("query URI: {}", queryURI);
+            ClientResponse response = documentStoreClient.resource(queryURI)
+                                                         .header("Host", "document-store-api")
+                                                         .head();
+            int status = response.getStatus();
+            LOG.info("query response: {}", status);
+            return (status == SC_OK);
+        }
+        catch (ClientHandlerException e) {
+          LOG.warn("failed to query document store", e);
+        }
+        
+        return false;
     }
     
     private UUID findFTContent(Identifier identifier) {

@@ -120,10 +120,9 @@ urlResolverConfiguration:
   linksPerThread: <%=scope.function_hiera(['resolverLinksPerThread','2'])%>
   resolverConfiguration:
     timeout: 5000ms
-  documentStoreQueryConfiguration:
+  documentStoreConfiguration:
     endpointConfiguration:
         shortName: "documentStore"
-        path: /content-query
         jerseyClient:
             timeout: <%=scope.function_hiera(['queryClientTimeout','null'])%>
         primaryNodes: <%=scope.function_hiera(['queryReaderPrimaryNodes','null'])%>

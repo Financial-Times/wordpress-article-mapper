@@ -23,9 +23,11 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 
   private static final String CONFIG_FILE = "config-component-tests.yml";
   private static final int NATIVERW_PORT;
+  private static final int DOC_STORE_PORT;
 
   static {
     NATIVERW_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
+    DOC_STORE_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
     
     Map<String, Object> hieraData = new HashMap<>();
     hieraData.put("httpPort", "22040");
@@ -33,7 +35,7 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
     hieraData.put("jerseyClientTimeout", "5000ms");
     hieraData.put("nativeReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", NATIVERW_PORT, NATIVERW_PORT));
     hieraData.put("queryClientTimeout", "5000ms");
-    hieraData.put("queryReaderPrimaryNodes", "[\"localhost:14180:14181\"]");
+    hieraData.put("queryReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", DOC_STORE_PORT, DOC_STORE_PORT));
     hieraData.put("alphavilleHost", "unlocalhost"); // in fact any value other than localhost (including the default) would do
     
     try {
@@ -46,7 +48,7 @@ public class WordPressArticleTransformerResourceUnknownBrandTest {
 
   @ClassRule
   public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule =
-    new WordPressArticleTransformerAppRule(CONFIG_FILE, NATIVERW_PORT);
+    new WordPressArticleTransformerAppRule(CONFIG_FILE, NATIVERW_PORT, DOC_STORE_PORT);
 
     private Client client;
 
