@@ -50,7 +50,7 @@ public class WordPressBlogPostContentTransformer
                 .withBrands(brands)
                 .withIdentifiers(ImmutableSortedSet.of(new Identifier(originatingSystemId, post.getUrl())))
                 .withComments(createComments(post.getCommentStatus()))
-                .withMainImage(Objects.toString(featuredImageUuid, null))
+//                .withMainImage(Objects.toString(featuredImageUuid, null))
                 .withPublishReference(transactionId)
                 .withLastModified(lastModified);
         
@@ -62,12 +62,12 @@ public class WordPressBlogPostContentTransformer
     
     private String transformHtml(String html, UUID featuredImageUuid, String transactionId) {
         String transformed = bodyProcessingFieldTransformer.transform(html, transactionId);
-        if (featuredImageUuid != null) {
+        /*if (featuredImageUuid != null) {
           int i = transformed.indexOf(START_BODY) + START_BODY.length();
           transformed = transformed.substring(0,  i)
               + String.format(MAIN_IMAGE_XML, featuredImageUuid)
               + transformed.substring(i);
-        }
+        }*/
         return transformed;
     }
     
