@@ -1,0 +1,17 @@
+{
+   "request" : {
+      "urlPattern" : "/.*9425e94b-273e-459c-94cc-640c0b992d85",
+      "method" : "GET"
+   },
+   "response" : {
+      "status" : 200,
+      "bodyFileName" : "WILL_RETURN_200-unsupported-content.json",
+      "headers" : {
+         "Date" : "Thu, 21 Nov 2013 12:59:53 GMT",
+         "Content-Type" : "application/json",
+         "Vary" : "Accept-Encoding, User-Agent",
+         "Transfer-Encoding" : "chunked"
+      }
+   }
+}
+

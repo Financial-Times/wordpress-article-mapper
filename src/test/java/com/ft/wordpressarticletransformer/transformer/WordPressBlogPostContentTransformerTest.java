@@ -26,6 +26,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import com.ft.wordpressarticletransformer.exception.UnpublishablePostException;
+import com.ft.wordpressarticletransformer.exception.UntransformablePostException;
 import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
@@ -206,6 +207,22 @@ public class WordPressBlogPostContentTransformerTest {
     public void thatBlogPostRequiresBodyText() {
         Post post = new Post();
         post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setAuthors(Collections.singletonList(AUTHOR));
+        post.setUrl(POST_URL);
+        post.setCommentStatus(COMMENTS_OPEN);
+
+        transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, LAST_MODIFIED);
+    }
+
+    @Test(expected = UntransformablePostException.class)
+    public void thatBlogPostContainingOnlyUnsupportedTagsIsRejected() {
+      String unsupportedBody = "<table><thead><tr><th>foo</th></tr></thead><tbody><tr><td>bar</td></tr></tbody></table>\n\n";
+      when(bodyTransformer.transform("<body>" + unsupportedBody + "</body>", TX_ID)).thenReturn("<body>\n\n</body>");
+      
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setContent(unsupportedBody);
         post.setDateGmt(PUBLISHED_DATE_STR);
         post.setAuthors(Collections.singletonList(AUTHOR));
         post.setUrl(POST_URL);

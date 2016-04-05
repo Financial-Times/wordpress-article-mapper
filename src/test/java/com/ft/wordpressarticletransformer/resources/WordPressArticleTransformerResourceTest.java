@@ -6,6 +6,7 @@ import static com.ft.wordpressarticletransformer.resources.WordPressArticleTrans
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NAME_ENTITY;
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NUMBER_ENTITY;
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS;
+import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_ONLY_TABLES;
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_404;
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_500;
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORD_PRESS_502;
@@ -224,6 +225,15 @@ public class WordPressArticleTransformerResourceTest {
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
         assertThat("response status", clientResponse, hasProperty("status", equalTo(SC_UNPROCESSABLE_ENTITY)));
         assertThat("response message", clientResponse.getEntity(String.class), containsString("foo"));
+    }
+
+    @Test
+    public void shouldReturn418WhenPostContainsOnlyUnsupportedContent() {
+        final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_ONLY_TABLES);
+
+        final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
+        assertThat("response status", clientResponse, hasProperty("status", equalTo(418)));
+        assertThat("response message", clientResponse.getEntity(String.class), containsString("body of transformed post is empty"));
     }
 
     @Test

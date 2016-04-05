@@ -51,6 +51,7 @@ public class WordPressArticleTransformerAppRule
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_CANNOT_CONNECT = "5c652c7e-c81e-4be7-8669-adeb5a5621d4";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_502 = "5c652c7e-c81e-4be7-8669-adeb5a5621d5";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORDPRESS_NO_APIURL_ON_RESPONSE = "5c652c7e-c81e-4be7-8669-adeb5a5621db";
+    protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_ONLY_TABLES = "9425e94b-273e-459c-94cc-640c0b992d85";
 
     private final DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule;
 
