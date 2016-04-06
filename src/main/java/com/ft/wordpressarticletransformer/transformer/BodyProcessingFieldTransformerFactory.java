@@ -68,10 +68,10 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                 new RemoveEmptyElementsBodyProcessor(asList("p"),asList("img")),
                 new Html5SelfClosingTagBodyProcessor(),
 				new RegexReplacerBodyProcessor("</p>(\\r?\\n)+<p>", "</p>" + System.lineSeparator() + "<p>"),
-				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
+				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>")/*,
                 new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
                         brandMappings,
-                        documentStoreClient, documentStoreBaseUri, resolverThreadPoolSize, maxLinks)
+                        documentStoreClient, documentStoreBaseUri, resolverThreadPoolSize, maxLinks)*/
         );
     }
 

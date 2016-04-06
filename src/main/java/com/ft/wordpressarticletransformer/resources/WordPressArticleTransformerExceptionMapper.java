@@ -18,6 +18,7 @@ import com.ft.wordpressarticletransformer.exception.BrandResolutionException;
 import com.ft.wordpressarticletransformer.exception.InvalidResponseException;
 import com.ft.wordpressarticletransformer.exception.PostNotFoundException;
 import com.ft.wordpressarticletransformer.exception.UnpublishablePostException;
+import com.ft.wordpressarticletransformer.exception.UntransformablePostException;
 import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class WordPressArticleTransformerExceptionMapper
         extends com.ft.api.jaxrs.errors.RuntimeExceptionMapper {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleTransformerExceptionMapper.class);
+    
+    private static final int SC_TEAPOT = 418;
     
     @Override
     public Response toResponse(RuntimeException exception) {
@@ -63,6 +66,10 @@ public class WordPressArticleTransformerExceptionMapper
         
         if (wpe instanceof UnpublishablePostException) {
             return respondWith(SC_UNPROCESSABLE_ENTITY, wpe.getMessage(), wpe);
+        }
+        
+        if (wpe instanceof UntransformablePostException) {
+            return respondWith(SC_TEAPOT, wpe.getMessage(), wpe);
         }
         
         if (wpe instanceof InvalidResponseException) {

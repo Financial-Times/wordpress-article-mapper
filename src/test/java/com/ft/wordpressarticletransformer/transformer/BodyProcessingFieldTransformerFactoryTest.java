@@ -362,7 +362,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         checkTransformation(bodyWithMoreLink, expectedTransformed);
     }
     
-    @Test
+    @org.junit.Ignore @Test
     public void thatShortenedLinksAreResolvedToContent() {
       String shortUrl = "http://short.example.com/foobar";
       String resolvedIdentifier = "http:/www.ft.com/resolved/foo/bar";
