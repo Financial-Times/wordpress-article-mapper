@@ -361,6 +361,35 @@ public class BodyProcessingFieldTransformerFactoryTest {
         
         checkTransformation(bodyWithMoreLink, expectedTransformed);
     }
+
+    @Test
+    public void thatEmptyReadMoreLinkIsRemoved() {
+        String bodyWithMoreLink = "<body>"
+                + "<p>Blah blah blah</p>"
+                + "<p><a href=\"http://foo.example.com/\" class=\"more-link\" ></a></p>"
+                + "</body>";
+        
+        String expectedTransformed = "<body>"
+                + "<p>Blah blah blah</p>"
+                + "</body>";
+        
+        checkTransformation(bodyWithMoreLink, expectedTransformed);
+    }
+
+    @Test
+    public void thatOnlyReadMoreLinkIsRemoved() {
+        String bodyWithMoreLink = "<body>"
+                + "<p>Blah blah blah</p>"
+                + "<p><a href=\"http://foo.example.com/\" class=\"more-link\" ></a><a class=\"another-link\" href=\"http://bar.example/com/\">baz</a></p>"
+                + "</body>";
+        
+        String expectedTransformed = "<body>"
+                + "<p>Blah blah blah</p>"
+                + "<p><a href=\"http://bar.example/com/\">baz</a></p>"
+                + "</body>";
+        
+        checkTransformation(bodyWithMoreLink, expectedTransformed);
+    }
     
     @org.junit.Ignore @Test
     public void thatShortenedLinksAreResolvedToContent() {
