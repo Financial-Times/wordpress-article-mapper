@@ -60,7 +60,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
 
     private List<BodyProcessor> bodyProcessors() {
         return asList(
-                new RegexRemoverBodyProcessor("(\\s|&nbsp;)*<a\\s[^>]*class=\"more-link\"[^>]*>Read more<\\/a\\s*>"),
+                new RegexRemoverBodyProcessor("(\\s|&nbsp;)*<a\\s[^>]*class=\"more-link\"[^>]*>.*?<\\/a\\s*>"),
                 new RegexRemoverBodyProcessor("(<p>)\\s*(</p>)|(<p/>)"),
 				new TagSoupHtmlBodyProcessor(),
 				new TagSoupCleanupHtmlBodyProcessor(),
