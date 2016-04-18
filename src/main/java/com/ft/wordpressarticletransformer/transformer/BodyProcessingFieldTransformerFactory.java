@@ -1,13 +1,5 @@
 package com.ft.wordpressarticletransformer.transformer;
 
-import static java.util.Arrays.asList;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import com.ft.bodyprocessing.BodyProcessor;
 import com.ft.bodyprocessing.BodyProcessorChain;
 import com.ft.bodyprocessing.html.Html5SelfClosingTagBodyProcessor;
@@ -21,9 +13,18 @@ import com.ft.bodyprocessing.xml.TagSoupCleanupHtmlBodyProcessor;
 import com.ft.bodyprocessing.xml.TagSoupHtmlBodyProcessor;
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.transformer.html.RemoveEmptyElementsBodyProcessor;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static java.util.Arrays.asList;
 
 public class BodyProcessingFieldTransformerFactory implements FieldTransformerFactory {
 
@@ -68,10 +69,10 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                 new RemoveEmptyElementsBodyProcessor(asList("p"),asList("img")),
                 new Html5SelfClosingTagBodyProcessor(),
 				new RegexReplacerBodyProcessor("</p>(\\r?\\n)+<p>", "</p>" + System.lineSeparator() + "<p>"),
-				new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>")/*,
+                new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
                 new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
                         brandMappings,
-                        documentStoreClient, documentStoreBaseUri, resolverThreadPoolSize, maxLinks)*/
+                        documentStoreClient, documentStoreBaseUri, resolverThreadPoolSize, maxLinks)
         );
     }
 

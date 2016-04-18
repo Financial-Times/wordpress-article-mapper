@@ -1,29 +1,12 @@
 package com.ft.wordpressarticletransformer.transformer;
 
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static com.ft.wordpressarticletransformer.transformer.LinkResolverBodyProcessorTest.ARTICLE_TYPE;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.UUID;
-import java.util.regex.Pattern;
-
-import javax.ws.rs.core.UriBuilder;
-
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.richcontent.RichContentItem;
 import com.ft.bodyprocessing.richcontent.Video;
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.wordpressarticletransformer.model.Brand;
+
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -37,23 +20,36 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.net.URI;
+import java.util.Collections;
+import java.util.UUID;
+import java.util.regex.Pattern;
+
+import javax.ws.rs.core.UriBuilder;
+
+import static com.ft.wordpressarticletransformer.transformer.LinkResolverBodyProcessorTest.ARTICLE_TYPE;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class BodyProcessingFieldTransformerFactoryTest {
   private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
   private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
   private static final URI DOC_STORE_QUERY_URI = DOC_STORE_URI.resolve("/content-query");
-  
+    private static final String TRANSACTION_ID = "tid_test";
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
     private FieldTransformer bodyTransformer;
-
     @Mock private VideoMatcher videoMatcher;
-    
     @Mock private Client resolverClient;
     @Mock private Client documentStoreQueryClient;
-    
-    private static final String TRANSACTION_ID = "tid_test";
     private Video exampleYouTubeVideo;
     private Video exampleVimeoVideo;
 
@@ -390,8 +386,8 @@ public class BodyProcessingFieldTransformerFactoryTest {
         
         checkTransformation(bodyWithMoreLink, expectedTransformed);
     }
-    
-    @org.junit.Ignore @Test
+
+    @Test
     public void thatShortenedLinksAreResolvedToContent() {
       String shortUrl = "http://short.example.com/foobar";
       String resolvedIdentifier = "http:/www.ft.com/resolved/foo/bar";
