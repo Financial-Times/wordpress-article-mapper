@@ -54,9 +54,6 @@ public class WordPressArticleTransformerResourceTest {
     private static final String CONFIG_FILE = "config-component-tests.yml";
     private static final int NATIVERW_PORT;
     private static final int DOC_STORE_PORT;
-    @ClassRule
-    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule =
-            new WordPressArticleTransformerAppRule(CONFIG_FILE, NATIVERW_PORT, DOC_STORE_PORT);
 
     static {
       NATIVERW_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
@@ -78,6 +75,10 @@ public class WordPressArticleTransformerResourceTest {
         throw new ExceptionInInitializerError(e);
       }
     }
+
+    @ClassRule
+    public static WordPressArticleTransformerAppRule wordPressArticleTransformerAppRule =
+            new WordPressArticleTransformerAppRule(CONFIG_FILE, NATIVERW_PORT, DOC_STORE_PORT);
 
     private Client client;
 
