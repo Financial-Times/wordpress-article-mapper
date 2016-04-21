@@ -1,20 +1,25 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.wordpressarticletransformer.model.Brand;
 
-import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.validation.constraints.NotNull;
 
 public class BlogApiEndpointMetadata {
     private final String host;
     private final Set<Brand> brands;
     private final String id;
 
+    private final Set<String> additionalIdentifiersPatterns;
+
     public BlogApiEndpointMetadata(@JsonProperty("host") String host,
                                    @JsonProperty("brands") Set<String> brands,
-                                   @JsonProperty("id") String id) {
+                                   @JsonProperty("id") String id,
+                                   @JsonProperty("additionalIdentifiersPatterns") Set<String> additionalIdentifiersPatterns) {
         super();
         this.host = host;
         this.brands = new HashSet<>();
@@ -24,6 +29,8 @@ public class BlogApiEndpointMetadata {
             this.brands.add(brand);
         }
         this.id = id;
+
+        this.additionalIdentifiersPatterns = additionalIdentifiersPatterns;
     }
 
     @NotNull
@@ -39,5 +46,9 @@ public class BlogApiEndpointMetadata {
     @NotNull
     public String getId() {
         return id;
+    }
+
+    public Set<String> getAdditionalIdentifiersPatterns() {
+        return additionalIdentifiersPatterns;
     }
 }
