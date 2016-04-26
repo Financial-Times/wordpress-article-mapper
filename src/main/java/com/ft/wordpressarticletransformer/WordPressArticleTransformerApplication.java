@@ -1,6 +1,5 @@
 package com.ft.wordpressarticletransformer;
 
-import com.codahale.metrics.health.HealthCheckRegistry;
 import com.ft.api.jaxrs.errors.Errors;
 import com.ft.api.util.buildinfo.BuildInfoResource;
 import com.ft.api.util.buildinfo.VersionResource;
@@ -10,12 +9,14 @@ import com.ft.jerseyhttpwrapper.ResilientClientBuilder;
 import com.ft.jerseyhttpwrapper.config.EndpointConfiguration;
 import com.ft.jerseyhttpwrapper.continuation.ExponentialBackoffContinuationPolicy;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
+import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticletransformer.configuration.ReaderConfiguration;
 import com.ft.wordpressarticletransformer.configuration.UrlResolverConfiguration;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticletransformer.health.RemoteServiceDependencyHealthCheck;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
 import com.ft.wordpressarticletransformer.resources.HtmlTransformerResource;
+import com.ft.wordpressarticletransformer.resources.IdentifierBuilder;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerExceptionMapper;
 import com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerResource;
 import com.ft.wordpressarticletransformer.service.NativeReaderClient;
@@ -23,22 +24,24 @@ import com.ft.wordpressarticletransformer.service.WordpressContentSourceService;
 import com.ft.wordpressarticletransformer.service.WordpressResponseValidator;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
+
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.sun.jersey.api.client.Client;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+import javax.ws.rs.core.UriBuilder;
 
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.DispatcherType;
-import javax.ws.rs.core.UriBuilder;
-
-import java.net.URI;
-import java.util.EnumSet;
 
 
 public class WordPressArticleTransformerApplication extends Application<WordPressArticleTransformerConfiguration> {
@@ -71,21 +74,24 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
                         nativeReaderConfiguration.getTimeoutMultiplier()
                 )
         ).build();
+
+        BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(configuration.getHostToBrands());
         
         WordPressArticleTransformerResource wordPressArticleTransformerResource =
                 new WordPressArticleTransformerResource(
                         getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration()),
-                        new BrandSystemResolver(configuration.getHostToBrands()),
+                        new BrandSystemResolver(blogApiEndpointMetadataManager),
                         new WordpressContentSourceService(
                                 new WordpressResponseValidator(),
                                 new NativeReaderClient(nativeReaderClient, nativeReaderEndpointConfiguration)
-                        )
+                        ),
+                        new IdentifierBuilder(blogApiEndpointMetadataManager)
                 );
         environment.jersey().register(wordPressArticleTransformerResource);
 
         HtmlTransformerResource htmlTransformerResource = new HtmlTransformerResource(
                 getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration()),
-                new BrandSystemResolver(configuration.getHostToBrands())
+                new BrandSystemResolver(blogApiEndpointMetadataManager)
         );
         environment.jersey().register(htmlTransformerResource);
 

@@ -1,6 +1,8 @@
 package com.ft.wordpressarticletransformer.resources;
 
+import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticletransformer.model.Brand;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,24 +17,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
 
 public class BrandSystemResolverTest {
 
     private BrandSystemResolver brandSystemResolver;
-    public static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54");
-    public static final Brand OTHER_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b142");
-    public static final Brand THIRD_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b24");
-    public static final Brand FINAL_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b55");
-    public static final Brand BEYONDBRICS_BRAND = new Brand("http://api.ft.com/things/3a37a89e-14ce-4ac8-af12-961a9630dce3");
+    private static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54");
+    private static final Brand OTHER_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b142");
+    private static final Brand THIRD_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b24");
+    private static final Brand FINAL_BRAND = new Brand("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b55");
+    private static final Brand BEYONDBRICS_BRAND = new Brand("http://api.ft.com/things/3a37a89e-14ce-4ac8-af12-961a9630dce3");
 
-    private static final String AUTHORITY_PREFIX = "http://api.ft.com/system/";
-    public static final String ALPHA_VILLE_ID = "FT-LABS-WP-1-24";
-    public static final String OTHER_ID = "FT-LABS-WP-1-23";
-    public static final String THIRD_ID = "FT-LABS-WP-1-22";
-    public static final String FINAL_ID = "FT-LABS-WP-1-21";
-    public static final String BEYONDBRICS_ID = "FT-LABS-WP-1-91";
+    private static final String ALPHA_VILLE_ID = "FT-LABS-WP-1-24";
+    private static final String OTHER_ID = "FT-LABS-WP-1-23";
+    private static final String THIRD_ID = "FT-LABS-WP-1-22";
+    private static final String FINAL_ID = "FT-LABS-WP-1-21";
+    private static final String BEYONDBRICS_ID = "FT-LABS-WP-1-91";
 
 
     @Before
@@ -46,7 +46,9 @@ public class BrandSystemResolverTest {
         blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/beyond-brics", new HashSet<>(Arrays.asList(BEYONDBRICS_BRAND.getId())), BEYONDBRICS_ID));
         blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/compound/", new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND.getId(), OTHER_BRAND.getId())), ALPHA_VILLE_ID));
 
-        brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadata);
+        BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(blogApiEndpointMetadata);
+
+        brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadataManager);
 
     }
 
@@ -96,52 +98,6 @@ public class BrandSystemResolverTest {
         assertThat(brandSystemResolver.getBrand(new URI("http://blogs.ft.com/compound/api/get_post/?id=135790")), containsInAnyOrder(ALPHA_VILLE_BRAND, OTHER_BRAND));
     }
 
-    // System Id tests
-    @Test
-    public void testShouldReturnNullSystemIdWhenNullUriIsPassed() {
-        assertThat(brandSystemResolver.getOriginatingSystemId(null), is(nullValue()));
-    }
-
-    @Test
-    public void testShouldReturnNullSystemIdWhenEmptyUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("")), is(nullValue()));
-    }
-
-    @Test
-    public void testShouldReturnNullSystemIdWhenUnknownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://www.this-is-fake.com")), is(nullValue()));
-    }
-
-    @Test
-    public void testShouldReturnAlphaVilleSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://uat.ftalphaville.ft.com/api/get_post/?id=2014172")),
-                is(equalTo(AUTHORITY_PREFIX + ALPHA_VILLE_ID)));
-    }
-
-    @Test
-    public void testShouldReturnOtherSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.othersite.ft.com/api/get_post/?id=1234567")),
-                is(equalTo(AUTHORITY_PREFIX + OTHER_ID)));
-    }
-
-    @Test
-    public void testShouldReturnThirdSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.thirdsite.ft.com/api/get_post/?id=9876543")),
-                is(equalTo(AUTHORITY_PREFIX + THIRD_ID)));
-    }
-
-    @Test
-    public void testShouldReturnFinalSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://test.finalsite.ft.com/api/get_post/?id=135790")),
-                is(equalTo(AUTHORITY_PREFIX + FINAL_ID)));
-    }
-
-
-    @Test
-    public void testShouldReturnBeyondBricsSystemIdWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(brandSystemResolver.getOriginatingSystemId(new URI("http://blogs.ft.com/beyond-brics/api/get_post/?id=135790")),
-                is(equalTo(AUTHORITY_PREFIX + BEYONDBRICS_ID)));
-    }
 
 
 }

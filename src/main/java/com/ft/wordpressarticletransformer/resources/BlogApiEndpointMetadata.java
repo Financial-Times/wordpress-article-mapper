@@ -14,12 +14,9 @@ public class BlogApiEndpointMetadata {
     private final Set<Brand> brands;
     private final String id;
 
-    private final Set<String> additionalIdentifiersPatterns;
-
     public BlogApiEndpointMetadata(@JsonProperty("host") String host,
                                    @JsonProperty("brands") Set<String> brands,
-                                   @JsonProperty("id") String id,
-                                   @JsonProperty("additionalIdentifiersPatterns") Set<String> additionalIdentifiersPatterns) {
+                                   @JsonProperty("id") String id) {
         super();
         this.host = host;
         this.brands = new HashSet<>();
@@ -30,7 +27,6 @@ public class BlogApiEndpointMetadata {
         }
         this.id = id;
 
-        this.additionalIdentifiersPatterns = additionalIdentifiersPatterns;
     }
 
     @NotNull
@@ -48,7 +44,4 @@ public class BlogApiEndpointMetadata {
         return id;
     }
 
-    public Set<String> getAdditionalIdentifiersPatterns() {
-        return additionalIdentifiersPatterns;
-    }
 }

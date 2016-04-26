@@ -1,36 +1,13 @@
 package com.ft.wordpressarticletransformer.transformer;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.StringReader;
-import java.net.URI;
-import java.net.URL;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-
 import com.ft.wordpressarticletransformer.exception.UnpublishablePostException;
 import com.ft.wordpressarticletransformer.exception.UntransformablePostException;
 import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import com.ft.wordpressarticletransformer.model.Brand;
+import com.ft.wordpressarticletransformer.model.Identifier;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
+import com.ft.wordpressarticletransformer.resources.IdentifierBuilder;
 import com.ft.wordpressarticletransformer.response.Author;
 import com.ft.wordpressarticletransformer.response.MainImage;
 import com.ft.wordpressarticletransformer.response.Post;
@@ -38,10 +15,31 @@ import com.ft.wordpressarticletransformer.response.WordPressImage;
 import com.ft.wordpressarticletransformer.util.ImageModelUuidGenerator;
 import com.ft.wordpressarticletransformer.util.ImageSetUuidGenerator;
 
+import com.google.common.collect.ImmutableSortedSet;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
+
+import java.net.URI;
+import java.net.URL;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.UUID;
+import java.util.regex.Pattern;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class WordPressBlogPostContentTransformerTest {
@@ -54,6 +52,7 @@ public class WordPressBlogPostContentTransformerTest {
 
     private static final Set<Brand> BRANDS = Collections.singleton(new Brand("JUNIT-BLOG-BRAND"));
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
+    private static final SortedSet<Identifier> IDENTIFIERS = ImmutableSortedSet.of(new Identifier(SYSTEM_ID, POST_URL));
     private static final String TITLE = "Test LiveBlog";
     private static final Author AUTHOR = new Author();
     private static final String AUTHOR_NAME = "John Smith";
@@ -70,13 +69,14 @@ public class WordPressBlogPostContentTransformerTest {
     private WordPressBlogPostContentTransformer transformer;
     private BrandSystemResolver brandResolver = mock(BrandSystemResolver.class);
     private BodyProcessingFieldTransformer bodyTransformer = mock(BodyProcessingFieldTransformer.class);
+    private IdentifierBuilder identifierBuilder = mock(IdentifierBuilder.class);
 
     @Before
     public void setUp() {
-        transformer = new WordPressBlogPostContentTransformer(brandResolver, bodyTransformer);
+        transformer = new WordPressBlogPostContentTransformer(brandResolver, bodyTransformer, identifierBuilder);
 
         when(brandResolver.getBrand(REQUEST_URI)).thenReturn(BRANDS);
-        when(brandResolver.getOriginatingSystemId(REQUEST_URI)).thenReturn(SYSTEM_ID);
+        when(identifierBuilder.buildIdentifiers(eq(REQUEST_URI), any(Post.class))).thenReturn(IDENTIFIERS);
         AUTHOR.setName(AUTHOR_NAME);
 
         when(bodyTransformer.transform(WRAPPED_BODY, TX_ID)).thenReturn(WRAPPED_BODY);

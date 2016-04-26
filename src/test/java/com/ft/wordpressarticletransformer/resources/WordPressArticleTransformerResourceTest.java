@@ -2,6 +2,7 @@ package com.ft.wordpressarticletransformer.resources;
 
 import com.ft.wordpressarticletransformer.component.ErbTemplatingHelper;
 import com.ft.wordpressarticletransformer.model.Brand;
+import com.ft.wordpressarticletransformer.model.Identifier;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
 
@@ -136,8 +137,7 @@ public class WordPressArticleTransformerResourceTest {
         
         assertThat("byline", receivedContent.getByline(), is(equalTo("FT Labs Administrator, Jan Majek, Adam Braimbridge")));
         assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
-        assertThat("identifier authority", receivedContent.getIdentifiers().first().getAuthority(), is(equalTo("http://api.ft.com/system/FT-LABS-WP-1-24")));
-        assertThat("identifier value", receivedContent.getIdentifiers().first().getIdentifierValue(), is(equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
+        assertThat("identifier", receivedContent.getIdentifiers(), hasItem(new Identifier("http://api.ft.com/system/FT-LABS-WP-1-24", "http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
         assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS)));
         assertThat("comments", receivedContent.getComments().isEnabled(), is(true));
     }
