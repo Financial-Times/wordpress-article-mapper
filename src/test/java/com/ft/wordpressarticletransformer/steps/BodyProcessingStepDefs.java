@@ -1,6 +1,46 @@
 package com.ft.wordpressarticletransformer.steps;
 
 
+import com.ft.bodyprocessing.richcontent.ConvertParameters;
+import com.ft.bodyprocessing.richcontent.VideoMatcher;
+import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
+import com.ft.bodyprocessing.transformer.FieldTransformer;
+import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
+import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
+import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
+import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
+import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
+import com.ft.wordpressarticletransformer.transformer.StructuredWordPressSourcedBodyXMLEventHandlerRegistry;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+
+import org.apache.commons.lang.RandomStringUtils;
+import org.codehaus.stax2.ri.evt.EntityReferenceEventImpl;
+import org.codehaus.stax2.ri.evt.StartElementEventImpl;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.UriBuilder;
+import javax.xml.namespace.QName;
+
+import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -11,42 +51,6 @@ import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.UriBuilder;
-import javax.xml.namespace.QName;
-
-import com.ft.bodyprocessing.richcontent.ConvertParameters;
-import com.ft.bodyprocessing.richcontent.VideoMatcher;
-import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
-import com.ft.bodyprocessing.transformer.FieldTransformer;
-import com.ft.bodyprocessing.xml.eventhandlers.SimpleTransformTagXmlEventHandler;
-import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
-import com.ft.wordpressarticletransformer.model.Brand;
-import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
-import com.ft.wordpressarticletransformer.transformer.StructuredWordPressSourcedBodyXMLEventHandlerRegistry;
-import com.google.common.collect.ImmutableList;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-
-import cucumber.api.java.Before;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-
-import org.apache.commons.lang.RandomStringUtils;
-import org.codehaus.stax2.ri.evt.EntityReferenceEventImpl;
-import org.codehaus.stax2.ri.evt.StartElementEventImpl;
 
 public class BodyProcessingStepDefs {
 
@@ -87,21 +91,28 @@ public class BodyProcessingStepDefs {
     
     private Client resolverClient = mock(Client.class);
     private Client documentStoreQueryClient = mock(Client.class);
+
     
     @Before
     public void setup() {
-      String fastFT = "http://api.ft.com/system/FT-LABS-WP-1-335";
-      
+        String fastFtHost = "www.ft.com/fastft";
+        String fastFtAuth = "http://api.ft.com/system/FT-LABS-WP-1-335";
+        Set<String> fastFtBrands = ImmutableSet.of("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54",
+                "http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54");
+
+        List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(new BlogApiEndpointMetadata(fastFtHost, fastFtBrands, fastFtAuth));
+        BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(metadataList);
+
         videoMatcher = new VideoMatcher(DEFAULTS);
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
           Collections.singleton(Pattern.compile("https?:\\/\\/on\\.ft\\.com/.*")),
-          Collections.singletonMap(Pattern.compile("https?:\\/\\/[^.]+\\.ft\\.com\\/fastft\\/\\d{4}\\/\\d{2}/\\d{2}\\/.*/"), new Brand(fastFT)),
+                blogApiEndpointMetadataManager,
           resolverClient, 1, 2, documentStoreQueryClient, DOCUMENT_STORE_URI)
           .newInstance();
         
         URI identifierValue = URI.create("http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/");
         mockResolverRedirect(URI.create("http://on.ft.com/1NVIQzo"), identifierValue);
-        mockDocumentStoreQuery(URI.create(fastFT), identifierValue, URI.create("http://www.ft.com/content/8adad508-077b-3795-8569-18e532cabf96"));
+        mockDocumentStoreQuery(URI.create(fastFtAuth), identifierValue, URI.create("http://www.ft.com/content/8adad508-077b-3795-8569-18e532cabf96"));
         
         registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher);
         rulesAndHandlers = new HashMap<String, String>();

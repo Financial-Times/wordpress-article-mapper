@@ -11,16 +11,14 @@ import com.ft.bodyprocessing.transformer.FieldTransformerFactory;
 import com.ft.bodyprocessing.xml.StAXTransformingBodyProcessor;
 import com.ft.bodyprocessing.xml.TagSoupCleanupHtmlBodyProcessor;
 import com.ft.bodyprocessing.xml.TagSoupHtmlBodyProcessor;
-import com.ft.wordpressarticletransformer.model.Brand;
+import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticletransformer.transformer.html.RemoveEmptyElementsBodyProcessor;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -30,7 +28,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
 
     private final VideoMatcher videoMatcher;
     private final Set<Pattern> shortenerPatterns;
-    private final Map<Pattern,Brand> brandMappings;
+    private final BlogApiEndpointMetadataManager blogApiEndpointMetadataManager;
     private final Client resolverClient;
     private final Client documentStoreClient;
     private final URI documentStoreBaseUri;
@@ -39,13 +37,13 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
     
     public BodyProcessingFieldTransformerFactory(VideoMatcher videoMatcher,
                                                  Set<Pattern> shortenerPatterns,
-                                                 Map<Pattern,Brand> brandMappings,
+                                                 BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
                                                  Client resolverClient, int resolverThreadPoolSize, int maxLinks,
                                                  Client documentStoreClient, URI documentStoreBaseUri) {
       
         this.videoMatcher = videoMatcher;
         this.shortenerPatterns = ImmutableSet.copyOf(shortenerPatterns);
-        this.brandMappings = ImmutableMap.copyOf(brandMappings);
+        this.blogApiEndpointMetadataManager = blogApiEndpointMetadataManager;
         this.resolverClient = resolverClient;
         this.resolverThreadPoolSize = resolverThreadPoolSize;
         this.documentStoreClient = documentStoreClient;
@@ -71,7 +69,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
 				new RegexReplacerBodyProcessor("</p>(\\r?\\n)+<p>", "</p>" + System.lineSeparator() + "<p>"),
                 new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
                 new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
-                        brandMappings,
+                        blogApiEndpointMetadataManager,
                         documentStoreClient, documentStoreBaseUri, resolverThreadPoolSize, maxLinks)
         );
     }

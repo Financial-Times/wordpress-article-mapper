@@ -5,8 +5,11 @@ import com.ft.bodyprocessing.richcontent.RichContentItem;
 import com.ft.bodyprocessing.richcontent.Video;
 import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
-import com.ft.wordpressarticletransformer.model.Brand;
+import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
+import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -22,6 +25,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -40,21 +45,29 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BodyProcessingFieldTransformerFactoryTest {
-  private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
-  private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
-  private static final URI DOC_STORE_QUERY_URI = DOC_STORE_URI.resolve("/content-query");
+    private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
+    private static final String BLOG_CODE = "FT-LABS-WP-Y-XXX";
+    private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
+    private static final URI DOC_STORE_QUERY_URI = DOC_STORE_URI.resolve("/content-query");
     private static final String TRANSACTION_ID = "tid_test";
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private FieldTransformer bodyTransformer;
-    @Mock private VideoMatcher videoMatcher;
-    @Mock private Client resolverClient;
-    @Mock private Client documentStoreQueryClient;
+    @Mock
+    private VideoMatcher videoMatcher;
+    @Mock
+    private Client resolverClient;
+    @Mock
+    private Client documentStoreQueryClient;
     private Video exampleYouTubeVideo;
     private Video exampleVimeoVideo;
 
     @Before
     public void setup() {
+        Set<String> brands = ImmutableSet.of(BRAND_ID);
+        List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_CODE));
+        BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(metadataList);
+
         exampleVimeoVideo = new Video();
         exampleVimeoVideo.setUrl("https://www.vimeo.com/77761436");
         exampleVimeoVideo.setEmbedded(true);
@@ -64,9 +77,9 @@ public class BodyProcessingFieldTransformerFactoryTest {
         exampleYouTubeVideo.setEmbedded(true);
 
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
-          Collections.singleton(Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*")),
-          Collections.singletonMap(Pattern.compile("http:\\/www\\.ft\\.com\\/resolved\\/.*"), new Brand(BRAND_ID)),
-          resolverClient, 1, 2, documentStoreQueryClient, DOC_STORE_URI).newInstance();
+                Collections.singleton(Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*")),
+                blogApiEndpointMetadataManager,
+                resolverClient, 1, 2, documentStoreQueryClient, DOC_STORE_URI).newInstance();
     }
 
     @Test
@@ -107,7 +120,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
     @Test
     public void emptyBodyShouldBeReturnedAsEmptyBody() {
-    	checkTransformationToEmpty("");
+        checkTransformationToEmpty("");
     }
 
     @Test
@@ -125,8 +138,8 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
     @Test
     public void checkLinkBreaksAreNotCorrupted() {
-        String properLineBreak =  wrapped("<p>Blah<br/>Blah</p>");
-        checkTransformation(properLineBreak,properLineBreak); // not changed!
+        String properLineBreak = wrapped("<p>Blah<br/>Blah</p>");
+        checkTransformation(properLineBreak, properLineBreak); // not changed!
     }
 
     @Test
@@ -134,17 +147,17 @@ public class BodyProcessingFieldTransformerFactoryTest {
         checkTransformation("<body>Sentence <!--...-->ending. Next sentence</body>",
                 "<body>Sentence ending. Next sentence</body>");
     }
- 
+
     @Test
     public void nameSpacesShouldBeIgnored() {
         checkTransformation(wrapped("<p v:vs=\"|1|\" v:n=\"15\" v:idx=\"11\">Text</p>"), wrapped("<p>Text</p>"));
     }
 
-	private String wrapped(String body) {
-		return String.format("<body>%s</body>",body);
-	}
+    private String wrapped(String body) {
+        return String.format("<body>%s</body>", body);
+    }
 
-	@Test
+    @Test
     public void nbspShouldBeReplacedWithSpace() {
         checkTransformation("<body>This is a sentence&nbsp;.</body>",
                 String.format("<body>This is a sentence%s.</body>", String.valueOf('\u00A0')));
@@ -169,7 +182,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
     @Test
     public void htmlEntityReferencesShouldBeUnescaped() {
         String expectedSentence = String.format("<body>This is a sentence%s.</body>", String.valueOf('\u20AC'));
-        checkTransformation("<body>This is a sentence&euro;.</body>",expectedSentence);
+        checkTransformation("<body>This is a sentence&euro;.</body>", expectedSentence);
     }
 
     @Test
@@ -205,7 +218,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
         checkTransformation(straightOutOfWordPress, expectedSentence);
     }
-    
+
     @Test
     public void shouldTransformTweet() {
         String tweetFromWordPress = "<body><div data-asset-type=\"embed\"><blockquote class=\"twitter-tweet\" lang=\"en\">" +
@@ -220,7 +233,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "<a href=\"https://twitter.com/search?q=%24DTV&amp;src=ctag\">$DTV</a> shareholders from decline in " +
                 "<a href=\"https://twitter.com/search?q=%24T&amp;src=ctag\">$T</a> stock. (Caps upside, too).</p>— Liz Hoffman (@lizrhoffman) " +
                 "<a href=\"https://twitter.com/lizrhoffman/statuses/468146880682016769\">May 18, 2014</a></blockquote></body>";
-        
+
         checkTransformation(tweetFromWordPress, expectedSentence);
 
     }
@@ -274,8 +287,8 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "      <script> BrightcoveFT.Init.createExperience(\"ft_video_54b3b83e95a74\"); BrightcoveFT.eventHandlers[\"ft_video_54b3b83e95a74\"].extend({ onTemplateReady:function (e) { this._super(\"onTemplateReady\", e); BrightcoveFT.experiences[this.experienceID].mod.videoPlayer.getCurrentVideo(function (currentVideo) { if (currentVideo === null) { var container = document.getElementById(\"ft_video_54b3b83e95a74\"); container.style.display = \"none\"; } }); } });</script>\n" +
                 "   </div>\n" +
                 "   \n" +
-                "</div></body>" ;
-        String expectedVideo =  "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a></body>";
+                "</div></body>";
+        String expectedVideo = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a></body>";
         checkTransformation(wordpressVideoText, expectedVideo);
     }
 
@@ -286,7 +299,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "<iframe width=\"590\" height=\"331\" src=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\" frameborder=\"0\">" +
                 "</iframe>" +
                 "</div>\n" +
-                "</div>" ;
+                "</div>";
 
         String expectedYouTube = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
         when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleYouTubeVideo);
@@ -298,7 +311,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         String videoText = "<body><div class=\"video-container video-container-youtube\" data-aspect-ratio=\"16:9\"><div data-asset-type=\"video\" data-asset-source=\"YouTube\" data-asset-ref=\"fRqCVcSWbDc\">" +
                 "<iframe width=\"590\" height=\"331\" src=\"http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent\" frameborder=\"0\" >" +
                 "</iframe>" +
-                "</div></div></body>" ;
+                "</div></div></body>";
         String expectedYouTube = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
         when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleYouTubeVideo);
         checkTransformation(videoText, expectedYouTube);
@@ -306,7 +319,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
     @Test
     public void shouldProcessVideoTagCorrectlyVimeo() {
-        String videoText = "<body><div data-asset-type=\"embed\"><iframe src=\"//player.vimeo.com/video/77761436\" width=\"500\" height=\"208\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe><p><a href=\"http://vimeo.com/77761436\">ATROPA -- Sci-fi Short</a> from <a href=\"http://vimeo.com/sasich\">Eli Sasich</a> on <a href=\"https://vimeo.com\">Vimeo</a>.</p></div></body>" ;
+        String videoText = "<body><div data-asset-type=\"embed\"><iframe src=\"//player.vimeo.com/video/77761436\" width=\"500\" height=\"208\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe><p><a href=\"http://vimeo.com/77761436\">ATROPA -- Sci-fi Short</a> from <a href=\"http://vimeo.com/sasich\">Eli Sasich</a> on <a href=\"https://vimeo.com\">Vimeo</a>.</p></div></body>";
         String expectedVimeo = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.vimeo.com/77761436\"></a><p><a href=\"http://vimeo.com/77761436\">ATROPA -- Sci-fi Short</a> from <a href=\"http://vimeo.com/sasich\">Eli Sasich</a> on <a href=\"https://vimeo.com\">Vimeo</a>.</p></body>";
         when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleVimeoVideo);
         checkTransformation(videoText, expectedVimeo);
@@ -350,11 +363,11 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 + "<p>Blah blah blah</p>"
                 + "<p><a href=\"http://foo.example.com/\" class=\"more-link\" >Read more</a></p>"
                 + "</body>";
-        
+
         String expectedTransformed = "<body>"
                 + "<p>Blah blah blah</p>"
                 + "</body>";
-        
+
         checkTransformation(bodyWithMoreLink, expectedTransformed);
     }
 
@@ -364,11 +377,11 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 + "<p>Blah blah blah</p>"
                 + "<p><a href=\"http://foo.example.com/\" class=\"more-link\" ></a></p>"
                 + "</body>";
-        
+
         String expectedTransformed = "<body>"
                 + "<p>Blah blah blah</p>"
                 + "</body>";
-        
+
         checkTransformation(bodyWithMoreLink, expectedTransformed);
     }
 
@@ -378,56 +391,56 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 + "<p>Blah blah blah</p>"
                 + "<p><a href=\"http://foo.example.com/\" class=\"more-link\" ></a><a class=\"another-link\" href=\"http://bar.example/com/\">baz</a></p>"
                 + "</body>";
-        
+
         String expectedTransformed = "<body>"
                 + "<p>Blah blah blah</p>"
                 + "<p><a href=\"http://bar.example/com/\">baz</a></p>"
                 + "</body>";
-        
+
         checkTransformation(bodyWithMoreLink, expectedTransformed);
     }
 
     @Test
     public void thatShortenedLinksAreResolvedToContent() {
-      String shortUrl = "http://short.example.com/foobar";
-      String resolvedIdentifier = "http:/www.ft.com/resolved/foo/bar";
-      UUID ftContentUUID = UUID.randomUUID();
-      String bodyWithShortLink = "<body><p>Blah blah blah <a href=\"" + shortUrl
-          + "\">usw</a> ...</p></body>";
-      
-      String expectedTransformed = "<body><p>Blah blah blah <content id=\"" + ftContentUUID
-          + "\" type=\"" + ARTICLE_TYPE + "\">usw</content> ...</p></body>";
-      
-      WebResource resolverBuilder = mock(WebResource.class);
-      when(resolverClient.resource(URI.create(shortUrl))).thenReturn(resolverBuilder);
-      
-      ClientResponse redirectionResponse = mock(ClientResponse.class);
-      when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
-      when(redirectionResponse.getLocation()).thenReturn(URI.create(resolvedIdentifier));
-      when(resolverBuilder.head()).thenReturn(redirectionResponse);
-      
-      WebResource queryResource = mock(WebResource.class);
-      WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-      URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY_URI)
-                               .queryParam("identifierAuthority", BRAND_ID)
-                               .queryParam("identifierValue", URI.create(resolvedIdentifier))
-                               .build();
-      
-      when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
-      when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
-      
-      ClientResponse queryResponse = mock(ClientResponse.class);
-      when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
-      when(queryResponse.getLocation()).thenReturn(URI.create("http://www.ft.com/content/" + ftContentUUID));
-      when(queryBuilder.head()).thenReturn(queryResponse);
-      
-      checkTransformation(bodyWithShortLink, expectedTransformed);
+        String shortUrl = "http://short.example.com/foobar";
+        String resolvedIdentifier = "http://www.ft.com/resolved/foo/bar";
+        UUID ftContentUUID = UUID.randomUUID();
+        String bodyWithShortLink = "<body><p>Blah blah blah <a href=\"" + shortUrl
+                + "\">usw</a> ...</p></body>";
+
+        String expectedTransformed = "<body><p>Blah blah blah <content id=\"" + ftContentUUID
+                + "\" type=\"" + ARTICLE_TYPE + "\">usw</content> ...</p></body>";
+
+        WebResource resolverBuilder = mock(WebResource.class);
+        when(resolverClient.resource(URI.create(shortUrl))).thenReturn(resolverBuilder);
+
+        ClientResponse redirectionResponse = mock(ClientResponse.class);
+        when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
+        when(redirectionResponse.getLocation()).thenReturn(URI.create(resolvedIdentifier));
+        when(resolverBuilder.head()).thenReturn(redirectionResponse);
+
+        WebResource queryResource = mock(WebResource.class);
+        WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+        URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY_URI)
+                .queryParam("identifierAuthority", BLOG_CODE)
+                .queryParam("identifierValue", URI.create(resolvedIdentifier))
+                .build();
+
+        when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+        when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+
+        ClientResponse queryResponse = mock(ClientResponse.class);
+        when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
+        when(queryResponse.getLocation()).thenReturn(URI.create("http://www.ft.com/content/" + ftContentUUID));
+        when(queryBuilder.head()).thenReturn(queryResponse);
+
+        checkTransformation(bodyWithShortLink, expectedTransformed);
     }
-    
+
     private void checkTransformation(String originalBody, String expectedTransformedBody) {
         String actualTransformedBody = bodyTransformer.transform(originalBody, TRANSACTION_ID);
-		assertThat(actualTransformedBody, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformedBody));
-	}
+        assertThat(actualTransformedBody, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformedBody));
+    }
 
 
     private void checkTransformationToEmpty(String originalBody) {

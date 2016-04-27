@@ -76,10 +76,10 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
         ).build();
 
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(configuration.getHostToBrands());
-        
+
         WordPressArticleTransformerResource wordPressArticleTransformerResource =
                 new WordPressArticleTransformerResource(
-                        getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration()),
+                        getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration(), blogApiEndpointMetadataManager),
                         new BrandSystemResolver(blogApiEndpointMetadataManager),
                         new WordpressContentSourceService(
                                 new WordpressResponseValidator(),
@@ -90,24 +90,24 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
         environment.jersey().register(wordPressArticleTransformerResource);
 
         HtmlTransformerResource htmlTransformerResource = new HtmlTransformerResource(
-                getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration()),
+                getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration(), blogApiEndpointMetadataManager),
                 new BrandSystemResolver(blogApiEndpointMetadataManager)
         );
         environment.jersey().register(htmlTransformerResource);
 
         HealthCheckRegistry healthChecks = environment.healthChecks();
         healthChecks.register("Native Reader ping",
-          new RemoteServiceDependencyHealthCheck("Native Reader", "nativerw",
-            "Publishing wordpress content won't work",
-            "https://sites.google.com/a/ft.com/technology/systems/dynamic-semantic-publishing/extra-publishing/native-store-reader-writer-run-book",
-            nativeReaderClient, nativeReaderEndpointConfiguration));
-        
+                new RemoteServiceDependencyHealthCheck("Native Reader", "nativerw",
+                        "Publishing wordpress content won't work",
+                        "https://sites.google.com/a/ft.com/technology/systems/dynamic-semantic-publishing/extra-publishing/native-store-reader-writer-run-book",
+                        nativeReaderClient, nativeReaderEndpointConfiguration));
+
         healthChecks.register("Document Store ping",
-          new RemoteServiceDependencyHealthCheck("Document Store", "document-store-api",
-            "Links to other FT content will not be resolved during publication, reducing data quality.",
-            "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
-            Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreConfiguration().getEndpointConfiguration()));
-        
+                new RemoteServiceDependencyHealthCheck("Document Store", "document-store-api",
+                        "Links to other FT content will not be resolved during publication, reducing data quality.",
+                        "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
+                        Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreConfiguration().getEndpointConfiguration()));
+
         environment.jersey().register(WordPressArticleTransformerExceptionMapper.class);
         Errors.customise(new WordPressArticleTransformerErrorEntityFactory());
         environment.servlets().addFilter("Transaction ID Filter",
@@ -117,39 +117,42 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 
     }
 
-    private BodyProcessingFieldTransformer getBodyProcessingFieldTransformer(VideoMatcher videoMatcher, UrlResolverConfiguration configuration) {
-      
-      Client resolverClient = Client.create();
-      setClientTimeouts(resolverClient, configuration.getResolverConfiguration());
-      
-      EndpointConfiguration documentStoreEndpoint = configuration.getDocumentStoreConfiguration().getEndpointConfiguration();
-      URI documentStoreBaseURI = UriBuilder.fromPath("/")
-                                            .scheme("http")
-                                            .host(documentStoreEndpoint.getHost())
-                                            .port(documentStoreEndpoint.getPort())
-                                            .build();
-      
-      Client documentStoreClient = Client.create();
-      setClientTimeouts(documentStoreClient, documentStoreEndpoint.getJerseyClientConfiguration());
-      
-      int threadPoolSize = configuration.getThreadPoolSize();
-      int maxLinks = threadPoolSize * configuration.getLinksPerThread();
+    private BodyProcessingFieldTransformer getBodyProcessingFieldTransformer(VideoMatcher videoMatcher,
+                                                                             UrlResolverConfiguration configuration,
+                                                                             BlogApiEndpointMetadataManager blogApiEndpointMetadataManager) {
+
+        Client resolverClient = Client.create();
+        setClientTimeouts(resolverClient, configuration.getResolverConfiguration());
+
+        EndpointConfiguration documentStoreEndpoint = configuration.getDocumentStoreConfiguration().getEndpointConfiguration();
+        URI documentStoreBaseURI = UriBuilder.fromPath("/")
+                .scheme("http")
+                .host(documentStoreEndpoint.getHost())
+                .port(documentStoreEndpoint.getPort())
+                .build();
+
+        Client documentStoreClient = Client.create();
+        setClientTimeouts(documentStoreClient, documentStoreEndpoint.getJerseyClientConfiguration());
+
+
+        int threadPoolSize = configuration.getThreadPoolSize();
+        int maxLinks = threadPoolSize * configuration.getLinksPerThread();
         return (BodyProcessingFieldTransformer) (new BodyProcessingFieldTransformerFactory(videoMatcher,
-          configuration.getPatterns(),
-          configuration.getBrandMappings(),
-          resolverClient, threadPoolSize, maxLinks,
-          documentStoreClient, documentStoreBaseURI)).newInstance();
+                configuration.getPatterns(),
+                blogApiEndpointMetadataManager,
+                resolverClient, threadPoolSize, maxLinks,
+                documentStoreClient, documentStoreBaseURI)).newInstance();
     }
-    
+
     private void setClientTimeouts(Client client, JerseyClientConfiguration config) {
-      Duration duration = config.getConnectionTimeout();
-      if (duration != null) {
-        client.setConnectTimeout((int)duration.toMilliseconds());
-      }
-      
-      duration = config.getTimeout();
-      if (duration != null) {
-        client.setReadTimeout((int)duration.toMilliseconds());
-      }
+        Duration duration = config.getConnectionTimeout();
+        if (duration != null) {
+            client.setConnectTimeout((int) duration.toMilliseconds());
+        }
+
+        duration = config.getTimeout();
+        if (duration != null) {
+            client.setReadTimeout((int) duration.toMilliseconds());
+        }
     }
 }

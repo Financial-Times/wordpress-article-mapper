@@ -113,9 +113,6 @@ nativeReaderConfiguration:
 
 urlResolverConfiguration:
   patterns: ["https?:\\/\\/on\\.ft\\.com/.*"]
-  brandMappings:
-    - pattern: "https?:\\/\\/[^.]+\\.ft\\.com\\/fastft\\/\\d{4}\\/\\d{2}/\\d{2}\\/.*/"
-      brand: "http://api.ft.com/system/FT-LABS-WP-1-335"
   threadPoolSize: <%=scope.function_hiera(['resolverThreadPoolSize','4'])%>
   linksPerThread: <%=scope.function_hiera(['resolverLinksPerThread','2'])%>
   resolverConfiguration:
