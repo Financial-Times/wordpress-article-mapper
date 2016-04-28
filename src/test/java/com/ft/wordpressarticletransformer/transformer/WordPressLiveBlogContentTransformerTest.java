@@ -1,11 +1,18 @@
 package com.ft.wordpressarticletransformer.transformer;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.ft.wordpressarticletransformer.model.Brand;
+import com.ft.wordpressarticletransformer.model.Identifier;
+import com.ft.wordpressarticletransformer.model.WordPressLiveBlogContent;
+import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
+import com.ft.wordpressarticletransformer.resources.IdentifierBuilder;
+import com.ft.wordpressarticletransformer.response.Author;
+import com.ft.wordpressarticletransformer.response.Post;
+
+import com.google.common.collect.ImmutableSortedSet;
+
+import org.hamcrest.Matcher;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -14,16 +21,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.UUID;
 
-import com.ft.wordpressarticletransformer.model.Brand;
-import com.ft.wordpressarticletransformer.model.WordPressLiveBlogContent;
-import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
-import com.ft.wordpressarticletransformer.response.Author;
-import com.ft.wordpressarticletransformer.response.Post;
-import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class WordPressLiveBlogContentTransformerTest {
@@ -42,16 +50,18 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final Author AUTHOR = new Author();
     private static final String AUTHOR_NAME = "John Smith";
     private static final String COMMENTS_OPEN = "open";
+    private static final SortedSet<Identifier> IDENTIFIERS = ImmutableSortedSet.of(new Identifier(SYSTEM_ID, POST_URL));
 
     private WordPressLiveBlogContentTransformer transformer;
     private BrandSystemResolver brandResolver = mock(BrandSystemResolver.class);
+    private IdentifierBuilder identifierBuilder = mock(IdentifierBuilder.class);
 
     @Before
     public void setUp() {
-        transformer = new WordPressLiveBlogContentTransformer(brandResolver);
+        transformer = new WordPressLiveBlogContentTransformer(brandResolver, identifierBuilder);
 
         when(brandResolver.getBrand(REQUEST_URI)).thenReturn(BRANDS);
-        when(brandResolver.getOriginatingSystemId(REQUEST_URI)).thenReturn(SYSTEM_ID);
+        when(identifierBuilder.buildIdentifiers(eq(REQUEST_URI), any(Post.class))).thenReturn(IDENTIFIERS);
         AUTHOR.setName(AUTHOR_NAME);
     }
 

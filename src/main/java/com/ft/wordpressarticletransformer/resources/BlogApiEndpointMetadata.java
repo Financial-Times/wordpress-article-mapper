@@ -1,11 +1,13 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.wordpressarticletransformer.model.Brand;
 
-import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.validation.constraints.NotNull;
 
 public class BlogApiEndpointMetadata {
     private final String host;
@@ -24,6 +26,7 @@ public class BlogApiEndpointMetadata {
             this.brands.add(brand);
         }
         this.id = id;
+
     }
 
     @NotNull
@@ -40,4 +43,5 @@ public class BlogApiEndpointMetadata {
     public String getId() {
         return id;
     }
+
 }

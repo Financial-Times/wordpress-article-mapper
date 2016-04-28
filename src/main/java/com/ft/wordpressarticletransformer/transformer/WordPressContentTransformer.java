@@ -1,15 +1,18 @@
 package com.ft.wordpressarticletransformer.transformer;
 
+import com.ft.wordpressarticletransformer.exception.BrandResolutionException;
+import com.ft.wordpressarticletransformer.exception.IdentifiersBuildException;
 import com.ft.wordpressarticletransformer.exception.WordPressContentException;
 import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.Comments;
+import com.ft.wordpressarticletransformer.model.Identifier;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
-import com.ft.wordpressarticletransformer.exception.BrandResolutionException;
 import com.ft.wordpressarticletransformer.resources.BrandSystemResolver;
+import com.ft.wordpressarticletransformer.resources.IdentifierBuilder;
 import com.ft.wordpressarticletransformer.response.Author;
-import com.ft.wordpressarticletransformer.response.WordPressImage;
 import com.ft.wordpressarticletransformer.response.MainImage;
 import com.ft.wordpressarticletransformer.response.Post;
+import com.ft.wordpressarticletransformer.response.WordPressImage;
 import com.ft.wordpressarticletransformer.util.ImageModelUuidGenerator;
 import com.ft.wordpressarticletransformer.util.ImageSetUuidGenerator;
 
@@ -37,9 +40,11 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
     private static final String COMMENT_OPEN_STATUS = "open";
 
     private final BrandSystemResolver brandSystemResolver;
+    private final IdentifierBuilder identifierBuilder;
 
-    public WordPressContentTransformer(BrandSystemResolver brandSystemResolver) {
+    public WordPressContentTransformer(BrandSystemResolver brandSystemResolver, IdentifierBuilder identifierBuilder) {
         this.brandSystemResolver = brandSystemResolver;
+        this.identifierBuilder = identifierBuilder;
     }
 
     public C transform(String transactionId, URI requestUri, Post post, UUID uuid, Date lastModified) {
@@ -47,14 +52,24 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
 
         SortedSet<Brand> brands = new TreeSet<>(extractBrand(requestUri));
 
-        String originatingSystemId = extractSystemId(requestUri);
+        SortedSet<Identifier> identifiers = generateIdentifiers(requestUri, post);
 
         LOG.info("Returning content for uuid [{}].", uuid);
-        return doTransform(transactionId, post, uuid, publishedDate, brands, originatingSystemId, lastModified);
+        return doTransform(transactionId, post, uuid, publishedDate, brands, identifiers, lastModified);
     }
 
-    protected abstract C doTransform(String transactionId, Post post, UUID uuid, Date publishedDate, 
-                                     SortedSet<Brand> brands, String originatingSystemId, Date lastModified);
+    private SortedSet<Identifier> generateIdentifiers(URI requestUri, Post post) {
+        SortedSet<Identifier> identifiers = identifierBuilder.buildIdentifiers(requestUri, post);
+        if (identifiers == null) {
+            String msg = String.format("Failed to build identifiers for uri [%s].", requestUri);
+            LOG.error(msg);
+            throw new IdentifiersBuildException(msg);
+        }
+        return identifiers;
+    }
+
+    protected abstract C doTransform(String transactionId, Post post, UUID uuid, Date publishedDate,
+                                     SortedSet<Brand> brands, SortedSet<Identifier> identifiers, Date lastModified);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
@@ -66,17 +81,6 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         }
 
         return brand;
-    }
-
-    private String extractSystemId(URI requestUri) {
-        String originatingSystemId = brandSystemResolver.getOriginatingSystemId(requestUri);
-        if (originatingSystemId == null) {
-            String msg = String.format("Failed to resolve originatingSystemId for uri [%s].", requestUri);
-            LOG.error(msg);
-            throw new BrandResolutionException(msg);
-        }
-
-        return originatingSystemId;
     }
 
     private Date extractPublishedDate(URI requestUri, Post post) {

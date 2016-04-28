@@ -1,6 +1,5 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import com.codahale.metrics.annotation.Timed;
 import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.api.jaxrs.errors.ServerError.ServerErrorBuilder;
 import com.ft.api.util.transactionid.TransactionIdUtils;
@@ -17,8 +16,19 @@ import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransfo
 import com.ft.wordpressarticletransformer.transformer.WordPressBlogPostContentTransformer;
 import com.ft.wordpressarticletransformer.transformer.WordPressContentTransformer;
 import com.ft.wordpressarticletransformer.transformer.WordPressLiveBlogContentTransformer;
+
+import com.codahale.metrics.annotation.Timed;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.UUID;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -29,13 +39,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.UUID;
 
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 
@@ -54,10 +57,11 @@ public class WordPressArticleTransformerResource {
 
     public WordPressArticleTransformerResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
                                                BrandSystemResolver brandSystemResolver,
-                                               WordpressContentSourceService wordpressContentSourceService) {
+                                               WordpressContentSourceService wordpressContentSourceService,
+                                               IdentifierBuilder identifierBuilder) {
         this.wordpressContentSourceService = wordpressContentSourceService;
-        this.blogTransformer = new WordPressBlogPostContentTransformer(brandSystemResolver, bodyProcessingFieldTransformer);
-        this.liveBlogTransformer = new WordPressLiveBlogContentTransformer(brandSystemResolver);
+        this.blogTransformer = new WordPressBlogPostContentTransformer(brandSystemResolver, bodyProcessingFieldTransformer, identifierBuilder);
+        this.liveBlogTransformer = new WordPressLiveBlogContentTransformer(brandSystemResolver, identifierBuilder);
     }
 
     @GET

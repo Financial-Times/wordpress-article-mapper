@@ -1,18 +1,39 @@
 package com.ft.wordpressarticletransformer.transformer;
 
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import com.ft.bodyprocessing.BodyProcessingContext;
+import com.ft.bodyprocessing.BodyProcessingException;
+import com.ft.bodyprocessing.BodyProcessor;
+import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
+import com.ft.wordpressarticletransformer.model.Identifier;
+import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.RequestBuilder;
+import com.sun.jersey.api.client.UniformInterface;
+import com.sun.jersey.api.client.WebResource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -37,29 +58,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.ft.bodyprocessing.BodyProcessingContext;
-import com.ft.bodyprocessing.BodyProcessingException;
-import com.ft.bodyprocessing.BodyProcessor;
-import com.ft.wordpressarticletransformer.model.Brand;
-import com.ft.wordpressarticletransformer.model.Identifier;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.RequestBuilder;
-import com.sun.jersey.api.client.UniformInterface;
-import com.sun.jersey.api.client.WebResource;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 
 public class LinkResolverBodyProcessor
@@ -75,8 +76,8 @@ public class LinkResolverBodyProcessor
     private static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
     
     private final Set<Pattern> urlShortenerPatterns;
+    private final BlogApiEndpointMetadataManager blogApiEndpointMetadataManager;
     private final Client resolverClient;
-    private final Map<Pattern,Brand> urlPatternToBrandMapping;
     private final Client documentStoreClient;
     private final UriBuilder documentStoreContentUriBuilder;
     private final URI documentStoreQueryURI;
@@ -84,15 +85,15 @@ public class LinkResolverBodyProcessor
     private final int maxLinks;
     
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns, Client resolverClient,
-            Map<Pattern,Brand> urlPatternToBrandMapping,
-            Client documentStoreClient, URI documentStoreBaseURI, int queryThreadPoolSize, int maxLinks) {
+                                     BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
+                                     Client documentStoreClient, URI documentStoreBaseURI, int queryThreadPoolSize, int maxLinks) {
         
         this.urlShortenerPatterns = ImmutableSet.copyOf(urlShortenerPatterns);
         
         this.resolverClient = resolverClient;
         this.resolverClient.setFollowRedirects(false);
-        
-        this.urlPatternToBrandMapping = ImmutableMap.copyOf(urlPatternToBrandMapping);
+
+        this.blogApiEndpointMetadataManager = blogApiEndpointMetadataManager;
         
         this.documentStoreClient = documentStoreClient;
         this.documentStoreClient.setFollowRedirects(false);
@@ -298,15 +299,14 @@ public class LinkResolverBodyProcessor
                 if ((status == SC_MOVED_PERMANENTLY) || (status == SC_MOVED_TEMPORARILY)) {
                     url = url.resolve(response.getLocation());
                     try {
-                        String location = url.toURL().toExternalForm();
-                        for (Map.Entry<Pattern,Brand> en : urlPatternToBrandMapping.entrySet()) {
-                            if (en.getKey().matcher(location).matches()) {
-                                identifier = new Identifier(en.getValue().getId(), FT_COM.matcher(location).replaceAll("http://www.ft.com/$1"));
-                                break;
-                            }
+                        URI location = url.toURL().toURI();
+
+                        BlogApiEndpointMetadata blogApiEndpointMetadata = blogApiEndpointMetadataManager.getBlogApiEndpointMetadataByUri(location);
+
+                        if (blogApiEndpointMetadata != null) {
+                            identifier = new Identifier(blogApiEndpointMetadata.getId(), location.toASCIIString());
                         }
-                    }
-                    catch (MalformedURLException e) {
+                    } catch (MalformedURLException | URISyntaxException e) {
                         LOG.warn("{} was resolved to {}, which was not a valid URL", source, url);
                         identifier = new Identifier(null, source.toString());
                     }

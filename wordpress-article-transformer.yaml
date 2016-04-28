@@ -113,9 +113,6 @@ nativeReaderConfiguration:
 
 urlResolverConfiguration:
   patterns: ["https?:\\/\\/on\\.ft\\.com/.*"]
-  brandMappings:
-    - pattern: "https?:\\/\\/[^.]+\\.ft\\.com\\/fastft\\/\\d{4}\\/\\d{2}/\\d{2}\\/.*/"
-      brand: "http://api.ft.com/system/FT-LABS-WP-1-335"
   threadPoolSize: 4
   linksPerThread: 2
   resolverConfiguration:

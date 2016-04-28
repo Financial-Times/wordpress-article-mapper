@@ -1,16 +1,17 @@
 package com.ft.wordpressarticletransformer.configuration;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
 import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
-import io.dropwizard.Configuration;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import java.util.List;
+import io.dropwizard.Configuration;
 
 
 public class WordPressArticleTransformerConfiguration extends Configuration {
