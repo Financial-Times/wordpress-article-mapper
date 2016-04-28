@@ -48,16 +48,15 @@ public class IdentifierBuilder {
 
     private String buildWordpressAdditionalIdentifier(BlogApiEndpointMetadata blogApiEndpointMetadata, Integer id) {
         String actualHost;
-        String path;
+        String path = "/";
 
         String metadataHost = blogApiEndpointMetadata.getHost();
 
-        if (blogApiEndpointMetadata.getHost().contains("/")) {
+        if (metadataHost.contains("/")) {
             actualHost = metadataHost.substring(0, metadataHost.indexOf('/'));
-            path = metadataHost.substring(metadataHost.indexOf('/'));
+            path = metadataHost.substring(metadataHost.indexOf('/')) + path;
         } else {
             actualHost = metadataHost;
-            path = "";
         }
         URI wordpressAlternativeUri = UriBuilder.fromPath(path).host(actualHost).scheme("http").queryParam("p", id).build();
         return wordpressAlternativeUri.toASCIIString();

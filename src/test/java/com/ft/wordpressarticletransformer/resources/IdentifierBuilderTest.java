@@ -27,7 +27,7 @@ public class IdentifierBuilderTest {
     private IdentifierBuilder identifierBuilder;
     private static final int POST_ID = 123456;
     private static final String ID_VALUE_PATTERN_1 = "http://%s/2016/04/25/abu-dhabi";
-    private static final String ID_VALUE_PATTERN_2 = "http://%s?p=" + POST_ID;
+    private static final String ID_VALUE_PATTERN_2 = "http://%s/?p=" + POST_ID;
 
     private static final Post ALPHA_VILLE_POST = new Post();
     private static final Post OTHER_POST = new Post();
