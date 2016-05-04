@@ -50,29 +50,31 @@ public class IdentifierBuilderTest {
     private static final String BEYONDBRICS_HOST = "blogs.ft.com/beyond-brics";
     private static final String COMPOUND_HOST = "blogs.ft.com/compound";
 
+    private static final String UAT_PREFIX = "uat.";
+    private static final String TEST_PREFIX = "test.";
+
     private static final String ALPHA_VILLE_CODE = "FT-LABS-WP-1-24";
     private static final String OTHER_CODE = "FT-LABS-WP-1-23";
     private static final String THIRD_CODE = "FT-LABS-WP-1-22";
     private static final String FINAL_CODE = "FT-LABS-WP-1-21";
     private static final String BEYONDBRICS_CODE = "FT-LABS-WP-1-91";
 
-    private static final String ALPHA_VILLE_POST_URL = String.format(ID_VALUE_PATTERN_1, ALPHA_VILLE_HOST);
-    private static final String OTHER_POST_URL = String.format(ID_VALUE_PATTERN_1, OTHER_HOST);
-    private static final String THIRD_POST_URL = String.format(ID_VALUE_PATTERN_1, THIRD_HOST);
-    private static final String FINAL_POST_URL = String.format(ID_VALUE_PATTERN_1, FINAL_HOST);
+    private static final String ALPHA_VILLE_POST_URL = String.format(ID_VALUE_PATTERN_1, UAT_PREFIX + ALPHA_VILLE_HOST);
+    private static final String OTHER_POST_URL = String.format(ID_VALUE_PATTERN_1, TEST_PREFIX + OTHER_HOST);
+    private static final String THIRD_POST_URL = String.format(ID_VALUE_PATTERN_1, TEST_PREFIX + THIRD_HOST);
+    private static final String FINAL_POST_URL = String.format(ID_VALUE_PATTERN_1, TEST_PREFIX + FINAL_HOST);
     private static final String BEYONDBRICS_POST_URL = String.format(ID_VALUE_PATTERN_1, BEYONDBRICS_HOST);
     private static final String COMPOUND_POST_URL = String.format(ID_VALUE_PATTERN_1, COMPOUND_HOST);
 
-
     private static final String AUTHORITY_PREFIX = "http://api.ft.com/system/";
     private static final Set<Identifier> ALPHA_VILLE_ID = ImmutableSet.of(new Identifier(AUTHORITY_PREFIX + ALPHA_VILLE_CODE, ALPHA_VILLE_POST_URL),
-            new Identifier(AUTHORITY_PREFIX + ALPHA_VILLE_CODE, String.format(ID_VALUE_PATTERN_2, ALPHA_VILLE_HOST)));
+            new Identifier(AUTHORITY_PREFIX + ALPHA_VILLE_CODE, String.format(ID_VALUE_PATTERN_2, UAT_PREFIX + ALPHA_VILLE_HOST)));
     private static final Set<Identifier> OTHER_ID = ImmutableSet.of(new Identifier(AUTHORITY_PREFIX + OTHER_CODE, OTHER_POST_URL),
-            new Identifier(AUTHORITY_PREFIX + OTHER_CODE, String.format(ID_VALUE_PATTERN_2, OTHER_HOST)));
+            new Identifier(AUTHORITY_PREFIX + OTHER_CODE, String.format(ID_VALUE_PATTERN_2, TEST_PREFIX + OTHER_HOST)));
     private static final Set<Identifier> THIRD_ID = ImmutableSet.of(new Identifier(AUTHORITY_PREFIX + THIRD_CODE, THIRD_POST_URL),
-            new Identifier(AUTHORITY_PREFIX + THIRD_CODE, String.format(ID_VALUE_PATTERN_2, THIRD_HOST)));
+            new Identifier(AUTHORITY_PREFIX + THIRD_CODE, String.format(ID_VALUE_PATTERN_2, TEST_PREFIX + THIRD_HOST)));
     private static final Set<Identifier> FINAL_ID = ImmutableSet.of(new Identifier(AUTHORITY_PREFIX + FINAL_CODE, FINAL_POST_URL),
-            new Identifier(AUTHORITY_PREFIX + FINAL_CODE, String.format(ID_VALUE_PATTERN_2, FINAL_HOST)));
+            new Identifier(AUTHORITY_PREFIX + FINAL_CODE, String.format(ID_VALUE_PATTERN_2, TEST_PREFIX + FINAL_HOST)));
     private static final Set<Identifier> BEYONDBRICS_ID = ImmutableSet.of(new Identifier(AUTHORITY_PREFIX + BEYONDBRICS_CODE, BEYONDBRICS_POST_URL),
             new Identifier(AUTHORITY_PREFIX + BEYONDBRICS_CODE, String.format(ID_VALUE_PATTERN_2, BEYONDBRICS_HOST)));
     private static final Set<Identifier> COMPOUND_ID = ImmutableSet.of(new Identifier(AUTHORITY_PREFIX + ALPHA_VILLE_CODE, COMPOUND_POST_URL),
@@ -154,6 +156,12 @@ public class IdentifierBuilderTest {
 
     @Test
     public void testShouldReturnFinalIdentifiersWhenKnownRequestUriIsPassed() throws URISyntaxException {
+        assertThat(identifierBuilder.buildIdentifiers(new URI("http://test.finalsite.ft.com/api/get_post/?id=135790"), FINAL_POST),
+                is(equalTo(FINAL_ID)));
+    }
+
+    @Test
+    public void testShouldReturnFinalIdentifiersWithPrefixWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(identifierBuilder.buildIdentifiers(new URI("http://test.finalsite.ft.com/api/get_post/?id=135790"), FINAL_POST),
                 is(equalTo(FINAL_ID)));
     }
