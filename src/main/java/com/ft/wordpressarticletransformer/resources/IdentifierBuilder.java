@@ -40,25 +40,25 @@ public class IdentifierBuilder {
 
         identifiers.add(new Identifier(originatingSystemId, post.getUrl()));
 
-        String additionalIdentifierValue = buildWordpressAdditionalIdentifier(blogApiEndpointMetadata, post.getId());
+        String additionalIdentifierValue = buildWordpressAdditionalIdentifier(blogApiEndpointMetadata, post);
         identifiers.add(new Identifier(originatingSystemId, additionalIdentifierValue));
 
         return identifiers;
     }
 
-    private String buildWordpressAdditionalIdentifier(BlogApiEndpointMetadata blogApiEndpointMetadata, Integer id) {
-        String actualHost;
+    private String buildWordpressAdditionalIdentifier(BlogApiEndpointMetadata blogApiEndpointMetadata, Post post) {
+
+        URI postUri = UriBuilder.fromUri(post.getUrl()).build();
+        String host = postUri.getHost();
+        String scheme = postUri.getScheme();
         String path = "/";
 
         String metadataHost = blogApiEndpointMetadata.getHost();
-
         if (metadataHost.contains("/")) {
-            actualHost = metadataHost.substring(0, metadataHost.indexOf('/'));
             path = metadataHost.substring(metadataHost.indexOf('/')) + path;
-        } else {
-            actualHost = metadataHost;
         }
-        URI wordpressAlternativeUri = UriBuilder.fromPath(path).host(actualHost).scheme("http").queryParam("p", id).build();
+
+        URI wordpressAlternativeUri = UriBuilder.fromPath(path).host(host).scheme(scheme).queryParam("p", post.getId()).build();
         return wordpressAlternativeUri.toASCIIString();
     }
 }

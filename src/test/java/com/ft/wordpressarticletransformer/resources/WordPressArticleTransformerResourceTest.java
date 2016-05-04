@@ -138,7 +138,7 @@ public class WordPressArticleTransformerResourceTest {
         assertThat("byline", receivedContent.getByline(), is(equalTo("FT Labs Administrator, Jan Majek, Adam Braimbridge")));
         assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
         assertThat("identifier", receivedContent.getIdentifiers(), hasItem(new Identifier("http://api.ft.com/system/FT-LABS-WP-1-24", "http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));
-        assertThat("identifier", receivedContent.getIdentifiers(), hasItem(new Identifier("http://api.ft.com/system/FT-LABS-WP-1-24", "http://localhost/?p=2014692")));
+        assertThat("identifier", receivedContent.getIdentifiers(), hasItem(new Identifier("http://api.ft.com/system/FT-LABS-WP-1-24", "http://uat.ftalphaville.ft.com/?p=2014692")));
         assertThat("uuid", receivedContent.getUuid(), is(equalTo(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS)));
         assertThat("comments", receivedContent.getComments().isEnabled(), is(true));
     }

@@ -112,7 +112,7 @@ nativeReaderConfiguration:
     timeoutMultiplier: 1000
 
 urlResolverConfiguration:
-  patterns: ["https?:\\/\\/on\\.ft\\.com/.*"]
+  patterns: ["https?:\\/\\/on\\.ft\\.com/.*","https?:\\/\\/bit\\.ly/.*"]
   threadPoolSize: 4
   linksPerThread: 2
   resolverConfiguration:
