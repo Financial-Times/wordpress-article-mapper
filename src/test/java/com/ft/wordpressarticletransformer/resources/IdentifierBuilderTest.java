@@ -161,13 +161,6 @@ public class IdentifierBuilderTest {
     }
 
     @Test
-    public void testShouldReturnFinalIdentifiersWithPrefixWhenKnownRequestUriIsPassed() throws URISyntaxException {
-        assertThat(identifierBuilder.buildIdentifiers(new URI("http://test.finalsite.ft.com/api/get_post/?id=135790"), FINAL_POST),
-                is(equalTo(FINAL_ID)));
-    }
-
-
-    @Test
     public void testShouldReturnBeyondBricsIdentifiersWhenKnownRequestUriIsPassed() throws URISyntaxException {
         assertThat(identifierBuilder.buildIdentifiers(new URI("http://blogs.ft.com/beyond-brics/api/get_post/?id=135790"), BEYONDBRICS_POST),
                 is(equalTo(BEYONDBRICS_ID)));
