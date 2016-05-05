@@ -5,7 +5,7 @@ import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.BodyProcessor;
 import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticletransformer.model.Identifier;
-import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
+import com.ft.wordpressarticletransformer.resources.IdentifierBuilder;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -76,7 +76,7 @@ public class LinkResolverBodyProcessor
     private static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
     
     private final Set<Pattern> urlShortenerPatterns;
-    private final BlogApiEndpointMetadataManager blogApiEndpointMetadataManager;
+    private final IdentifierBuilder identifierBuilder;
     private final Client resolverClient;
     private final Client documentStoreClient;
     private final UriBuilder documentStoreContentUriBuilder;
@@ -93,7 +93,7 @@ public class LinkResolverBodyProcessor
         this.resolverClient = resolverClient;
         this.resolverClient.setFollowRedirects(false);
 
-        this.blogApiEndpointMetadataManager = blogApiEndpointMetadataManager;
+        this.identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
         
         this.documentStoreClient = documentStoreClient;
         this.documentStoreClient.setFollowRedirects(false);
@@ -300,19 +300,15 @@ public class LinkResolverBodyProcessor
                     url = url.resolve(response.getLocation());
                     try {
                         URI location = url.toURL().toURI();
+                        identifier = identifierBuilder.build(location);
 
-                        BlogApiEndpointMetadata blogApiEndpointMetadata = blogApiEndpointMetadataManager.getBlogApiEndpointMetadataByUri(location);
-
-                        if (blogApiEndpointMetadata != null) {
-                            identifier = new Identifier(blogApiEndpointMetadata.getId(), location.toASCIIString());
-                        }
                     } catch (MalformedURLException | URISyntaxException e) {
                         LOG.warn("{} was resolved to {}, which was not a valid URL", source, url);
-                        identifier = new Identifier(null, source.toString());
+                        identifier = identifierBuilder.build(source.toString());
                     }
                 }
                 else {
-                    identifier = new Identifier(null, source.toString());
+                    identifier = identifierBuilder.build(source.toString());
                     if (status != SC_OK) {
                         LOG.warn("{} was resolved to {}, which returned unexpected status {}", source, url, status);
                     }
