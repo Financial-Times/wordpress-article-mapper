@@ -28,9 +28,11 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -349,11 +351,16 @@ public class LinkResolverBodyProcessor
         UUID uuid = null;
         try {
             LOG.info("look up content by identifier: {}", identifier);
-            URI queryURI = UriBuilder.fromUri(documentStoreQueryURI)
-                                     .queryParam("identifierAuthority", identifier.getAuthority())
-                                     .queryParam("identifierValue", identifier.getIdentifierValue())
-                                     .build();
-            
+            URI queryURI = null;
+            try {
+                queryURI = UriBuilder.fromUri(documentStoreQueryURI)
+                        .queryParam("identifierAuthority", URLEncoder.encode(identifier.getAuthority(), "UTF-8"))
+                        .queryParam("identifierValue", URLEncoder.encode(identifier.getIdentifierValue(), "UTF-8"))
+                        .build();
+            } catch (UnsupportedEncodingException e) {
+                LOG.warn("Failed to encode Document Store API query parameters", e);
+            }
+
             LOG.info("query URI: {}", queryURI);
             ClientResponse response = documentStoreClient.resource(queryURI)
                                                          .header("Host", "document-store-api")
