@@ -61,4 +61,27 @@ public class IdentifierBuilder {
         URI wordpressAlternativeUri = UriBuilder.fromPath(path).host(host).scheme(scheme).queryParam("p", post.getId()).build();
         return wordpressAlternativeUri.toASCIIString();
     }
+
+
+    public Identifier build(URI uri) {
+        if (uri == null) {
+            return null;
+        }
+        BlogApiEndpointMetadata blogApiEndpointMetadata = blogApiEndpointMetadataManager.getBlogApiEndpointMetadataByUri(uri);
+
+        if (blogApiEndpointMetadata != null && blogApiEndpointMetadata.getId() != null) {
+            String originatingSystemId = String.format(SYSTEM_ID, blogApiEndpointMetadata.getId());
+            return new Identifier(originatingSystemId, uri.toASCIIString());
+        }
+
+        return null;
+    }
+
+
+    public Identifier build(String identifierValue) {
+        if (identifierValue == null) {
+            return null;
+        }
+        return new Identifier(null, identifierValue);
+    }
 }

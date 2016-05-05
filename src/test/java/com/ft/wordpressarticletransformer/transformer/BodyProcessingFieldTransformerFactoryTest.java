@@ -47,6 +47,7 @@ import static org.mockito.Mockito.when;
 public class BodyProcessingFieldTransformerFactoryTest {
     private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
     private static final String BLOG_CODE = "FT-LABS-WP-Y-XXX";
+    private static final String BLOG_AUTHORITY = "http://api.ft.com/system/" + BLOG_CODE;
     private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
     private static final URI DOC_STORE_QUERY_URI = DOC_STORE_URI.resolve("/content-query");
     private static final String TRANSACTION_ID = "tid_test";
@@ -422,7 +423,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
         WebResource queryResource = mock(WebResource.class);
         WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
         URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY_URI)
-                .queryParam("identifierAuthority", BLOG_CODE)
+                .queryParam("identifierAuthority", BLOG_AUTHORITY)
                 .queryParam("identifierValue", URI.create(resolvedIdentifier))
                 .build();
 
