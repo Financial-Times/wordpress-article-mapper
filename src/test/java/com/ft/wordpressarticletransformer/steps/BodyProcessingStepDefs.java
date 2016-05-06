@@ -22,7 +22,9 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.codehaus.stax2.ri.evt.EntityReferenceEventImpl;
 import org.codehaus.stax2.ri.evt.StartElementEventImpl;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,12 +60,12 @@ public class BodyProcessingStepDefs {
     private String transformedBodyText;
     private FieldTransformer bodyTransformer;
     private VideoMatcher videoMatcher;
-   
+
     private static final String TRANSACTION_ID = randomChars(10);
     private static final String TEXT = "Some text in between tags";
     private StructuredWordPressSourcedBodyXMLEventHandlerRegistry registry;
 
-    private Map <String, String> rulesAndHandlers;
+    private Map<String, String> rulesAndHandlers;
 
     private static String randomChars(int howMany) {
         return RandomStringUtils.randomAlphanumeric(howMany).toLowerCase();
@@ -88,11 +90,11 @@ public class BodyProcessingStepDefs {
             new VideoSiteConfiguration("//player.vimeo.com/video/(?<id>[0-9]+)", "https://www.vimeo.com/%s", true, NONE, null, true),
             new VideoSiteConfiguration("https?://video.ft.com/(?<id>[0-9]+)/", null, false, NONE, null, true)
     );
-    
+
     private Client resolverClient = mock(Client.class);
     private Client documentStoreQueryClient = mock(Client.class);
 
-    
+
     @Before
     public void setup() {
         String fastFtHost = "www.ft.com/fastft";
@@ -106,69 +108,74 @@ public class BodyProcessingStepDefs {
 
         videoMatcher = new VideoMatcher(DEFAULTS);
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
-          Collections.singleton(Pattern.compile("https?:\\/\\/on\\.ft\\.com/.*")),
+                Collections.singleton(Pattern.compile("https?:\\/\\/on\\.ft\\.com/.*")),
                 blogApiEndpointMetadataManager,
-          resolverClient, 1, 2, documentStoreQueryClient, DOCUMENT_STORE_URI)
-          .newInstance();
-        
+                resolverClient, 1, 2, documentStoreQueryClient, DOCUMENT_STORE_URI)
+                .newInstance();
+
         URI identifierValue = URI.create("http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/");
         mockResolverRedirect(URI.create("http://on.ft.com/1NVIQzo"), identifierValue);
         mockDocumentStoreQuery(URI.create(fastFtAuth), identifierValue, URI.create("http://www.ft.com/content/8adad508-077b-3795-8569-18e532cabf96"));
-        
+
         registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher);
         rulesAndHandlers = new HashMap<String, String>();
-        rulesAndHandlers.put( "STRIP ELEMENT AND CONTENTS" , "StripElementAndContentsXMLEventHandler");
-        rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
-        rulesAndHandlers.put( "RETAIN ELEMENT AND REMOVE ATTRIBUTES", "RetainWithoutAttributesXMLEventHandler");
-        rulesAndHandlers.put( "TRANSFORM THE TAG", "SimpleTransformTagXmlEventHandler");
-        rulesAndHandlers.put( "CONVERT HTML ENTITY TO UNICODE", "PlainTextHtmlEntityReferenceEventHandler");
-        rulesAndHandlers.put( "STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT", "StripXMLEventHandler");
+        rulesAndHandlers.put("STRIP ELEMENT AND CONTENTS", "StripElementAndContentsXMLEventHandler");
+        rulesAndHandlers.put("STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
+        rulesAndHandlers.put("RETAIN ELEMENT AND REMOVE ATTRIBUTES", "RetainWithoutAttributesXMLEventHandler");
+        rulesAndHandlers.put("TRANSFORM THE TAG", "SimpleTransformTagXmlEventHandler");
+        rulesAndHandlers.put("CONVERT HTML ENTITY TO UNICODE", "PlainTextHtmlEntityReferenceEventHandler");
+        rulesAndHandlers.put("STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT", "StripXMLEventHandler");
     }
-    
+
     private void mockResolverRedirect(URI from, URI to) {
-      WebResource resolverResource = mock(WebResource.class);
-      WebResource.Builder resolverBuilder = mock(WebResource.Builder.class);
-      when(resolverClient.resource(from)).thenReturn(resolverResource);
-      when(resolverResource.cookie(any(Cookie.class))).thenReturn(resolverBuilder);
-      
-      ClientResponse redirectionResponse = mock(ClientResponse.class);
-      when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
-      when(redirectionResponse.getLocation()).thenReturn(to);
-      when(resolverBuilder.head()).thenReturn(redirectionResponse);
+        WebResource resolverResource = mock(WebResource.class);
+        WebResource.Builder resolverBuilder = mock(WebResource.Builder.class);
+        when(resolverClient.resource(from)).thenReturn(resolverResource);
+        when(resolverResource.cookie(any(Cookie.class))).thenReturn(resolverBuilder);
+
+        ClientResponse redirectionResponse = mock(ClientResponse.class);
+        when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
+        when(redirectionResponse.getLocation()).thenReturn(to);
+        when(resolverBuilder.head()).thenReturn(redirectionResponse);
     }
-    
+
     private void mockDocumentStoreQuery(URI authority, URI identifierValue, URI to) {
-      WebResource queryResource = mock(WebResource.class);
-      WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-      URI queryURI = UriBuilder.fromUri(DOCUMENT_STORE_QUERY_URI)
-                               .queryParam("identifierAuthority", authority)
-                               .queryParam("identifierValue", identifierValue)
-                               .build();
-      
-      when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
-      when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
-      
-      ClientResponse queryResponse = mock(ClientResponse.class);
-      when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
-      when(queryResponse.getLocation()).thenReturn(to);
-      when(queryBuilder.head()).thenReturn(queryResponse);
+        WebResource queryResource = mock(WebResource.class);
+        WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+        URI queryURI = null;
+        try {
+            queryURI = UriBuilder.fromUri(DOCUMENT_STORE_QUERY_URI)
+                    .queryParam("identifierAuthority", URLEncoder.encode(authority.toASCIIString(), "UTF-8"))
+                    .queryParam("identifierValue", URLEncoder.encode(identifierValue.toASCIIString(), "UTF-8"))
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+        when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+
+        ClientResponse queryResponse = mock(ClientResponse.class);
+        when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
+        when(queryResponse.getLocation()).thenReturn(to);
+        when(queryBuilder.head()).thenReturn(queryResponse);
     }
-    
+
     @Given("^I have body (.+?)$")
     public void I_have_body(String html) throws Throwable {
         wordpressBodyText = "<body>" + html + "</body>";
     }
-    
+
     @Given("^there are empty paragraphs in the body$")
     public void there_are_empty_paragraphs() throws Throwable {
-    	// no op!
+        // no op!
     }
 
 
     @Given("^I have a rule to (.+) and an entity (.+)$")
     public void I_have_a_rule_and_an_entity(String rule, String entity) throws Throwable {
         String handler = rulesAndHandlers.get(rule);
-        String entitybasic = entity.substring(1, entity.length()-1);
+        String entitybasic = entity.substring(1, entity.length() - 1);
         EntityReferenceEventImpl event = new EntityReferenceEventImpl(null, entitybasic);
         XMLEventHandler eventHandler = registry.getEventHandler(event);
         assertThat("The handler is incorrect", eventHandler.getClass().getSimpleName(), equalTo(handler));
@@ -176,7 +183,7 @@ public class BodyProcessingStepDefs {
 
     @Then("^it is left unmodified$")
     public void it_is_left_unmodified() {
-        assertThat(transformedBodyText,equalToIgnoringCase(wordpressBodyText));
+        assertThat(transformedBodyText, equalToIgnoringCase(wordpressBodyText));
     }
 
     @And("^the tag (.+) adheres to the (.+)$")
@@ -202,44 +209,43 @@ public class BodyProcessingStepDefs {
         assertThat("transformed text", transformedBodyText, equalTo(wrapped(after)));
     }
 
-	private String wrapped(String bodyMarkUp) {
-		return String.format("<body>%s</body>", bodyMarkUp);
-	}
+    private String wrapped(String bodyMarkUp) {
+        return String.format("<body>%s</body>", bodyMarkUp);
+    }
 
 
-	@Then("^it is transformed the entity (.+) should be replaced by the unicode codepoint (.+)$")
+    @Then("^it is transformed the entity (.+) should be replaced by the unicode codepoint (.+)$")
     public void the_entity_should_be_replace_by_unicode_codepoint(String entity, String codepoint) throws Throwable {
         int codePointInt = Integer.decode(codepoint);
         char[] chars = Character.toChars(codePointInt);
-        String expected = "<p>" + TEXT  + new String(chars) + "</p>";
-        wordpressBodyText = "<p>" + TEXT  +  entity + "</p>";
+        String expected = "<p>" + TEXT + new String(chars) + "</p>";
+        wordpressBodyText = "<p>" + TEXT + entity + "</p>";
         transformedBodyText = bodyTransformer.transform(wordpressBodyText, TRANSACTION_ID);
         assertThat(transformedBodyText, is(wrapped(expected)));
     }
 
-    private void assertTagIsRegisteredToTransform(String rule, String before, String after){
+    private void assertTagIsRegisteredToTransform(String rule, String before, String after) {
         SimpleTransformTagXmlEventHandler eventHandler = null;
-        try{
-            eventHandler = (SimpleTransformTagXmlEventHandler)assertTagIsRegistered(before, rule);
-        }
-        catch (ClassCastException cce){
+        try {
+            eventHandler = (SimpleTransformTagXmlEventHandler) assertTagIsRegistered(before, rule);
+        } catch (ClassCastException cce) {
             assertThat("The transformer is not SimpleTransformTagXmlEventHandler", false);
         }
         assertThat("The replacement tag is not registered properly", eventHandler.getNewElement(), equalTo(after));
 
     }
 
-    private XMLEventHandler assertTagIsRegistered( String name, String rule ){
+    private XMLEventHandler assertTagIsRegistered(String name, String rule) {
         String handler = rulesAndHandlers.get(rule);
         StartElementEventImpl startElement = StartElementEventImpl.construct(null, new QName(name), null, null, null);
         XMLEventHandler eventHandler = registry.getEventHandler(startElement);
-        assertThat("handler incorrect", eventHandler.getClass().getSimpleName(), equalTo(handler) );
+        assertThat("handler incorrect", eventHandler.getClass().getSimpleName(), equalTo(handler));
         return eventHandler;
     }
 
     @Given("^the \\w+ body contains (.+) the transformer will (.+)$")
     public void the_system_body_contains(String tagname, String rule) throws Throwable {
-        assertTagIsRegistered(tagname,rule);
+        assertTagIsRegistered(tagname, rule);
     }
 
 
@@ -248,10 +254,10 @@ public class BodyProcessingStepDefs {
         assertTagIsRegisteredToTransform(rule, tagname, replacement);
     }
 
-	@Then("^I get the body (.+?)$")
-	public void then_I_get_the_body(String html) throws Throwable {
-		assertThat( transformedBodyText ,equalToIgnoringWhiteSpace("<body>" + html + "</body>"));
-	}
+    @Then("^I get the body (.+?)$")
+    public void then_I_get_the_body(String html) throws Throwable {
+        assertThat(transformedBodyText, equalToIgnoringWhiteSpace("<body>" + html + "</body>"));
+    }
 
     @Given("^I have text in Wordpress XML like (.*)$")
     public void I_have_body_text_in_Methode_XML_like_before(String text) throws Throwable {

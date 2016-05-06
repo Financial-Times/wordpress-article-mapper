@@ -23,7 +23,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -422,10 +424,16 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
         WebResource queryResource = mock(WebResource.class);
         WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-        URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY_URI)
-                .queryParam("identifierAuthority", BLOG_AUTHORITY)
-                .queryParam("identifierValue", URI.create(resolvedIdentifier))
-                .build();
+
+        URI queryURI = null;
+        try {
+            queryURI = UriBuilder.fromUri(DOC_STORE_QUERY_URI)
+                    .queryParam("identifierAuthority", URLEncoder.encode(BLOG_AUTHORITY, "UTF-8"))
+                    .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
         when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
