@@ -37,6 +37,7 @@ import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -170,7 +171,7 @@ public class LinkResolverBodyProcessorTest {
                     .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
                     .build();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
         }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
@@ -221,7 +222,7 @@ public class LinkResolverBodyProcessorTest {
                     .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
                     .build();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
         }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
@@ -283,7 +284,7 @@ public class LinkResolverBodyProcessorTest {
                     .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
                     .build();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
         }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);

@@ -41,6 +41,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -432,7 +433,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                     .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
                     .build();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
         }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);

@@ -50,6 +50,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -149,7 +150,7 @@ public class BodyProcessingStepDefs {
                     .queryParam("identifierValue", URLEncoder.encode(identifierValue.toASCIIString(), "UTF-8"))
                     .build();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
         }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
