@@ -15,7 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +37,7 @@ import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -161,10 +164,15 @@ public class LinkResolverBodyProcessorTest {
 
         WebResource queryResource = mock(WebResource.class);
         WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-        URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
-                .queryParam("identifierAuthority", BLOG_AUTHORITY)
-                .queryParam("identifierValue", URI.create(resolvedIdentifier))
-                .build();
+        URI queryURI = null;
+        try {
+            queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
+                    .queryParam("identifierAuthority", URLEncoder.encode(BLOG_AUTHORITY, "UTF-8"))
+                    .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            fail(e.getMessage());
+        }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
         when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
@@ -207,10 +215,15 @@ public class LinkResolverBodyProcessorTest {
 
         WebResource queryResource = mock(WebResource.class);
         WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-        URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
-                .queryParam("identifierAuthority", BLOG_AUTHORITY)
-                .queryParam("identifierValue", URI.create(resolvedIdentifier))
-                .build();
+        URI queryURI = null;
+        try {
+            queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
+                    .queryParam("identifierAuthority", URLEncoder.encode(BLOG_AUTHORITY, "UTF-8"))
+                    .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            fail(e.getMessage());
+        }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
         when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
@@ -264,10 +277,15 @@ public class LinkResolverBodyProcessorTest {
 
         WebResource queryResource = mock(WebResource.class);
         WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-        URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
-                .queryParam("identifierAuthority", BLOG_AUTHORITY)
-                .queryParam("identifierValue", URI.create(resolvedIdentifier))
-                .build();
+        URI queryURI = null;
+        try {
+            queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
+                    .queryParam("identifierAuthority", URLEncoder.encode(BLOG_AUTHORITY, "UTF-8"))
+                    .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            fail(e.getMessage());
+        }
 
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
         when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);

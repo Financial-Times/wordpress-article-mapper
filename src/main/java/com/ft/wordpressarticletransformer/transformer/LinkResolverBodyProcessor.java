@@ -28,9 +28,11 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -65,16 +67,16 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 public class LinkResolverBodyProcessor
         implements BodyProcessor {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(LinkResolverBodyProcessor.class);
-    
+
     private static final Pattern FT_COM = Pattern.compile("https?:\\/\\/[^/]+\\.ft\\.com\\/(.*)");
     private static final Cookie NEXT_COOKIE = new Cookie("FT_SITE", "NEXT", "/", ".ft.com");
     private static final String UUID_REGEX = "([0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})";
     private static final Pattern CONTENT_UUID = Pattern.compile(".*\\/content\\/" + UUID_REGEX + "$");
     private static final Pattern HREF_UUID = Pattern.compile(".*ft\\.com\\/\\S*" + UUID_REGEX + ".*");
     private static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
-    
+
     private final Set<Pattern> urlShortenerPatterns;
     private final IdentifierBuilder identifierBuilder;
     private final Client resolverClient;
@@ -83,174 +85,170 @@ public class LinkResolverBodyProcessor
     private final URI documentStoreQueryURI;
     private final int poolSize;
     private final int maxLinks;
-    
+
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns, Client resolverClient,
                                      BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
                                      Client documentStoreClient, URI documentStoreBaseURI, int queryThreadPoolSize, int maxLinks) {
-        
+
         this.urlShortenerPatterns = ImmutableSet.copyOf(urlShortenerPatterns);
-        
+
         this.resolverClient = resolverClient;
         this.resolverClient.setFollowRedirects(false);
 
         this.identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
-        
+
         this.documentStoreClient = documentStoreClient;
         this.documentStoreClient.setFollowRedirects(false);
-        
+
         this.documentStoreContentUriBuilder = UriBuilder.fromUri(documentStoreBaseURI).path("/content/{uuid}");
         this.documentStoreQueryURI = UriBuilder.fromUri(documentStoreBaseURI).path("/content-query").build();
         this.poolSize = queryThreadPoolSize;
         this.maxLinks = maxLinks;
     }
-    
+
     @Override
     public String process(String body, BodyProcessingContext bodyProcessingContext)
             throws BodyProcessingException {
-        
+
         if (Strings.isNullOrEmpty(body)) {
             return body;
         }
-        
+
         Document document;
         try {
             DocumentBuilder documentBuilder = getDocumentBuilder();
             document = documentBuilder.parse(new InputSource(new StringReader(body)));
-        }
-        catch (ParserConfigurationException | SAXException | IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new BodyProcessingException(e);
         }
-        
+
         List<Element> ftContentLinks = new ArrayList<>();
         List<Element> shortenedLinks = new ArrayList<>();
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
             final NodeList aTags = (NodeList) xpath.evaluate("//a", document, XPathConstants.NODESET);
             for (int i = 0; i < aTags.getLength(); i++) {
-                final Element aTag = (Element)aTags.item(i);
-                
+                final Element aTag = (Element) aTags.item(i);
+
                 if (isFTContentLink(aTag)) {
-                  ftContentLinks.add(aTag);
-                }
-                else if (isShortenedLink(aTag)) {
+                    ftContentLinks.add(aTag);
+                } else if (isShortenedLink(aTag)) {
                     shortenedLinks.add(aTag);
                 }
             }
-            
+
             boolean anyLinkChanged = false;
             for (Element aTag : ftContentLinks) {
-              UUID uuid = extractUUID(aTag);
-              if (uuid != null) {
-                replaceTag(aTag, uuid);
-                anyLinkChanged = true;
-              }
+                UUID uuid = extractUUID(aTag);
+                if (uuid != null) {
+                    replaceTag(aTag, uuid);
+                    anyLinkChanged = true;
+                }
             }
-            
+
             int linksCount = shortenedLinks.size();
             if (linksCount > maxLinks) {
-              LOG.warn("Article contains too many short links to resolve. Omitting {}",
-                  shortenedLinks.subList(maxLinks, linksCount).stream()
-                      .map(el -> el.getAttribute("href"))
-                      .collect(Collectors.toList()));
-              
+                LOG.warn("Article contains too many short links to resolve. Omitting {}",
+                        shortenedLinks.subList(maxLinks, linksCount).stream()
+                                .map(el -> el.getAttribute("href"))
+                                .collect(Collectors.toList()));
+
             }
-            
-            ForkJoinPool pool = new ForkJoinPool(poolSize);  
-            ForkJoinTask<Boolean> task = pool.submit(() -> {  
-              Optional<Boolean> shortLinkChanged = shortenedLinks.subList(0, Math.min(linksCount, maxLinks))
-                  .parallelStream()
-                  .map(link -> {
-                    try {
-                      return resolveAndReplaceTag(link);
-                    }
-                    catch (Exception e) {
-                      return false;
-                    }
-                  })
-                  .reduce((t, u) -> t | u);
-              
-              return shortLinkChanged.orElse(false);
+
+            ForkJoinPool pool = new ForkJoinPool(poolSize);
+            ForkJoinTask<Boolean> task = pool.submit(() -> {
+                Optional<Boolean> shortLinkChanged = shortenedLinks.subList(0, Math.min(linksCount, maxLinks))
+                        .parallelStream()
+                        .map(link -> {
+                            try {
+                                return resolveAndReplaceTag(link);
+                            } catch (Exception e) {
+                                return false;
+                            }
+                        })
+                        .reduce((t, u) -> t | u);
+
+                return shortLinkChanged.orElse(false);
             });
-            
+
             anyLinkChanged |= task.join();
-            
+
             if (anyLinkChanged) {
                 body = serializeBody(document);
             }
-        }
-        catch (XPathExpressionException e) {
+        } catch (XPathExpressionException e) {
             throw new BodyProcessingException(e);
         }
-        
+
         return body;
     }
-    
+
     private DocumentBuilder getDocumentBuilder()
             throws ParserConfigurationException {
-        
+
         final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        
+
         return documentBuilderFactory.newDocumentBuilder();
     }
-    
+
     private boolean isFTContentLink(Element aTag) {
-      String url = aTag.getAttribute("href");
-      if (Strings.isNullOrEmpty(url)) {
-          return false;
-      }
-      
-      return HREF_UUID.matcher(url).matches();
+        String url = aTag.getAttribute("href");
+        if (Strings.isNullOrEmpty(url)) {
+            return false;
+        }
+
+        return HREF_UUID.matcher(url).matches();
     }
-    
+
     private UUID extractUUID(Element aTag) {
-      String url = aTag.getAttribute("href");
-      UUID uuid = null;
-      
-      Matcher m = HREF_UUID.matcher(url);
-      if (m.matches()) {
-        uuid = UUID.fromString(m.group(1));
-      }
-      
-      if (!validateFTContentExists(uuid)) {
-        uuid = null;
-      }
-      
-      return uuid;
+        String url = aTag.getAttribute("href");
+        UUID uuid = null;
+
+        Matcher m = HREF_UUID.matcher(url);
+        if (m.matches()) {
+            uuid = UUID.fromString(m.group(1));
+        }
+
+        if (!validateFTContentExists(uuid)) {
+            uuid = null;
+        }
+
+        return uuid;
     }
-    
+
     private boolean isShortenedLink(Element aTag) {
         String url = aTag.getAttribute("href");
         if (Strings.isNullOrEmpty(url)) {
             return false;
         }
-        
+
         for (Pattern p : urlShortenerPatterns) {
             if (p.matcher(url).matches()) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     private boolean resolveAndReplaceTag(Element aTag) {
         String url = aTag.getAttribute("href");
-        
+
         Identifier identifier = resolveToFTIdentifier(URI.create(url));
         if (identifier.getAuthority() == null) {
             return false;
         }
-        
+
         UUID uuid = findFTContent(identifier);
         if (uuid == null) {
             return false;
         }
-        
+
         replaceTag(aTag, uuid);
         return true;
     }
-    
+
     private void replaceTag(Element aTag, UUID uuid) {
         LOG.info("replace link href={} with FT content UUID={}", aTag.getAttribute("href"), uuid);
         Node parent = aTag.getParentNode();
@@ -259,7 +257,7 @@ public class LinkResolverBodyProcessor
         // TODO should we retrieve the document to get the type and title?
         content.setAttribute("type", ARTICLE_TYPE);
         // content.setAttribute("title", title);
-        
+
         NodeList children = aTag.getChildNodes();
         Node n = children.item(0);
         while (n != null) {
@@ -267,16 +265,16 @@ public class LinkResolverBodyProcessor
             content.appendChild(n);
             n = children.item(0);
         }
-        
+
         parent.insertBefore(content, aTag);
         parent.removeChild(aTag);
     }
-    
+
     private Identifier resolveToFTIdentifier(final URI source) {
         Set<URI> visited = new LinkedHashSet<>();
         URI url = source;
         Identifier identifier = null;
-        
+
         do {
             ClientResponse response = null;
             try {
@@ -285,16 +283,16 @@ public class LinkResolverBodyProcessor
                     identifier = new Identifier(null, source.toString());
                     break;
                 }
-                
+
                 RequestBuilder<WebResource.Builder> resource = resolverClient.resource(url);
                 if (FT_COM.matcher(url.toString()).matches()) {
                     resource = resource.cookie(NEXT_COOKIE);
                 }
-                
-                response = ((UniformInterface)resource).head();
-                
+
+                response = ((UniformInterface) resource).head();
+
                 visited.add(url);
-                
+
                 int status = response.getStatus();
                 if ((status == SC_MOVED_PERMANENTLY) || (status == SC_MOVED_TEMPORARILY)) {
                     url = url.resolve(response.getLocation());
@@ -306,59 +304,57 @@ public class LinkResolverBodyProcessor
                         LOG.warn("{} was resolved to {}, which was not a valid URL", source, url);
                         identifier = identifierBuilder.build(source.toString());
                     }
-                }
-                else {
+                } else {
                     identifier = identifierBuilder.build(source.toString());
                     if (status != SC_OK) {
                         LOG.warn("{} was resolved to {}, which returned unexpected status {}", source, url, status);
                     }
                 }
-            }
-            finally {
+            } finally {
                 if (response != null) {
                     response.close();
                 }
             }
-            
+
         } while (identifier == null);
-        
+
         return identifier;
     }
-    
+
     private boolean validateFTContentExists(UUID uuid) {
         try {
             LOG.info("look up content by UUID: {}", uuid);
             URI queryURI = documentStoreContentUriBuilder.build(uuid);
-            
+
             LOG.info("query URI: {}", queryURI);
             ClientResponse response = documentStoreClient.resource(queryURI)
-                                                         .header("Host", "document-store-api")
-                                                         .head();
+                    .header("Host", "document-store-api")
+                    .head();
             int status = response.getStatus();
             LOG.info("query response: {}", status);
             return (status == SC_OK);
+        } catch (ClientHandlerException e) {
+            LOG.warn("failed to query document store", e);
         }
-        catch (ClientHandlerException e) {
-          LOG.warn("failed to query document store", e);
-        }
-        
+
         return false;
     }
-    
+
     private UUID findFTContent(Identifier identifier) {
         UUID uuid = null;
         try {
             LOG.info("look up content by identifier: {}", identifier);
+
             URI queryURI = UriBuilder.fromUri(documentStoreQueryURI)
-                                     .queryParam("identifierAuthority", identifier.getAuthority())
-                                     .queryParam("identifierValue", identifier.getIdentifierValue())
-                                     .build();
-            
+                    .queryParam("identifierAuthority", URLEncoder.encode(identifier.getAuthority(), "UTF-8"))
+                    .queryParam("identifierValue", URLEncoder.encode(identifier.getIdentifierValue(), "UTF-8"))
+                    .build();
+
             LOG.info("query URI: {}", queryURI);
             ClientResponse response = documentStoreClient.resource(queryURI)
-                                                         .header("Host", "document-store-api")
-                                                         .head();
-            
+                    .header("Host", "document-store-api")
+                    .head();
+
             int status = response.getStatus();
             LOG.info("query response: {}", status);
             if ((status == SC_MOVED_PERMANENTLY) || (status == SC_MOVED_TEMPORARILY)) {
@@ -369,19 +365,18 @@ public class LinkResolverBodyProcessor
                     uuid = UUID.fromString(m.group(1));
                 }
             }
-        }
-        catch (ClientHandlerException e) {
+        } catch (ClientHandlerException | UnsupportedEncodingException e) {
             LOG.warn("failed to query document store", e);
         }
-        
+
         return uuid;
     }
-    
+
     private String serializeBody(Document document) {
         DOMSource domSource = new DOMSource(document);
         StringWriter writer = new StringWriter();
         StreamResult result = new StreamResult(writer);
-        
+
         TransformerFactory tf = TransformerFactory.newInstance();
         try {
             Transformer transformer = tf.newTransformer();
@@ -391,8 +386,7 @@ public class LinkResolverBodyProcessor
             writer.flush();
             String body = writer.toString();
             return body;
-        }
-        catch (TransformerException e) {
+        } catch (TransformerException e) {
             throw new BodyProcessingException(e);
         }
     }
