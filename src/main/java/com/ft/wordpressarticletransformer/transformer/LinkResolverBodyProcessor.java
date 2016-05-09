@@ -75,6 +75,7 @@ public class LinkResolverBodyProcessor
     private static final String UUID_REGEX = "([0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})";
     private static final Pattern CONTENT_UUID = Pattern.compile(".*\\/content\\/" + UUID_REGEX + "$");
     private static final Pattern HREF_UUID = Pattern.compile(".*ft\\.com\\/\\S*" + UUID_REGEX + ".*");
+    private static final Pattern FT_WORDPRESS_URL = Pattern.compile("https?:\\/\\/[^.]+\\.ft\\.com\\/(\\S*\\/)?\\d{4}\\/\\d{2}\\/\\d{2}\\/.*\\/");
     private static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
 
     private final Set<Pattern> urlShortenerPatterns;
@@ -123,7 +124,8 @@ public class LinkResolverBodyProcessor
         }
 
         List<Element> ftContentLinks = new ArrayList<>();
-        List<Element> shortenedLinks = new ArrayList<>();
+        List<Element> ftWordpressLinks = new ArrayList<>();
+
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
             final NodeList aTags = (NodeList) xpath.evaluate("//a", document, XPathConstants.NODESET);
@@ -132,8 +134,8 @@ public class LinkResolverBodyProcessor
 
                 if (isFTContentLink(aTag)) {
                     ftContentLinks.add(aTag);
-                } else if (isShortenedLink(aTag)) {
-                    shortenedLinks.add(aTag);
+                } else if (isShortenedLink(aTag) || isFtWordpressLink(aTag)) {
+                    ftWordpressLinks.add(aTag);
                 }
             }
 
@@ -146,10 +148,10 @@ public class LinkResolverBodyProcessor
                 }
             }
 
-            int linksCount = shortenedLinks.size();
+            int linksCount = ftWordpressLinks.size();
             if (linksCount > maxLinks) {
-                LOG.warn("Article contains too many short links to resolve. Omitting {}",
-                        shortenedLinks.subList(maxLinks, linksCount).stream()
+                LOG.warn("Article contains too many links to resolve. Omitting {}",
+                        ftWordpressLinks.subList(maxLinks, linksCount).stream()
                                 .map(el -> el.getAttribute("href"))
                                 .collect(Collectors.toList()));
 
@@ -157,7 +159,7 @@ public class LinkResolverBodyProcessor
 
             ForkJoinPool pool = new ForkJoinPool(poolSize);
             ForkJoinTask<Boolean> task = pool.submit(() -> {
-                Optional<Boolean> shortLinkChanged = shortenedLinks.subList(0, Math.min(linksCount, maxLinks))
+                Optional<Boolean> shortLinkChanged = ftWordpressLinks.subList(0, Math.min(linksCount, maxLinks))
                         .parallelStream()
                         .map(link -> {
                             try {
@@ -181,6 +183,14 @@ public class LinkResolverBodyProcessor
         }
 
         return body;
+    }
+
+    private boolean isFtWordpressLink(Element aTag) {
+        String url = aTag.getAttribute("href");
+        if (Strings.isNullOrEmpty(url)) {
+            return false;
+        }
+        return FT_WORDPRESS_URL.matcher(url).matches();
     }
 
     private DocumentBuilder getDocumentBuilder()
@@ -271,9 +281,17 @@ public class LinkResolverBodyProcessor
     }
 
     private Identifier resolveToFTIdentifier(final URI source) {
+        Identifier identifier = null;
+
+        if (FT_WORDPRESS_URL.matcher(source.toASCIIString()).matches()) {
+            identifier = identifierBuilder.build(source);
+            if (identifier != null) {
+                return identifier;
+            }
+        }
         Set<URI> visited = new LinkedHashSet<>();
         URI url = source;
-        Identifier identifier = null;
+
 
         do {
             ClientResponse response = null;
