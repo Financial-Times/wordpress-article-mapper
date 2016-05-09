@@ -50,7 +50,7 @@ public class LinkResolverBodyProcessorTest {
 
     private static final Pattern SHORT_URL_PATTERN = Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*");
     private static final String FULL_WORDPRESS_URL = "http://something.ft.com/ablog/2016/04/29/the-title-of-the-post/";
-    private static final String A_FAKE_WORDPRESS_URL = "http://another.site.com/afakeblog/2016/04/29/the-title-of-the-post/";
+    private static final String AN_EXTERNAL_SITE_URL = "http://another.site.com/afakeblog/2016/04/29/the-title-of-the-post/";
     private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
     private static final String BLOG_ID = "FT-LABS-WP-Y-XXX";
     private static final String BLOG_AUTHORITY = "http://api.ft.com/system/" + BLOG_ID;
@@ -466,17 +466,6 @@ public class LinkResolverBodyProcessorTest {
         inOrder = inOrder(documentStoreQueryClient);
         inOrder.verify(documentStoreQueryClient).setFollowRedirects(false);
         inOrder.verify(documentStoreQueryClient).resource(queryURI);
-    }
-
-    @Test
-    public void thatFullWordpressLinksAreNotResolvedToContent() {
-        URI fullUrl = URI.create(A_FAKE_WORDPRESS_URL);
-
-        String body = "<body><p>Blah blah blah <a href=\"" + fullUrl
-                + "\">usw</a> ...</p></body>";
-
-        String actual = processor.process(body, null);
-        assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(body));
     }
 
     @Test
