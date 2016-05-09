@@ -112,7 +112,7 @@ nativeReaderConfiguration:
     timeoutMultiplier: 1000
 
 urlResolverConfiguration:
-  patterns: ["https?:\\/\\/on\\.ft\\.com/.*"]
+  patterns: ["https?:\\/\\/on\\.ft\\.com/.*","https?:\\/\\/bit\\.ly/.*"]
   threadPoolSize: <%=scope.function_hiera(['resolverThreadPoolSize','4'])%>
   linksPerThread: <%=scope.function_hiera(['resolverLinksPerThread','2'])%>
   resolverConfiguration:
