@@ -49,6 +49,8 @@ public class LinkResolverBodyProcessorTest {
     static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
 
     private static final Pattern SHORT_URL_PATTERN = Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*");
+    private static final String FULL_WORDPRESS_URL = "http://something.ft.com/ablog/2016/04/29/the-title-of-the-post/";
+    private static final String A_FAKE_WORDPRESS_URL = "http://another.site.com/afakeblog/2016/04/29/the-title-of-the-post/";
     private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
     private static final String BLOG_ID = "FT-LABS-WP-Y-XXX";
     private static final String BLOG_AUTHORITY = "http://api.ft.com/system/" + BLOG_ID;
@@ -65,7 +67,9 @@ public class LinkResolverBodyProcessorTest {
     public void setup() {
 
         Set<String> brands = ImmutableSet.of(BRAND_ID);
-        List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_ID));
+        List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(
+                new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_ID),
+                new BlogApiEndpointMetadata("something.ft.com/ablog", brands, BLOG_ID));
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(metadataList);
 
         processor = new LinkResolverBodyProcessor(
@@ -423,8 +427,89 @@ public class LinkResolverBodyProcessorTest {
         assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(body));
     }
 
+    @Test
+    public void thatFullWordpressLinksAreResolvedToContent() {
+        URI fullUrl = URI.create(FULL_WORDPRESS_URL);
+        UUID ftContentUUID = UUID.randomUUID();
+        String bodyWithShortLink = "<body><p>Blah blah blah <a href=\"" + fullUrl
+                + "\">usw</a> ...</p></body>";
+
+        String expectedTransformed = "<body><p>Blah blah blah <content id=\"" + ftContentUUID
+                + "\" type=\"" + ARTICLE_TYPE + "\">usw</content> ...</p></body>";
+
+        WebResource queryResource = mock(WebResource.class);
+        WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+        URI queryURI = null;
+        try {
+            queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
+                    .queryParam("identifierAuthority", URLEncoder.encode(BLOG_AUTHORITY, "UTF-8"))
+                    .queryParam("identifierValue", URLEncoder.encode(URI.create(FULL_WORDPRESS_URL).toASCIIString(), "UTF-8"))
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            fail(e.getMessage());
+        }
+
+        when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+        when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+
+        ClientResponse queryResponse = mock(ClientResponse.class);
+        when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
+        when(queryResponse.getLocation()).thenReturn(URI.create("http://www.ft.com/content/" + ftContentUUID));
+        when(queryBuilder.head()).thenReturn(queryResponse);
+
+        String actual = processor.process(bodyWithShortLink, null);
+        assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformed));
+
+        InOrder inOrder = inOrder(resolverClient);
+        inOrder.verify(resolverClient).setFollowRedirects(false);
+
+        inOrder = inOrder(documentStoreQueryClient);
+        inOrder.verify(documentStoreQueryClient).setFollowRedirects(false);
+        inOrder.verify(documentStoreQueryClient).resource(queryURI);
+    }
+
+    @Test
+    public void thatFullWordpressLinksAreNotResolvedToContent() {
+        URI fullUrl = URI.create(A_FAKE_WORDPRESS_URL);
+
+        String body = "<body><p>Blah blah blah <a href=\"" + fullUrl
+                + "\">usw</a> ...</p></body>";
+
+        String actual = processor.process(body, null);
+        assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(body));
+    }
+
+    @Test
+    public void thatFullWordpressLinksResolvedButNotFoundAreNotTransformed() {
+        String resolvedIdentifier = "http:/www.ft.com/resolved/foo/bar";
+        String body = "<body><p>Blah blah blah <a href=\"" + FULL_WORDPRESS_URL
+                + "\">usw</a> ...</p></body>";
+
+        WebResource resolverBuilder = mock(WebResource.class);
+        when(resolverClient.resource(URI.create(FULL_WORDPRESS_URL))).thenReturn(resolverBuilder);
+
+
+        WebResource queryResource = mock(WebResource.class);
+        WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+        URI queryURI = UriBuilder.fromUri(DOC_STORE_QUERY)
+                .queryParam("identifierAuthority", BRAND_ID)
+                .queryParam("identifierValue", URI.create(resolvedIdentifier))
+                .build();
+
+        when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+        when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
+
+        ClientResponse queryResponse = mock(ClientResponse.class);
+        when(queryResponse.getStatus()).thenReturn(SC_NOT_FOUND);
+        when(queryBuilder.head()).thenReturn(queryResponse);
+
+        String actual = processor.process(body, null);
+        assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(body));
+    }
+
     @Test(expected = BodyProcessingException.class)
     public void thatBadlyFormedContentIsRejected() {
         processor.process("<foo>", null);
     }
+
 }
