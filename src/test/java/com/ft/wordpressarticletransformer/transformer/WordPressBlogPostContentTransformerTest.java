@@ -180,8 +180,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
     }
 
-    @Test(expected = WordPressContentException.class)
-    public void thatTransformerFailsWhenThereAreNoAuthors() {
+    @Test
+    public void thatTransformerAllowsPostWithNoAuthors() {
         Post post = new Post();
         post.setTitle(TITLE);
         post.setDateGmt(PUBLISHED_DATE_STR);
@@ -189,7 +189,19 @@ public class WordPressBlogPostContentTransformerTest {
         post.setContent(BODY_TEXT);
         post.setCommentStatus(COMMENTS_OPEN);
 
-        transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, LAST_MODIFIED);
+        WordPressBlogPostContent actual = transformer.transform(TX_ID, REQUEST_URI, post, POST_UUID, LAST_MODIFIED);
+
+        assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("byline", actual.getByline(), is(nullValue()));
+        assertThat("brands", actual.getBrands(), (org.hamcrest.Matcher) hasItems(BRANDS.toArray()));
+        assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
+        assertThat("identifier authority", actual.getIdentifiers().first().getAuthority(), is(equalTo(SYSTEM_ID)));
+        assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));
+        assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
+        assertThat("comments", actual.getComments().isEnabled(), is(true));
+        assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
+        assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
+        assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
     }
 
     @Test(expected = UnpublishablePostException.class)
