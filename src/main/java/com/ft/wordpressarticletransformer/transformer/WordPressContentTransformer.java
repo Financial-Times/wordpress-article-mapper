@@ -107,8 +107,8 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
             return singleAuthor.getName();
         }
 
-        LOG.error("Failed to construct byline");
-        throw new WordPressContentException("article has no authors");
+        LOG.warn("Failed to construct byline - article has no authors");
+        return null;
     }
 
     protected Comments createComments(String commentStatus) {
