@@ -304,7 +304,7 @@ public class LinkResolverBodyProcessorTest {
             verify(resolverClient).resource(shortUrl[0]);
             verify(resolverClient).resource(shortUrl[1]);
             verify(resolverClient, never()).resource(shortUrl[2]);
-            assertLogEvent(logger, "Article contains too many short links to resolve\\. Omitting.*" + shortUrl[2] + ".*");
+            assertLogEvent(logger, "Article contains too many links to resolve\\. Omitting.*" + shortUrl[2] + ".*");
         } finally {
             resetLoggingFor(LinkResolverBodyProcessor.class);
         }
