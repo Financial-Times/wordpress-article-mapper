@@ -49,8 +49,7 @@ public class LinkResolverBodyProcessorTest {
     static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
 
     private static final Pattern SHORT_URL_PATTERN = Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*");
-    private static final String FULL_WORDPRESS_URL = "http://something.ft.com/ablog/2016/04/29/the-title-of-the-post/";
-    private static final String AN_EXTERNAL_SITE_URL = "http://another.site.com/afakeblog/2016/04/29/the-title-of-the-post/";
+    private static final String FULL_WORDPRESS_URL = "http://something.somethingelse.ft.com/ablog/2016/04/29/the-title-of-the-post/";
     private static final String BRAND_ID = "http://api.ft.com/system/JUNIT";
     private static final String BLOG_ID = "FT-LABS-WP-Y-XXX";
     private static final String BLOG_AUTHORITY = "http://api.ft.com/system/" + BLOG_ID;
@@ -69,7 +68,7 @@ public class LinkResolverBodyProcessorTest {
         Set<String> brands = ImmutableSet.of(BRAND_ID);
         List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(
                 new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_ID),
-                new BlogApiEndpointMetadata("something.ft.com/ablog", brands, BLOG_ID));
+                new BlogApiEndpointMetadata("somethingelse.ft.com/ablog", brands, BLOG_ID));
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(metadataList);
 
         processor = new LinkResolverBodyProcessor(
