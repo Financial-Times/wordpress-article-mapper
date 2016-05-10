@@ -75,7 +75,7 @@ public class LinkResolverBodyProcessor
     private static final String UUID_REGEX = "([0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})";
     private static final Pattern CONTENT_UUID = Pattern.compile(".*\\/content\\/" + UUID_REGEX + "$");
     private static final Pattern HREF_UUID = Pattern.compile(".*ft\\.com\\/\\S*" + UUID_REGEX + ".*");
-    private static final Pattern FT_WORDPRESS_URL = Pattern.compile("https?:\\/\\/[^.]+\\.ft\\.com\\/(\\S*\\/)?\\d{4}\\/\\d{2}\\/\\d{2}\\/.*\\/");
+    private static final Pattern FT_WORDPRESS_URL = Pattern.compile("https?:\\/\\/([^.]+\\.)?[^.]+\\.ft\\.com\\/(\\S*\\/)?\\d{4}\\/\\d{2}\\/\\d{2}\\/.*\\/");
     private static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
 
     private final Set<Pattern> urlShortenerPatterns;
