@@ -53,10 +53,9 @@ public class LinkResolverBodyProcessorTest {
     private static final String BLOG_AUTHORITY = "http://api.ft.com/system/" + BLOG_ID;
     private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
     private static final URI DOC_STORE_QUERY = DOC_STORE_URI.resolve("/content-query");
-    private static final URI DOC_STORE_CONTENT = DOC_STORE_URI.resolve("/content");
     private static final URI CONTENT_READ_URI = URI.create("http://localhost:8080/content");
-    ;
     private static final String CONTENT_READ_HOST_HEADER = "content-public-read";
+    private static final String DOC_STORE_HOST_HEADER = "document-store-api";
 
     private Client resolverClient = mock(Client.class);
     private Client documentStoreQueryClient = mock(Client.class);
@@ -87,8 +86,9 @@ public class LinkResolverBodyProcessorTest {
                 resolverClient,
                 blogApiEndpointMetadataManager,
                 documentStoreQueryClient,
-                contentReadClient,
                 DOC_STORE_URI,
+                DOC_STORE_HOST_HEADER,
+                contentReadClient,
                 CONTENT_READ_URI,
                 CONTENT_READ_HOST_HEADER,
                 1, 2);

@@ -76,6 +76,7 @@ public class BodyProcessingStepDefs {
     private static final URI DOCUMENT_STORE_QUERY_URI = DOCUMENT_STORE_URI.resolve("/content-query");
     private static final URI CONTENT_READ_URI = URI.create("http://localhost:8080/content-read");
     private static final String CONTENT_READ_HOST_HEADER = "content-read";
+    private static final String DOC_STORE_HOST_HEADER = "document-store-api";
     private static final String CONTENT_UUID = "8adad508-077b-3795-8569-18e532cabf96";
 
     public static List<VideoSiteConfiguration> DEFAULTS = Arrays.asList(
@@ -109,8 +110,9 @@ public class BodyProcessingStepDefs {
                 resolverClient,
                 1, 2,
                 documentStoreQueryClient,
-                contentReadClient,
                 DOCUMENT_STORE_URI,
+                DOC_STORE_HOST_HEADER,
+                contentReadClient,
                 CONTENT_READ_URI,
                 CONTENT_READ_HOST_HEADER)
                 .newInstance();

@@ -49,6 +49,8 @@ public class BodyProcessingFieldTransformerFactoryTest {
     private static final String TRANSACTION_ID = "tid_test";
     private static final URI CONTENT_READ_URI = URI.create("http://localhost:8080/content-read");
     private static final String CONTENT_READ_HOST_HEADER = "content-read";
+    private static final String DOC_STORE_HOST_HEADER = "document-store-api";
+
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -84,8 +86,9 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 resolverClient,
                 1, 2,
                 documentStoreQueryClient,
-                contentReadClient,
                 DOC_STORE_URI,
+                DOC_STORE_HOST_HEADER,
+                contentReadClient,
                 CONTENT_READ_URI,
                 CONTENT_READ_HOST_HEADER
         ).newInstance();

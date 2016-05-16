@@ -133,6 +133,7 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 
         Client documentStoreClient = Client.create();
         setClientTimeouts(documentStoreClient, documentStoreEndpoint.getJerseyClientConfiguration());
+        String documentStoreHostHeader = configuration.getDocumentStoreConfiguration().getHostHeader();
 
         EndpointConfiguration contentReadEndpoint = configuration.getContentReadConfiguration().getEndpointConfiguration();
         URI contentReadBaseURI = UriBuilder.fromPath(contentReadEndpoint.getPath())
@@ -143,7 +144,6 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 
         Client contentReadClient = Client.create();
         setClientTimeouts(contentReadClient, contentReadEndpoint.getJerseyClientConfiguration());
-
         String contentReadHostHeader = configuration.getContentReadConfiguration().getHostHeader();
 
         int threadPoolSize = configuration.getThreadPoolSize();
@@ -156,8 +156,9 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
                 threadPoolSize,
                 maxLinks,
                 documentStoreClient,
-                contentReadClient,
                 documentStoreBaseURI,
+                documentStoreHostHeader,
+                contentReadClient,
                 contentReadBaseURI,
                 contentReadHostHeader
         )).newInstance();

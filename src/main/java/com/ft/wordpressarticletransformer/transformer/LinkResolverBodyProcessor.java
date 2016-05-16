@@ -94,14 +94,16 @@ public class LinkResolverBodyProcessor
     private final int maxLinks;
     private final String contentReadHostHeader;
     private final ObjectMapper mapper = new ObjectMapper();
+    private final String documentStoreHostHeader;
 
 
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns,
                                      Client resolverClient,
                                      BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
                                      Client documentStoreClient,
-                                     Client contentReadClient,
                                      URI documentStoreBaseURI,
+                                     String documentStoreHostHeader,
+                                     Client contentReadClient,
                                      URI contentReadBaseURI,
                                      String contentReadHostHeader,
                                      int queryThreadPoolSize,
@@ -123,6 +125,7 @@ public class LinkResolverBodyProcessor
         this.contentReadUriBuilder = UriBuilder.fromUri(contentReadBaseURI).path("{uuid}");
 
         this.contentReadHostHeader = contentReadHostHeader;
+        this.documentStoreHostHeader = documentStoreHostHeader;
 
         this.poolSize = queryThreadPoolSize;
         this.maxLinks = maxLinks;
@@ -401,7 +404,7 @@ public class LinkResolverBodyProcessor
 
             LOG.info("query URI: {}", queryURI);
             ClientResponse response = documentStoreClient.resource(queryURI)
-                    .header("Host", "document-store-api")
+                    .header("Host", documentStoreHostHeader)
                     .head();
 
             int status = response.getStatus();

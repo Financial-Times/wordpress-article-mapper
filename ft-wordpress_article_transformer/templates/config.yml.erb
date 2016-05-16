@@ -125,16 +125,17 @@ urlResolverConfiguration:
         primaryNodes: <%=scope.function_hiera(['queryReaderPrimaryNodes','null'])%>
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
   contentReadConfiguration:
-      endpointConfiguration:
-          shortName: "content-read"
-          path: content-read/
-          jerseyClient:
-              timeout: <%=scope.function_hiera(['queryClientTimeout','null'])%>
-          primaryNodes: <%=scope.function_hiera(['queryReaderPrimaryNodes','null'])%>
-          secondaryNodes: null
-          resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
-      hostHeader: "document-store-api"
+    endpointConfiguration:
+        shortName: "content-read"
+        path: content-read/
+        jerseyClient:
+            timeout: <%=scope.function_hiera(['queryClientTimeout','null'])%>
+        primaryNodes: <%=scope.function_hiera(['queryReaderPrimaryNodes','null'])%>
+        secondaryNodes: null
+        resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
 
 
 server:
