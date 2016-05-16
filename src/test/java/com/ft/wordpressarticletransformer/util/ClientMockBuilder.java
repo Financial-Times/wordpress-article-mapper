@@ -49,7 +49,6 @@ public class ClientMockBuilder {
     }
 
     private void mockResolverRedirect(Client resolverClient, URI from, URI to, int status) {
-
         WebResource resolverResource = mock(WebResource.class);
         WebResource.Builder resolverBuilder = mock(WebResource.Builder.class);
         when(resolverClient.resource(from)).thenReturn(resolverResource);
@@ -62,17 +61,6 @@ public class ClientMockBuilder {
         }
         when(resolverBuilder.head()).thenReturn(redirectionResponse);
         when(resolverResource.head()).thenReturn(redirectionResponse);
-
-//        WebResource resolverResource = mock(WebResource.class);
-//        WebResource.Builder resolverBuilder = mock(WebResource.Builder.class);
-//        when(resolverClient.resource(from)).thenReturn(resolverResource);
-//        when(resolverResource.cookie(any(Cookie.class))).thenReturn(resolverBuilder); //THIS IS THE LAST FIX!!!
-//
-//        ClientResponse redirectionResponse = mock(ClientResponse.class);
-//        when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
-//        when(redirectionResponse.getLocation()).thenReturn(to);
-//        when(resolverBuilder.head()).thenReturn(redirectionResponse);
-
     }
 
     public void mockDocumentStoreQuery(Client documentStoreQueryClient, URI queryURI, URI to, int status) {
@@ -107,7 +95,6 @@ public class ClientMockBuilder {
     }
 
     public void mockContentRead(Client contentReadClient, URI contentReadUri, String contentUuid, String hostHeader, int status) {
-
         WebResource contentReadResource = mock(WebResource.class);
         WebResource.Builder contentReadBuilder = mock(WebResource.Builder.class);
         URI contentReadURI = UriBuilder.fromUri(contentReadUri).path("{uuid}").build(contentUuid);
