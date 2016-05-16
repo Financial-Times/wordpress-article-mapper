@@ -5,10 +5,8 @@ import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataM
 import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
 import com.ft.wordpressarticletransformer.util.ClientMockBuilder;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Files;
 import com.sun.jersey.api.client.Client;
 
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
@@ -16,8 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -30,13 +26,11 @@ import ch.qos.logback.classic.Logger;
 import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.assertLogEvent;
 import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.configureMockAppenderFor;
 import static com.ft.wordpressarticletransformer.transformer.LoggingTestHelper.resetLoggingFor;
-import static com.ft.wordpressarticletransformer.util.FileReader.resourceFilePath;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -64,7 +58,6 @@ public class LinkResolverBodyProcessorTest {
     private static final ClientMockBuilder CLIENT_MOCK_BUILDER = new ClientMockBuilder();
 
     private LinkResolverBodyProcessor processor;
-    private String contentReadOutputTemplate;
 
     @Before
     public void setup() {
@@ -74,12 +67,6 @@ public class LinkResolverBodyProcessorTest {
                 new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_ID),
                 new BlogApiEndpointMetadata("somethingelse.ft.com/ablog", brands, BLOG_ID));
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(metadataList);
-
-        try {
-            contentReadOutputTemplate = Files.toString(new File(resourceFilePath("content-read-output-template.json")), Charsets.UTF_8);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
 
         processor = new LinkResolverBodyProcessor(
                 Collections.singleton(SHORT_URL_PATTERN),

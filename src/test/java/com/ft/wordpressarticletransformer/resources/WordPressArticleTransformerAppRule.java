@@ -21,7 +21,7 @@ import java.net.ServerSocket;
 
 import io.dropwizard.testing.junit.DropwizardAppRule;
 
-import static com.ft.wordpressarticletransformer.util.FileReader.resourceFilePath;
+import static com.ft.wordpressarticletransformer.util.TestFileUtil.resourceFilePath;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;

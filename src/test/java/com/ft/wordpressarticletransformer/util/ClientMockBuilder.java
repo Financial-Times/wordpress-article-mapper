@@ -21,7 +21,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
-import static com.ft.wordpressarticletransformer.util.FileReader.resourceFilePath;
+import static com.ft.wordpressarticletransformer.util.TestFileUtil.resourceFilePath;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.junit.Assert.fail;

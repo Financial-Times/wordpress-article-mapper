@@ -4,7 +4,7 @@ import com.google.common.io.Resources;
 
 import java.io.File;
 
-public class FileReader {
+public class TestFileUtil {
     public static String resourceFilePath(String resourceClassPathLocation) {
         File file = null;
         try {
