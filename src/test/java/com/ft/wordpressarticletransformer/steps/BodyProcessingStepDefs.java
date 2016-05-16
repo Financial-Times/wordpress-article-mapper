@@ -11,20 +11,17 @@ import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataM
 import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
 import com.ft.wordpressarticletransformer.transformer.BodyProcessingFieldTransformerFactory;
 import com.ft.wordpressarticletransformer.transformer.StructuredWordPressSourcedBodyXMLEventHandlerRegistry;
+import com.ft.wordpressarticletransformer.util.ClientMockBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.codehaus.stax2.ri.evt.EntityReferenceEventImpl;
 import org.codehaus.stax2.ri.evt.StartElementEventImpl;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,8 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.UriBuilder;
 import javax.xml.namespace.QName;
 
 import cucumber.api.java.Before;
@@ -44,16 +39,13 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class BodyProcessingStepDefs {
 
@@ -82,6 +74,9 @@ public class BodyProcessingStepDefs {
     private static final List<ConvertParameters> CONVERT_PARAMETERS_LIST = ImmutableList.of(CONVERT_PARAMETERS);
     private static final URI DOCUMENT_STORE_URI = URI.create("http://localhost:8080/");
     private static final URI DOCUMENT_STORE_QUERY_URI = DOCUMENT_STORE_URI.resolve("/content-query");
+    private static final URI CONTENT_READ_URI = URI.create("http://localhost:8080/content-read");
+    private static final String CONTENT_READ_HOST_HEADER = "content-read";
+    private static final String CONTENT_UUID = "8adad508-077b-3795-8569-18e532cabf96";
 
     public static List<VideoSiteConfiguration> DEFAULTS = Arrays.asList(
             new VideoSiteConfiguration("https?://www.youtube.com/watch\\?v=(?<id>[A-Za-z0-9_-]+)", "https://www.youtube.com/watch?v=%s", true, T, null, true),
@@ -94,7 +89,7 @@ public class BodyProcessingStepDefs {
 
     private Client resolverClient = mock(Client.class);
     private Client documentStoreQueryClient = mock(Client.class);
-
+    private Client contentReadClient = mock(Client.class);
 
     @Before
     public void setup() {
@@ -111,12 +106,28 @@ public class BodyProcessingStepDefs {
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
                 Collections.singleton(Pattern.compile("https?:\\/\\/on\\.ft\\.com/.*")),
                 blogApiEndpointMetadataManager,
-                resolverClient, 1, 2, documentStoreQueryClient, DOCUMENT_STORE_URI)
+                resolverClient,
+                1, 2,
+                documentStoreQueryClient,
+                contentReadClient,
+                DOCUMENT_STORE_URI,
+                CONTENT_READ_URI,
+                CONTENT_READ_HOST_HEADER)
                 .newInstance();
 
+        ClientMockBuilder clientMockBuilder = new ClientMockBuilder();
+
         URI identifierValue = URI.create("http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/");
-        mockResolverRedirect(URI.create("http://on.ft.com/1NVIQzo"), identifierValue);
-        mockDocumentStoreQuery(URI.create(fastFtAuth), identifierValue, URI.create("http://www.ft.com/content/8adad508-077b-3795-8569-18e532cabf96"));
+        clientMockBuilder.mockResolverRedirect(resolverClient, URI.create("http://on.ft.com/1NVIQzo"), identifierValue);
+        clientMockBuilder.mockDocumentStoreQuery(
+                documentStoreQueryClient,
+                DOCUMENT_STORE_QUERY_URI,
+                URI.create(fastFtAuth),
+                identifierValue,
+                URI.create("http://www.ft.com/content/" + CONTENT_UUID),
+                SC_MOVED_PERMANENTLY
+        );
+        clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, CONTENT_UUID, CONTENT_READ_HOST_HEADER, SC_OK);
 
         registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher);
         rulesAndHandlers = new HashMap<String, String>();
@@ -128,39 +139,6 @@ public class BodyProcessingStepDefs {
         rulesAndHandlers.put("STRIP ELEMENT AND LEAVE CONTENT BY DEFAULT", "StripXMLEventHandler");
     }
 
-    private void mockResolverRedirect(URI from, URI to) {
-        WebResource resolverResource = mock(WebResource.class);
-        WebResource.Builder resolverBuilder = mock(WebResource.Builder.class);
-        when(resolverClient.resource(from)).thenReturn(resolverResource);
-        when(resolverResource.cookie(any(Cookie.class))).thenReturn(resolverBuilder);
-
-        ClientResponse redirectionResponse = mock(ClientResponse.class);
-        when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
-        when(redirectionResponse.getLocation()).thenReturn(to);
-        when(resolverBuilder.head()).thenReturn(redirectionResponse);
-    }
-
-    private void mockDocumentStoreQuery(URI authority, URI identifierValue, URI to) {
-        WebResource queryResource = mock(WebResource.class);
-        WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-        URI queryURI = null;
-        try {
-            queryURI = UriBuilder.fromUri(DOCUMENT_STORE_QUERY_URI)
-                    .queryParam("identifierAuthority", URLEncoder.encode(authority.toASCIIString(), "UTF-8"))
-                    .queryParam("identifierValue", URLEncoder.encode(identifierValue.toASCIIString(), "UTF-8"))
-                    .build();
-        } catch (UnsupportedEncodingException e) {
-            fail(e.getMessage());
-        }
-
-        when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
-        when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
-
-        ClientResponse queryResponse = mock(ClientResponse.class);
-        when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
-        when(queryResponse.getLocation()).thenReturn(to);
-        when(queryBuilder.head()).thenReturn(queryResponse);
-    }
 
     @Given("^I have body (.+?)$")
     public void I_have_body(String html) throws Throwable {

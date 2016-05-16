@@ -4,9 +4,12 @@ import com.ft.bodyprocessing.BodyProcessingContext;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.BodyProcessor;
 import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
+import com.ft.wordpressarticletransformer.exception.ContentReadServiceUnavailableException;
 import com.ft.wordpressarticletransformer.model.Identifier;
+import com.ft.wordpressarticletransformer.model.ReadEndpointContent;
 import com.ft.wordpressarticletransformer.resources.IdentifierBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
@@ -46,6 +49,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -76,20 +81,31 @@ public class LinkResolverBodyProcessor
     private static final Pattern CONTENT_UUID = Pattern.compile(".*\\/content\\/" + UUID_REGEX + "$");
     private static final Pattern HREF_UUID = Pattern.compile(".*ft\\.com\\/\\S*" + UUID_REGEX + ".*");
     private static final Pattern FT_WORDPRESS_URL = Pattern.compile("https?:\\/\\/([^.]+\\.)?[^.]+\\.ft\\.com\\/(\\S*\\/)?\\d{4}\\/\\d{2}\\/\\d{2}\\/.*\\/");
-    private static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";
+    private static final String THING_PREFIX = "http://www.ft.com/thing/";
 
     private final Set<Pattern> urlShortenerPatterns;
     private final IdentifierBuilder identifierBuilder;
     private final Client resolverClient;
     private final Client documentStoreClient;
-    private final UriBuilder documentStoreContentUriBuilder;
+    private final Client contentReadClient;
+    private final UriBuilder contentReadUriBuilder;
     private final URI documentStoreQueryURI;
     private final int poolSize;
     private final int maxLinks;
+    private final String contentReadHostHeader;
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns, Client resolverClient,
+
+    public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns,
+                                     Client resolverClient,
                                      BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
-                                     Client documentStoreClient, URI documentStoreBaseURI, int queryThreadPoolSize, int maxLinks) {
+                                     Client documentStoreClient,
+                                     Client contentReadClient,
+                                     URI documentStoreBaseURI,
+                                     URI contentReadBaseURI,
+                                     String contentReadHostHeader,
+                                     int queryThreadPoolSize,
+                                     int maxLinks) {
 
         this.urlShortenerPatterns = ImmutableSet.copyOf(urlShortenerPatterns);
 
@@ -101,8 +117,13 @@ public class LinkResolverBodyProcessor
         this.documentStoreClient = documentStoreClient;
         this.documentStoreClient.setFollowRedirects(false);
 
-        this.documentStoreContentUriBuilder = UriBuilder.fromUri(documentStoreBaseURI).path("/content/{uuid}");
+        this.contentReadClient = contentReadClient;
+
         this.documentStoreQueryURI = UriBuilder.fromUri(documentStoreBaseURI).path("/content-query").build();
+        this.contentReadUriBuilder = UriBuilder.fromUri(contentReadBaseURI).path("{uuid}");
+
+        this.contentReadHostHeader = contentReadHostHeader;
+
         this.poolSize = queryThreadPoolSize;
         this.maxLinks = maxLinks;
     }
@@ -123,8 +144,8 @@ public class LinkResolverBodyProcessor
             throw new BodyProcessingException(e);
         }
 
-        List<Element> ftContentLinks = new ArrayList<>();
-        List<Element> ftWordpressLinks = new ArrayList<>();
+        List<Element> links = new ArrayList<>();
+
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         try {
@@ -132,26 +153,15 @@ public class LinkResolverBodyProcessor
             for (int i = 0; i < aTags.getLength(); i++) {
                 final Element aTag = (Element) aTags.item(i);
 
-                if (isFTContentLink(aTag)) {
-                    ftContentLinks.add(aTag);
-                } else if (isShortenedLink(aTag) || isFtWordpressLink(aTag)) {
-                    ftWordpressLinks.add(aTag);
+                if (isFTContentLink(aTag) || isShortenedLink(aTag) || isFtWordpressLink(aTag)) {
+                    links.add(aTag);
                 }
             }
 
-            boolean anyLinkChanged = false;
-            for (Element aTag : ftContentLinks) {
-                UUID uuid = extractUUID(aTag);
-                if (uuid != null) {
-                    replaceTag(aTag, uuid);
-                    anyLinkChanged = true;
-                }
-            }
-
-            int linksCount = ftWordpressLinks.size();
+            int linksCount = links.size();
             if (linksCount > maxLinks) {
                 LOG.warn("Article contains too many links to resolve. Omitting {}",
-                        ftWordpressLinks.subList(maxLinks, linksCount).stream()
+                        links.subList(maxLinks, linksCount).stream()
                                 .map(el -> el.getAttribute("href"))
                                 .collect(Collectors.toList()));
 
@@ -159,7 +169,7 @@ public class LinkResolverBodyProcessor
 
             ForkJoinPool pool = new ForkJoinPool(poolSize);
             ForkJoinTask<Boolean> task = pool.submit(() -> {
-                Optional<Boolean> shortLinkChanged = ftWordpressLinks.subList(0, Math.min(linksCount, maxLinks))
+                Optional<Boolean> shortLinkChanged = links.subList(0, Math.min(linksCount, maxLinks))
                         .parallelStream()
                         .map(link -> {
                             try {
@@ -173,7 +183,7 @@ public class LinkResolverBodyProcessor
                 return shortLinkChanged.orElse(false);
             });
 
-            anyLinkChanged |= task.join();
+            boolean anyLinkChanged = task.join();
 
             if (anyLinkChanged) {
                 body = serializeBody(document);
@@ -220,10 +230,6 @@ public class LinkResolverBodyProcessor
             uuid = UUID.fromString(m.group(1));
         }
 
-        if (!validateFTContentExists(uuid)) {
-            uuid = null;
-        }
-
         return uuid;
     }
 
@@ -243,41 +249,85 @@ public class LinkResolverBodyProcessor
     }
 
     private boolean resolveAndReplaceTag(Element aTag) {
-        String url = aTag.getAttribute("href");
 
-        Identifier identifier = resolveToFTIdentifier(URI.create(url));
-        if (identifier.getAuthority() == null) {
-            return false;
+        if (isFTContentLink(aTag)) {
+            UUID uuid = extractUUID(aTag);
+            if (uuid == null) {
+                return false;
+            }
+            return replaceTag(aTag, uuid);
+
+        } else {
+            String url = aTag.getAttribute("href");
+
+            Identifier identifier = resolveToFTIdentifier(URI.create(url));
+            if (identifier.getAuthority() == null) {
+                return false;
+            }
+
+            UUID uuid = findFTContent(identifier);
+            if (uuid == null) {
+                return false;
+            }
+
+            return replaceTag(aTag, uuid);
         }
 
-        UUID uuid = findFTContent(identifier);
-        if (uuid == null) {
-            return false;
-        }
-
-        replaceTag(aTag, uuid);
-        return true;
     }
 
-    private void replaceTag(Element aTag, UUID uuid) {
-        LOG.info("replace link href={} with FT content UUID={}", aTag.getAttribute("href"), uuid);
-        Node parent = aTag.getParentNode();
-        Element content = aTag.getOwnerDocument().createElement("content");
-        content.setAttribute("id", uuid.toString());
-        // TODO should we retrieve the document to get the type and title?
-        content.setAttribute("type", ARTICLE_TYPE);
-        // content.setAttribute("title", title);
+    private boolean replaceTag(Element aTag, UUID uuid) {
 
-        NodeList children = aTag.getChildNodes();
-        Node n = children.item(0);
-        while (n != null) {
-            aTag.removeChild(n);
-            content.appendChild(n);
-            n = children.item(0);
+        ReadEndpointContent readEndpointContent = getReadEndpointContent(uuid);
+
+        if (readEndpointContent != null) {
+            LOG.info("replace link href={} with FT content UUID={}", aTag.getAttribute("href"), uuid);
+
+            Node parent = aTag.getParentNode();
+            Element content = aTag.getOwnerDocument().createElement("content");
+
+
+            content.setAttribute("id", readEndpointContent.getId().replace(THING_PREFIX, ""));
+            content.setAttribute("type", readEndpointContent.getType());
+
+            NodeList children = aTag.getChildNodes();
+            Node n = children.item(0);
+            while (n != null) {
+                aTag.removeChild(n);
+                content.appendChild(n);
+                n = children.item(0);
+            }
+
+            parent.insertBefore(content, aTag);
+            parent.removeChild(aTag);
+            return true;
+        } else {
+            LOG.info("link href={} with FT is NOT replaced with content UUID={}: Content does not exist in document store", aTag.getAttribute("href"), uuid);
+            return false;
+        }
+    }
+
+    private ReadEndpointContent getReadEndpointContent(UUID uuid) {
+        LOG.info("look up content by UUID: {}", uuid);
+        URI contentReadURI = contentReadUriBuilder.build(uuid);
+
+        LOG.info("content read URI: {}", contentReadURI);
+        ClientResponse clientResponse = contentReadClient.resource(contentReadURI)
+                .header("Host", contentReadHostHeader)
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(ClientResponse.class);
+        if (clientResponse.getStatus() == Response.Status.SERVICE_UNAVAILABLE.getStatusCode() ||
+                clientResponse.getStatus() == Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
+            throw new ContentReadServiceUnavailableException(clientResponse.getClientResponseStatus().getReasonPhrase());
         }
 
-        parent.insertBefore(content, aTag);
-        parent.removeChild(aTag);
+        if (clientResponse.getStatus() == Response.Status.OK.getStatusCode()) {
+            try {
+                return mapper.readValue(clientResponse.getEntityInputStream(), ReadEndpointContent.class);
+            } catch (IOException e) {
+                throw new ContentReadServiceUnavailableException(e.getMessage());
+            }
+        }
+        return null;
     }
 
     private Identifier resolveToFTIdentifier(final URI source) {
@@ -337,25 +387,6 @@ public class LinkResolverBodyProcessor
         } while (identifier == null);
 
         return identifier;
-    }
-
-    private boolean validateFTContentExists(UUID uuid) {
-        try {
-            LOG.info("look up content by UUID: {}", uuid);
-            URI queryURI = documentStoreContentUriBuilder.build(uuid);
-
-            LOG.info("query URI: {}", queryURI);
-            ClientResponse response = documentStoreClient.resource(queryURI)
-                    .header("Host", "document-store-api")
-                    .head();
-            int status = response.getStatus();
-            LOG.info("query response: {}", status);
-            return (status == SC_OK);
-        } catch (ClientHandlerException e) {
-            LOG.warn("failed to query document store", e);
-        }
-
-        return false;
     }
 
     private UUID findFTContent(Identifier identifier) {

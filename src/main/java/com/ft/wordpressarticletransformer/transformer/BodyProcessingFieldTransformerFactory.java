@@ -34,12 +34,21 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
     private final URI documentStoreBaseUri;
     private final int resolverThreadPoolSize;
     private final int maxLinks;
-    
+    private final Client contentReadClient;
+    private final URI contentReadBaseUri;
+    private String contentReadHostHeader;
+
     public BodyProcessingFieldTransformerFactory(VideoMatcher videoMatcher,
                                                  Set<Pattern> shortenerPatterns,
                                                  BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
-                                                 Client resolverClient, int resolverThreadPoolSize, int maxLinks,
-                                                 Client documentStoreClient, URI documentStoreBaseUri) {
+                                                 Client resolverClient,
+                                                 int resolverThreadPoolSize,
+                                                 int maxLinks,
+                                                 Client documentStoreClient,
+                                                 Client contentReadClient,
+                                                 URI documentStoreBaseUri,
+                                                 URI contentReadBaseUri,
+                                                 String contentReadHostHeader) {
       
         this.videoMatcher = videoMatcher;
         this.shortenerPatterns = ImmutableSet.copyOf(shortenerPatterns);
@@ -47,7 +56,10 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
         this.resolverClient = resolverClient;
         this.resolverThreadPoolSize = resolverThreadPoolSize;
         this.documentStoreClient = documentStoreClient;
+        this.contentReadClient = contentReadClient;
         this.documentStoreBaseUri = documentStoreBaseUri;
+        this.contentReadBaseUri = contentReadBaseUri;
+        this.contentReadHostHeader = contentReadHostHeader;
         this.maxLinks = maxLinks;
     }
 
@@ -68,9 +80,17 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                 new Html5SelfClosingTagBodyProcessor(),
 				new RegexReplacerBodyProcessor("</p>(\\r?\\n)+<p>", "</p>" + System.lineSeparator() + "<p>"),
                 new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
-                new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
+                new LinkResolverBodyProcessor(
+                        shortenerPatterns,
+                        resolverClient,
                         blogApiEndpointMetadataManager,
-                        documentStoreClient, documentStoreBaseUri, resolverThreadPoolSize, maxLinks)
+                        documentStoreClient,
+                        contentReadClient,
+                        documentStoreBaseUri,
+                        contentReadBaseUri,
+                        contentReadHostHeader,
+                        resolverThreadPoolSize,
+                        maxLinks)
         );
     }
 

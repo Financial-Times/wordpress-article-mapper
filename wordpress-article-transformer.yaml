@@ -113,7 +113,7 @@ nativeReaderConfiguration:
 
 urlResolverConfiguration:
   patterns: ["https?:\\/\\/on\\.ft\\.com/.*","https?:\\/\\/bit\\.ly/.*"]
-  threadPoolSize: 4
+  threadPoolSize: 8
   linksPerThread: 2
   resolverConfiguration:
     timeout: 5000ms
@@ -125,6 +125,18 @@ urlResolverConfiguration:
         primaryNodes: ["localhost:14180:14181"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
+  contentReadConfiguration:
+    endpointConfiguration:
+        shortName: "content-read"
+        path: content-read/
+        jerseyClient:
+            timeout: 5000ms
+        primaryNodes: ["localhost:14180:14181"]
+        secondaryNodes: null
+        resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
+
 
 
 server:
