@@ -1,41 +1,47 @@
 package com.ft.wordpressarticletransformer.resources;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.head;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
-
 import com.ft.wordpressarticletransformer.WordPressArticleTransformerApplication;
 import com.ft.wordpressarticletransformer.configuration.WordPressArticleTransformerConfiguration;
+
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-
-import io.dropwizard.testing.junit.DropwizardAppRule;
-
-import java.io.IOException;
-import java.net.ServerSocket;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
+
+import io.dropwizard.testing.junit.DropwizardAppRule;
+
+import static com.ft.wordpressarticletransformer.util.TestFileUtil.resourceFilePath;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.head;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import static org.junit.Assert.fail;
+
 public class WordPressArticleTransformerAppRule
-    implements TestRule {
-  
-  public static int findAvailableWireMockPort() {
-    try (ServerSocket socket = new ServerSocket(0)) {
-      return socket.getLocalPort();
+        implements TestRule {
+
+    public static int findAvailableWireMockPort() {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            throw new IllegalStateException("unable to find an available port", e);
+        }
     }
-    catch (IOException e) {
-      throw new IllegalStateException("unable to find an available port", e);
-    }
-  }
-  
+
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NUMBER_ENTITY = "5c652c7e-c81e-4be7-8669-adeb5a5621da";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_NO_HTML_NAME_ENTITY = "5c652c7e-c81e-4be7-8669-adeb5a5621dc";
     protected static final String UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS = "5c652c7e-c81e-4be7-8669-adeb5a5621dd";
@@ -59,65 +65,73 @@ public class WordPressArticleTransformerAppRule
 
     private WireMockRule nativeStoreWireMockRule;
     private WireMockRule documentStoreWireMockRule;
-    
-    public WordPressArticleTransformerAppRule(String configurationPath, int nativeRWPort, int documentStorePort) {
-      appRule = new DropwizardAppRule<>(WordPressArticleTransformerApplication.class, configurationPath);
 
-      nativeStoreWireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig()
-          .withRootDirectory("src/test/resources/wordPress")
-          .port(nativeRWPort)
-          );
-      
-      documentStoreWireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig()
-          .port(documentStorePort)
-          );
-      
-      ruleChain = RuleChain
-              .outerRule(nativeStoreWireMockRule)
-              .around(documentStoreWireMockRule)
-              .around(appRule);
+    private String contentReadOutputTemplate;
+
+    public WordPressArticleTransformerAppRule(String configurationPath, int nativeRWPort, int documentStorePort) {
+        appRule = new DropwizardAppRule<>(WordPressArticleTransformerApplication.class, configurationPath);
+
+        nativeStoreWireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig()
+                .withRootDirectory("src/test/resources/wordPress")
+                .port(nativeRWPort)
+        );
+
+        documentStoreWireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig()
+                .port(documentStorePort)
+        );
+
+        ruleChain = RuleChain
+                .outerRule(nativeStoreWireMockRule)
+                .around(documentStoreWireMockRule)
+                .around(appRule);
+
+        try {
+            contentReadOutputTemplate = Files.toString(new File(resourceFilePath("content-read-output-template.json")), Charsets.UTF_8);
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
     }
-    
+
     @Override
     public Statement apply(Statement base, Description description) {
-      final Statement stmt = ruleChain.apply(base, description);
-      
-      return new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-          try {
-            stmt.evaluate();
-          }
-          finally {
-            nativeStoreWireMockRule.shutdown();
-            documentStoreWireMockRule.shutdown();
-          }
-        }
-      };
+        final Statement stmt = ruleChain.apply(base, description);
+
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                try {
+                    stmt.evaluate();
+                } finally {
+                    nativeStoreWireMockRule.shutdown();
+                    documentStoreWireMockRule.shutdown();
+                }
+            }
+        };
     }
 
     public int getWordPressArticleTransformerLocalPort() {
         return appRule.getLocalPort();
     }
-    
-    public void mockDocumentStoreContentResponse(String uuid, int status) {
-      MappingBuilder request = head(urlPathEqualTo("/content/" + uuid));
-      
-      ResponseDefinitionBuilder response = aResponse().withStatus(status);
-      
-      documentStoreWireMockRule.stubFor(request.willReturn(response));
+
+    public void mockContentReadResponse(String uuid, int status) {
+        MappingBuilder request = get(urlPathEqualTo("/content-read/" + uuid));
+        String contentReadOutput = String.format(contentReadOutputTemplate, uuid, uuid, uuid);
+        ResponseDefinitionBuilder response = aResponse().withStatus(status).withBody(contentReadOutput);
+
+        documentStoreWireMockRule.stubFor(request.willReturn(response));
     }
-    
+
     public void mockDocumentStoreQueryResponse(String authority, String identifierValue, int status, String location) {
-      MappingBuilder request = head(urlPathEqualTo("/content-query"))
-          .withQueryParam("identifierAuthority", equalTo(authority))
-          .withQueryParam("identifierValue", equalTo(identifierValue));
-      
-      ResponseDefinitionBuilder response = aResponse().withStatus(status);
-      if ((status == SC_MOVED_PERMANENTLY) || (status == SC_MOVED_TEMPORARILY)) {
-        response = response.withHeader("Location", location);
-      }
-      
-      documentStoreWireMockRule.stubFor(request.willReturn(response));
+        MappingBuilder request = head(urlPathEqualTo("/content-query"))
+                .withQueryParam("identifierAuthority", equalTo(authority))
+                .withQueryParam("identifierValue", equalTo(identifierValue));
+
+        ResponseDefinitionBuilder response = aResponse().withStatus(status);
+        if ((status == SC_MOVED_PERMANENTLY) || (status == SC_MOVED_TEMPORARILY)) {
+            response = response.withHeader("Location", location);
+        }
+
+        documentStoreWireMockRule.stubFor(request.willReturn(response));
     }
+
 }

@@ -29,17 +29,33 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
     private final VideoMatcher videoMatcher;
     private final Set<Pattern> shortenerPatterns;
     private final BlogApiEndpointMetadataManager blogApiEndpointMetadataManager;
+
     private final Client resolverClient;
+
     private final Client documentStoreClient;
     private final URI documentStoreBaseUri;
+    private String documentStoreHostHeader;
+
+    private final Client contentReadClient;
+    private final URI contentReadBaseUri;
+    private String contentReadHostHeader;
+
     private final int resolverThreadPoolSize;
     private final int maxLinks;
-    
+
+
     public BodyProcessingFieldTransformerFactory(VideoMatcher videoMatcher,
                                                  Set<Pattern> shortenerPatterns,
                                                  BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
-                                                 Client resolverClient, int resolverThreadPoolSize, int maxLinks,
-                                                 Client documentStoreClient, URI documentStoreBaseUri) {
+                                                 Client resolverClient,
+                                                 int resolverThreadPoolSize,
+                                                 int maxLinks,
+                                                 Client documentStoreClient,
+                                                 URI documentStoreBaseUri,
+                                                 String documentStoreHostHeader,
+                                                 Client contentReadClient,
+                                                 URI contentReadBaseUri,
+                                                 String contentReadHostHeader) {
       
         this.videoMatcher = videoMatcher;
         this.shortenerPatterns = ImmutableSet.copyOf(shortenerPatterns);
@@ -47,7 +63,11 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
         this.resolverClient = resolverClient;
         this.resolverThreadPoolSize = resolverThreadPoolSize;
         this.documentStoreClient = documentStoreClient;
+        this.contentReadClient = contentReadClient;
         this.documentStoreBaseUri = documentStoreBaseUri;
+        this.contentReadBaseUri = contentReadBaseUri;
+        this.contentReadHostHeader = contentReadHostHeader;
+        this.documentStoreHostHeader = documentStoreHostHeader;
         this.maxLinks = maxLinks;
     }
 
@@ -68,9 +88,18 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                 new Html5SelfClosingTagBodyProcessor(),
 				new RegexReplacerBodyProcessor("</p>(\\r?\\n)+<p>", "</p>" + System.lineSeparator() + "<p>"),
                 new RegexReplacerBodyProcessor("</p> +<p>", "</p><p>"),
-                new LinkResolverBodyProcessor(shortenerPatterns, resolverClient,
+                new LinkResolverBodyProcessor(
+                        shortenerPatterns,
+                        resolverClient,
                         blogApiEndpointMetadataManager,
-                        documentStoreClient, documentStoreBaseUri, resolverThreadPoolSize, maxLinks)
+                        documentStoreClient,
+                        documentStoreBaseUri,
+                        documentStoreHostHeader,
+                        contentReadClient,
+                        contentReadBaseUri,
+                        contentReadHostHeader,
+                        resolverThreadPoolSize,
+                        maxLinks)
         );
     }
 

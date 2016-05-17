@@ -57,24 +57,24 @@ public class WordPressArticleTransformerResourceTest {
     private static final int DOC_STORE_PORT;
 
     static {
-      NATIVERW_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
-      DOC_STORE_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
+        NATIVERW_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
+        DOC_STORE_PORT = WordPressArticleTransformerAppRule.findAvailableWireMockPort();
 
-      Map<String, Object> hieraData = new HashMap<>();
-      hieraData.put("httpPort", "22040");
-      hieraData.put("adminPort", "22041");
-      hieraData.put("jerseyClientTimeout", "5000ms");
-      hieraData.put("nativeReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", NATIVERW_PORT, NATIVERW_PORT));
-      hieraData.put("queryClientTimeout", "5000ms");
-      hieraData.put("queryReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", DOC_STORE_PORT, DOC_STORE_PORT));
-      hieraData.put("alphavilleHost", "localhost");
+        Map<String, Object> hieraData = new HashMap<>();
+        hieraData.put("httpPort", "22040");
+        hieraData.put("adminPort", "22041");
+        hieraData.put("jerseyClientTimeout", "5000ms");
+        hieraData.put("nativeReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", NATIVERW_PORT, NATIVERW_PORT));
+        hieraData.put("queryClientTimeout", "5000ms");
+        hieraData.put("queryReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", DOC_STORE_PORT, DOC_STORE_PORT));
+        hieraData.put("alphavilleHost", "localhost");
 
         try {
-        ErbTemplatingHelper.generateConfigFile("ft-wordpress_article_transformer/templates/config.yml.erb", hieraData,
-            CONFIG_FILE);
-      } catch (Exception e) {
-        throw new ExceptionInInitializerError(e);
-      }
+            ErbTemplatingHelper.generateConfigFile("ft-wordpress_article_transformer/templates/config.yml.erb", hieraData,
+                    CONFIG_FILE);
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
     }
 
     @ClassRule
@@ -115,14 +115,17 @@ public class WordPressArticleTransformerResourceTest {
 
     @Test
     public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPress() {
-      wordPressArticleTransformerAppRule.mockDocumentStoreContentResponse(
-          "3fcac834-58ce-11e4-a31b-00144feab7de", SC_OK);
-      
-      wordPressArticleTransformerAppRule.mockDocumentStoreQueryResponse(
-          "http://api.ft.com/system/FT-LABS-WP-1-335",
-          "http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/",
-          SC_MOVED_PERMANENTLY, "https://next.ft.com/content/8adad508-077b-3795-8569-18e532cabf96");
-      
+        wordPressArticleTransformerAppRule.mockContentReadResponse(
+                "3fcac834-58ce-11e4-a31b-00144feab7de", SC_OK);
+
+        wordPressArticleTransformerAppRule.mockDocumentStoreQueryResponse(
+                "http://api.ft.com/system/FT-LABS-WP-1-335",
+                "http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/",
+                SC_MOVED_PERMANENTLY, "https://next.ft.com/content/8adad508-077b-3795-8569-18e532cabf96");
+
+
+
+
         final URI uri = buildTransformerUrl(UUID_MAP_TO_REQUEST_TO_WORD_PRESS_200_OK_SUCCESS);
 
         final ClientResponse clientResponse = client.resource(uri).get(ClientResponse.class);
@@ -133,8 +136,8 @@ public class WordPressArticleTransformerResourceTest {
         assertThat("body", receivedContent.getBody(), allOf(
                 containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "),
                 containsString("<content id=\"3fcac834-58ce-11e4-a31b-00144feab7de\"")
-            ));
-        
+        ));
+
         assertThat("byline", receivedContent.getByline(), is(equalTo("FT Labs Administrator, Jan Majek, Adam Braimbridge")));
         assertThat("brands", receivedContent.getBrands(), hasItem(ALPHA_VILLE_BRAND));
         assertThat("identifier", receivedContent.getIdentifiers(), hasItem(new Identifier("http://api.ft.com/system/FT-LABS-WP-1-24", "http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/")));

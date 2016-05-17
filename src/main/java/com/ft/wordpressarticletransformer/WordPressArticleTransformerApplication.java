@@ -133,15 +133,35 @@ public class WordPressArticleTransformerApplication extends Application<WordPres
 
         Client documentStoreClient = Client.create();
         setClientTimeouts(documentStoreClient, documentStoreEndpoint.getJerseyClientConfiguration());
+        String documentStoreHostHeader = configuration.getDocumentStoreConfiguration().getHostHeader();
 
+        EndpointConfiguration contentReadEndpoint = configuration.getContentReadConfiguration().getEndpointConfiguration();
+        URI contentReadBaseURI = UriBuilder.fromPath(contentReadEndpoint.getPath())
+                .scheme("http")
+                .host(contentReadEndpoint.getHost())
+                .port(contentReadEndpoint.getPort())
+                .build();
+
+        Client contentReadClient = Client.create();
+        setClientTimeouts(contentReadClient, contentReadEndpoint.getJerseyClientConfiguration());
+        String contentReadHostHeader = configuration.getContentReadConfiguration().getHostHeader();
 
         int threadPoolSize = configuration.getThreadPoolSize();
         int maxLinks = threadPoolSize * configuration.getLinksPerThread();
-        return (BodyProcessingFieldTransformer) (new BodyProcessingFieldTransformerFactory(videoMatcher,
+        return (BodyProcessingFieldTransformer) (new BodyProcessingFieldTransformerFactory(
+                videoMatcher,
                 configuration.getPatterns(),
                 blogApiEndpointMetadataManager,
-                resolverClient, threadPoolSize, maxLinks,
-                documentStoreClient, documentStoreBaseURI)).newInstance();
+                resolverClient,
+                threadPoolSize,
+                maxLinks,
+                documentStoreClient,
+                documentStoreBaseURI,
+                documentStoreHostHeader,
+                contentReadClient,
+                contentReadBaseURI,
+                contentReadHostHeader
+        )).newInstance();
     }
 
     private void setClientTimeouts(Client client, JerseyClientConfiguration config) {

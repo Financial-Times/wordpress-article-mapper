@@ -1,0 +1,24 @@
+{
+  "id": "http://www.ft.com/thing/%s",
+  "type": "http://www.ft.com/ontology/content/Article",
+  "bodyXML": "<body>Bla, bla, bla...</body>",
+  "title": "Water companies press for tax exemption",
+  "byline": "Vanessa Houlder",
+  "identifiers": [
+    {
+      "authority": "http://api.ft.com/system/FTCOM-METHODE",
+      "identifierValue": "%s"
+    }
+  ],
+  "requestUrl": "http://dynpub-uk-up-read.ft.com/content/d7db73ec-cf53-11e5-92a1-c5e23ef99c77",
+  "brands": [
+    "http://api.ft.com/things/%s"
+  ],
+  "mainImage": {
+    "id": "http://dynpub-uk-up-read.ft.com/content/db125bec-9a75-11e5-0c4e-107cd9a0d095"
+  },
+  "comments": {
+    "enabled": true
+  },
+  "publishReference": "tid_4hmar16qsx"
+}

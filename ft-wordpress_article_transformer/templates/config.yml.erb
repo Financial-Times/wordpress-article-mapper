@@ -113,8 +113,8 @@ nativeReaderConfiguration:
 
 urlResolverConfiguration:
   patterns: ["https?:\\/\\/on\\.ft\\.com/.*","https?:\\/\\/bit\\.ly/.*"]
-  threadPoolSize: <%=scope.function_hiera(['resolverThreadPoolSize','4'])%>
-  linksPerThread: <%=scope.function_hiera(['resolverLinksPerThread','2'])%>
+  threadPoolSize: <%=scope.function_hiera(['resolverThreadPoolSize','8'])%>
+  linksPerThread: <%=scope.function_hiera(['resolverLinksPerThread','4'])%>
   resolverConfiguration:
     timeout: 5000ms
   documentStoreConfiguration:
@@ -125,6 +125,17 @@ urlResolverConfiguration:
         primaryNodes: <%=scope.function_hiera(['queryReaderPrimaryNodes','null'])%>
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
+  contentReadConfiguration:
+    endpointConfiguration:
+        shortName: "content-read"
+        path: content-read/
+        jerseyClient:
+            timeout: <%=scope.function_hiera(['queryClientTimeout','null'])%>
+        primaryNodes: <%=scope.function_hiera(['queryReaderPrimaryNodes','null'])%>
+        secondaryNodes: null
+        resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
 
 
 server:

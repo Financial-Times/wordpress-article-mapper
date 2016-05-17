@@ -16,6 +16,7 @@
         <junit.version>4.11</junit.version>
         <mockito-core.version>1.9.5</mockito-core.version>
         <jersey-version>1.18.1</jersey-version>
+        <guava.version>19.0</guava.version>
         <!-- Plugins -->
         <maven-pmd-plugin.version>3.0.1</maven-pmd-plugin.version>
         <jacoco-maven-plugin.version>0.7.2.201409121644</jacoco-maven-plugin.version>
@@ -94,6 +95,11 @@
             <artifactId>dropwizard-testing</artifactId>
             <version>${dw.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>

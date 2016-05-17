@@ -7,12 +7,11 @@ import com.ft.bodyprocessing.richcontent.VideoMatcher;
 import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.wordpressarticletransformer.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticletransformer.resources.BlogApiEndpointMetadata;
+import com.ft.wordpressarticletransformer.util.ClientMockBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
@@ -23,27 +22,21 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import javax.ws.rs.core.UriBuilder;
-
 import static com.ft.wordpressarticletransformer.transformer.LinkResolverBodyProcessorTest.ARTICLE_TYPE;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,6 +47,11 @@ public class BodyProcessingFieldTransformerFactoryTest {
     private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
     private static final URI DOC_STORE_QUERY_URI = DOC_STORE_URI.resolve("/content-query");
     private static final String TRANSACTION_ID = "tid_test";
+    private static final URI CONTENT_READ_URI = URI.create("http://localhost:8080/content-read");
+    private static final String CONTENT_READ_HOST_HEADER = "content-read";
+    private static final String DOC_STORE_HOST_HEADER = "document-store-api";
+
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private FieldTransformer bodyTransformer;
@@ -63,6 +61,8 @@ public class BodyProcessingFieldTransformerFactoryTest {
     private Client resolverClient;
     @Mock
     private Client documentStoreQueryClient;
+    @Mock
+    private Client contentReadClient;
     private Video exampleYouTubeVideo;
     private Video exampleVimeoVideo;
 
@@ -83,7 +83,15 @@ public class BodyProcessingFieldTransformerFactoryTest {
         bodyTransformer = new BodyProcessingFieldTransformerFactory(videoMatcher,
                 Collections.singleton(Pattern.compile("http:\\/\\/short\\.example\\.com\\/.*")),
                 blogApiEndpointMetadataManager,
-                resolverClient, 1, 2, documentStoreQueryClient, DOC_STORE_URI).newInstance();
+                resolverClient,
+                1, 2,
+                documentStoreQueryClient,
+                DOC_STORE_URI,
+                DOC_STORE_HOST_HEADER,
+                contentReadClient,
+                CONTENT_READ_URI,
+                CONTENT_READ_HOST_HEADER
+        ).newInstance();
     }
 
     @Test
@@ -415,35 +423,18 @@ public class BodyProcessingFieldTransformerFactoryTest {
         String expectedTransformed = "<body><p>Blah blah blah <content id=\"" + ftContentUUID
                 + "\" type=\"" + ARTICLE_TYPE + "\">usw</content> ...</p></body>";
 
-        WebResource resolverBuilder = mock(WebResource.class);
-        when(resolverClient.resource(URI.create(shortUrl))).thenReturn(resolverBuilder);
+        ClientMockBuilder clientMockBuilder = new ClientMockBuilder();
 
-        ClientResponse redirectionResponse = mock(ClientResponse.class);
-        when(redirectionResponse.getStatus()).thenReturn(SC_MOVED_TEMPORARILY);
-        when(redirectionResponse.getLocation()).thenReturn(URI.create(resolvedIdentifier));
-        when(resolverBuilder.head()).thenReturn(redirectionResponse);
+        clientMockBuilder.mockResolverRedirect(resolverClient, URI.create(shortUrl), URI.create(resolvedIdentifier));
+        clientMockBuilder.mockDocumentStoreQuery(
+                documentStoreQueryClient,
+                DOC_STORE_QUERY_URI,
+                URI.create(BLOG_AUTHORITY),
+                URI.create(resolvedIdentifier),
+                URI.create("http://www.ft.com/content/" + ftContentUUID.toString()),
+                SC_MOVED_PERMANENTLY);
 
-        WebResource queryResource = mock(WebResource.class);
-        WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
-
-        URI queryURI = null;
-        try {
-            queryURI = UriBuilder.fromUri(DOC_STORE_QUERY_URI)
-                    .queryParam("identifierAuthority", URLEncoder.encode(BLOG_AUTHORITY, "UTF-8"))
-                    .queryParam("identifierValue", URLEncoder.encode(URI.create(resolvedIdentifier).toASCIIString(), "UTF-8"))
-                    .build();
-        } catch (UnsupportedEncodingException e) {
-            fail(e.getMessage());
-        }
-
-        when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
-        when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
-
-        ClientResponse queryResponse = mock(ClientResponse.class);
-        when(queryResponse.getStatus()).thenReturn(SC_MOVED_PERMANENTLY);
-        when(queryResponse.getLocation()).thenReturn(URI.create("http://www.ft.com/content/" + ftContentUUID));
-        when(queryBuilder.head()).thenReturn(queryResponse);
-
+        clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_OK);
         checkTransformation(bodyWithShortLink, expectedTransformed);
     }
 
