@@ -113,8 +113,8 @@ nativeReaderConfiguration:
 
 urlResolverConfiguration:
   patterns: ["https?:\\/\\/on\\.ft\\.com/.*","https?:\\/\\/bit\\.ly/.*"]
-  threadPoolSize: 4
-  linksPerThread: 8
+  threadPoolSize: 8
+  linksPerThread: 4
   resolverConfiguration:
     timeout: 5000ms
   documentStoreConfiguration:
