@@ -8,6 +8,7 @@ import com.ft.wordpressarticletransformer.resources.IdentifierBuilder;
 import com.ft.wordpressarticletransformer.response.Post;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.UUID;
 
@@ -23,7 +24,9 @@ public class WordPressLiveBlogContentTransformer
     
     @Override
     protected WordPressLiveBlogContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate,
-                                                   SortedSet<Brand> brands, SortedSet<Identifier> identifiers, Date lastModified) {
+                                                   SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
+                                                   UUID featuredImageUuid, Date lastModified) {
+      
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder)WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
                 .withIdentifiers(identifiers)
@@ -32,6 +35,7 @@ public class WordPressLiveBlogContentTransformer
                 .withPublishedDate(publishedDate)
                 .withBrands(brands)
                 .withComments(createComments(post.getCommentStatus()))
+                .withMainImage(Objects.toString(featuredImageUuid, null))
                 .withPublishReference(transactionId)
                 .withLastModified(lastModified);
         

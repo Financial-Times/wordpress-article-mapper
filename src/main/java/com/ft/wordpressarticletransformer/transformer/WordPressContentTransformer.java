@@ -53,9 +53,11 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
         SortedSet<Brand> brands = new TreeSet<>(extractBrand(requestUri));
 
         SortedSet<Identifier> identifiers = generateIdentifiers(requestUri, post);
+        UUID featuredImageUuid = createMainImageUuid(post);
 
         LOG.info("Returning content for uuid [{}].", uuid);
-        return doTransform(transactionId, post, uuid, publishedDate, brands, identifiers, lastModified);
+        return doTransform(transactionId, post, uuid, publishedDate, brands, identifiers,
+            featuredImageUuid, lastModified);
     }
 
     private SortedSet<Identifier> generateIdentifiers(URI requestUri, Post post) {
@@ -69,7 +71,8 @@ public abstract class WordPressContentTransformer<C extends WordPressContent> {
     }
 
     protected abstract C doTransform(String transactionId, Post post, UUID uuid, Date publishedDate,
-                                     SortedSet<Brand> brands, SortedSet<Identifier> identifiers, Date lastModified);
+                                     SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
+                                     UUID featuredImageUuid, Date lastModified);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
