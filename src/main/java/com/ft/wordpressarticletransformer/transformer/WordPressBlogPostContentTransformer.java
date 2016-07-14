@@ -37,13 +37,13 @@ public class WordPressBlogPostContentTransformer
     
     @Override
     protected WordPressBlogPostContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate,
-                                                   SortedSet<Brand> brands, SortedSet<Identifier> identifiers, Date lastModified) {
+                                                   SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
+                                                   UUID featuredImageUuid, Date lastModified) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
             throw new UnpublishablePostException(uuid.toString(), "Not a valid WordPress article for publication - body of post is empty");
         }
         body = wrapBody(body);
-        UUID featuredImageUuid = createMainImageUuid(post);
         
         WordPressBlogPostContent.Builder builder = (WordPressBlogPostContent.Builder)WordPressBlogPostContent.builder()
                 .withUuid(uuid).withTitle(unescapeHtml4(post.getTitle()))
