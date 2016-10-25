@@ -1,6 +1,6 @@
 {
     "status": "ok",
-    "apiUrl": "http://localhost:8080/fake-url",
+    "apiUrl": "http://uat.ftalphaville.ft.com/fake-url",
     "post": {
         "id": 2014692,
         "type": "post",

@@ -5,21 +5,18 @@ import com.ft.wordpressarticletransformer.model.Brand;
 import com.ft.wordpressarticletransformer.model.Identifier;
 import com.ft.wordpressarticletransformer.model.WordPressBlogPostContent;
 import com.ft.wordpressarticletransformer.model.WordPressContent;
-
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.ws.rs.core.UriBuilder;
 
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_NO_REQUEST_TO_WORD_PRESS_EXPECTED;
 import static com.ft.wordpressarticletransformer.resources.WordPressArticleTransformerAppRule.UUID_MAP_TO_REQUEST_TO_WORDPRESS_NO_APIURL_ON_RESPONSE;
@@ -67,7 +64,7 @@ public class WordPressArticleTransformerResourceTest {
         hieraData.put("nativeReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", NATIVERW_PORT, NATIVERW_PORT));
         hieraData.put("queryClientTimeout", "5000ms");
         hieraData.put("queryReaderPrimaryNodes", String.format("[\"localhost:%s:%s\"]", DOC_STORE_PORT, DOC_STORE_PORT));
-        hieraData.put("alphavilleHost", "localhost");
+        hieraData.put("alphavilleHost", "uat.ftalphaville.ft.com");
 
         try {
             ErbTemplatingHelper.generateConfigFile("ft-wordpress_article_transformer/templates/config.yml.erb", hieraData,
