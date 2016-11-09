@@ -50,7 +50,7 @@ blogApiEndpointMetadata:
     - host: blogs.ft.com/westminster
       brands: ["http://api.ft.com/things/5e5dba2b-8031-4a65-b193-84a58882c62e","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-12
-    - host: <%=scope.function_hiera(['alphavilleHost','ftalphaville.ft.com'])%>
+    - host: ftalphaville.ft.com
       brands: ["http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-24
     - host: blogs.ft.com/mba-blog
@@ -99,72 +99,48 @@ blogApiEndpointMetadata:
       brands: ["http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-335
 
-nativeReaderConfiguration:
-    endpointConfiguration:
-        shortName: "nativeStore"
-        path: wordpress/{uuid}
-        jerseyClient:
-            timeout: <%=scope.function_hiera(['jerseyClientTimeout','null'])%>
-        primaryNodes: <%=scope.function_hiera(['nativeReaderPrimaryNodes','null'])%>
-        secondaryNodes: <%=scope.function_hiera(['nativeReaderSecondaryNodes','null'])%>
-        resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
-    numberOfConnectionAttempts: 3
-    timeoutMultiplier: 1000
-
 urlResolverConfiguration:
   patterns: ["https?:\\/\\/on\\.ft\\.com/.*","https?:\\/\\/bit\\.ly/.*"]
-  threadPoolSize: <%=scope.function_hiera(['resolverThreadPoolSize','8'])%>
-  linksPerThread: <%=scope.function_hiera(['resolverLinksPerThread','4'])%>
+  threadPoolSize: 8
+  linksPerThread: 4
   resolverConfiguration:
     timeout: 5000ms
   documentStoreConfiguration:
     endpointConfiguration:
         shortName: "documentStore"
         jerseyClient:
-            timeout: <%=scope.function_hiera(['queryClientTimeout','null'])%>
-        primaryNodes: <%=scope.function_hiera(['queryReaderPrimaryNodes','null'])%>
+            timeout: 5000ms
+        primaryNodes: ["localhost:8080"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
     hostHeader: "document-store-api"
   contentReadConfiguration:
     endpointConfiguration:
         shortName: "content-read"
-        path: content-read/
+        path: content/
         jerseyClient:
-            timeout: <%=scope.function_hiera(['queryClientTimeout','null'])%>
-        primaryNodes: <%=scope.function_hiera(['queryReaderPrimaryNodes','null'])%>
+            timeout: 5000ms
+        primaryNodes: ["localhost:8080"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
     hostHeader: "document-store-api"
 
+contentUriPrefix: http://wordpress-article-mapper.svc.ft.com/content
 
 server:
 
   applicationConnectors:
     - type: http
-      port: <%=scope.function_hiera(['httpPort','8080'])%>
+      port: 14080
 
   adminConnectors:
       - type: http
-        port: <%=scope.function_hiera(['adminPort','8081'])%>
+        port: 14081
 
   requestLog:
 
     appenders:
-
-      - type: file
-
-        # The file to which current statements will be logged.
-        currentLogFilename: /var/log/apps/wordpressarticlemapper-dw-access.log
-
-        # When the log file rotates, the archived log will be renamed to this and gzipped. The
-        # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
-        # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
-        archivedLogFilenamePattern: /var/log/apps/wordpressarticlemapper-dw-access-%d.log.gz
-
-        # The number of archived files to keep.
-        archivedFileCount: 6
-
+      - type: console
         # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
         timeZone: UTC
 
@@ -176,22 +152,42 @@ logging:
     io.dropwizard: DEBUG
 
   appenders:
-
-    - type: file
+    - type: console
       logFormat: "%-5p [%d{ISO8601, GMT}] %c: %X{transaction_id} %m [%thread]%n%xEx"
-      # Do not write log statements below this threshold to the file.
-      threshold: ALL
 
-      # The file to which current statements will be logged.
-      currentLogFilename: /var/log/apps/wordpressarticlemapper-dw-app.log
+consumer:
+  jerseyClient:
+    connectionTimeout: 2 seconds
+    timeout: 25 seconds
+  messageConsumer:
+    queueProxyHost: http://localhost:8080
+    queue: kafka
+    topicName: NativeCmsPublicationEvents
+    groupName: WordpressArticleMapper
+    backoffPeriod: 10000
+    streamCount: 1
+    autoCommit: true
+    offsetReset: largest
+  healthCheck:
+    name: "Can connect consumer to kafka-proxy"
+    severity: 2
+    businessImpact: "Newly published Wordpress articles will not be available from the Content API"
+    technicalSummary: "Tests that kafka-proxy is reachable and message can be consumed"
+    panicGuideUrl: "https://panic.example.org/"
+  systemCode: wordpress
 
-      # When the log file rotates, the archived log will be renamed to this and gzipped. The
-      # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
-      # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
-      archivedLogFilenamePattern: /var/log/apps/wordpressarticlemapper-dw-app-%d.log.gz
-
-      # The number of archived files to keep.
-      archivedFileCount: 5
-
-      # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
-      timeZone: UTC
+producer:
+    jerseyClient:
+      connectionTimeout: 2 seconds
+      timeout: 25 seconds
+    messageProducer:
+      proxyHostAndPort: localhost:8080
+      additionalHeaders:
+        Host: kafka
+      topicName: CmsPublicationEvents
+    healthCheck:
+      name: "Can connect producer to kafka-proxy"
+      severity: 2
+      businessImpact: "Newly published Wordpress articles will not be available from the Content API"
+      technicalSummary: "Tests that kafka-proxy is reachable and the CmsPublicationEvents topic exists"
+      panicGuideUrl: "https://panic.example.org/"
