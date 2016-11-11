@@ -21,13 +21,13 @@ public class WordPressLiveBlogContentMapper
     public WordPressLiveBlogContentMapper(BrandSystemResolver brandSystemResolver, IdentifierBuilder identifierBuilder) {
         super(brandSystemResolver, identifierBuilder);
     }
-    
+
     @Override
-    protected WordPressLiveBlogContent doTransform(String transactionId, Post post, UUID uuid, Date publishedDate,
-                                                   SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
-                                                   UUID featuredImageUuid, Date lastModified) {
-      
-        WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder)WordPressLiveBlogContent.builder()
+    protected WordPressLiveBlogContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
+                                                 SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
+                                                 UUID featuredImageUuid, Date lastModified) {
+
+        WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder) WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
                 .withIdentifiers(identifiers)
                 .withTitle(unescapeHtml4(post.getTitle()))
@@ -38,7 +38,7 @@ public class WordPressLiveBlogContentMapper
                 .withMainImage(Objects.toString(featuredImageUuid, null))
                 .withPublishReference(transactionId)
                 .withLastModified(lastModified);
-        
+
         return builder.build();
     }
 }

@@ -2,23 +2,21 @@ package com.ft.wordpressarticlemapper.messaging;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ft.api.jaxrs.errors.ServerError;
 import com.ft.messagequeueproducer.MessageProducer;
 import com.ft.messagequeueproducer.model.KeyedMessage;
 import com.ft.messaging.standards.message.v1.Message;
 import com.ft.wordpressarticlemapper.exception.WordPressContentException;
 import com.ft.wordpressarticlemapper.exception.WordPressContentTypeException;
 import com.ft.wordpressarticlemapper.model.WordPressContent;
-import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
-import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Post;
 import com.ft.wordpressarticlemapper.response.WordPressPostType;
-import com.ft.wordpressarticlemapper.transformer.*;
+import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
+import com.ft.wordpressarticlemapper.transformer.WordPressContentMapper;
+import com.ft.wordpressarticlemapper.transformer.WordPressLiveBlogContentMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
@@ -27,9 +25,8 @@ import java.util.stream.Collectors;
 
 import static com.ft.api.util.transactionid.TransactionIdUtils.TRANSACTION_ID_HEADER;
 import static java.time.ZoneOffset.UTC;
-import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 
-public class MessageProducingContentMapper implements ContentMapper {
+public class MessageProducingContentMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageProducingContentMapper.class);
     private static final String CMS_CONTENT_PUBLISHED = "cms-content-published";
@@ -43,23 +40,22 @@ public class MessageProducingContentMapper implements ContentMapper {
     private final WordPressBlogPostContentMapper blogTransformer;
     private final WordPressLiveBlogContentMapper liveBlogTransformer;
 
-    public MessageProducingContentMapper(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
-                                         BrandSystemResolver brandSystemResolver,
-                                         IdentifierBuilder identifierBuilder,
+    public MessageProducingContentMapper(WordPressBlogPostContentMapper blogTransformer,
+                                         WordPressLiveBlogContentMapper liveBlogTransformer,
                                          ObjectMapper objectMapper, String systemId,
                                          MessageProducer producer, UriBuilder contentUriBuilder) {
-        this.blogTransformer = new WordPressBlogPostContentMapper(brandSystemResolver, bodyProcessingFieldTransformer, identifierBuilder);
-        this.liveBlogTransformer = new WordPressLiveBlogContentMapper(brandSystemResolver, identifierBuilder);
+        this.blogTransformer = blogTransformer;
+        this.liveBlogTransformer = liveBlogTransformer;
         this.objectMapper = objectMapper;
         this.systemId = systemId;
         this.producer = producer;
         this.contentUriBuilder = contentUriBuilder;
     }
 
-    @Override
-    public WordPressContent mapWordPressArticle(String transactionId, URI requestUri, Post post, Date lastModified) {
+
+    public WordPressContent getWordPressArticleMessage(String transactionId, Post post, Date lastModified) {
         List<WordPressContent> contents = Collections.singletonList(
-                mapperFor(post).mapWordPressArticle(transactionId, requestUri, post, lastModified));
+                mapperFor(post).mapWordPressArticle(transactionId, post, lastModified));
         producer.send(contents.stream().map(this::createMessage).collect(Collectors.toList()));
         LOG.info("sent {} messages", contents.size());
         return contents.get(0);
@@ -68,13 +64,14 @@ public class MessageProducingContentMapper implements ContentMapper {
     private Message createMessage(WordPressContent content) {
         Message msg;
         LOG.info("Last Modified Date is: " + content.getLastModified());
-        try {
-            Map<String, Object> messageBody = new LinkedHashMap<>();
-            messageBody.put("contentUri", contentUriBuilder.build(content.getUuid()).toString());
-            messageBody.put("payload", content);
-            String lastModified = RFC3339_FMT.format(OffsetDateTime.ofInstant(content.getLastModified().toInstant(), UTC));
-            messageBody.put("lastModified", lastModified);
 
+        Map<String, Object> messageBody = new LinkedHashMap<>();
+        messageBody.put("contentUri", contentUriBuilder.build(content.getUuid()).toString());
+        messageBody.put("payload", content);
+        String lastModified = RFC3339_FMT.format(OffsetDateTime.ofInstant(content.getLastModified().toInstant(), UTC));
+        messageBody.put("lastModified", lastModified);
+
+        try {
             msg = new Message.Builder().withMessageId(UUID.randomUUID())
                     .withMessageType(CMS_CONTENT_PUBLISHED)
                     .withMessageTimestamp(new Date())

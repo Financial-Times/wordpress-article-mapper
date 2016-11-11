@@ -17,12 +17,12 @@ import com.google.common.collect.ImmutableSortedSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 
 public class WordPressBlogPostContentTransformerTest {
     private static final String TX_ID = "junitTransaction";
-    private static final URI REQUEST_URI = URI.create("http://junit.example.org/");
     private static final String POST_URL = "http://junit.example.org/some-post/";
     private static final UUID POST_UUID = UUID.randomUUID();
     private static final OffsetDateTime PUBLISHED_DATE = OffsetDateTime.parse("2015-09-30T15:30:00.000Z");
@@ -53,20 +52,19 @@ public class WordPressBlogPostContentTransformerTest {
     private static final String COMMENTS_OPEN = "open";
     private static final String IMAGE_URL = "http://www.example.com/images/junit.jpg";
     private static final Date LAST_MODIFIED = new Date();
-    private static final Pattern EMBEDDED_IMAGE_REGEX = Pattern.compile("(.+)(<content.*</content>)(.+)");
-    private static final String IMAGE_SET_TYPE = "http://www.ft.com/ontology/content/ImageSet";
 
-    private WordPressBlogPostContentMapper transformer;
+    private WordPressBlogPostContentMapper mapper;
     private BrandSystemResolver brandResolver = mock(BrandSystemResolver.class);
     private BodyProcessingFieldTransformer bodyTransformer = mock(BodyProcessingFieldTransformer.class);
     private IdentifierBuilder identifierBuilder = mock(IdentifierBuilder.class);
 
     @Before
     public void setUp() {
-        transformer = new WordPressBlogPostContentMapper(brandResolver, bodyTransformer, identifierBuilder);
+        mapper = new WordPressBlogPostContentMapper(brandResolver, bodyTransformer, identifierBuilder);
 
-        when(brandResolver.getBrand(REQUEST_URI)).thenReturn(BRANDS);
-        when(identifierBuilder.buildIdentifiers(eq(REQUEST_URI), any(Post.class))).thenReturn(IDENTIFIERS);
+        URI requestUri = UriBuilder.fromUri(POST_URL).build();
+        when(brandResolver.getBrand(requestUri)).thenReturn(BRANDS);
+        when(identifierBuilder.buildIdentifiers(eq(requestUri), any(Post.class))).thenReturn(IDENTIFIERS);
         AUTHOR.setName(AUTHOR_NAME);
 
         when(bodyTransformer.transform(WRAPPED_BODY, TX_ID)).thenReturn(WRAPPED_BODY);
@@ -83,8 +81,9 @@ public class WordPressBlogPostContentTransformerTest {
         post.setContent(BODY_TEXT);
         post.setExcerpt(BODY_OPENING);
         post.setCommentStatus(COMMENTS_OPEN);
+        post.setUuid(POST_UUID.toString());
 
-        WordPressBlogPostContent actual = transformer.mapWordPressArticle(TX_ID, REQUEST_URI, post, LAST_MODIFIED);
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
@@ -112,6 +111,7 @@ public class WordPressBlogPostContentTransformerTest {
         post.setContent(BODY_TEXT);
         post.setExcerpt(BODY_OPENING);
         post.setCommentStatus(COMMENTS_OPEN);
+        post.setUuid(POST_UUID.toString());
         WordPressImage fullSizeImage = new WordPressImage();
         fullSizeImage.setUrl(IMAGE_URL);
         MainImage mainImage = new MainImage();
@@ -121,13 +121,13 @@ public class WordPressBlogPostContentTransformerTest {
         UUID imageModelUuid = ImageModelUuidGenerator.fromURL(new URL(IMAGE_URL));
         String imageSetUuid = ImageSetUuidGenerator.fromImageUuid(imageModelUuid).toString();
 
-        WordPressBlogPostContent actual = transformer.mapWordPressArticle(TX_ID, REQUEST_URI, post, LAST_MODIFIED);
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
 
-        checkBodyXml("body", WRAPPED_BODY, imageSetUuid, actual.getBody());
-        checkBodyXml("opening", WRAPPED_BODY_OPENING, imageSetUuid, actual.getOpening());
+        checkBodyXml("body", WRAPPED_BODY, actual.getBody());
+        checkBodyXml("opening", WRAPPED_BODY_OPENING, actual.getOpening());
         assertThat("identifier authority", actual.getIdentifiers().first().getAuthority(), is(equalTo(SYSTEM_ID)));
         assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));
         assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
@@ -138,7 +138,7 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
     }
 
-    private void checkBodyXml(String fieldName, String expected, String imageSetUuid, String actual)
+    private void checkBodyXml(String fieldName, String expected, String actual)
             throws Exception {
 
         assertThat(fieldName, actual, is(equalTo(expected)));
@@ -154,8 +154,9 @@ public class WordPressBlogPostContentTransformerTest {
         post.setUrl(POST_URL);
         post.setContent(BODY_TEXT);
         post.setCommentStatus(COMMENTS_OPEN);
+        post.setUuid(POST_UUID.toString());
 
-        WordPressBlogPostContent actual = transformer.mapWordPressArticle(TX_ID, REQUEST_URI, post, LAST_MODIFIED);
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
@@ -178,8 +179,9 @@ public class WordPressBlogPostContentTransformerTest {
         post.setUrl(POST_URL);
         post.setContent(BODY_TEXT);
         post.setCommentStatus(COMMENTS_OPEN);
+        post.setUuid(POST_UUID.toString());
 
-        WordPressBlogPostContent actual = transformer.mapWordPressArticle(TX_ID, REQUEST_URI, post, LAST_MODIFIED);
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("byline", actual.getByline(), is(nullValue()));
@@ -202,8 +204,9 @@ public class WordPressBlogPostContentTransformerTest {
         post.setAuthors(Collections.singletonList(AUTHOR));
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
+        post.setUuid(POST_UUID.toString());
 
-        transformer.mapWordPressArticle(TX_ID, REQUEST_URI, post, LAST_MODIFIED);
+        mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
     }
 
     @Test(expected = UntransformablePostException.class)
@@ -218,7 +221,8 @@ public class WordPressBlogPostContentTransformerTest {
         post.setAuthors(Collections.singletonList(AUTHOR));
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
+        post.setUuid(POST_UUID.toString());
 
-        transformer.mapWordPressArticle(TX_ID, REQUEST_URI, post, LAST_MODIFIED);
+        mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
     }
 }

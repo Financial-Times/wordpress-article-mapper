@@ -15,25 +15,20 @@ import com.ft.wordpressarticlemapper.response.Post;
 import com.ft.wordpressarticlemapper.response.WordPressImage;
 import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
 import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
-public abstract class WordPressContentMapper<C extends WordPressContent> implements ContentMapper{
+public abstract class WordPressContentMapper<C extends WordPressContent> {
     private static final Logger LOG = LoggerFactory.getLogger(WordPressContentMapper.class);
 
     private static final DateTimeFormatter PUBLISH_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX");
@@ -47,8 +42,13 @@ public abstract class WordPressContentMapper<C extends WordPressContent> impleme
         this.identifierBuilder = identifierBuilder;
     }
 
-    @Override
-    public C mapWordPressArticle(String transactionId, URI requestUri, Post post, Date lastModified) {
+    public C mapWordPressArticle(String transactionId, Post post, Date lastModified) {
+        String postUrl = post.getUrl();
+        if (postUrl == null) {
+            throw new IllegalArgumentException("No post Url supplied");
+        }
+        URI requestUri = UriBuilder.fromUri(postUrl).build();
+
         Date publishedDate = extractPublishedDate(requestUri, post);
 
         SortedSet<Brand> brands = new TreeSet<>(extractBrand(requestUri));
@@ -58,8 +58,8 @@ public abstract class WordPressContentMapper<C extends WordPressContent> impleme
 
         UUID uuid = UUID.fromString(post.getUuid());
         LOG.info("Returning content for uuid [{}].", uuid);
-        return doTransform(transactionId, post, uuid, publishedDate, brands, identifiers,
-            featuredImageUuid, lastModified);
+        return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
+                featuredImageUuid, lastModified);
     }
 
     private SortedSet<Identifier> generateIdentifiers(URI requestUri, Post post) {
@@ -72,9 +72,9 @@ public abstract class WordPressContentMapper<C extends WordPressContent> impleme
         return identifiers;
     }
 
-    protected abstract C doTransform(String transactionId, Post post, UUID uuid, Date publishedDate,
-                                     SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
-                                     UUID featuredImageUuid, Date lastModified);
+    protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
+                                   SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
+                                   UUID featuredImageUuid, Date lastModified);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
@@ -119,28 +119,28 @@ public abstract class WordPressContentMapper<C extends WordPressContent> impleme
     protected Comments createComments(String commentStatus) {
         return new Comments(COMMENT_OPEN_STATUS.equals(commentStatus));
     }
-    
+
     protected UUID createMainImageUuid(Post post) {
-      MainImage img = post.getMainImage();
-      if (img == null) {
-        LOG.debug("no main image for post {}", post.getUuid());
-        return null;
-      }
-      
-      WordPressImage fullImage = img.getImages().get("full");
-      if (fullImage == null) {
-        LOG.warn("no full-size image for post {}", post.getUuid());
-        return null;
-      }
-      
-      String imageUrl = fullImage.getUrl();
-      try {
-        URL u = new URL(imageUrl);
-        UUID imageModelUuid = ImageModelUuidGenerator.fromURL(u);
-        return ImageSetUuidGenerator.fromImageUuid(imageModelUuid);
-      } catch (MalformedURLException e) {
-        LOG.error("unable to construct UUID for featured image", e);
-        throw new WordPressContentException("unable to construct UUID for featured image", e);
-      }
+        MainImage img = post.getMainImage();
+        if (img == null) {
+            LOG.debug("no main image for post {}", post.getUuid());
+            return null;
+        }
+
+        WordPressImage fullImage = img.getImages().get("full");
+        if (fullImage == null) {
+            LOG.warn("no full-size image for post {}", post.getUuid());
+            return null;
+        }
+
+        String imageUrl = fullImage.getUrl();
+        try {
+            URL u = new URL(imageUrl);
+            UUID imageModelUuid = ImageModelUuidGenerator.fromURL(u);
+            return ImageSetUuidGenerator.fromImageUuid(imageModelUuid);
+        } catch (MalformedURLException e) {
+            LOG.error("unable to construct UUID for featured image", e);
+            throw new WordPressContentException("unable to construct UUID for featured image", e);
+        }
     }
 }

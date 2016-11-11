@@ -3,19 +3,13 @@ package com.ft.wordpressarticlemapper.resources;
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticlemapper.model.Identifier;
 import com.ft.wordpressarticlemapper.response.Post;
-
 import com.google.common.collect.ImmutableSet;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -85,11 +79,11 @@ public class IdentifierBuilderTest {
     public void setUp() {
 
         List<BlogApiEndpointMetadata> blogApiEndpointMetadata = new ArrayList<>();
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(ALPHA_VILLE_HOST, new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND)), ALPHA_VILLE_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(OTHER_HOST, new HashSet<>(Arrays.asList(OTHER_BRAND)), OTHER_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(THIRD_HOST, new HashSet<>(Arrays.asList(THIRD_BRAND)), THIRD_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(FINAL_HOST, new HashSet<>(Arrays.asList(FINAL_BRAND)), FINAL_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(BEYONDBRICS_HOST, new HashSet<>(Arrays.asList(BEYONDBRICS_BRAND)), BEYONDBRICS_CODE));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(ALPHA_VILLE_HOST, new HashSet<>(Collections.singletonList(ALPHA_VILLE_BRAND)), ALPHA_VILLE_CODE));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(OTHER_HOST, new HashSet<>(Collections.singletonList(OTHER_BRAND)), OTHER_CODE));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(THIRD_HOST, new HashSet<>(Collections.singletonList(THIRD_BRAND)), THIRD_CODE));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(FINAL_HOST, new HashSet<>(Collections.singletonList(FINAL_BRAND)), FINAL_CODE));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(BEYONDBRICS_HOST, new HashSet<>(Collections.singletonList(BEYONDBRICS_BRAND)), BEYONDBRICS_CODE));
         blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(COMPOUND_HOST, new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND, OTHER_BRAND)), ALPHA_VILLE_CODE));
 
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(blogApiEndpointMetadata);

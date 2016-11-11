@@ -8,10 +8,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -39,11 +36,11 @@ public class BrandSystemResolverTest {
     public void setUp() {
 
         List<BlogApiEndpointMetadata> blogApiEndpointMetadata = new ArrayList<>();
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("ftalphaville.ft.com", new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND.getId())), ALPHA_VILLE_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("othersite.ft.com", new HashSet<>(Arrays.asList(OTHER_BRAND.getId())), OTHER_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("thirdsite.ft.com", new HashSet<>(Arrays.asList(THIRD_BRAND.getId())), THIRD_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("finalsite.ft.com", new HashSet<>(Arrays.asList(FINAL_BRAND.getId())), FINAL_ID));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/beyond-brics", new HashSet<>(Arrays.asList(BEYONDBRICS_BRAND.getId())), BEYONDBRICS_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("ftalphaville.ft.com", new HashSet<>(Collections.singletonList(ALPHA_VILLE_BRAND.getId())), ALPHA_VILLE_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("othersite.ft.com", new HashSet<>(Collections.singletonList(OTHER_BRAND.getId())), OTHER_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("thirdsite.ft.com", new HashSet<>(Collections.singletonList(THIRD_BRAND.getId())), THIRD_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("finalsite.ft.com", new HashSet<>(Collections.singletonList(FINAL_BRAND.getId())), FINAL_ID));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/beyond-brics", new HashSet<>(Collections.singletonList(BEYONDBRICS_BRAND.getId())), BEYONDBRICS_ID));
         blogApiEndpointMetadata.add(new BlogApiEndpointMetadata("blogs.ft.com/compound/", new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND.getId(), OTHER_BRAND.getId())), ALPHA_VILLE_ID));
 
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(blogApiEndpointMetadata);

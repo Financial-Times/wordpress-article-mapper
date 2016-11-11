@@ -7,11 +7,11 @@ import com.ft.wordpressarticlemapper.model.WordPressContent;
 import com.ft.wordpressarticlemapper.response.NativeWordPressContent;
 import com.ft.wordpressarticlemapper.response.Post;
 import com.ft.wordpressarticlemapper.response.WordPressPostType;
-import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
 import com.ft.wordpressarticlemapper.transformer.WordPressContentMapper;
 import com.ft.wordpressarticlemapper.transformer.WordPressLiveBlogContentMapper;
+import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -19,8 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 
@@ -55,15 +53,8 @@ public class WordPressArticleMapperResource {
 
     private WordPressContent getWordPressContent(NativeWordPressContent nativeWordPressContent, String transactionId) {
         validator.validateWordPressContent(nativeWordPressContent);
-
         Post postDetails = nativeWordPressContent.getPost();
-        String postUrl = postDetails.getUrl();
-        if (postUrl == null) {
-            throw new IllegalArgumentException("No post Url supplied");
-        }
-
-        URI requestUri = UriBuilder.fromUri(postUrl).build();
-        return transformerFor(postDetails).mapWordPressArticle(transactionId, requestUri, postDetails, nativeWordPressContent.getLastModified());
+        return transformerFor(postDetails).mapWordPressArticle(transactionId, postDetails, nativeWordPressContent.getLastModified());
     }
 
     private WordPressContentMapper<?> transformerFor(Post post) {

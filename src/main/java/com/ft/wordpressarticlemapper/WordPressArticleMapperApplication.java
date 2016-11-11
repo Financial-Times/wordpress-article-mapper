@@ -20,10 +20,11 @@ import com.ft.wordpressarticlemapper.health.RemoteServiceDependencyHealthCheck;
 import com.ft.wordpressarticlemapper.messaging.MessageProducingContentMapper;
 import com.ft.wordpressarticlemapper.messaging.NativeCmsPublicationEventsListener;
 import com.ft.wordpressarticlemapper.resources.*;
-import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformerFactory;
-import com.ft.wordpressarticlemapper.transformer.ContentMapper;
+import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
+import com.ft.wordpressarticlemapper.transformer.WordPressLiveBlogContentMapper;
+import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
 import com.sun.jersey.api.client.Client;
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -83,13 +84,25 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
         final MessageProducer producer = configureMessageProducer(environment, configuration.getProducerConfiguration());
         final UriBuilder contentUriBuilder = UriBuilder.fromUri(configuration.getContentUriPrefix()).path("{uuid}");
 
-        ContentMapper contentMapper = new MessageProducingContentMapper(
-                getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration(), blogApiEndpointMetadataManager),
-                new BrandSystemResolver(blogApiEndpointMetadataManager), new IdentifierBuilder(blogApiEndpointMetadataManager),
-                objectMapper, configuration.getConsumerConfiguration().getSystemCode(), producer, contentUriBuilder);
+        BodyProcessingFieldTransformer bodyProcessingFieldTransformer = getBodyProcessingFieldTransformer(
+                videoMatcher,
+                configuration.getUrlResolverConfiguration(),
+                blogApiEndpointMetadataManager);
 
-        MessageListener listener = configureMessageConsumer(contentMapper, objectMapper,
-                configuration.getConsumerConfiguration().getSystemCode(), validator);
+        BrandSystemResolver brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadataManager);
+
+        IdentifierBuilder identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
+
+        MessageProducingContentMapper contentMapper = new MessageProducingContentMapper(
+                new WordPressBlogPostContentMapper(brandSystemResolver, bodyProcessingFieldTransformer, identifierBuilder),
+                new WordPressLiveBlogContentMapper(brandSystemResolver, identifierBuilder),
+                objectMapper,
+                configuration.getConsumerConfiguration().getSystemCode(),
+                producer,
+                contentUriBuilder);
+
+        String systemCode = configuration.getConsumerConfiguration().getSystemCode();
+        MessageListener listener = new NativeCmsPublicationEventsListener(contentMapper, objectMapper, systemCode, validator);
 
         startListener(environment, listener, configuration.getConsumerConfiguration(), consumerClient);
 
@@ -106,7 +119,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
         environment.servlets().addFilter("Transaction ID Filter",
                 new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
         environment.servlets().addFilter("Transaction ID Filter",
-                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/mapWordPressArticle-html-fragment/*");
+                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/getWordPressArticleMessage-html-fragment/*");
 
     }
 
@@ -181,12 +194,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
                 .build();
     }
 
-    private MessageListener configureMessageConsumer(ContentMapper contentMapper, ObjectMapper objectMapper, String systemCode,
-                                                     NativeWordPressContentValidator validator) {
-        return new NativeCmsPublicationEventsListener(contentMapper, objectMapper, systemCode, validator);
-    }
-
-    private void startListener(Environment environment, MessageListener listener, ConsumerConfiguration config, Client consumerClient) {
+    protected void startListener(Environment environment, MessageListener listener, ConsumerConfiguration config, Client consumerClient) {
         final MessageQueueConsumerInitializer messageQueueConsumerInitializer =
                 new MessageQueueConsumerInitializer(config.getMessageQueueConsumerConfiguration(),
                         listener, consumerClient);

@@ -8,13 +8,10 @@ import com.ft.wordpressarticlemapper.exception.WordPressContentException;
 import com.ft.wordpressarticlemapper.response.NativeWordPressContent;
 import com.ft.wordpressarticlemapper.response.Post;
 import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
-import com.ft.wordpressarticlemapper.transformer.ContentMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Date;
 import java.util.function.Predicate;
 
@@ -25,10 +22,10 @@ public class NativeCmsPublicationEventsListener implements MessageListener {
     private final Predicate<Message> filter;
     private final ObjectMapper objectMapper;
     private final SystemId systemId;
-    private final ContentMapper contentMapper;
+    private final MessageProducingContentMapper contentMapper;
     private final NativeWordPressContentValidator validator;
 
-    public NativeCmsPublicationEventsListener(ContentMapper contentMapper,
+    public NativeCmsPublicationEventsListener(MessageProducingContentMapper contentMapper,
                                               ObjectMapper objectMapper,
                                               String systemCode,
                                               NativeWordPressContentValidator nativeWordPressContentValidator) {
@@ -58,15 +55,10 @@ public class NativeCmsPublicationEventsListener implements MessageListener {
             Post post = content.getPost();
             LOG.info("Importing content [{}] of type [{}] .", post.getUuid(), post.getType());
             LOG.info("Event for {}.", post.getUuid());
-            String postUrl = post.getUrl();
-            if (postUrl == null) {
-                throw new IllegalArgumentException("No post Url supplied");
-            }
-            URI requestUri = UriBuilder.fromUri(postUrl).build();
             Date lastModified = message.getMessageTimestamp();
-            contentMapper.mapWordPressArticle(transactionId, requestUri, post, lastModified);
+            contentMapper.getWordPressArticleMessage(transactionId, post, lastModified);
         } catch (IOException e) {
-            throw new WordPressContentException("Unable to parse Methode content message", e);
+            throw new WordPressContentException("Unable to parse Wordpress content message", e);
         }
     }
 

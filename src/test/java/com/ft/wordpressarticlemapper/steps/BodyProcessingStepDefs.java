@@ -132,7 +132,7 @@ public class BodyProcessingStepDefs {
         clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, CONTENT_UUID, CONTENT_READ_HOST_HEADER, SC_OK);
 
         registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher);
-        rulesAndHandlers = new HashMap<String, String>();
+        rulesAndHandlers = new HashMap<>();
         rulesAndHandlers.put("STRIP ELEMENT AND CONTENTS", "StripElementAndContentsXMLEventHandler");
         rulesAndHandlers.put("STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
         rulesAndHandlers.put("RETAIN ELEMENT AND REMOVE ATTRIBUTES", "RetainWithoutAttributesXMLEventHandler");

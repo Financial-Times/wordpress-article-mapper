@@ -1,0 +1,73 @@
+{
+  "status": "ok",
+  "apiUrl": "http://uat.ftalphaville.ft.com/fake-url",
+  "post": {
+    "id": 2014692,
+    "type": "post",
+    "slug": "the-6am-london-cut-277",
+    "url": "http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/",
+    "status": "publish",
+    "title": "The 6am London Cut",
+    "title_plain": "The 6am London Cut",
+    "content": "<p><strong>Markets: </strong>Bourses around Asia were mixed following news that China’s gross domestic product expanded at its slowest pace since the first quarter of 2009, and after a choppy session on Wall Street. The figure raises concerns about global growth prospects, and increases the likelihood of Beijing introducing more stimulus measures. The latest quarterly numbers mean China’s economy this year is almost certain to register its slowest annual growth pace since 1990. However, the reading beat analysts’ consensus estimate of 7.2 per cent, prompting bourses most exposed to the country to heave a sigh of relief. Japan’s Nikkei fell, having on Monday risen nearly 4 per cent – its biggest one-day gain since June 2013 – following local media reports that Japan’s $1.2tn public pension fund was likely to increase its holding of domestic stocks.(<a href=\"http://www.ft.com/intl/cms/s/0/3fcac834-58ce-11e4-a31b-00144feab7de.html#axzz3GeO0Su00\" target=\"_blank\">FT&#8217;s Global Markets Overview</a>)</p>\n",
+    "excerpt": "<p><strong>Markets: </strong>Bourses around Asia were mixed following news that China’s gross domestic product expanded at its slowest pace since the first quarter of 2009, and after a choppy session on Wall Street. The figure raises concerns about global growth prospects, and increases the likelihood of Beijing introducing more stimulus measures. The latest quarterly numbers mean China’s economy this year is almost certain to register its slowest annual growth pace since 1990. However, the reading beat analysts’ consensus estimate of 7.2 per cent, prompting bourses most exposed to the country to heave a sigh of relief. Japan’s Nikkei fell, having on Monday risen nearly 4 per cent – its biggest one-day gain since June 2013 – following local media reports that Japan’s $1.2tn public pension fund was likely to increase its holding of domestic stocks.(<a href=\"http://www.ft.com/intl/cms/s/0/3fcac834-58ce-11e4-a31b-00144feab7de.html#axzz3GeO0Su00\" target=\"_blank\">FT&#8217;s Global Markets Overview</a>)</p>\n",
+    "date": "2014-10-21 05:45:30",
+    "modified": "2014-10-21 09:45:30",
+    "date_gmt": "2014-10-21 04:45:30",
+    "modified_gmt": "2014-10-21 08:45:30",
+    "categories": [],
+    "tags": [],
+    "authors": [
+      {
+        "id": 1,
+        "slug": "Assanka-2",
+        "name": "FT Labs Administrator",
+        "first_name": "",
+        "last_name": "",
+        "nickname": "FT Labs Administrator",
+        "url": "",
+        "description": ""
+      },
+      {
+        "id": 6992,
+        "slug": "janmajek",
+        "name": "Jan Majek",
+        "first_name": "Jan",
+        "last_name": "Majek",
+        "nickname": "janmajek",
+        "url": "",
+        "description": ""
+      },
+      {
+        "id": 3481,
+        "slug": "adambraimbridge",
+        "name": "Adam Braimbridge",
+        "first_name": "Adam",
+        "last_name": "Braimbridge",
+        "nickname": "adambraimbridge",
+        "url": "",
+        "description": "Developer for the Financial Times."
+      }
+    ],
+    "comments": [],
+    "attachments": [],
+    "comment_count": 0,
+    "comment_status": "open",
+    "custom_fields": {
+      "assanka_mockingbird": [
+        "yes_mockingbird"
+      ],
+      "ftblogs_access": [
+        "1"
+      ],
+      "assanka_atompush": [
+        "no_atompush"
+      ],
+      "emailscrape_include": [
+        "1"
+      ]
+    },
+    "uuid": "bb918201-2058-38a5-bd70-be8126200f2d"
+  },
+  "previous_url": "http://uat.ftalphaville.ft.com/2014/10/20/2014292/the-closer-477/"
+}
