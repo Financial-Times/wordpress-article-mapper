@@ -1,8 +1,8 @@
 package com.ft.wordpressarticlemapper.resources;
 
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
+import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.ft.wordpressarticlemapper.model.Brand;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -94,7 +94,6 @@ public class BrandSystemResolverTest {
     public void testShouldReturnTwoBrandsWhenKnownRequestUriForNestedBrandLevelsIsPassed() throws URISyntaxException {
         assertThat(brandSystemResolver.getBrand(new URI("http://blogs.ft.com/compound/api/get_post/?id=135790")), containsInAnyOrder(ALPHA_VILLE_BRAND, OTHER_BRAND));
     }
-
 
 
 }

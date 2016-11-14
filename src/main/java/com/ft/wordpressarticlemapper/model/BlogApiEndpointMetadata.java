@@ -1,13 +1,10 @@
-package com.ft.wordpressarticlemapper.resources;
-
-import com.ft.wordpressarticlemapper.model.Brand;
+package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.validation.constraints.NotNull;
 
 public class BlogApiEndpointMetadata {
     private final String host;

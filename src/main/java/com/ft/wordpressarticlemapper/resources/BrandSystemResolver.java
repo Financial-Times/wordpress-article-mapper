@@ -1,6 +1,7 @@
 package com.ft.wordpressarticlemapper.resources;
 
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
+import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.ft.wordpressarticlemapper.model.Brand;
 
 import java.net.URI;

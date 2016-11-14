@@ -1,6 +1,6 @@
 package com.ft.wordpressarticlemapper.configuration;
 
-import com.ft.wordpressarticlemapper.resources.BlogApiEndpointMetadata;
+import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 
 import java.net.URI;
 import java.util.List;

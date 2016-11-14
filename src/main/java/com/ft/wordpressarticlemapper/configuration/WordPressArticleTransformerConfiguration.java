@@ -2,7 +2,7 @@ package com.ft.wordpressarticlemapper.configuration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
-import com.ft.wordpressarticlemapper.resources.BlogApiEndpointMetadata;
+import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.google.common.base.Objects;
 import io.dropwizard.Configuration;
 
