@@ -1,4 +1,4 @@
-package com.ft.wordpressarticlemapper.resources;
+package com.ft.wordpressarticlemapper.component;
 
 import com.ft.message.consumer.MessageListener;
 import com.ft.messagequeueproducer.MessageProducer;

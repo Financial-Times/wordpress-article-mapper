@@ -40,7 +40,7 @@ public class NativeWordPressContentValidator {
 
         String status = nativeWordPressContent.getStatus();
         if (status == null) {
-            throw new InvalidResponseException("Response not a valid NativeWordPressContent. Response status is null");
+            throw new InvalidResponseException("Native WordPress content is not valid. Status is null");
         }
         String uuid =  nativeWordPressContent.getPost().getUuid();
         WordPressStatus wordPressStatus;

@@ -54,11 +54,11 @@ public class MessageProducingContentMapper {
 
 
     public WordPressContent getWordPressArticleMessage(String transactionId, Post post, Date lastModified) {
-        List<WordPressContent> contents = Collections.singletonList(
-                mapperFor(post).mapWordPressArticle(transactionId, post, lastModified));
+        WordPressContent content = mapperFor(post).mapWordPressArticle(transactionId, post, lastModified);
+        List<WordPressContent> contents = Collections.singletonList(content);
         producer.send(contents.stream().map(this::createMessage).collect(Collectors.toList()));
         LOG.info("sent {} messages", contents.size());
-        return contents.get(0);
+        return content;
     }
 
     private Message createMessage(WordPressContent content) {

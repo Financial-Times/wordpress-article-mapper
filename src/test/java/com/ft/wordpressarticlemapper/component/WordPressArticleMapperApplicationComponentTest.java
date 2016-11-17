@@ -8,7 +8,6 @@ import com.ft.messaging.standards.message.v1.SystemId;
 import com.ft.wordpressarticlemapper.exception.UnpublishablePostException;
 import com.ft.wordpressarticlemapper.exception.UntransformablePostException;
 import com.ft.wordpressarticlemapper.exception.WordPressContentException;
-import com.ft.wordpressarticlemapper.resources.WordPressArticleMapperAppRule;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.*;
@@ -86,7 +85,7 @@ public class WordPressArticleMapperApplicationComponentTest {
 
         message.addCustomMessageHeader(TRANSACTION_ID_HEADER, TRANSACTION_ID);
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
 
         ArgumentCaptor<List> sent = ArgumentCaptor.forClass(List.class);
 
@@ -122,7 +121,7 @@ public class WordPressArticleMapperApplicationComponentTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("No content supplied");
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
     }
 
     @Test
@@ -133,7 +132,7 @@ public class WordPressArticleMapperApplicationComponentTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("No content supplied");
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
     }
 
     @Test
@@ -143,7 +142,7 @@ public class WordPressArticleMapperApplicationComponentTest {
 
         thrown.expect(UnpublishablePostException.class);
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
     }
 
     @Test
@@ -154,7 +153,7 @@ public class WordPressArticleMapperApplicationComponentTest {
         thrown.expect(WordPressContentException.class);
         thrown.expectMessage("Unable to parse Wordpress content message");
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
     }
 
     @Test
@@ -165,7 +164,7 @@ public class WordPressArticleMapperApplicationComponentTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("No apiUrl supplied");
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
     }
 
     @Test
@@ -176,7 +175,7 @@ public class WordPressArticleMapperApplicationComponentTest {
         thrown.expect(UntransformablePostException.class);
         thrown.expectMessage("Not a valid WordPress article for publication - body of transformed post is empty");
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
     }
 
 
@@ -206,7 +205,7 @@ public class WordPressArticleMapperApplicationComponentTest {
         Message message = getMessage(
                 "wordPress/__files/wordpress-content-read-error.json");
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
         ArgumentCaptor<List> sent = ArgumentCaptor.forClass(List.class);
 
         verify(producer, times(1)).send(sent.capture());
@@ -220,7 +219,7 @@ public class WordPressArticleMapperApplicationComponentTest {
         wordPressArticleMapperAppRule.mockDocumentStoreQueryResponse(AUTHORITY, IDENTIFIER_VALUE, SC_NOT_FOUND, StringUtils.EMPTY);
         Message message = getMessage("wordPress/__files/wordpress-content-document-store-api-error.json");
 
-        assertThat(listener.onMessage(message, TRANSACTION_ID), equalTo(true));
+        listener.onMessage(message, TRANSACTION_ID);
 
         ArgumentCaptor<List> sent = ArgumentCaptor.forClass(List.class);
 
