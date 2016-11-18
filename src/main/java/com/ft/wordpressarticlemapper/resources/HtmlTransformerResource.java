@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.UUID;
 
 
-@Path("/getWordPressArticleMessage-html-fragment")
+@Path("/transform-html-fragment")
 public class HtmlTransformerResource {
 
     private BodyProcessingFieldTransformer bodyProcessingFieldTransformer;

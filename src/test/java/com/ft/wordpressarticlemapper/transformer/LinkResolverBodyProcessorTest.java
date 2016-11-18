@@ -20,10 +20,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import static com.ft.wordpressarticlemapper.transformer.LoggingTestHelper.*;
-import static javax.servlet.http.HttpServletResponse.*;
+import static com.ft.wordpressarticlemapper.transformer.LoggingTestHelper.assertLogEvent;
+import static com.ft.wordpressarticlemapper.transformer.LoggingTestHelper.configureMockAppenderFor;
+import static com.ft.wordpressarticlemapper.transformer.LoggingTestHelper.resetLoggingFor;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.apache.http.HttpStatus.SC_MOVED_PERMANENTLY;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class LinkResolverBodyProcessorTest {
     static final String ARTICLE_TYPE = "http://www.ft.com/ontology/content/Article";

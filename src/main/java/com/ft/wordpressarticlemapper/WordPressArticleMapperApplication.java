@@ -14,12 +14,20 @@ import com.ft.message.consumer.MessageQueueConsumerInitializer;
 import com.ft.messagequeueproducer.MessageProducer;
 import com.ft.messagequeueproducer.QueueProxyProducer;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
-import com.ft.wordpressarticlemapper.configuration.*;
+import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
+import com.ft.wordpressarticlemapper.configuration.ConsumerConfiguration;
+import com.ft.wordpressarticlemapper.configuration.ProducerConfiguration;
+import com.ft.wordpressarticlemapper.configuration.UrlResolverConfiguration;
+import com.ft.wordpressarticlemapper.configuration.WordPressArticleTransformerConfiguration;
 import com.ft.wordpressarticlemapper.health.CanConnectToMessageQueueProducerProxyHealthcheck;
 import com.ft.wordpressarticlemapper.health.RemoteServiceDependencyHealthCheck;
 import com.ft.wordpressarticlemapper.messaging.MessageProducingContentMapper;
 import com.ft.wordpressarticlemapper.messaging.NativeCmsPublicationEventsListener;
-import com.ft.wordpressarticlemapper.resources.*;
+import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
+import com.ft.wordpressarticlemapper.resources.HtmlTransformerResource;
+import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
+import com.ft.wordpressarticlemapper.resources.WordPressArticleMapperResource;
+import com.ft.wordpressarticlemapper.resources.WordPressArticleTransformerExceptionMapper;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformerFactory;
 import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
@@ -111,7 +119,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
         healthChecks.register("Document Store ping",
                 new RemoteServiceDependencyHealthCheck("Document Store", "document-store-api",
                         "Links to other FT content will not be resolved during publication, reducing data quality.",
-                        "https://sites.google.com/a/ft.com/ft-technology-validation-transition/home/run-book-library/documentstoreapi",
+                        "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
                         Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreConfiguration().getEndpointConfiguration()));
 
         environment.jersey().register(WordPressArticleTransformerExceptionMapper.class);
@@ -119,7 +127,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
         environment.servlets().addFilter("Transaction ID Filter",
                 new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
         environment.servlets().addFilter("Transaction ID Filter",
-                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/getWordPressArticleMessage-html-fragment/*");
+                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/transform-html-fragment/*");
 
     }
 
