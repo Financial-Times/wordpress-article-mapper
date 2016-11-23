@@ -1,0 +1,37 @@
+{
+  "uuid": "bb918201-2058-38a5-bd70-be8126200f2d",
+  "title": "Telecom Italia returns to growth, claims turnround ‘proceeding quickly’",
+  "titles": null,
+  "byline": "Financial Times",
+  "brands": [
+    {
+      "id": "http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54"
+    },
+    {
+      "id": "http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"
+    }
+  ],
+  "publishedDate": "2016-11-04T13:19:20.000Z",
+  "identifiers": [
+    {
+      "authority": "http://api.ft.com/system/FT-LABS-WP-1-335",
+      "identifierValue": "http://www.ft.com/fastft/2016/11/04/telecom-italia-returns-to-growth-claims-turnround-proceeding-quickly/"
+    },
+    {
+      "authority": "http://api.ft.com/system/FT-LABS-WP-1-335",
+      "identifierValue": "http://www.ft.com/fastft/?p=582272"
+    }
+  ],
+  "description": null,
+  "mediaType": null,
+  "pixelWidth": null,
+  "pixelHeight": null,
+  "internalBinaryUrl": null,
+  "externalBinaryUrl": null,
+  "mainImage": null,
+  "comments": {
+    "enabled": false
+  },
+  "publishReference": "tid_yoyfkwcs2s",
+  "lastModified": "2016-11-04T13:19:24.594Z"
+}

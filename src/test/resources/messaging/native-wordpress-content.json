@@ -1,0 +1,84 @@
+{
+  "apiUrl": "http://www.ft.com/fastft/api/get_post/?id=582272",
+  "lastModified": "2016-11-04T13:19:24.594Z",
+  "post": {
+    "attachments": [],
+    "authors": [
+      {
+        "description": "",
+        "first_name": "Shotaro",
+        "id": 9085,
+        "last_name": "Tani",
+        "name": "Financial Times",
+        "nickname": "Financial Times",
+        "slug": "shotarotani",
+        "url": ""
+      }
+    ],
+    "blog_id": 335,
+    "blog_uid": "FT-LABS-WP-1-335",
+    "categories": [],
+    "comment_count": 0,
+    "comment_status": "closed",
+    "comments": [],
+    "content": "\u003cp\u003eTelecom Italia has returned to growth in the third quarter after posting a 1.4 per cent rise in revenue to €4.8bn and an 8.5 per cent increase in earnings before interest, taxation, depreciation and amortisation.\u003cspan id=\"more-582272\"\u003e\u003c/span\u003e\u003c/p\u003e\n\u003cp\u003eThe revenue performance followed a 12 per cent drop in the first quarter of the year followed by a near 8 per cent decline in the second. The rebound was driven by its business unit, which achieved its best quarterly results since 2007, and its Brazilian operations, \u003cstrong\u003ewrites Nic Fildes.\u003c/strong\u003e\u003c/p\u003e\n\u003cp\u003eGiuseppe Recchi, executive chairman of Telecom Italia, said:\u003c/p\u003e\n\u003cblockquote\u003e\u003cp\u003eThe turnaround is proceeding quickly, with results ahead of expectations.\u003c/p\u003e\u003c/blockquote\u003e\n\u003cp\u003eThe company kept its guidance for low single digit organic Ebitda growth in its home market steady.\u003c/p\u003e\n\u003cp\u003eExane BNP analysts said:\u003c/p\u003e\n\u003cblockquote\u003e\u003cp\u003eGroup revenues and group EBITDA are respectively 1.9% and 2.6% above consensus expectations.The company says it remains on track to deliver its EUR1.6bn cost cutting plan by 2018.\u003c/p\u003e\u003c/blockquote\u003e\n\u003cp\u003eShares dropped 2 per cent following the results with the stock down 36 per cent from the start of the year.\u003c/p\u003e\n",
+    "custom_fields": {
+      "assanka_atompush": [
+        "yes_atompush"
+      ],
+      "primary_tag": [
+        "113002"
+      ]
+    },
+    "date": "2016-11-04 13:19:20",
+    "date_gmt": "2016-11-04 13:19:20",
+    "excerpt": "\u003cp\u003eTelecom Italia has returned to growth in the third quarter after posting a 1.4 per cent rise in revenue to €4.8bn and an 8.5 per cent increase in earnings before interest, taxation, depreciation and amortisation.\u0026nbsp;\u003ca href=\"http://www.ft.com/fastft/2016/11/04/telecom-italia-returns-to-growth-claims-turnround-proceeding-quickly/\" rel=\"582272\" title=\"Continue reading: Telecom Italia returns to growth, claims turnround \u0026#8216;proceeding quickly\u0026#8217;\" class=\"more-link\"\u003e\u003c/a\u003e\u003c/p\u003e\n",
+    "id": 582272,
+    "modified": "2016-11-04 13:19:20",
+    "modified_gmt": "2016-11-04 13:19:20",
+    "slug": "telecom-italia-returns-to-growth-claims-turnround-proceeding-quickly",
+    "status": "publish",
+    "tags": [
+      {
+        "description": "",
+        "id": 113002,
+        "is_series": false,
+        "post_count": 23444,
+        "slug": "companies",
+        "title": "Companies"
+      },
+      {
+        "description": "",
+        "id": 102942,
+        "is_series": false,
+        "post_count": 38,
+        "slug": "telecom-italia",
+        "title": "Telecom Italia"
+      },
+      {
+        "description": "",
+        "id": 113052,
+        "is_series": false,
+        "post_count": 356,
+        "slug": "telecoms",
+        "title": "Telecoms"
+      }
+    ],
+    "taxonomy_author": [
+      {
+        "description": "",
+        "id": 150025,
+        "post_count": 1076,
+        "slug": "shotarotani",
+        "title": "shotarotani"
+      }
+    ],
+    "title": "Telecom Italia returns to growth, claims turnround \u0026#8216;proceeding quickly\u0026#8217;",
+    "title_plain": "Telecom Italia returns to growth, claims turnround \u0026#8216;proceeding quickly\u0026#8217;",
+    "type": "post",
+    "url": "http://www.ft.com/fastft/2016/11/04/telecom-italia-returns-to-growth-claims-turnround-proceeding-quickly/",
+    "uuid": "bb918201-2058-38a5-bd70-be8126200f2d"
+  },
+  "previous_url": "http://www.ft.com/fastft/2016/11/04/us-retail-sheds-jobs-in-oct-healthcare-and-finance-hiring-jump/",
+  "status": "ok"
+}
