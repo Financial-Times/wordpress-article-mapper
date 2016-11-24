@@ -35,9 +35,5 @@ To run locally, run:
 
     java -jar target/wordpress-article-mapper.jar server wordpres-article-mapper.yaml
 
-## Build and Release
-The Jenkins build is triggered by commits to master. Docker images are build by http://ftaps116-lvpr-uk-d:8080/job/wordpress-article-mapper/ and pushed
-to up-registry.ft.com.
-
 ## Healthcheck
 [http://localhost:14081/healthcheck](http://localhost:14081/healthcheck)
