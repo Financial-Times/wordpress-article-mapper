@@ -1,23 +1,17 @@
 package com.ft.wordpressarticlemapper.response;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MainImage {
   private String id;
   private String title;
   private String description;
   private String url;
   private String mediaType;
-  private Map<String,WordPressImage> images = new HashMap<>();
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
   
   @JsonProperty("id")
   public void setId(String id) {
@@ -62,26 +56,6 @@ public class MainImage {
   
   public String getMediaType() {
     return mediaType;
-  }
-  
-  @JsonProperty("images")
-  public void setImages(Map<String,WordPressImage> images) {
-    this.images = images;
-  }
-  
-  public Map<String,WordPressImage> getImages() {
-    return images;
-  }
-  
-  @JsonIgnore
-  @JsonAnyGetter
-  public Map<String, Object> getAdditionalProperties() {
-      return this.additionalProperties;
-  }
-
-  @JsonAnySetter
-  public void setAdditionalProperty(String name, Object value) {
-      this.additionalProperties.put(name, value);
   }
   
   public String toString() {
