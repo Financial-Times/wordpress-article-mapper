@@ -12,7 +12,6 @@ import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
 import com.ft.wordpressarticlemapper.response.Post;
-import com.ft.wordpressarticlemapper.response.WordPressImage;
 import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
 import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
 import org.slf4j.Logger;
@@ -132,13 +131,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
             return null;
         }
 
-        WordPressImage fullImage = img.getImages().get("full");
-        if (fullImage == null) {
-            LOG.warn("no full-size image for post {}", post.getUuid());
-            return null;
-        }
-
-        String imageUrl = fullImage.getUrl();
+        String imageUrl = img.getUrl();
         try {
             URL u = new URL(imageUrl);
             UUID imageModelUuid = ImageModelUuidGenerator.fromURL(u);
