@@ -11,7 +11,6 @@ import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
 import com.ft.wordpressarticlemapper.transformer.WordPressContentMapper;
 import com.ft.wordpressarticlemapper.transformer.WordPressLiveBlogContentMapper;
-import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -30,15 +29,12 @@ public class WordPressArticleMapperResource {
 
     private final WordPressBlogPostContentMapper blogTransformer;
     private final WordPressLiveBlogContentMapper liveBlogTransformer;
-    private final NativeWordPressContentValidator validator;
 
     public WordPressArticleMapperResource(BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
                                           BrandSystemResolver brandSystemResolver,
-                                          IdentifierBuilder identifierBuilder,
-                                          NativeWordPressContentValidator nativeWordPressContentValidator) {
+                                          IdentifierBuilder identifierBuilder) {
         this.blogTransformer = new WordPressBlogPostContentMapper(brandSystemResolver, bodyProcessingFieldTransformer, identifierBuilder);
         this.liveBlogTransformer = new WordPressLiveBlogContentMapper(brandSystemResolver, identifierBuilder);
-        this.validator = nativeWordPressContentValidator;
     }
 
     @POST
@@ -52,7 +48,6 @@ public class WordPressArticleMapperResource {
     }
 
     private WordPressContent getWordPressContent(NativeWordPressContent nativeWordPressContent, String transactionId) {
-        validator.validateWordPressContent(nativeWordPressContent);
         Post postDetails = nativeWordPressContent.getPost();
         return transformerFor(postDetails).mapWordPressArticle(transactionId, postDetails, nativeWordPressContent.getLastModified());
     }
