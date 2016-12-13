@@ -78,7 +78,6 @@ public class MessageProducingContentMapper {
 
     private Map<String, Object> getCommonMessageBody(String uuid, Date lastModifiedDate) {
         Map<String, Object> messageBody = new LinkedHashMap<>();
-        messageBody.put("uuid", uuid);
         messageBody.put("contentUri", contentUriBuilder.build(uuid).toString());
         messageBody.put("lastModified", RFC3339_FMT.format(OffsetDateTime.ofInstant(lastModifiedDate.toInstant(), UTC)));
         return messageBody;

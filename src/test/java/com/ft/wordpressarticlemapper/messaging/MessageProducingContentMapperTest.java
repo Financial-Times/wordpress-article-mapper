@@ -150,7 +150,6 @@ public class MessageProducingContentMapperTest {
         Message actualMessage = messages.get(0);
         Map messageBody = JACKSON_MAPPER.readValue(actualMessage.getMessageBody(), Map.class);
         assertThat(messageBody.get("contentUri"), equalTo("http://www.example.org/content/" + uuid));
-        assertThat(messageBody.get("uuid"), equalTo(uuid));
         assertThat(OffsetDateTime.parse((String) messageBody.get("lastModified")).toInstant(), equalTo(messageTimestamp.toInstant()));
 
     }
