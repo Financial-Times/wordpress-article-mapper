@@ -73,13 +73,11 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
 
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(configuration.getHostToBrands());
 
-        NativeWordPressContentValidator validator = new NativeWordPressContentValidator();
-
         WordPressArticleMapperResource wordPressArticleTransformerResource =
                 new WordPressArticleMapperResource(
                         getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration(), blogApiEndpointMetadataManager),
                         new BrandSystemResolver(blogApiEndpointMetadataManager),
-                        new IdentifierBuilder(blogApiEndpointMetadataManager), validator
+                        new IdentifierBuilder(blogApiEndpointMetadataManager)
                 );
         environment.jersey().register(wordPressArticleTransformerResource);
 
@@ -110,7 +108,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
                 contentUriBuilder);
 
         String systemCode = configuration.getConsumerConfiguration().getSystemCode();
-        MessageListener listener = new NativeCmsPublicationEventsListener(contentMapper, objectMapper, systemCode, validator);
+        MessageListener listener = new NativeCmsPublicationEventsListener(contentMapper, objectMapper, systemCode);
 
         startListener(environment, listener, configuration.getConsumerConfiguration(), consumerClient);
 

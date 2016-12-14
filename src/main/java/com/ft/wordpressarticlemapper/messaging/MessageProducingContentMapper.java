@@ -57,41 +57,58 @@ public class MessageProducingContentMapper {
         this.contentUriBuilder = contentUriBuilder;
     }
 
-
-    public WordPressContent getWordPressArticleMessage(String transactionId, Post post, Date lastModified) {
+    public WordPressContent mapForPublish(String transactionId, Post post, Date lastModified) {
         WordPressContent content = mapperFor(post).mapWordPressArticle(transactionId, post, lastModified);
         List<WordPressContent> contents = Collections.singletonList(content);
-        producer.send(contents.stream().map(this::createMessage).collect(Collectors.toList()));
+        producer.send(contents.stream().map(this::createMessageForPublish).collect(Collectors.toList()));
         LOG.info("sent {} messages", contents.size());
         return content;
     }
 
-    private Message createMessage(WordPressContent content) {
-        Message msg;
-        LOG.info("Last Modified Date is: " + content.getLastModified());
-
-        Map<String, Object> messageBody = new LinkedHashMap<>();
-        messageBody.put("contentUri", contentUriBuilder.build(content.getUuid()).toString());
-        messageBody.put("payload", content);
-        String lastModified = RFC3339_FMT.format(OffsetDateTime.ofInstant(content.getLastModified().toInstant(), UTC));
-        messageBody.put("lastModified", lastModified);
+    public void mapForDelete(String uuid, Date lastModifiedDate, String transactionId) {
+        Map<String, Object> messageBody = getCommonMessageBody(uuid, lastModifiedDate);
 
         try {
-            msg = new Message.Builder().withMessageId(UUID.randomUUID())
-                    .withMessageType(CMS_CONTENT_PUBLISHED)
-                    .withMessageTimestamp(new Date())
-                    .withOriginSystemId(systemId)
-                    .withContentType("application/json")
-                    .withMessageBody(objectMapper.writeValueAsString(messageBody))
-                    .build();
-
-            msg.addCustomMessageHeader(TRANSACTION_ID_HEADER, content.getPublishReference());
-
-            msg = KeyedMessage.forMessageAndKey(msg, content.getUuid());
+            Message msg = getMessage(messageBody, uuid, transactionId);
+            producer.send(Collections.singletonList(msg));
         } catch (JsonProcessingException e) {
-            LOG.error("unable to write JSON for message", e);
-            throw new WordPressContentException("unable to write JSON for message", e);
+            handleJsonProcessingException(e);
         }
+    }
+
+    private Map<String, Object> getCommonMessageBody(String uuid, Date lastModifiedDate) {
+        Map<String, Object> messageBody = new LinkedHashMap<>();
+        messageBody.put("contentUri", contentUriBuilder.build(uuid).toString());
+        messageBody.put("lastModified", RFC3339_FMT.format(OffsetDateTime.ofInstant(lastModifiedDate.toInstant(), UTC)));
+        return messageBody;
+    }
+
+    private Message createMessageForPublish(WordPressContent content) {
+        Message msg = null;
+        String uuid = content.getUuid();
+        Map<String, Object> messageBody = getCommonMessageBody(uuid, content.getLastModified());
+        messageBody.put("payload", content);
+
+        try {
+            msg = getMessage(messageBody, uuid, content.getPublishReference());
+        } catch (JsonProcessingException e) {
+            handleJsonProcessingException(e);
+        }
+        return msg;
+    }
+
+    private Message getMessage(Map<String, Object> messageBody, String uuid, String transactionId) throws JsonProcessingException {
+        Message msg = new Message.Builder().withMessageId(UUID.randomUUID())
+                .withMessageType(CMS_CONTENT_PUBLISHED)
+                .withMessageTimestamp(new Date())
+                .withOriginSystemId(systemId)
+                .withContentType("application/json")
+                .withMessageBody(objectMapper.writeValueAsString(messageBody))
+                .build();
+
+        msg.addCustomMessageHeader(TRANSACTION_ID_HEADER, transactionId);
+        msg = KeyedMessage.forMessageAndKey(msg, uuid);
+
         return msg;
     }
 
@@ -115,6 +132,10 @@ public class MessageProducingContentMapper {
             default:
                 throw new WordPressContentTypeException("Unsupported blog post type");
         }
+    }
 
+    private void handleJsonProcessingException(JsonProcessingException e) {
+        LOG.error("unable to write JSON for message", e);
+        throw new WordPressContentException("unable to write JSON for message", e);
     }
 }

@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.core.UriBuilder;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
@@ -56,14 +57,14 @@ public class MessageProducingContentMapperTest {
     private static final String PUBLISH_REF = "tid_yoyfkwcs2s";
     private static final MessageType CMS_CONTENT_PUBLISHED = MessageType.messageType("cms-content-published");
 
-    private MessageProducingContentMapper mapper;
-
     @Mock
     private WordPressBlogPostContentMapper wordPressBlogPostContentMapper;
     @Mock
     private WordPressLiveBlogContentMapper wordPressLiveBlogContentMapper;
     @Mock
     private MessageProducer producer;
+
+    private MessageProducingContentMapper mapper;
 
     private Post post;
 
@@ -84,7 +85,7 @@ public class MessageProducingContentMapperTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testMessageIsProducedAndSent() throws Exception {
+    public void testMessageForPublishIsProducedAndSent() throws Exception {
         Date lastModified = new Date();
         WordPressBlogPostContent content = JACKSON_MAPPER.reader(WordPressBlogPostContent.class)
                 .readValue(loadFile("messaging/wordpress-blog-post-content-test.json"));
@@ -94,7 +95,7 @@ public class MessageProducingContentMapperTest {
                 eq(post),
                 eq(lastModified))).thenReturn(content);
 
-        WordPressContent actual = mapper.getWordPressArticleMessage(PUBLISH_REF, post, lastModified);
+        WordPressContent actual = mapper.mapForPublish(PUBLISH_REF, post, lastModified);
 
         assertThat(actual, equalTo(content));
 
@@ -132,6 +133,27 @@ public class MessageProducingContentMapperTest {
         assertThat(((KeyedMessage) actualMessage).getKey(), equalTo(post.getUuid()));
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testThatMessageForDeleteIsProducedAndSent() throws IOException {
+        String uuid = "8c4d6fea-1c49-33f7-5500-53dfc3335d88";
+        Date messageTimestamp = new Date();
+
+        mapper.mapForDelete(uuid, messageTimestamp, PUBLISH_REF);
+
+        ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
+        verify(producer).send(listCaptor.capture());
+
+        List<Message> messages = listCaptor.getValue();
+        assertThat(messages.size(), equalTo(1));
+
+        Message actualMessage = messages.get(0);
+        Map messageBody = JACKSON_MAPPER.readValue(actualMessage.getMessageBody(), Map.class);
+        assertThat(messageBody.get("contentUri"), equalTo("http://www.example.org/content/" + uuid));
+        assertThat(OffsetDateTime.parse((String) messageBody.get("lastModified")).toInstant(), equalTo(messageTimestamp.toInstant()));
+
+    }
+
     @Test(expected = WordPressContentException.class)
     public void testNoMessageIsSentWhenObjectMapperFails() throws Exception {
 
@@ -151,7 +173,7 @@ public class MessageProducingContentMapperTest {
         when(wordPressBlogPostContentMapper.mapWordPressArticle(eq(PUBLISH_REF), eq(post), eq(lastModified))).thenReturn(content);
         when(failing.writeValueAsString(any())).thenThrow(new JsonGenerationException("test exception"));
 
-        mapper.getWordPressArticleMessage(PUBLISH_REF, post, lastModified);
+        mapper.mapForPublish(PUBLISH_REF, post, lastModified);
         verifyZeroInteractions(producer);
     }
 
@@ -163,7 +185,7 @@ public class MessageProducingContentMapperTest {
 
         when(wordPressBlogPostContentMapper.mapWordPressArticle(eq(PUBLISH_REF), eq(post), eq(lastModified))).thenReturn(content);
 
-        mapper.getWordPressArticleMessage(PUBLISH_REF, post, lastModified);
+        mapper.mapForPublish(PUBLISH_REF, post, lastModified);
 
         verify(wordPressBlogPostContentMapper, times(1)).mapWordPressArticle(PUBLISH_REF, post, lastModified);
     }
@@ -177,7 +199,7 @@ public class MessageProducingContentMapperTest {
 
         when(wordPressLiveBlogContentMapper.mapWordPressArticle(eq(PUBLISH_REF), eq(post), eq(lastModified))).thenReturn(content);
 
-        mapper.getWordPressArticleMessage(PUBLISH_REF, post, lastModified);
+        mapper.mapForPublish(PUBLISH_REF, post, lastModified);
 
         verify(wordPressLiveBlogContentMapper, times(1)).mapWordPressArticle(PUBLISH_REF, post, lastModified);
     }
@@ -197,7 +219,7 @@ public class MessageProducingContentMapperTest {
         thrown.expect(WordPressContentTypeException.class);
         thrown.expectMessage("Unsupported blog post type");
 
-        mapper.getWordPressArticleMessage(PUBLISH_REF, post, lastModified);
+        mapper.mapForPublish(PUBLISH_REF, post, lastModified);
     }
 
     @Test
@@ -212,7 +234,7 @@ public class MessageProducingContentMapperTest {
         thrown.expect(WordPressContentTypeException.class);
         thrown.expectMessage("Unsupported blog post type");
 
-        mapper.getWordPressArticleMessage(PUBLISH_REF, post, lastModified);
+        mapper.mapForPublish(PUBLISH_REF, post, lastModified);
     }
 
     private String loadFile(final String filename) throws Exception {
