@@ -8,6 +8,7 @@ import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
 import com.ft.wordpressarticlemapper.response.Post;
+import com.ft.wordpressarticlemapper.response.WordPressImage;
 import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
 import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
 import com.google.common.collect.ImmutableSortedSet;
@@ -22,6 +23,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.UUID;
@@ -43,7 +45,9 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final OffsetDateTime PUBLISHED_DATE = OffsetDateTime.parse("2015-09-30T15:30:00.000Z");
     private static final String PUBLISHED_DATE_STR = PUBLISHED_DATE.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     private static final Date LAST_MODIFIED = new Date();
-    private static final Set<Brand> BRANDS = Collections.singleton(new Brand("JUNIT-BLOG-BRAND"));
+    private static final Set<Brand> BRANDS = new HashSet<Brand>() {{
+        add(new Brand("JUNIT-BLOG-BRAND"));
+    }};
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
     private static final String TITLE = "Test LiveBlog";
     private static final Author AUTHOR = new Author();
@@ -102,8 +106,10 @@ public class WordPressLiveBlogContentTransformerTest {
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
         post.setUuid(POST_UUID.toString());
+        WordPressImage fullSizeImage = new WordPressImage();
+        fullSizeImage.setUrl(IMAGE_URL);
         MainImage mainImage = new MainImage();
-        mainImage.setUrl(IMAGE_URL);
+        mainImage.setImages(Collections.singletonMap("full", fullSizeImage));
         post.setMainImage(mainImage);
 
         UUID imageModelUuid = ImageModelUuidGenerator.fromURL(new URL(IMAGE_URL));
