@@ -10,7 +10,6 @@ import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
 import com.ft.wordpressarticlemapper.response.Post;
-import com.ft.wordpressarticlemapper.response.WordPressImage;
 import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
 import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
 import com.google.common.collect.ImmutableSortedSet;
@@ -118,10 +117,8 @@ public class WordPressBlogPostContentTransformerTest {
         post.setExcerpt(BODY_OPENING);
         post.setCommentStatus(COMMENTS_OPEN);
         post.setUuid(POST_UUID.toString());
-        WordPressImage fullSizeImage = new WordPressImage();
-        fullSizeImage.setUrl(IMAGE_URL);
         MainImage mainImage = new MainImage();
-        mainImage.setImages(Collections.singletonMap("full", fullSizeImage));
+        mainImage.setUrl(IMAGE_URL);
         post.setMainImage(mainImage);
 
         UUID imageModelUuid = ImageModelUuidGenerator.fromURL(new URL(IMAGE_URL));
