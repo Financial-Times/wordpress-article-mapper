@@ -13,8 +13,6 @@ import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
 import com.ft.wordpressarticlemapper.transformer.WordPressContentMapper;
 import com.ft.wordpressarticlemapper.transformer.WordPressLiveBlogContentMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,8 +26,6 @@ import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 
 @Path("/")
 public class WordPressArticleMapperResource {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleMapperResource.class);
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
 
@@ -48,9 +44,12 @@ public class WordPressArticleMapperResource {
     @Path("/map")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final WordPressContent map(NativeWordPressContent nativeWordPressContent, @Context HttpHeaders httpHeaders) {
-        Post postDetails = nativeWordPressContent.getPost();
-        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, postDetails.getUuid(), "Publish request");
         try {
+            Post post = nativeWordPressContent.getPost();
+            if (post == null) {
+                throw new IllegalArgumentException("No post supplied");
+            }
+            String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, post.getUuid(), "Publish request");
             return getWordPressContent(nativeWordPressContent, transactionId);
         } catch (IllegalArgumentException | WordPressContentException e) {
             throw new ClientError.ClientErrorBuilder(SC_UNPROCESSABLE_ENTITY).error("Wordpress content is not valid").exception(e);
@@ -58,17 +57,13 @@ public class WordPressArticleMapperResource {
     }
 
     private WordPressContent getWordPressContent(NativeWordPressContent nativeWordPressContent, String transactionId) {
-        validateContent(nativeWordPressContent, transactionId);
+        validateContent(nativeWordPressContent);
         Post postDetails = nativeWordPressContent.getPost();
         return transformerFor(postDetails).mapWordPressArticle(transactionId, postDetails, nativeWordPressContent.getLastModified());
     }
 
-    private void validateContent(NativeWordPressContent nativeWordPressContent, String transactionId) {
+    private void validateContent(NativeWordPressContent nativeWordPressContent) {
         Post post = nativeWordPressContent.getPost();
-        if (post == null) {
-            LOGGER.error("Post is missing for request with tid=[{}]", transactionId);
-            throw new IllegalArgumentException("No post supplied");
-        }
 
         if (nativeWordPressContent.getApiUrl() == null) {
             throw new IllegalArgumentException("No apiUrl supplied");

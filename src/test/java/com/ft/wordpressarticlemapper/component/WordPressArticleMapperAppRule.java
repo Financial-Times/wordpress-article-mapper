@@ -22,6 +22,7 @@ import org.junit.runners.model.Statement;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
 
 import static com.ft.wordpressarticlemapper.util.TestFileUtil.resourceFilePath;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -36,14 +37,11 @@ import static org.junit.Assert.fail;
 public class WordPressArticleMapperAppRule implements TestRule {
 
     private final RuleChain ruleChain;
-
     private WireMockRule documentStoreWireMockRule;
-
     private String contentReadOutputTemplate;
-
     private static MessageProducer producer;
-
     private static MessageListener listener;
+    private DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule;
 
     public static class StubWordPressArticleMapperApplication extends WordPressArticleMapperApplication {
 
@@ -60,7 +58,7 @@ public class WordPressArticleMapperAppRule implements TestRule {
 
     public WordPressArticleMapperAppRule(String configurationPath, int documentStorePort, MessageProducer producer) {
         WordPressArticleMapperAppRule.producer = producer;
-        DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule = new DropwizardAppRule<>(StubWordPressArticleMapperApplication.class, configurationPath);
+        appRule = new DropwizardAppRule<>(StubWordPressArticleMapperApplication.class, configurationPath);
 
         documentStoreWireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig()
                 .port(documentStorePort)
@@ -121,5 +119,9 @@ public class WordPressArticleMapperAppRule implements TestRule {
     public void reset() {
         documentStoreWireMockRule.resetToDefaultMappings();
         org.mockito.Mockito.reset(producer);
+    }
+
+    public int getWordPressArticleMapperLocalPort() {
+        return appRule.getLocalPort();
     }
 }
