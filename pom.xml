@@ -28,7 +28,7 @@
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <ft-build-info-maven-plugin.version>1.0.2</ft-build-info-maven-plugin.version>
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
-        <jax-rs-transaction-id-handling.version>1.9.1</jax-rs-transaction-id-handling.version>
+        <jax-rs-transaction-id-handling.version>2.6.1</jax-rs-transaction-id-handling.version>
         <target-jdk>1.8</target-jdk>
         <ft.content-model.version>0.1.29</ft.content-model.version>
         <jaxrs.errorhandling.version>1.1.4</jaxrs.errorhandling.version>

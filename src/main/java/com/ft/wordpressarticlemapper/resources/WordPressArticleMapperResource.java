@@ -21,6 +21,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 
 
@@ -28,6 +29,8 @@ import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 public class WordPressArticleMapperResource {
 
     private static final String CHARSET_UTF_8 = ";charset=utf-8";
+    private static final String STATUS_ERROR = "error";
+    private static final String ERROR_NOT_FOUND = "Not found";
 
     private final WordPressBlogPostContentMapper blogTransformer;
     private final WordPressLiveBlogContentMapper liveBlogTransformer;
@@ -44,16 +47,25 @@ public class WordPressArticleMapperResource {
     @Path("/map")
     @Produces(MediaType.APPLICATION_JSON + CHARSET_UTF_8)
     public final WordPressContent map(NativeWordPressContent nativeWordPressContent, @Context HttpHeaders httpHeaders) {
+        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders);
         try {
             Post post = nativeWordPressContent.getPost();
             if (post == null) {
                 throw new IllegalArgumentException("No post supplied");
             }
-            String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, post.getUuid(), "Publish request");
+            if (isDeleteEvent(nativeWordPressContent)){
+                throw new ClientError.ClientErrorBuilder(SC_NOT_FOUND).error("Delete event").exception();
+            }
             return getWordPressContent(nativeWordPressContent, transactionId);
         } catch (IllegalArgumentException | WordPressContentException e) {
             throw new ClientError.ClientErrorBuilder(SC_UNPROCESSABLE_ENTITY).error("Wordpress content is not valid").exception(e);
         }
+    }
+
+    private boolean isDeleteEvent(NativeWordPressContent nativeWordPressContent) {
+        String status = nativeWordPressContent.getStatus();
+        String error = nativeWordPressContent.getError();
+        return STATUS_ERROR.equals(status) && ERROR_NOT_FOUND.equals(error);
     }
 
     private WordPressContent getWordPressContent(NativeWordPressContent nativeWordPressContent, String transactionId) {

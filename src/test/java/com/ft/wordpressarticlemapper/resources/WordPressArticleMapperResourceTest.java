@@ -50,7 +50,7 @@ public class WordPressArticleMapperResourceTest {
 
     @Test
     public void shouldUnescapeHtmlNumericalEntityForTitleAndByline() throws Exception {
-        final URI uri = buildTransformerUrl();
+        final URI uri = buildMapperUrl();
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-no-html-entity-number-from-wordpress.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -66,7 +66,7 @@ public class WordPressArticleMapperResourceTest {
 
     @Test
     public void shouldUnescapeHtmlNamedEntityForTitleAndByline() throws Exception {
-        final URI uri = buildTransformerUrl();
+        final URI uri = buildMapperUrl();
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-no-html-entity-name-from-wordpress.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -90,7 +90,7 @@ public class WordPressArticleMapperResourceTest {
                 "http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/",
                 SC_MOVED_PERMANENTLY, "https://next.ft.com/content/8adad508-077b-3795-8569-18e532cabf96");
 
-        final URI uri = buildTransformerUrl();
+        final URI uri = buildMapperUrl();
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-from-wordpress.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -121,7 +121,7 @@ public class WordPressArticleMapperResourceTest {
         String expectedOutputPattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern(expectedOutputPattern);
 
-        final URI uri = buildTransformerUrl();
+        final URI uri = buildMapperUrl();
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-from-wordpress.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -143,7 +143,7 @@ public class WordPressArticleMapperResourceTest {
 
     @Test
     public void shouldReturn422WhenTypeNotPostFromWordpressResponse() throws Exception {
-        final URI uri = buildTransformerUrl();
+        final URI uri = buildMapperUrl();
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-incorrect-blog-type.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -157,7 +157,7 @@ public class WordPressArticleMapperResourceTest {
 
     @Test
     public void shouldReturn422WhenPostContainsOnlyUnsupportedContent() throws Exception {
-        final URI uri = buildTransformerUrl();
+        final URI uri = buildMapperUrl();
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-unsupported-content.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -171,7 +171,7 @@ public class WordPressArticleMapperResourceTest {
 
     @Test
     public void shouldReturn422WhenUrlIsNotValid() throws Exception {
-        final URI uri = buildTransformerUrl();
+        final URI uri = buildMapperUrl();
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-no-apiurl-on-response.json");
         final ClientResponse clientResponse = client.resource(uri)
                 .header(TRANSACTION_ID_HEADER, TRANSACTION_ID)
@@ -182,7 +182,7 @@ public class WordPressArticleMapperResourceTest {
 
     @Test
     public void shouldReturn422WhenApiUrlIsMissingFromWordpressResponse() throws Exception {
-        final URI uri = buildTransformerUrl();
+        final URI uri = buildMapperUrl();
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-no-apiurl-on-response.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -193,7 +193,20 @@ public class WordPressArticleMapperResourceTest {
         assertThat("response", clientResponse, hasProperty("status", equalTo(422)));
     }
 
-    private URI buildTransformerUrl() {
+    @Test
+    public void shouldReturn404ForWordpressDeleteEvent() throws Exception {
+        final URI uri = buildMapperUrl();
+        final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_404-delete-event.json");
+
+        final ClientResponse clientResponse = client.resource(uri)
+                .header(TRANSACTION_ID_HEADER, TRANSACTION_ID)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .post(ClientResponse.class, sourceApiJson);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
+    }
+
+    private URI buildMapperUrl() {
         return UriBuilder
                 .fromPath("map")
                 .scheme("http")

@@ -28,7 +28,7 @@ public class HtmlTransformerResource {
     @Consumes({MediaType.TEXT_PLAIN, MediaType.TEXT_HTML})
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_HTML})
     public final String transformHtml(String body, @Context HttpHeaders httpHeaders) {
-        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, UUID.randomUUID(), "Transform request");
+        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders);
         return bodyProcessingFieldTransformer.transform(body, transactionId);
     }
 
