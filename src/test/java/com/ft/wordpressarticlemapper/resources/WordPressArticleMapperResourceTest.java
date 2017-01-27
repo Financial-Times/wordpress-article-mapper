@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.resources;
 
+import com.ft.messagequeueproducer.MessageProducer;
 import com.ft.wordpressarticlemapper.component.WordPressArticleMapperAppRule;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
@@ -8,9 +9,11 @@ import com.ft.wordpressarticlemapper.model.WordPressContent;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import org.apache.commons.lang.StringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
@@ -20,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -27,6 +31,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 public class WordPressArticleMapperResourceTest {
 
@@ -35,10 +40,11 @@ public class WordPressArticleMapperResourceTest {
     private static final String TRANSACTION_ID_HEADER = "X-Request-ID";
     private static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66");
 
+    private static MessageProducer messageProducer = mock(MessageProducer.class);
 
     @ClassRule
     public static WordPressArticleMapperAppRule wordPressArticleTransformerAppRule =
-            new WordPressArticleMapperAppRule(CONFIG_FILE, 8080, null);
+            new WordPressArticleMapperAppRule(CONFIG_FILE, 8080, messageProducer);
 
     private Client client;
 
@@ -49,8 +55,8 @@ public class WordPressArticleMapperResourceTest {
     }
 
     @Test
-    public void shouldUnescapeHtmlNumericalEntityForTitleAndByline() throws Exception {
-        final URI uri = buildMapperUrl();
+    public void mapShouldUnescapeHtmlNumericalEntityForTitleAndByline() throws Exception {
+        final URI uri = buildMapperUrl("map");
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-no-html-entity-number-from-wordpress.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -65,8 +71,8 @@ public class WordPressArticleMapperResourceTest {
     }
 
     @Test
-    public void shouldUnescapeHtmlNamedEntityForTitleAndByline() throws Exception {
-        final URI uri = buildMapperUrl();
+    public void mapShouldUnescapeHtmlNamedEntityForTitleAndByline() throws Exception {
+        final URI uri = buildMapperUrl("map");
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-no-html-entity-name-from-wordpress.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -81,7 +87,7 @@ public class WordPressArticleMapperResourceTest {
     }
 
     @Test
-    public void shouldReturn200AndCompleteResponseWhenContentFoundInWordPress() throws Exception {
+    public void mapShouldReturn200AndCompleteResponseWhenContentFoundInWordPress() throws Exception {
         wordPressArticleTransformerAppRule.mockContentReadResponse(
                 "3fcac834-58ce-11e4-a31b-00144feab7de", SC_OK);
 
@@ -90,7 +96,7 @@ public class WordPressArticleMapperResourceTest {
                 "http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/",
                 SC_MOVED_PERMANENTLY, "https://next.ft.com/content/8adad508-077b-3795-8569-18e532cabf96");
 
-        final URI uri = buildMapperUrl();
+        final URI uri = buildMapperUrl("map");
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-from-wordpress.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -121,7 +127,7 @@ public class WordPressArticleMapperResourceTest {
         String expectedOutputPattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern(expectedOutputPattern);
 
-        final URI uri = buildMapperUrl();
+        final URI uri = buildMapperUrl("map");
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-from-wordpress.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -142,8 +148,8 @@ public class WordPressArticleMapperResourceTest {
     }
 
     @Test
-    public void shouldReturn422WhenTypeNotPostFromWordpressResponse() throws Exception {
-        final URI uri = buildMapperUrl();
+    public void mapShouldReturn422WhenTypeNotPostFromWordpressResponse() throws Exception {
+        final URI uri = buildMapperUrl("map");
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-incorrect-blog-type.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -156,8 +162,8 @@ public class WordPressArticleMapperResourceTest {
     }
 
     @Test
-    public void shouldReturn422WhenPostContainsOnlyUnsupportedContent() throws Exception {
-        final URI uri = buildMapperUrl();
+    public void mapShouldReturn422WhenPostContainsOnlyUnsupportedContent() throws Exception {
+        final URI uri = buildMapperUrl("map");
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-unsupported-content.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -170,19 +176,8 @@ public class WordPressArticleMapperResourceTest {
     }
 
     @Test
-    public void shouldReturn422WhenUrlIsNotValid() throws Exception {
-        final URI uri = buildMapperUrl();
-        final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-no-apiurl-on-response.json");
-        final ClientResponse clientResponse = client.resource(uri)
-                .header(TRANSACTION_ID_HEADER, TRANSACTION_ID)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .post(ClientResponse.class, sourceApiJson);
-        assertThat("response", clientResponse, hasProperty("status", equalTo(422)));
-    }
-
-    @Test
-    public void shouldReturn422WhenApiUrlIsMissingFromWordpressResponse() throws Exception {
-        final URI uri = buildMapperUrl();
+    public void mapShouldReturn422WhenApiUrlIsMissingFromWordpressResponse() throws Exception {
+        final URI uri = buildMapperUrl("map");
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-no-apiurl-on-response.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -194,8 +189,8 @@ public class WordPressArticleMapperResourceTest {
     }
 
     @Test
-    public void shouldReturn404ForWordpressDeleteEvent() throws Exception {
-        final URI uri = buildMapperUrl();
+    public void mapShouldReturn404ForWordpressDeleteEvent() throws Exception {
+        final URI uri = buildMapperUrl("map");
         final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_404-delete-event.json");
 
         final ClientResponse clientResponse = client.resource(uri)
@@ -206,13 +201,89 @@ public class WordPressArticleMapperResourceTest {
         assertThat("response", clientResponse, hasProperty("status", equalTo(404)));
     }
 
-    private URI buildMapperUrl() {
+    @SuppressWarnings("unchecked")
+    @Test
+    public void ingestShouldReturn204WhenContentIsValid() throws Exception {
+        wordPressArticleTransformerAppRule.mockContentReadResponse(
+                "3fcac834-58ce-11e4-a31b-00144feab7de", SC_OK);
+
+        wordPressArticleTransformerAppRule.mockDocumentStoreQueryResponse(
+                "http://api.ft.com/system/FT-LABS-WP-1-335",
+                "http://www.ft.com/fastft/2015/12/09/south-african-rand-dives-after-finance-ministers-exit/",
+                SC_MOVED_PERMANENTLY, "https://next.ft.com/content/8adad508-077b-3795-8569-18e532cabf96");
+
+        final URI uri = buildMapperUrl("ingest");
+        final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-body-from-wordpress.json");
+
+        final ClientResponse clientResponse = client.resource(uri)
+                .header(TRANSACTION_ID_HEADER, TRANSACTION_ID)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .post(ClientResponse.class, sourceApiJson);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(204)));
+        ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);
+        verify(messageProducer).send(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().size(), equalTo(1));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void ingestShouldReturn204ForWordpressDeleteEvent() throws Exception {
+        final URI uri = buildMapperUrl("ingest");
+        final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_404-delete-event.json");
+
+        final ClientResponse clientResponse = client.resource(uri)
+                .header(TRANSACTION_ID_HEADER, TRANSACTION_ID)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .post(ClientResponse.class, sourceApiJson);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(204)));
+        ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);
+        verify(messageProducer).send(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().size(), equalTo(1));
+    }
+
+    @Test
+    public void ingestShouldReturn422WhenApiUrlIsMissingAndNoMessageShouldBeSent() throws Exception {
+        final URI uri = buildMapperUrl("ingest");
+        final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-no-apiurl-on-response.json");
+
+        final ClientResponse clientResponse = client.resource(uri)
+                .header(TRANSACTION_ID_HEADER, TRANSACTION_ID)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .post(ClientResponse.class, sourceApiJson);
+
+        assertThat("response", clientResponse, hasProperty("status", equalTo(422)));
+        verifyNoMoreInteractions(messageProducer);
+    }
+
+    @Test
+    public void ingestShouldReturn422WhenPostContainsUnsupportedContentAndNoMessageShouldBeSent() throws Exception {
+        final URI uri = buildMapperUrl("ingest");
+        final String sourceApiJson = loadFile("wordPress/__files/WILL_RETURN_200-unsupported-content.json");
+
+        final ClientResponse clientResponse = client.resource(uri)
+                .header(TRANSACTION_ID_HEADER, TRANSACTION_ID)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .post(ClientResponse.class, sourceApiJson);
+
+        assertThat("response status", clientResponse, hasProperty("status", equalTo(422)));
+        assertThat("response message", clientResponse.getEntity(String.class), containsString("Wordpress content is not valid"));
+        verifyNoMoreInteractions(messageProducer);
+    }
+
+    private URI buildMapperUrl(String path) {
         return UriBuilder
-                .fromPath("map")
+                .fromPath(path)
                 .scheme("http")
                 .host("localhost")
                 .port(wordPressArticleTransformerAppRule.getWordPressArticleMapperLocalPort())
                 .build();
+    }
+
+    @After
+    public void tearDown() {
+        reset(messageProducer);
     }
 
     private String loadFile(final String fileName) throws Exception {

@@ -1,6 +1,6 @@
 package com.ft.wordpressarticlemapper.validation;
 
-import com.ft.wordpressarticlemapper.exception.InvalidResponseException;
+import com.ft.wordpressarticlemapper.exception.InvalidStatusException;
 import com.ft.wordpressarticlemapper.exception.PostNotFoundException;
 import com.ft.wordpressarticlemapper.exception.UnexpectedErrorCodeException;
 import com.ft.wordpressarticlemapper.exception.UnexpectedStatusFieldException;
@@ -13,10 +13,6 @@ import com.ft.wordpressarticlemapper.response.WordPressStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Set;
 
 public class NativeWordPressContentValidator {
@@ -28,7 +24,7 @@ public class NativeWordPressContentValidator {
     private static final Set<String> SUPPORTED_POST_TYPES = WordPressPostType.stringValues();
     private static final String ERROR_NOT_FOUND = "Not found."; // DOES include a dot
 
-    public void validateWordPressContent(NativeWordPressContent nativeWordPressContent) {
+    public void validate(NativeWordPressContent nativeWordPressContent) {
 
         if (nativeWordPressContent.getPost() == null) {
             throw new IllegalArgumentException("No content supplied");
@@ -40,7 +36,7 @@ public class NativeWordPressContentValidator {
 
         String status = nativeWordPressContent.getStatus();
         if (status == null) {
-            throw new InvalidResponseException("Native WordPress content is not valid. Status is null");
+            throw new InvalidStatusException("Native WordPress content is not valid. Status is null");
         }
         String uuid =  nativeWordPressContent.getPost().getUuid();
         WordPressStatus wordPressStatus;
@@ -85,13 +81,7 @@ public class NativeWordPressContentValidator {
     private WordPressContentException processWordPressErrorResponse(String uuid, NativeWordPressContent nativeWordPressContent) {
         String error = nativeWordPressContent.getError();
         if (ERROR_NOT_FOUND.equals(error)) {
-            return new PostNotFoundException(
-                    uuid,
-                    OffsetDateTime.of(
-                            LocalDateTime.ofInstant(nativeWordPressContent.getLastModified().toInstant(), ZoneId.of(ZoneOffset.UTC.getId())),
-                            ZoneOffset.UTC
-                    )
-            );
+            return new PostNotFoundException(uuid);
         }
 
         Post post = nativeWordPressContent.getPost();

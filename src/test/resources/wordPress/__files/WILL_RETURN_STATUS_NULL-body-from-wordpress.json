@@ -1,5 +1,4 @@
 {
-    "status": "Unknown",
     "error": "Unknown status occurred.",
     "apiUrl": "http://localhost:8080/fake-url",
     "post": {
