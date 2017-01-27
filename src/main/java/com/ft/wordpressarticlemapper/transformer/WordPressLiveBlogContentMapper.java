@@ -25,7 +25,7 @@ public class WordPressLiveBlogContentMapper
     @Override
     protected WordPressLiveBlogContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
-                                                 UUID featuredImageUuid, Date lastModified) {
+                                                 UUID featuredImageUuid, Date lastModified, Date firstPublishedDate) {
 
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder) WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
@@ -37,7 +37,8 @@ public class WordPressLiveBlogContentMapper
                 .withComments(createComments(post.getCommentStatus()))
                 .withMainImage(Objects.toString(featuredImageUuid, null))
                 .withPublishReference(transactionId)
-                .withLastModified(lastModified);
+                .withLastModified(lastModified)
+                .withFirstPublishedDate(firstPublishedDate);
 
         return builder.build();
     }

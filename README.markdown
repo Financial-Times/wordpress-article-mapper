@@ -21,6 +21,7 @@ This service listens to the NativeCmsPublicationEvents Kafka topic and ingests t
 | `mainImage` | `$.post.main_image` | Main image UUID | `"bb918201-2058-38a5-bd70-be8126200f2d"` |
 | `publishReference` | From Kafka message header | Transaction ID | `"tid_rb1xduvpzr"` |
 | `lastModified` | From message timestamp | Last modified date | `"2016-02-10T11:41:24.000Z"` |
+| `firstPublishedDate` | `$.post.date_gmt` | First publication date | `"2016-12-10T10:01:22.000Z"` |
 | `body` | `$.post.content` | Post Body | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
 | `opening` | `$.post.excerpt` | Post Opening | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
 
