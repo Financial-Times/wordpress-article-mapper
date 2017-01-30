@@ -30,10 +30,6 @@ public class NativeWordPressContentValidator {
             throw new IllegalArgumentException("No content supplied");
         }
 
-        if (nativeWordPressContent.getApiUrl() == null) {
-            throw new IllegalArgumentException("No apiUrl supplied");
-        }
-
         String status = nativeWordPressContent.getStatus();
         if (status == null) {
             throw new InvalidStatusException("Native WordPress content is not valid. Status is null");
@@ -47,6 +43,10 @@ public class NativeWordPressContentValidator {
         }
         switch (wordPressStatus) {
             case ok:
+                if (nativeWordPressContent.getApiUrl() == null) {
+                    throw new IllegalArgumentException("No apiUrl supplied");
+                }
+
                 if (!isSupportedPostType(nativeWordPressContent)) {
                     throw new UnpublishablePostException(uuid, String.format(UNSUPPORTED_POST_TYPE,
                             findTheType(nativeWordPressContent), SUPPORTED_POST_TYPES, uuid));
@@ -81,6 +81,7 @@ public class NativeWordPressContentValidator {
     private WordPressContentException processWordPressErrorResponse(String uuid, NativeWordPressContent nativeWordPressContent) {
         String error = nativeWordPressContent.getError();
         if (ERROR_NOT_FOUND.equals(error)) {
+            // wordpress delete request
             return new PostNotFoundException(uuid);
         }
 
