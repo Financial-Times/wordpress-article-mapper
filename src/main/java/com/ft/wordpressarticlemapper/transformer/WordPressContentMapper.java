@@ -112,7 +112,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
     private Date extractFirstPublishedDate(URI requestUri, Post post) {
         String firstPublishedDateStr = post.getDateGmt();
         if (firstPublishedDateStr == null) {
-            LOG.error("First published date cannot be determined as date GMT field is empty. Request URI: " + requestUri);
+            LOG.info("First published date cannot be determined as date GMT field is empty. Request URI: " + requestUri);
             return null;
         }
         return Date.from(OffsetDateTime.parse(firstPublishedDateStr + "Z", PUBLISH_DATE_FMT).toInstant());
