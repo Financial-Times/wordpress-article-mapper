@@ -6,6 +6,7 @@ import java.util.SortedSet;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.ft.content.model.AccessLevel;
 import com.google.common.base.Objects;
 
 
@@ -17,27 +18,28 @@ public class WordPressBlogPostContent
     private final String opening;
     
     private WordPressBlogPostContent(UUID uuid,
-                   String title,
-                   List<String> titles,
-                   String byline,
-                   SortedSet<Brand> brands,
-                   SortedSet<Identifier> identifiers,
-                   Date publishedDate,
-                   String body,
-                   String opening,
-                   String description,
-                   String mediaType,
-                   Integer pixelWidth,
-                   Integer pixelHeight,
-                   String internalBinaryUrl,
-                   String externalBinaryUrl,
-                   String mainImage,
-                   Comments comments,
-                   String publishReference, 
-                   Date lastModified) {
+                                     String title,
+                                     List<String> titles,
+                                     String byline,
+                                     SortedSet<Brand> brands,
+                                     SortedSet<Identifier> identifiers,
+                                     Date publishedDate,
+                                     String body,
+                                     String opening,
+                                     String description,
+                                     String mediaType,
+                                     Integer pixelWidth,
+                                     Integer pixelHeight,
+                                     String internalBinaryUrl,
+                                     String externalBinaryUrl,
+                                     String mainImage,
+                                     Comments comments,
+                                     String publishReference,
+                                     Date lastModified,
+                                     AccessLevel accessLevel) {
         
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth, 
-                pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified);
+                pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified, accessLevel);
         
         this.body = body;
         this.opening = opening;
@@ -98,7 +100,7 @@ public class WordPressBlogPostContent
                     getBrands(), getIdentifiers(), getPublishedDate(), body, opening, getDescription(),
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
-                    getMainImage(), getComments(), getPublishReference(), getLastModified());
+                    getMainImage(), getComments(), getPublishReference(), getLastModified(), getAccessLevel());
         }
     }
 }

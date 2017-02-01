@@ -1,7 +1,9 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.content.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
+import com.ft.wordpressarticlemapper.model.WordPressBlogPostContent;
 import com.ft.wordpressarticlemapper.model.WordPressLiveBlogContent;
 import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
@@ -75,6 +77,7 @@ public class WordPressLiveBlogContentTransformerTest {
         post.setUrl(POST_URL);
         post.setCommentStatus(COMMENTS_OPEN);
         post.setUuid(POST_UUID.toString());
+        post.setAccessLevel(AccessLevel.SUBSCRIBED);
 
         WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
@@ -89,6 +92,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+        assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
     }
 
     @Test
@@ -122,5 +126,30 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+    }
+
+    @Test
+    public void thatDefaultAccessLevelIsUsedWhenAccessLevelIsNotPresent(){
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setUuid(POST_UUID.toString());
+        post.setDefaultAccessLevel(AccessLevel.FREE);
+
+        WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+        assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.FREE)));
+    }
+
+    @Test
+    public void thatAccessLevelIsSubscribedWhenNoAccessLevelFieldIsPresent() {
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setUuid(POST_UUID.toString());
+
+        WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+        assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
     }
 }

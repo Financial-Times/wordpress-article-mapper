@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.ft.content.model.AccessLevel;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -40,7 +41,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "attachments",
     "comment_count",
     "comment_status",
-    "custom_fields"
+    "custom_fields",
+    "accessLevel",
+    "defaultAccessLevel"
 })
 public class Post {
 
@@ -92,6 +95,10 @@ public class Post {
     private MainImage mainImage;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonProperty("access_level")
+    private AccessLevel accessLevel;
+    @JsonProperty("default_access_level")
+    private AccessLevel defaultAccessLevel;
 
     /**
      * 
@@ -548,9 +555,50 @@ public class Post {
         this.additionalProperties.put(name, value);
     }
 
+    public AccessLevel getAccessLevel() {
+        return accessLevel;
+    }
+
+    public AccessLevel getDefaultAccessLevel() {
+        return defaultAccessLevel;
+    }
+
+    @JsonProperty("access_level")
+    public void setAccessLevel(AccessLevel accessLevel) {
+        this.accessLevel = accessLevel;
+    }
+
+    @JsonProperty("default_access_level")
+    public void setDefaultAccessLevel(AccessLevel defaultAccessLevel) {
+        this.defaultAccessLevel = defaultAccessLevel;
+    }
+
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(id).append(type).append(slug).append(url).append(status).append(title).append(titlePlain).append(content).append(excerpt).append(date).append(modified).append(categories).append(tags).append(author).append(comments).append(attachments).append(commentCount).append(commentStatus).append(customFields).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder()
+                .append(id)
+                .append(type)
+                .append(slug)
+                .append(url)
+                .append(status)
+                .append(title)
+                .append(titlePlain)
+                .append(content)
+                .append(excerpt)
+                .append(date)
+                .append(modified)
+                .append(categories)
+                .append(tags)
+                .append(author)
+                .append(comments)
+                .append(attachments)
+                .append(commentCount)
+                .append(commentStatus)
+                .append(customFields)
+                .append(additionalProperties)
+                .append(accessLevel)
+                .append(defaultAccessLevel)
+                .toHashCode();
     }
 
     @Override
@@ -562,7 +610,30 @@ public class Post {
             return false;
         }
         Post rhs = ((Post) other);
-        return new EqualsBuilder().append(id, rhs.id).append(type, rhs.type).append(slug, rhs.slug).append(url, rhs.url).append(status, rhs.status).append(title, rhs.title).append(titlePlain, rhs.titlePlain).append(content, rhs.content).append(excerpt, rhs.excerpt).append(date, rhs.date).append(modified, rhs.modified).append(categories, rhs.categories).append(tags, rhs.tags).append(author, rhs.author).append(comments, rhs.comments).append(attachments, rhs.attachments).append(commentCount, rhs.commentCount).append(commentStatus, rhs.commentStatus).append(customFields, rhs.customFields).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder()
+                .append(id, rhs.id)
+                .append(type, rhs.type)
+                .append(slug, rhs.slug)
+                .append(url, rhs.url)
+                .append(status, rhs.status)
+                .append(title, rhs.title)
+                .append(titlePlain, rhs.titlePlain)
+                .append(content, rhs.content)
+                .append(excerpt, rhs.excerpt)
+                .append(date, rhs.date)
+                .append(modified, rhs.modified)
+                .append(categories, rhs.categories)
+                .append(tags, rhs.tags)
+                .append(author, rhs.author)
+                .append(comments, rhs.comments)
+                .append(attachments, rhs.attachments)
+                .append(commentCount, rhs.commentCount)
+                .append(commentStatus, rhs.commentStatus)
+                .append(customFields, rhs.customFields)
+                .append(additionalProperties, rhs.additionalProperties)
+                .append(accessLevel, rhs.accessLevel)
+                .append(defaultAccessLevel, rhs.defaultAccessLevel)
+                .isEquals();
     }
 
 }
