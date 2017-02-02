@@ -23,6 +23,7 @@ This service listens to the NativeCmsPublicationEvents Kafka topic and ingests t
 | `lastModified` | From message timestamp | Last modified date | `"2016-02-10T11:41:24.000Z"` |
 | `body` | `$.post.content` | Post Body | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
 | `opening` | `$.post.excerpt` | Post Opening | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
+| `accessLevel` | `$.post.accessLevel` or `$.post.defaultAccessLevel`  | Post Access Level | `"subscribed"` or `"registered"` or `"premium"` or `"free"` |
 
 ## Running
 Please make sure you are running it in the correct working directory (wordpress-article-mapper).
