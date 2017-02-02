@@ -2,6 +2,7 @@ package com.ft.wordpressarticlemapper.transformer;
 
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
+import com.ft.wordpressarticlemapper.model.WordPressBlogPostContent;
 import com.ft.wordpressarticlemapper.model.WordPressLiveBlogContent;
 import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
@@ -29,6 +30,7 @@ import java.util.UUID;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -42,6 +44,8 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final UUID POST_UUID = UUID.randomUUID();
     private static final OffsetDateTime PUBLISHED_DATE = OffsetDateTime.parse("2015-09-30T15:30:00.000Z");
     private static final String PUBLISHED_DATE_STR = PUBLISHED_DATE.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    private static final OffsetDateTime MODIFIED_DATE = OffsetDateTime.parse("2015-10-30T12:13:00.000Z");
+    private static final String MODIFIED_DATE_STR = MODIFIED_DATE.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     private static final Date LAST_MODIFIED = new Date();
     private static final Set<Brand> BRANDS = Collections.singleton(new Brand("JUNIT-BLOG-BRAND"));
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
@@ -89,6 +93,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+        assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
     }
 
     @Test
@@ -122,5 +127,23 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+        assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
+    }
+
+    @Test
+    public void thatEmptyPublishedDateIsCorrectlyHandled() {
+        Post post = new Post();
+        post.setAuthors(Collections.singletonList(AUTHOR));
+        post.setModifiedGmt(MODIFIED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setUuid(POST_UUID.toString());
+
+        WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+
+        assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));
+        assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
+        assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(MODIFIED_DATE.toInstant())));
+        assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
+        assertNull("firstPublishedDate", actual.getFirstPublishedDate());
     }
 }

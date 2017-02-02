@@ -61,9 +61,12 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
         UUID featuredImageUuid = createMainImageUuid(post);
 
         UUID uuid = UUID.fromString(post.getUuid());
+
+        Date firstPublishedDate = extractFirstPublishedDate(requestUri, post);
+
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
-                featuredImageUuid, lastModified);
+                featuredImageUuid, lastModified, firstPublishedDate);
     }
 
     private SortedSet<Identifier> generateIdentifiers(URI requestUri, Post post) {
@@ -78,7 +81,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
     protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                    SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
-                                   UUID featuredImageUuid, Date lastModified);
+                                   UUID featuredImageUuid, Date lastModified, Date firstPublishedDate);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
@@ -104,6 +107,15 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
         }
 
         return Date.from(OffsetDateTime.parse(publishedDateStr + "Z", PUBLISH_DATE_FMT).toInstant());
+    }
+
+    private Date extractFirstPublishedDate(URI requestUri, Post post) {
+        String firstPublishedDateStr = post.getDateGmt();
+        if (firstPublishedDateStr == null) {
+            LOG.info("First published date cannot be determined as date GMT field is empty. Request URI: " + requestUri);
+            return null;
+        }
+        return Date.from(OffsetDateTime.parse(firstPublishedDateStr + "Z", PUBLISH_DATE_FMT).toInstant());
     }
 
     protected String createBylineFromAuthors(Post postDetails) {

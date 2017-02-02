@@ -36,7 +36,7 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
     @Override
     protected WordPressBlogPostContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
-                                                 UUID featuredImageUuid, Date lastModified) {
+                                                 UUID featuredImageUuid, Date lastModified, Date firstPublishedDate) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
             throw new UnpublishablePostException(uuid.toString(), "Not a valid WordPress article for publication - body of post is empty");
@@ -52,7 +52,8 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
                 .withComments(createComments(post.getCommentStatus()))
                 .withMainImage(Objects.toString(featuredImageUuid, null))
                 .withPublishReference(transactionId)
-                .withLastModified(lastModified);
+                .withLastModified(lastModified)
+                .withFirstPublishedDate(firstPublishedDate);
 
         String transformedBody = transformHtml(body, transactionId);
         if (Strings.isNullOrEmpty(unwrapBody(transformedBody))) {
