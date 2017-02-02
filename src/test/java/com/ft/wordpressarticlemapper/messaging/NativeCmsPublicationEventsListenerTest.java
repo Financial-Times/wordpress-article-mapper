@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.ft.messaging.standards.message.v1.Message;
 import com.ft.messaging.standards.message.v1.SystemId;
-import com.ft.wordpressarticlemapper.exception.*;
+import com.ft.wordpressarticlemapper.exception.PostNotFoundException;
+import com.ft.wordpressarticlemapper.exception.WordPressContentException;
 import com.ft.wordpressarticlemapper.response.NativeWordPressContent;
 import com.ft.wordpressarticlemapper.response.Post;
 import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
@@ -32,7 +33,11 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NativeCmsPublicationEventsListenerTest {

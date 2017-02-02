@@ -22,7 +22,6 @@ import org.junit.runners.model.Statement;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
 
 import static com.ft.wordpressarticlemapper.util.TestFileUtil.resourceFilePath;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
