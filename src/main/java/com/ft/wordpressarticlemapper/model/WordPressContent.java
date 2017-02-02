@@ -29,26 +29,29 @@ public abstract class WordPressContent {
     private final Comments comments;
     private final String publishReference;
     private final Date lastModified;
+    private final Date firstPublishedDate;
     private final AccessLevel accessLevel;
 
-    public WordPressContent(UUID uuid,
-                            String title,
-                            List<String> titles,
-                            String byline,
-                            SortedSet<Brand> brands,
-                            SortedSet<Identifier> identifiers,
-                            Date publishedDate,
-                            String description,
-                            String mediaType,
-                            Integer pixelWidth,
-                            Integer pixelHeight,
-                            String internalBinaryUrl,
-                            String externalBinaryUrl,
-                            String mainImage,
-                            Comments comments,
-                            String publishReference,
-                            Date lastModified,
-                            AccessLevel accessLevel) {
+
+    protected WordPressContent(UUID uuid,
+                               String title,
+                               List<String> titles,
+                               String byline,
+                               SortedSet<Brand> brands,
+                               SortedSet<Identifier> identifiers,
+                               Date publishedDate,
+                               String description,
+                               String mediaType,
+                               Integer pixelWidth,
+                               Integer pixelHeight,
+                               String internalBinaryUrl,
+                               String externalBinaryUrl,
+                               String mainImage,
+                               Comments comments,
+                               String publishReference,
+                               Date lastModified,
+                               Date firstPublishedDate,
+                               AccessLevel accessLevel) {
         this.identifiers = identifiers;
         this.comments = comments;
         this.uuid = uuid == null ? null : uuid.toString();
@@ -66,6 +69,7 @@ public abstract class WordPressContent {
         this.mainImage = mainImage;
         this.publishReference = publishReference;
         this.lastModified = lastModified;
+        this.firstPublishedDate = firstPublishedDate;
         this.accessLevel = accessLevel;
     }
 
@@ -143,6 +147,11 @@ public abstract class WordPressContent {
         return lastModified;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    public Date getFirstPublishedDate() {
+        return firstPublishedDate;
+    }
+
     public AccessLevel getAccessLevel() {
         return accessLevel;
     }
@@ -166,6 +175,7 @@ public abstract class WordPressContent {
                 .add("comments", comments)
                 .add("publishReference", publishReference)
                 .add("lastModified", lastModified)
+                .add("firstPublishedDate", firstPublishedDate)
                 .add("accessLevel", accessLevel)
                 .toString();
     }
@@ -193,6 +203,7 @@ public abstract class WordPressContent {
                 && Objects.equal(this.comments, that.comments)
                 && Objects.equal(this.publishReference, that.publishReference)
                 && Objects.equal(this.lastModified, that.lastModified)
+                && Objects.equal(this.firstPublishedDate, that.firstPublishedDate)
                 && Objects.equal(this.accessLevel, that.accessLevel);
     }
 
@@ -222,6 +233,7 @@ public abstract class WordPressContent {
         private Comments comments;
         private String transactionId;
         private Date lastModified;
+        private Date firstPublishedDate;
         private AccessLevel accessLevel;
 
         public Builder<C> withUuid(UUID uuid) {
@@ -394,6 +406,15 @@ public abstract class WordPressContent {
             return lastModified;
         }
 
+        public Builder<C> withFirstPublishedDate(Date firstPublishedDate) {
+            this.firstPublishedDate = firstPublishedDate;
+            return this;
+        }
+
+        public Date getFirstPublishedDate() {
+            return firstPublishedDate;
+        }
+
         public Builder<C> withValuesFrom(C content) {
             return withTitle(content.getTitle())
                     .withTitles(content.getTitles())
@@ -412,6 +433,7 @@ public abstract class WordPressContent {
                     .withComments(content.getComments())
                     .withPublishReference(content.getPublishReference())
                     .withLastModified(content.getLastModified())
+                    .withFirstPublishedDate(content.getFirstPublishedDate())
                     .withAccessLevel(content.getAccessLevel());
         }
 

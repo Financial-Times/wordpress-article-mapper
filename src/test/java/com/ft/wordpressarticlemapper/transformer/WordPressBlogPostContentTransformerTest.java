@@ -32,6 +32,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -44,7 +45,8 @@ public class WordPressBlogPostContentTransformerTest {
     private static final UUID POST_UUID = UUID.randomUUID();
     private static final OffsetDateTime PUBLISHED_DATE = OffsetDateTime.parse("2015-09-30T15:30:00.000Z");
     private static final String PUBLISHED_DATE_STR = PUBLISHED_DATE.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
+    private static final OffsetDateTime MODIFIED_DATE = OffsetDateTime.parse("2015-10-30T12:13:00.000Z");
+    private static final String MODIFIED_DATE_STR = MODIFIED_DATE.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     private static final Set<Brand> BRANDS = Collections.singleton(new Brand("JUNIT-BLOG-BRAND"));
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
     private static final SortedSet<Identifier> IDENTIFIERS = ImmutableSortedSet.of(new Identifier(SYSTEM_ID, POST_URL));
@@ -105,6 +107,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
         assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
+        assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
+                is(equalTo(PUBLISHED_DATE.toInstant())));
     }
 
     @Test
@@ -142,6 +146,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+        assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
+                is(equalTo(PUBLISHED_DATE.toInstant())));
     }
 
     private void checkBodyXml(String fieldName, String expected, String actual)
@@ -175,6 +181,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+        assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
+                is(equalTo(PUBLISHED_DATE.toInstant())));
     }
 
     @Test
@@ -200,6 +208,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+        assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
+                is(equalTo(PUBLISHED_DATE.toInstant())));
     }
 
     @Test
@@ -257,5 +267,24 @@ public class WordPressBlogPostContentTransformerTest {
         post.setUuid(POST_UUID.toString());
 
         mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+    }
+
+    @Test
+    public void thatEmptyPublishedDateIsCorrectlyHandled() {
+        Post post = new Post();
+        post.setAuthors(Collections.singletonList(AUTHOR));
+        post.setModifiedGmt(MODIFIED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setContent(BODY_TEXT);
+        post.setUuid(POST_UUID.toString());
+
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+
+        assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
+        assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));
+        assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
+        assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(MODIFIED_DATE.toInstant())));
+        assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
+        assertNull("firstPublishedDate", actual.getFirstPublishedDate());
     }
 }

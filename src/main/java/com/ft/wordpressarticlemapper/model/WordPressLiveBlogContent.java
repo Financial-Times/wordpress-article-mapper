@@ -31,14 +31,12 @@ public class WordPressLiveBlogContent
                                      Comments comments,
                                      String publishReference,
                                      Date lastModified,
+                                     Date firstPublishedDate,
                                      AccessLevel accessLevel) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
-                pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified, accessLevel);
-    }
-
-    public static Builder builder() {
-        return new Builder();
+                pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
+                firstPublishedDate, accessLevel);
     }
 
     public boolean isRealtime() {
@@ -48,6 +46,10 @@ public class WordPressLiveBlogContent
     @Override
     public String toString() {
         return String.format("%s[realtime=true]", super.toString());
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -63,7 +65,8 @@ public class WordPressLiveBlogContent
                     getBrands(), getIdentifiers(), getPublishedDate(), getDescription(),
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
-                    getMainImage(), getComments(), getPublishReference(), getLastModified(), getAccessLevel());
+                    getMainImage(), getComments(), getPublishReference(),
+                    getLastModified(), getFirstPublishedDate(), getAccessLevel());
         }
     }
 }
