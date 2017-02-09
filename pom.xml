@@ -247,21 +247,6 @@
             <artifactId>message-queue-producer</artifactId>
             <version>1.0.4.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.Financial-Times</groupId>
-            <artifactId>content-model</artifactId>
-            <version>0.1.43</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate-validator</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-annotations</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 
     <build>

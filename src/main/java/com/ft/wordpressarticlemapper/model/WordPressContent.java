@@ -1,7 +1,6 @@
 package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ft.content.model.AccessLevel;
 import com.google.common.base.Objects;
 
 import java.util.Collections;

@@ -1,9 +1,9 @@
 package com.ft.wordpressarticlemapper.transformer;
 
-import com.ft.content.model.AccessLevel;
 import com.ft.wordpressarticlemapper.exception.BrandResolutionException;
 import com.ft.wordpressarticlemapper.exception.IdentifiersBuildException;
 import com.ft.wordpressarticlemapper.exception.WordPressContentException;
+import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Comments;
 import com.ft.wordpressarticlemapper.model.Identifier;

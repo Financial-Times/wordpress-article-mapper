@@ -2,7 +2,6 @@ package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.ft.content.model.AccessLevel;
 
 import java.util.Date;
 import java.util.List;
