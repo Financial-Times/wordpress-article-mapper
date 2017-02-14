@@ -34,8 +34,6 @@ public class RemoteServiceDependencyHealthCheckTest {
     @Mock
     private WebResource mockResource;
     @Mock
-    private WebResource.Builder mockBuilder;
-    @Mock
     private ClientResponse mockClientResponse;
 
     @Before
@@ -46,10 +44,9 @@ public class RemoteServiceDependencyHealthCheckTest {
         when(mockEndpointConfiguration.getJerseyClientConfiguration()).thenReturn(new JerseyClientConfiguration());
 
         when(mockClient.resource(any(URI.class))).thenReturn(mockResource);
-        when(mockResource.header(any(String.class), any(String.class))).thenReturn(mockBuilder);
-        when(mockBuilder.get(ClientResponse.class)).thenReturn(mockClientResponse);
+        when(mockResource.get(ClientResponse.class)).thenReturn(mockClientResponse);
 
-        healthCheck = new RemoteServiceDependencyHealthCheck("name", "host", "businessImpact", "panicGuideUrl", mockClient, mockEndpointConfiguration);
+        healthCheck = new RemoteServiceDependencyHealthCheck("name", "businessImpact", "panicGuideUrl", mockClient, mockEndpointConfiguration);
     }
 
     @Test

@@ -45,8 +45,6 @@ public class LinkResolverBodyProcessorTest {
     private static final URI DOC_STORE_URI = URI.create("http://localhost:8080/");
     private static final URI DOC_STORE_QUERY = DOC_STORE_URI.resolve("/content-query");
     private static final URI CONTENT_READ_URI = URI.create("http://localhost:8080/content");
-    private static final String CONTENT_READ_HOST_HEADER = "content-public-read";
-    private static final String DOC_STORE_HOST_HEADER = "document-store-api";
 
     private Client resolverClient = mock(Client.class);
     private Client documentStoreQueryClient = mock(Client.class);
@@ -71,10 +69,8 @@ public class LinkResolverBodyProcessorTest {
                 blogApiEndpointMetadataManager,
                 documentStoreQueryClient,
                 DOC_STORE_URI,
-                DOC_STORE_HOST_HEADER,
                 contentReadClient,
                 CONTENT_READ_URI,
-                CONTENT_READ_HOST_HEADER,
                 1, 2);
     }
 
@@ -89,7 +85,7 @@ public class LinkResolverBodyProcessorTest {
                 + "\" type=\"" + ARTICLE_TYPE + "\">usw</content> ...</p></body>";
 
 
-        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_OK);
+        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), SC_OK);
 
         String actual = processor.process(bodyWithUuidLink, null);
         assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformed));
@@ -102,7 +98,7 @@ public class LinkResolverBodyProcessorTest {
         String bodyWithUuidLink = "<body><p>Blah blah blah <a href=\"" + uuidUrl
                 + "\">usw</a> ...</p></body>";
 
-        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_NOT_FOUND);
+        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), SC_NOT_FOUND);
 
         String actual = processor.process(bodyWithUuidLink, null);
         assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(bodyWithUuidLink));
@@ -115,7 +111,7 @@ public class LinkResolverBodyProcessorTest {
         String bodyWithUuidLink = "<body><p>Blah blah blah <a href=\"" + uuidUrl
                 + "\">usw</a> ...</p></body>";
 
-        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_INTERNAL_SERVER_ERROR);
+        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), SC_INTERNAL_SERVER_ERROR);
 
         String actual = processor.process(bodyWithUuidLink, null);
         assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(bodyWithUuidLink));
@@ -144,7 +140,7 @@ public class LinkResolverBodyProcessorTest {
                 URI.create("http://www.ft.com/content/" + ftContentUUID),
                 SC_MOVED_PERMANENTLY
         );
-        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_OK);
+        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), SC_OK);
 
         String actual = processor.process(bodyWithShortLink, null);
         assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformed));
@@ -181,7 +177,7 @@ public class LinkResolverBodyProcessorTest {
                 URI.create("http://www.ft.com/content/" + ftContentUUID),
                 SC_MOVED_PERMANENTLY
         );
-        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_OK);
+        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), SC_OK);
 
         String actual = processor.process(bodyWithShortLink, null);
         assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformed));
@@ -238,8 +234,8 @@ public class LinkResolverBodyProcessorTest {
                 URI.create("http://www.ft.com/content/" + ftContentUUID2),
                 SC_MOVED_PERMANENTLY
         );
-        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_OK);
-        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID2.toString(), CONTENT_READ_HOST_HEADER, SC_OK);
+        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), SC_OK);
+        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID2.toString(), SC_OK);
 
         try {
             Logger logger = configureMockAppenderFor(LinkResolverBodyProcessor.class);
@@ -358,7 +354,7 @@ public class LinkResolverBodyProcessorTest {
                 URI.create("http://www.ft.com/content/" + ftContentUUID),
                 SC_MOVED_PERMANENTLY
         );
-        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_OK);
+        CLIENT_MOCK_BUILDER.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), SC_OK);
 
         String actual = processor.process(bodyWithShortLink, null);
         assertThat(actual, IsEqualIgnoringWhiteSpace.equalToIgnoringWhiteSpace(expectedTransformed));

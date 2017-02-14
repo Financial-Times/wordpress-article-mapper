@@ -46,9 +46,6 @@ public class BodyProcessingFieldTransformerFactoryTest {
     private static final URI DOC_STORE_QUERY_URI = DOC_STORE_URI.resolve("/content-query");
     private static final String TRANSACTION_ID = "tid_test";
     private static final URI CONTENT_READ_URI = URI.create("http://localhost:8080/content-read");
-    private static final String CONTENT_READ_HOST_HEADER = "content-read";
-    private static final String DOC_STORE_HOST_HEADER = "document-store-api";
-
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -85,10 +82,8 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 1, 2,
                 documentStoreQueryClient,
                 DOC_STORE_URI,
-                DOC_STORE_HOST_HEADER,
                 contentReadClient,
-                CONTENT_READ_URI,
-                CONTENT_READ_HOST_HEADER
+                CONTENT_READ_URI
         ).newInstance();
     }
 
@@ -432,7 +427,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 URI.create("http://www.ft.com/content/" + ftContentUUID.toString()),
                 SC_MOVED_PERMANENTLY);
 
-        clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), CONTENT_READ_HOST_HEADER, SC_OK);
+        clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, ftContentUUID.toString(), SC_OK);
         checkTransformation(bodyWithShortLink, expectedTransformed);
     }
 

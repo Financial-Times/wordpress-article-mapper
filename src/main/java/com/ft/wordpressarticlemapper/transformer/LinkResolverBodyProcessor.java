@@ -92,20 +92,15 @@ public class LinkResolverBodyProcessor
     private final URI documentStoreQueryURI;
     private final int poolSize;
     private final int maxLinks;
-    private final String contentReadHostHeader;
     private final ObjectMapper mapper = new ObjectMapper();
-    private final String documentStoreHostHeader;
-
 
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns,
                                      Client resolverClient,
                                      BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
                                      Client documentStoreClient,
                                      URI documentStoreBaseURI,
-                                     String documentStoreHostHeader,
                                      Client contentReadClient,
                                      URI contentReadBaseURI,
-                                     String contentReadHostHeader,
                                      int queryThreadPoolSize,
                                      int maxLinks) {
 
@@ -123,9 +118,6 @@ public class LinkResolverBodyProcessor
 
         this.documentStoreQueryURI = UriBuilder.fromUri(documentStoreBaseURI).path("/content-query").build();
         this.contentReadUriBuilder = UriBuilder.fromUri(contentReadBaseURI).path("{uuid}");
-
-        this.contentReadHostHeader = contentReadHostHeader;
-        this.documentStoreHostHeader = documentStoreHostHeader;
 
         this.poolSize = queryThreadPoolSize;
         this.maxLinks = maxLinks;
@@ -315,7 +307,6 @@ public class LinkResolverBodyProcessor
 
         LOG.info("content read URI: {}", contentReadURI);
         ClientResponse clientResponse = contentReadClient.resource(contentReadURI)
-                .header("Host", contentReadHostHeader)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(ClientResponse.class);
         if (clientResponse.getStatus() == Response.Status.SERVICE_UNAVAILABLE.getStatusCode() ||
@@ -334,7 +325,7 @@ public class LinkResolverBodyProcessor
     }
 
     private Identifier resolveToFTIdentifier(final URI source) {
-        Identifier identifier = null;
+        Identifier identifier;
 
         if (FT_WORDPRESS_URL.matcher(source.toASCIIString()).matches()) {
             identifier = identifierBuilder.build(source);
@@ -403,9 +394,7 @@ public class LinkResolverBodyProcessor
                     .build();
 
             LOG.info("query URI: {}", queryURI);
-            ClientResponse response = documentStoreClient.resource(queryURI)
-                    .header("Host", documentStoreHostHeader)
-                    .head();
+            ClientResponse response = documentStoreClient.resource(queryURI).head();
 
             int status = response.getStatus();
             LOG.info("query response: {}", status);

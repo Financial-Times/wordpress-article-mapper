@@ -34,11 +34,9 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
 
     private final Client documentStoreClient;
     private final URI documentStoreBaseUri;
-    private String documentStoreHostHeader;
 
     private final Client contentReadClient;
     private final URI contentReadBaseUri;
-    private String contentReadHostHeader;
 
     private final int resolverThreadPoolSize;
     private final int maxLinks;
@@ -52,10 +50,8 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                                                  int maxLinks,
                                                  Client documentStoreClient,
                                                  URI documentStoreBaseUri,
-                                                 String documentStoreHostHeader,
                                                  Client contentReadClient,
-                                                 URI contentReadBaseUri,
-                                                 String contentReadHostHeader) {
+                                                 URI contentReadBaseUri) {
       
         this.videoMatcher = videoMatcher;
         this.shortenerPatterns = ImmutableSet.copyOf(shortenerPatterns);
@@ -66,8 +62,6 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
         this.contentReadClient = contentReadClient;
         this.documentStoreBaseUri = documentStoreBaseUri;
         this.contentReadBaseUri = contentReadBaseUri;
-        this.contentReadHostHeader = contentReadHostHeader;
-        this.documentStoreHostHeader = documentStoreHostHeader;
         this.maxLinks = maxLinks;
     }
 
@@ -94,10 +88,8 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                         blogApiEndpointMetadataManager,
                         documentStoreClient,
                         documentStoreBaseUri,
-                        documentStoreHostHeader,
                         contentReadClient,
                         contentReadBaseUri,
-                        contentReadHostHeader,
                         resolverThreadPoolSize,
                         maxLinks)
         );

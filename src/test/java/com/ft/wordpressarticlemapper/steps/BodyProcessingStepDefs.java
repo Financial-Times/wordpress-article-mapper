@@ -107,10 +107,8 @@ public class BodyProcessingStepDefs {
                 1, 2,
                 documentStoreQueryClient,
                 DOCUMENT_STORE_URI,
-                DOC_STORE_HOST_HEADER,
                 contentReadClient,
-                CONTENT_READ_URI,
-                CONTENT_READ_HOST_HEADER)
+                CONTENT_READ_URI)
                 .newInstance();
 
         ClientMockBuilder clientMockBuilder = new ClientMockBuilder();
@@ -125,7 +123,7 @@ public class BodyProcessingStepDefs {
                 URI.create("http://www.ft.com/content/" + CONTENT_UUID),
                 SC_MOVED_PERMANENTLY
         );
-        clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, CONTENT_UUID, CONTENT_READ_HOST_HEADER, SC_OK);
+        clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, CONTENT_UUID, SC_OK);
 
         registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher);
         rulesAndHandlers = new HashMap<>();

@@ -8,16 +8,13 @@ public class ReaderConfiguration {
     private final EndpointConfiguration endpointConfiguration;
     private final int numberOfConnectionAttempts;
     private final int timeoutMultiplier;
-    private final String hostHeader;
 
     public ReaderConfiguration(@JsonProperty("endpointConfiguration") final EndpointConfiguration endpointConfiguration,
                                @JsonProperty("numberOfConnectionAttempts") int numberOfConnectionAttempts,
-                               @JsonProperty("timeoutMultiplier") int timeoutMultiplier,
-                               @JsonProperty("hostHeader") String hostHeader) {
+                               @JsonProperty("timeoutMultiplier") int timeoutMultiplier) {
         this.endpointConfiguration = endpointConfiguration;
         this.numberOfConnectionAttempts = numberOfConnectionAttempts;
         this.timeoutMultiplier = timeoutMultiplier;
-        this.hostHeader = hostHeader;
     }
 
     public EndpointConfiguration getEndpointConfiguration() {
@@ -32,7 +29,4 @@ public class ReaderConfiguration {
         return timeoutMultiplier;
     }
 
-    public String getHostHeader() {
-        return hostHeader;
-    }
 }
