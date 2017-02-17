@@ -2,6 +2,7 @@ package com.ft.wordpressarticlemapper.transformer;
 
 import com.ft.wordpressarticlemapper.exception.UnpublishablePostException;
 import com.ft.wordpressarticlemapper.exception.UntransformablePostException;
+import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
 import com.ft.wordpressarticlemapper.model.WordPressBlogPostContent;
@@ -79,7 +80,7 @@ public class WordPressBlogPostContentTransformerTest {
     }
 
     @Test
-    public void thatBlogPostIsTransformed() {
+     public void thatBlogPostIsTransformed() {
         Post post = new Post();
         post.setTitle(TITLE);
         post.setDateGmt(PUBLISHED_DATE_STR);
@@ -89,6 +90,7 @@ public class WordPressBlogPostContentTransformerTest {
         post.setExcerpt(BODY_OPENING);
         post.setCommentStatus(COMMENTS_OPEN);
         post.setUuid(POST_UUID.toString());
+        post.setAccessLevel(AccessLevel.SUBSCRIBED);
 
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
@@ -104,6 +106,7 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+        assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
                 is(equalTo(PUBLISHED_DATE.toInstant())));
     }
@@ -207,6 +210,33 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
                 is(equalTo(PUBLISHED_DATE.toInstant())));
+    }
+
+    @Test
+    public void thatDefaultAccessLevelIsUsedWhenAccessLevelIsNotPresent(){
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setContent(BODY_TEXT);
+        post.setUuid(POST_UUID.toString());
+        post.setDefaultAccessLevel(AccessLevel.FREE);
+
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+        assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.FREE)));
+    }
+
+    @Test
+    public void thatAccessLevelIsSubscribedWhenNoAccessLevelFieldIsPresent() {
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setContent(BODY_TEXT);
+        post.setUuid(POST_UUID.toString());
+
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+        assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
     }
 
     @Test(expected = UnpublishablePostException.class)

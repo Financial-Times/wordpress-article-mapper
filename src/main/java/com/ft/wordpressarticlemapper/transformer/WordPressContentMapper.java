@@ -3,6 +3,7 @@ package com.ft.wordpressarticlemapper.transformer;
 import com.ft.wordpressarticlemapper.exception.BrandResolutionException;
 import com.ft.wordpressarticlemapper.exception.IdentifiersBuildException;
 import com.ft.wordpressarticlemapper.exception.WordPressContentException;
+import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Comments;
 import com.ft.wordpressarticlemapper.model.Identifier;
@@ -59,6 +60,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         SortedSet<Identifier> identifiers = generateIdentifiers(requestUri, post);
         UUID featuredImageUuid = createMainImageUuid(post);
+        AccessLevel accessLevel = getAccessLevel(post);
 
         UUID uuid = UUID.fromString(post.getUuid());
 
@@ -66,7 +68,17 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
-                featuredImageUuid, lastModified, firstPublishedDate);
+                featuredImageUuid, lastModified, firstPublishedDate, accessLevel);
+    }
+
+    private AccessLevel getAccessLevel(Post post) {
+        AccessLevel accessLevel = post.getAccessLevel();
+        if (accessLevel != null) {
+            return accessLevel;
+        }
+
+        accessLevel = post.getDefaultAccessLevel();
+        return accessLevel != null ? accessLevel : AccessLevel.SUBSCRIBED;
     }
 
     private SortedSet<Identifier> generateIdentifiers(URI requestUri, Post post) {
@@ -81,7 +93,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
     protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                    SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
-                                   UUID featuredImageUuid, Date lastModified, Date firstPublishedDate);
+                                   UUID featuredImageUuid, Date lastModified, Date firstPublishedDate, AccessLevel accessLevel);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
