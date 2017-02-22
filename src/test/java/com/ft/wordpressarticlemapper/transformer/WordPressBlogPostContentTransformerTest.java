@@ -2,10 +2,7 @@ package com.ft.wordpressarticlemapper.transformer;
 
 import com.ft.wordpressarticlemapper.exception.UnpublishablePostException;
 import com.ft.wordpressarticlemapper.exception.UntransformablePostException;
-import com.ft.wordpressarticlemapper.model.AccessLevel;
-import com.ft.wordpressarticlemapper.model.Brand;
-import com.ft.wordpressarticlemapper.model.Identifier;
-import com.ft.wordpressarticlemapper.model.WordPressBlogPostContent;
+import com.ft.wordpressarticlemapper.model.*;
 import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
@@ -109,6 +106,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
                 is(equalTo(PUBLISHED_DATE.toInstant())));
+        assertThat("canBeDistributed", actual.getCanBeDistributed(),
+                is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
     }
 
     @Test
@@ -148,6 +147,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
                 is(equalTo(PUBLISHED_DATE.toInstant())));
+        assertThat("canBeDistributed", actual.getCanBeDistributed(),
+                is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
     }
 
     private void checkBodyXml(String fieldName, String expected, String actual)
@@ -183,6 +184,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
                 is(equalTo(PUBLISHED_DATE.toInstant())));
+        assertThat("canBeDistributed", actual.getCanBeDistributed(),
+                is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
     }
 
     @Test
@@ -210,6 +213,8 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(),
                 is(equalTo(PUBLISHED_DATE.toInstant())));
+        assertThat("canBeDistributed", actual.getCanBeDistributed(),
+                is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
     }
 
     @Test
@@ -286,5 +291,7 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("publishedDate", actual.getPublishedDate().toInstant(), is(equalTo(MODIFIED_DATE.toInstant())));
         assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
         assertNull("firstPublishedDate", actual.getFirstPublishedDate());
+        assertThat("canBeDistributed", actual.getCanBeDistributed(),
+                is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
     }
 }

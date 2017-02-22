@@ -123,6 +123,8 @@ public class WordPressArticleMapperApplicationComponentTest {
         assertThat((String) jsonPayload.get("opening"), CoreMatchers.containsString("<content id=\"3fcac834-58ce-11e4-a31b-00144feab7de\""));
         assertThat((String) jsonPayload.get("opening"), CoreMatchers.containsString("<content id=\"8adad508-077b-3795-8569-18e532cabf96\""));
         assertThat(jsonPayload.get("publishReference"), equalTo(txId));
+        assertThat(jsonPayload.get("firstPublishedDate"), equalTo("2014-10-21T04:45:30.000Z"));
+        assertThat(jsonPayload.get("canBeDistributed"), equalTo("yes"));
     }
 
     @Test
