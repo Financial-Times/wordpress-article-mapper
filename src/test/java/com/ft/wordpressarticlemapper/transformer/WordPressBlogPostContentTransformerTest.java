@@ -2,7 +2,10 @@ package com.ft.wordpressarticlemapper.transformer;
 
 import com.ft.wordpressarticlemapper.exception.UnpublishablePostException;
 import com.ft.wordpressarticlemapper.exception.UntransformablePostException;
-import com.ft.wordpressarticlemapper.model.*;
+import com.ft.wordpressarticlemapper.model.AccessLevel;
+import com.ft.wordpressarticlemapper.model.Brand;
+import com.ft.wordpressarticlemapper.model.Identifier;
+import com.ft.wordpressarticlemapper.model.WordPressBlogPostContent;
 import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
