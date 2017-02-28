@@ -14,6 +14,8 @@ import com.ft.message.consumer.MessageQueueConsumerInitializer;
 import com.ft.messagequeueproducer.MessageProducer;
 import com.ft.messagequeueproducer.QueueProxyProducer;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
+import com.ft.platform.dropwizard.DefaultGoodToGoChecker;
+import com.ft.platform.dropwizard.GoodToGoBundle;
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticlemapper.configuration.ConsumerConfiguration;
 import com.ft.wordpressarticlemapper.configuration.ProducerConfiguration;
@@ -58,6 +60,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
     @Override
     public void initialize(Bootstrap<WordPressArticleTransformerConfiguration> bootstrap) {
         bootstrap.addBundle(new AdvancedHealthCheckBundle());
+        bootstrap.addBundle(new GoodToGoBundle(new DefaultGoodToGoChecker()));
     }
 
     @Override
