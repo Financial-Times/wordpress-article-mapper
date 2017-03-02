@@ -1,9 +1,13 @@
 FROM coco/dropwizardbase:0.7.x-mvn333
 
-COPY . /
+COPY . /wordpress-article-mapper
 
 RUN apk --update add git \
+ && cd wordpress-article-mapper \
  && HASH=$(git log -1 --pretty=format:%H) \
+ && TAG=$(git tag -l --contains $HASH) \
+ && VERSION=${TAG:-untagged} \
+ && mvn versions:set -DnewVersion=$VERSION \
  && mvn install -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true \
  && rm -f target/wordpress-article-mapper-*sources.jar \
  && mv target/wordpress-article-mapper-*.jar /wordpress-article-mapper.jar \
