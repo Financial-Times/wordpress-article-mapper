@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 
 public abstract class WordPressContentMapper<C extends WordPressContent> {
+    public static final String CAN_BE_DISTRIBUTED_DEFAULT_VALUE = "yes";
+
     private static final Logger LOG = LoggerFactory.getLogger(WordPressContentMapper.class);
 
     private static final DateTimeFormatter PUBLISH_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX");
@@ -66,9 +68,11 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         Date firstPublishedDate = extractFirstPublishedDate(requestUri, post);
 
+        String canBeDistributed = getCanBeDistributed();
+
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
-                featuredImageUuid, lastModified, firstPublishedDate, accessLevel);
+                featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed);
     }
 
     private AccessLevel getAccessLevel(Post post) {
@@ -93,7 +97,8 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
     protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                    SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
-                                   UUID featuredImageUuid, Date lastModified, Date firstPublishedDate, AccessLevel accessLevel);
+                                   UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
+                                   AccessLevel accessLevel, String canBeDistributed);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
@@ -164,5 +169,9 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
             LOG.error("unable to construct UUID for featured image", e);
             throw new WordPressContentException("unable to construct UUID for featured image", e);
         }
+    }
+
+    private String getCanBeDistributed() {
+        return CAN_BE_DISTRIBUTED_DEFAULT_VALUE;
     }
 }

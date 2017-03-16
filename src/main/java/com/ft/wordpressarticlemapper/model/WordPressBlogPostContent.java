@@ -36,11 +36,12 @@ public class WordPressBlogPostContent
                                      String publishReference,
                                      Date lastModified,
                                      Date firstPublishedDate,
-                                     AccessLevel accessLevel) {
-        
-        super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth, 
+                                     AccessLevel accessLevel,
+                                     String canBeDistributed) {
+
+        super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
-                firstPublishedDate, accessLevel);
+                firstPublishedDate, accessLevel, canBeDistributed);
 
         this.body = body;
         this.opening = opening;
@@ -49,11 +50,11 @@ public class WordPressBlogPostContent
     public String getBody() {
         return body;
     }
-    
+
     public String getOpening() {
         return opening;
     }
-    
+
     @Override
     public String toString() {
         return String.format("%s[body=%s,opening=%s]", super.toString(), body, opening);
@@ -62,10 +63,10 @@ public class WordPressBlogPostContent
     @Override
     public boolean equals(Object o) {
         return super.equals(o)
-                && Objects.equal(this.body, ((WordPressBlogPostContent)o).body)
-                && Objects.equal(this.opening, ((WordPressBlogPostContent)o).opening);
+                && Objects.equal(this.body, ((WordPressBlogPostContent) o).body)
+                && Objects.equal(this.opening, ((WordPressBlogPostContent) o).opening);
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hashCode(super.hashCode(), body, opening);
@@ -80,7 +81,7 @@ public class WordPressBlogPostContent
 
         private String body;
         private String opening;
-        
+
         public Builder withBody(String body) {
             this.body = body;
             return this;
@@ -90,18 +91,19 @@ public class WordPressBlogPostContent
             this.opening = opening;
             return this;
         }
-        
+
         public Builder withValuesFrom(WordPressBlogPostContent content) {
-            return ((Builder)super.withValuesFrom(content))
+            return ((Builder) super.withValuesFrom(content))
                     .withBody(content.getBody());
         }
 
-		public WordPressBlogPostContent build() {
+        public WordPressBlogPostContent build() {
             return new WordPressBlogPostContent(getUuid(), getTitle(), getTitles(), getByline(),
                     getBrands(), getIdentifiers(), getPublishedDate(), body, opening, getDescription(),
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
-                    getMainImage(), getComments(), getPublishReference(), getLastModified(), getFirstPublishedDate(), getAccessLevel());
+                    getMainImage(), getComments(), getPublishReference(), getLastModified(), getFirstPublishedDate(),
+                    getAccessLevel(), getCanBeDistributed());
         }
     }
 }
