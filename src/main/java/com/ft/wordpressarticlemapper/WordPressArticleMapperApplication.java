@@ -33,6 +33,7 @@ import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformerFactory;
 import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
 import com.ft.wordpressarticlemapper.transformer.WordPressLiveBlogContentMapper;
+import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
 import com.sun.jersey.api.client.Client;
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientConfiguration;
