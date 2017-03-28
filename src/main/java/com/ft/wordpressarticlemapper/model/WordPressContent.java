@@ -1,7 +1,8 @@
 package com.ft.wordpressarticlemapper.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.base.Objects;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,6 +12,9 @@ import java.util.SortedSet;
 import java.util.UUID;
 
 public abstract class WordPressContent {
+
+    private static final String TYPE_ARTICLE = "Article";
+
     private final String uuid;
     private final String title;
     private final List<String> titles;
@@ -85,6 +89,10 @@ public abstract class WordPressContent {
 
     public List<String> getTitles() {
         return titles;
+    }
+
+    public String getType() {
+        return TYPE_ARTICLE;
     }
 
     public String getByline() {
@@ -167,6 +175,7 @@ public abstract class WordPressContent {
         return Objects.toStringHelper(this.getClass())
                 .add("uuid", uuid)
                 .add("title", title)
+                .add("type", getType())
                 .add("byline", byline)
                 .add("brands", brands)
                 .add("identifiers", identifiers)
