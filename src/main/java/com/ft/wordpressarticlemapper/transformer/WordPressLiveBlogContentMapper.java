@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
 import com.ft.wordpressarticlemapper.model.WordPressLiveBlogContent;
@@ -25,7 +26,8 @@ public class WordPressLiveBlogContentMapper
     @Override
     protected WordPressLiveBlogContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
-                                                 UUID featuredImageUuid, Date lastModified, Date firstPublishedDate) {
+                                                 UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
+                                                 AccessLevel accessLevel, String canBeDistributed) {
 
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder) WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
@@ -38,7 +40,9 @@ public class WordPressLiveBlogContentMapper
                 .withMainImage(Objects.toString(featuredImageUuid, null))
                 .withPublishReference(transactionId)
                 .withLastModified(lastModified)
-                .withFirstPublishedDate(firstPublishedDate);
+                .withFirstPublishedDate(firstPublishedDate)
+                .withAccessLevel(accessLevel)
+                .withCanBeDistributed(canBeDistributed);
 
         return builder.build();
     }

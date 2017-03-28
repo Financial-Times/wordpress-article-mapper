@@ -33,5 +33,7 @@
     "enabled": false
   },
   "publishReference": "tid_yoyfkwcs2s",
-  "lastModified": "2016-11-04T13:19:24.594Z"
+  "lastModified": "2016-11-04T13:19:24.594Z",
+  "firstPublishedDate": "2016-11-04T13:19:20.000Z",
+  "canBeDistributed": "yes"
 }

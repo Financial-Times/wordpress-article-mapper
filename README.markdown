@@ -24,6 +24,7 @@ This service listens to the NativeCmsPublicationEvents Kafka topic and ingests t
 | `firstPublishedDate` | `$.post.date_gmt` | First publication date | `"2016-12-10T10:01:22.000Z"` |
 | `body` | `$.post.content` | Post Body | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
 | `opening` | `$.post.excerpt` | Post Opening | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
+| `accessLevel` | `$.post.accessLevel` or `$.post.defaultAccessLevel`  | Post Access Level | `"subscribed"` or `"registered"` or `"premium"` or `"free"` |
 
 ## Running
 Please make sure you are running it in the correct working directory (wordpress-article-mapper).

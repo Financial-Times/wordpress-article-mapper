@@ -29,7 +29,6 @@ import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.HtmlTransformerResource;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.resources.WordPressArticleMapperResource;
-import com.ft.wordpressarticlemapper.resources.WordPressArticleTransformerExceptionMapper;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformerFactory;
 import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
@@ -75,14 +74,6 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
 
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(configuration.getHostToBrands());
 
-        WordPressArticleMapperResource wordPressArticleTransformerResource =
-                new WordPressArticleMapperResource(
-                        getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration(), blogApiEndpointMetadataManager),
-                        new BrandSystemResolver(blogApiEndpointMetadataManager),
-                        new IdentifierBuilder(blogApiEndpointMetadataManager)
-                );
-        environment.jersey().register(wordPressArticleTransformerResource);
-
         HtmlTransformerResource htmlTransformerResource = new HtmlTransformerResource(
                 getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration(), blogApiEndpointMetadataManager)
         );
@@ -101,16 +92,27 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
 
         IdentifierBuilder identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
 
+        WordPressBlogPostContentMapper blogPostContentMapper = new WordPressBlogPostContentMapper(brandSystemResolver,
+                bodyProcessingFieldTransformer, identifierBuilder);
+        WordPressLiveBlogContentMapper liveBlogContentMapper = new WordPressLiveBlogContentMapper(brandSystemResolver,
+                identifierBuilder);
+
         MessageProducingContentMapper contentMapper = new MessageProducingContentMapper(
-                new WordPressBlogPostContentMapper(brandSystemResolver, bodyProcessingFieldTransformer, identifierBuilder),
-                new WordPressLiveBlogContentMapper(brandSystemResolver, identifierBuilder),
+                blogPostContentMapper,
+                liveBlogContentMapper,
                 objectMapper,
                 configuration.getConsumerConfiguration().getSystemCode(),
                 producer,
                 contentUriBuilder);
 
+        NativeWordPressContentValidator contentValidator = new NativeWordPressContentValidator();
+
+        WordPressArticleMapperResource wordPressArticleTransformerResource =
+                new WordPressArticleMapperResource(blogPostContentMapper, liveBlogContentMapper, contentMapper, contentValidator);
+        environment.jersey().register(wordPressArticleTransformerResource);
+
         String systemCode = configuration.getConsumerConfiguration().getSystemCode();
-        MessageListener listener = new NativeCmsPublicationEventsListener(contentMapper, objectMapper, systemCode);
+        MessageListener listener = new NativeCmsPublicationEventsListener(contentMapper, objectMapper, systemCode, contentValidator);
 
         startListener(environment, listener, configuration.getConsumerConfiguration(), consumerClient);
 
@@ -122,12 +124,11 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
                         "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
                         Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreConfiguration().getEndpointConfiguration()));
 
-        environment.jersey().register(WordPressArticleTransformerExceptionMapper.class);
         Errors.customise(new WordPressArticleMapperErrorEntityFactory());
         environment.servlets().addFilter("Transaction ID Filter",
-                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/content/*");
+                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/map", "/ingest");
         environment.servlets().addFilter("Transaction ID Filter",
-                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/transform-html-fragment/*");
+                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/transform-html-fragment");
 
     }
 

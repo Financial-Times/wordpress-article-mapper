@@ -11,8 +11,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import java.util.UUID;
-
 
 @Path("/transform-html-fragment")
 public class HtmlTransformerResource {
@@ -28,7 +26,7 @@ public class HtmlTransformerResource {
     @Consumes({MediaType.TEXT_PLAIN, MediaType.TEXT_HTML})
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_HTML})
     public final String transformHtml(String body, @Context HttpHeaders httpHeaders) {
-        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders, UUID.randomUUID(), "Transform request");
+        String transactionId = TransactionIdUtils.getTransactionIdOrDie(httpHeaders);
         return bodyProcessingFieldTransformer.transform(body, transactionId);
     }
 
