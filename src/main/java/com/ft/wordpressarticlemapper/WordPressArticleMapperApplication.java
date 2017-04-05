@@ -45,7 +45,8 @@ import javax.servlet.DispatcherType;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.EnumSet;
-
+import com.ft.platform.dropwizard.DefaultGoodToGoChecker;
+import com.ft.platform.dropwizard.GoodToGoBundle;
 
 public class WordPressArticleMapperApplication extends Application<WordPressArticleTransformerConfiguration> {
 
@@ -58,6 +59,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
     @Override
     public void initialize(Bootstrap<WordPressArticleTransformerConfiguration> bootstrap) {
         bootstrap.addBundle(new AdvancedHealthCheckBundle());
+        bootstrap.addBundle(new GoodToGoBundle(new DefaultGoodToGoChecker()));
     }
 
     @Override
