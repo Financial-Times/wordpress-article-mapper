@@ -298,7 +298,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "   </div>\n" +
                 "   \n" +
                 "</div></body>";
-        String expectedVideo = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a></body>";
+        String expectedVideo = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.ft.com/video/7c95e1db-b56f-3e1a-a6d4-606cd24f68b6\"></a></body>";
         checkTransformation(wordpressVideoText, expectedVideo);
     }
 
@@ -336,7 +336,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
     }
 
     @Test
-    public void shouldProcessVideoCombinedVideoTagsCorrectly() {
+    public void shouldProcessBrightcoveVideoCombinedVideoTagsCorrectly() {
         String videoText = "<body><p>Some video (brightcove):</p>" +
                 "<div class=\"video-container video-container-ftvideo\" data-aspect-ratio=\"16:9\">" +
                 "<div data-asset-type=\"video\" data-asset-source=\"Brightcove\" data-asset-ref=\"3791005080001\">" +
@@ -349,7 +349,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "<div class='video-container video-container-youtube' data-aspect-ratio='16:9'>" +
                 "<div data-asset-type='video' data-asset-source='YouTube' data-asset-ref='fRqCVcSWbDc'>" +
                 "<iframe width='590' height='331' src='http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent' frameborder='0'></iframe></div></div></body>";
-        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
+        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.ft.com/video/7c95e1db-b56f-3e1a-a6d4-606cd24f68b6\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
         when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleYouTubeVideo);
         checkTransformation(videoText, expectedYouTube);
     }

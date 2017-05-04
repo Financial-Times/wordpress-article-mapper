@@ -1,6 +1,7 @@
 package com.ft.wordpressarticlemapper.transformer.eventhandlers;
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ import com.ft.bodyprocessing.xml.eventhandlers.XMLEventHandler;
 
 public class ClassVideoContainerXMLEventHandler extends BaseXMLEventHandler {
 
-	public static final String DATA_ASSET_TYPE = "data-asset-type";
+    public static final String DATA_ASSET_TYPE = "data-asset-type";
 	public static final String VIDEO = "video";
 	public static final String DATA_EMBEDDED = "data-embedded";
 	public static final String TRUE = "true";
@@ -31,16 +32,22 @@ public class ClassVideoContainerXMLEventHandler extends BaseXMLEventHandler {
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
     private static final String NEW_ELEMENT = "a";
     private static final String NEW_ELEMENT_ATTRIBUTE = "href";
+    
+    private static final String BRIGHTCOVE_SOURCE = "Brightcove";
+    private static final String FT_VIDEO_SOURCE = "FTVideo";
+    private static final String YOUTUBE_SOURCE = "YouTube";
+    private static final String FT_VIDEO_URL = "https://www.ft.com/video/%s";
+    private static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
+
     private XMLEventHandler fallbackHandler;
-
     private Map<String, String> sourceToUrlMap;
-
 
     public ClassVideoContainerXMLEventHandler(XMLEventHandler fallbackHandler) {
         this.fallbackHandler = fallbackHandler;
         sourceToUrlMap = new HashMap<>();
-        sourceToUrlMap.put("Brightcove", "http://video.ft.com/%s");
-        sourceToUrlMap.put("YouTube", "https://www.youtube.com/watch?v=%s");
+        sourceToUrlMap.put(BRIGHTCOVE_SOURCE, FT_VIDEO_URL);
+        sourceToUrlMap.put(FT_VIDEO_SOURCE, FT_VIDEO_URL);
+        sourceToUrlMap.put(YOUTUBE_SOURCE, YOUTUBE_URL);
     }
 
     @Override
@@ -53,17 +60,19 @@ public class ClassVideoContainerXMLEventHandler extends BaseXMLEventHandler {
 
         XMLEvent found = getEventAndSkipBlock(xmlEventReader, "div", "div", VIDEO_ID_ATTRIBUTE, "[a-zA-Z0-9_\\-]*");
 
-        if(found==null) {
+        if (found == null) {
             return;
         }
 
         String source = found.asStartElement().getAttributeByName(QName.valueOf(VIDEO_SOURCE_ATTRIBUTE)).getValue();
         String id = found.asStartElement().getAttributeByName(QName.valueOf(VIDEO_ID_ATTRIBUTE)).getValue();
 
-        if(source == null || id == null || sourceToUrlMap.get(source)==null){
+        if (source == null || id == null || sourceToUrlMap.get(source) == null) {
             return;
         }
-        String videoUrl = String.format(sourceToUrlMap.get(source), id);
+        
+        String videoUuid = BRIGHTCOVE_SOURCE.equals(source) ? resolveVideoUUID(id) : id;
+        String videoUrl = String.format(sourceToUrlMap.get(source), videoUuid);
 		Map<String, String> attributesToAdd = new HashMap<>();
         attributesToAdd.put(NEW_ELEMENT_ATTRIBUTE, videoUrl);
 		attributesToAdd.put(DATA_ASSET_TYPE, VIDEO);
@@ -127,5 +136,7 @@ public class ClassVideoContainerXMLEventHandler extends BaseXMLEventHandler {
 
     }
 
-
+    public String resolveVideoUUID(String videoId) {
+        return UUID.nameUUIDFromBytes(videoId.getBytes()).toString();
+    }
 }

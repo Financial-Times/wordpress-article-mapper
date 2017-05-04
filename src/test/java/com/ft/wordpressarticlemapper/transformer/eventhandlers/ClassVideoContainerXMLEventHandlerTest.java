@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ClassVideoContainerXMLEventHandlerTest extends BaseXMLEventHandlerTest {
 
+
     private ClassVideoContainerXMLEventHandler eventHandler;
 
     @Mock private BaseXMLEventHandler fallBackHandler;
@@ -35,10 +36,12 @@ public class ClassVideoContainerXMLEventHandlerTest extends BaseXMLEventHandlerT
     private static final String INCORRECT_TARGETED_CLASS_VALUE = "wrong-value";
     private static final String VIDEO_ID_ATTRIBUTE = "data-asset-ref";
     private static final String BRIGHTCOVE_ATTRIBUTE_VALUE = "4035805662001";
+    private static final String BRIGHTCOVE_ATTRIBUTE_UUID_VALUE = "0ab9ef5d-b98f-3948-a6a7-c26178783cbf";
     private static final String YOUTUBE_ATTRIBUTE_VALUE = "OQ-JR3B_S7o";
     private static final String VIDEO_SOURCE_ATTRIBUTE = "data-asset-source";
-    private static final String BRIGHTCOVE_SOURCE = "http://video.ft.com/";
+    private static final String BRIGHTCOVE_SOURCE = "https://www.ft.com/video/";
     private static final String VIDEO_SOURCE_ATTRIBUTE_BRIGHTCOVE = "Brightcove";
+    private static final String FT_VIDEO_SOURCE_ATTRIBUTE = "FTVideo";
     private static final String YOUTUBE_SOURCE = "https://www.youtube.com/watch?v=";
     private static final String VIDEO_SOURCE_ATTRIBUTE_YOUTUBE = "YouTube";
     private static final String TRANSFORMED_ELEMENT = "a";
@@ -74,11 +77,37 @@ public class ClassVideoContainerXMLEventHandlerTest extends BaseXMLEventHandlerT
         secondElementAttributes.put(VIDEO_ID_ATTRIBUTE, BRIGHTCOVE_ATTRIBUTE_VALUE);
         secondElementAttributes.put(VIDEO_SOURCE_ATTRIBUTE, VIDEO_SOURCE_ATTRIBUTE_BRIGHTCOVE);
 
-        String videoUrl = BRIGHTCOVE_SOURCE + BRIGHTCOVE_ATTRIBUTE_VALUE;
+        String videoUrl = BRIGHTCOVE_SOURCE + BRIGHTCOVE_ATTRIBUTE_UUID_VALUE;
         Map<String, String> transformedElementAttributes = new HashMap<>();
         transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
 		transformedElementAttributes.put(ClassVideoContainerXMLEventHandler.DATA_ASSET_TYPE, ClassVideoContainerXMLEventHandler.VIDEO);
 		transformedElementAttributes.put(ClassVideoContainerXMLEventHandler.DATA_EMBEDDED, ClassVideoContainerXMLEventHandler.TRUE);
+
+        StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
+        StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
+        EndElement closeSecondElement = getEndElement(ORIGINAL_ELEMENT);
+        EndElement closeFirstElement = getEndElement(ORIGINAL_ELEMENT);
+
+        when(mockXMLEventReader.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true);
+        when(mockXMLEventReader.nextEvent()).thenReturn(secondElement).thenReturn(closeSecondElement).thenReturn(closeFirstElement);
+        eventHandler.handleStartElementEvent(firstElement, mockXMLEventReader, mockBodyWriter, mockBodyProcessingContext);
+        verify(mockBodyWriter).writeStartTag(TRANSFORMED_ELEMENT, transformedElementAttributes);
+        verify(mockBodyWriter).writeEndTag(TRANSFORMED_ELEMENT);
+    }
+    
+    public void shouldTransformAndWriteFTVideoContentIfAllConditionsAreMet() throws Exception {
+        Map<String, String> firstElementAttributes = new HashMap<>();
+        firstElementAttributes.put(ORIGINAL_ELEMENT_ATTRIBUTE, TARGETED_CLASS_VALUE);
+        
+        Map<String, String> secondElementAttributes = new HashMap<>();
+        secondElementAttributes.put(VIDEO_ID_ATTRIBUTE, BRIGHTCOVE_ATTRIBUTE_UUID_VALUE);
+        secondElementAttributes.put(VIDEO_SOURCE_ATTRIBUTE, FT_VIDEO_SOURCE_ATTRIBUTE);
+        
+        String videoUrl = BRIGHTCOVE_SOURCE + BRIGHTCOVE_ATTRIBUTE_UUID_VALUE;
+        Map<String, String> transformedElementAttributes = new HashMap<>();
+        transformedElementAttributes.put(TRANSFORMED_ELEMENT_ATTRIBUTE, videoUrl);
+        transformedElementAttributes.put(ClassVideoContainerXMLEventHandler.DATA_ASSET_TYPE, ClassVideoContainerXMLEventHandler.VIDEO);
+        transformedElementAttributes.put(ClassVideoContainerXMLEventHandler.DATA_EMBEDDED, ClassVideoContainerXMLEventHandler.TRUE);
 
         StartElement firstElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, firstElementAttributes);
         StartElement secondElement = getStartElementWithAttributes(ORIGINAL_ELEMENT, secondElementAttributes);
