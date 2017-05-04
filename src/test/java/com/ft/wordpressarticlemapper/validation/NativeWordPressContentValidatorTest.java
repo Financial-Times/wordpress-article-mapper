@@ -86,6 +86,16 @@ public class NativeWordPressContentValidatorTest {
     }
 
     @Test
+    public void thatExceptionIsThrownWhenInvalidUUID() throws Exception {
+        final NativeWordPressContent content = JACKSON_MAPPER.reader(NativeWordPressContent.class)
+                .readValue(loadFile("wordPress/__files/wordpress-content-invalid-uuid.json"));
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Invalid UUID supplied");
+
+        contentValidator.validate(content);
+    }
+
+    @Test
     public void thatExceptionIsThrownWhenDeleteMessage() throws Exception {
         NativeWordPressContent content = JACKSON_MAPPER.reader(NativeWordPressContent.class)
                 .readValue(loadFile("wordPress/__files/WILL_RETURN_404-delete-event.json"));

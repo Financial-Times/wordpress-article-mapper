@@ -10,6 +10,7 @@ import com.ft.wordpressarticlemapper.response.NativeWordPressContent;
 import com.ft.wordpressarticlemapper.response.Post;
 import com.ft.wordpressarticlemapper.response.WordPressPostType;
 import com.ft.wordpressarticlemapper.response.WordPressStatus;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,17 +26,21 @@ public class NativeWordPressContentValidator {
     private static final String ERROR_NOT_FOUND = "Not found."; // DOES include a dot
 
     public void validate(NativeWordPressContent nativeWordPressContent) {
-
         if (nativeWordPressContent.getPost() == null) {
             throw new IllegalArgumentException("No content supplied");
         }
 
-        String status = nativeWordPressContent.getStatus();
+        final String status = nativeWordPressContent.getStatus();
         if (status == null) {
             throw new InvalidStatusException("Native WordPress content is not valid. Status is null");
         }
-        String uuid =  nativeWordPressContent.getPost().getUuid();
-        WordPressStatus wordPressStatus;
+
+        final String uuid = nativeWordPressContent.getPost().getUuid();
+        if (uuid != null && !UUID.fromString(uuid).toString().equals(uuid)) {
+            throw new IllegalArgumentException("Invalid UUID supplied");
+        }
+
+        final WordPressStatus wordPressStatus;
         try {
             wordPressStatus = WordPressStatus.valueOf(status);
         } catch (IllegalArgumentException ignored) {
