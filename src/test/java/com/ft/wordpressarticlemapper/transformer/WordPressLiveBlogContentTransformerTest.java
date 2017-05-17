@@ -1,8 +1,8 @@
 package com.ft.wordpressarticlemapper.transformer;
 
-import com.ft.uuidutils.DeriveUuid;
-import com.ft.uuidutils.DeriveUuid.Salts;
-import com.ft.uuidutils.GenerateUuid;
+import com.ft.uuidutils.DeriveUUID;
+import com.ft.uuidutils.DeriveUUID.Salts;
+import com.ft.uuidutils.GenerateV5UUID;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
@@ -116,8 +116,8 @@ public class WordPressLiveBlogContentTransformerTest {
         mainImage.setUrl(IMAGE_URL);
         post.setMainImage(mainImage);
 
-        UUID imageModelUuid = GenerateUuid.from(new URL(IMAGE_URL));
-        String imageSetUuid = DeriveUuid.with(Salts.IMAGE_SET).from(imageModelUuid).toString();
+        UUID imageModelUuid = GenerateV5UUID.fromURL(new URL(IMAGE_URL));
+        String imageSetUuid = DeriveUUID.with(Salts.IMAGE_SET).from(imageModelUuid).toString();
 
         WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
