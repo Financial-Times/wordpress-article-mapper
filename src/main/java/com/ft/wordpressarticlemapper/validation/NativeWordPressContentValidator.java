@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.validation;
 
+import com.ft.uuidutils.UUIDValidation;
 import com.ft.wordpressarticlemapper.exception.InvalidStatusException;
 import com.ft.wordpressarticlemapper.exception.PostNotFoundException;
 import com.ft.wordpressarticlemapper.exception.UnexpectedErrorCodeException;
@@ -35,6 +36,8 @@ public class NativeWordPressContentValidator {
             throw new InvalidStatusException("Native WordPress content is not valid. Status is null");
         }
         String uuid =  nativeWordPressContent.getPost().getUuid();
+        UUIDValidation.of(uuid);
+
         WordPressStatus wordPressStatus;
         try {
             wordPressStatus = WordPressStatus.valueOf(status);

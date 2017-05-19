@@ -93,6 +93,14 @@ public class NativeWordPressContentValidatorTest {
         contentValidator.validate(content);
     }
 
+    @Test
+    public void thatExceptionIsThrownWhenInvalidUUID() throws Exception {
+        NativeWordPressContent content = JACKSON_MAPPER.reader(NativeWordPressContent.class)
+                .readValue(loadFile("wordPress/__files/wordpress-content-invalid-uuid.json"));
+        thrown.expect(IllegalArgumentException.class);
+        contentValidator.validate(content);
+    }
+
     private String loadFile(final String filename) throws Exception {
         URL resource = getClass().getClassLoader().getResource(filename);
         if (resource != null) {
