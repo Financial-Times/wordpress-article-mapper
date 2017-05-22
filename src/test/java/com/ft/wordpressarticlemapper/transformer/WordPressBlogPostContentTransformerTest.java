@@ -1,5 +1,8 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.uuidutils.DeriveUUID;
+import com.ft.uuidutils.DeriveUUID.Salts;
+import com.ft.uuidutils.GenerateV5UUID;
 import com.ft.wordpressarticlemapper.exception.UnpublishablePostException;
 import com.ft.wordpressarticlemapper.exception.UntransformablePostException;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
@@ -11,8 +14,6 @@ import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
 import com.ft.wordpressarticlemapper.response.Post;
-import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
-import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
 import com.google.common.collect.ImmutableSortedSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,8 +131,8 @@ public class WordPressBlogPostContentTransformerTest {
         mainImage.setUrl(IMAGE_URL);
         post.setMainImage(mainImage);
 
-        UUID imageModelUuid = ImageModelUuidGenerator.fromURL(new URL(IMAGE_URL));
-        String imageSetUuid = ImageSetUuidGenerator.fromImageUuid(imageModelUuid).toString();
+        UUID imageModelUuid = GenerateV5UUID.fromURL(new URL(IMAGE_URL));
+        String imageSetUuid = DeriveUUID.with(Salts.IMAGE_SET).from(imageModelUuid).toString();
 
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));

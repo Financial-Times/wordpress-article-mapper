@@ -1,5 +1,8 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.uuidutils.DeriveUUID;
+import com.ft.uuidutils.DeriveUUID.Salts;
+import com.ft.uuidutils.GenerateV5UUID;
 import com.ft.wordpressarticlemapper.exception.BrandResolutionException;
 import com.ft.wordpressarticlemapper.exception.IdentifiersBuildException;
 import com.ft.wordpressarticlemapper.exception.WordPressContentException;
@@ -13,8 +16,6 @@ import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
 import com.ft.wordpressarticlemapper.response.Post;
-import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
-import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,8 +164,8 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
         String imageUrl = img.getUrl();
         try {
             URL u = new URL(imageUrl);
-            UUID imageModelUuid = ImageModelUuidGenerator.fromURL(u);
-            return ImageSetUuidGenerator.fromImageUuid(imageModelUuid);
+            UUID imageModelUuid = GenerateV5UUID.fromURL(u);
+            return DeriveUUID.with(Salts.IMAGE_SET).from(imageModelUuid);
         } catch (MalformedURLException e) {
             LOG.error("unable to construct UUID for featured image", e);
             throw new WordPressContentException("unable to construct UUID for featured image", e);

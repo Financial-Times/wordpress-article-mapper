@@ -3,6 +3,7 @@
     "apiUrl": "http://localhost:8080/fake-url",
     "post": {
         "id": 2014692,
+        "uuid": "bb918201-2058-38a5-bd70-be8126200f2d",
         "type": "foo",
         "slug": "the-6am-london-cut-277",
         "url": "http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/",
