@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.validation;
 
+import com.ft.uuidutils.UUIDValidation;
 import com.ft.wordpressarticlemapper.exception.InvalidStatusException;
 import com.ft.wordpressarticlemapper.exception.PostNotFoundException;
 import com.ft.wordpressarticlemapper.exception.UnexpectedErrorCodeException;
@@ -10,7 +11,6 @@ import com.ft.wordpressarticlemapper.response.NativeWordPressContent;
 import com.ft.wordpressarticlemapper.response.Post;
 import com.ft.wordpressarticlemapper.response.WordPressPostType;
 import com.ft.wordpressarticlemapper.response.WordPressStatus;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +34,10 @@ public class NativeWordPressContentValidator {
         if (status == null) {
             throw new InvalidStatusException("Native WordPress content is not valid. Status is null");
         }
+        String uuid =  nativeWordPressContent.getPost().getUuid();
+        UUIDValidation.of(uuid);
 
-        final String uuid = nativeWordPressContent.getPost().getUuid();
-        if (uuid != null && !UUID.fromString(uuid).toString().equals(uuid)) {
-            throw new IllegalArgumentException("Invalid UUID supplied");
-        }
-
-        final WordPressStatus wordPressStatus;
+        WordPressStatus wordPressStatus;
         try {
             wordPressStatus = WordPressStatus.valueOf(status);
         } catch (IllegalArgumentException ignored) {
