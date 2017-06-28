@@ -31,7 +31,7 @@ public abstract class WordPressContent {
     private final Date firstPublishedDate;
     private final AccessLevel accessLevel;
     private final String canBeDistributed;
-
+    private final String webUrl;
 
     protected WordPressContent(UUID uuid,
                                String title,
@@ -52,7 +52,8 @@ public abstract class WordPressContent {
                                Date lastModified,
                                Date firstPublishedDate,
                                AccessLevel accessLevel,
-                               String canBeDistributed) {
+                               String canBeDistributed,
+                               String webUrl) {
         this.identifiers = identifiers;
         this.comments = comments;
         this.uuid = uuid == null ? null : uuid.toString();
@@ -73,6 +74,7 @@ public abstract class WordPressContent {
         this.firstPublishedDate = firstPublishedDate;
         this.accessLevel = accessLevel;
         this.canBeDistributed = canBeDistributed;
+        this.webUrl = webUrl;
     }
 
     public String getUuid() {
@@ -162,6 +164,10 @@ public abstract class WordPressContent {
         return canBeDistributed;
     }
 
+    public String getWebUrl() {
+        return webUrl;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this.getClass())
@@ -184,6 +190,7 @@ public abstract class WordPressContent {
                 .add("firstPublishedDate", firstPublishedDate)
                 .add("accessLevel", accessLevel)
                 .add("canBeDistributed", canBeDistributed)
+                .add("webUrl", webUrl)
                 .toString();
     }
 
@@ -212,14 +219,15 @@ public abstract class WordPressContent {
                 && Objects.equal(this.lastModified, that.lastModified)
                 && Objects.equal(this.firstPublishedDate, that.firstPublishedDate)
                 && Objects.equal(this.accessLevel, that.accessLevel)
-                && Objects.equal(this.canBeDistributed, that.canBeDistributed);
+                && Objects.equal(this.canBeDistributed, that.canBeDistributed)
+                && Objects.equal(this.webUrl, that.webUrl);
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate,
                 description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl,
-                mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed);
+                mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed, webUrl);
     }
 
     public abstract static class Builder<C extends WordPressContent> {
@@ -244,6 +252,7 @@ public abstract class WordPressContent {
         private Date firstPublishedDate;
         private AccessLevel accessLevel;
         private String canBeDistributed;
+        private String webUrl;
 
         public Builder<C> withUuid(UUID uuid) {
             this.uuid = uuid;
@@ -433,6 +442,15 @@ public abstract class WordPressContent {
             return canBeDistributed;
         }
 
+        public Builder<C> withWebUrl(String webUrl) {
+            this.webUrl = webUrl;
+            return this;
+        }
+
+        public String getWebUrl() {
+            return webUrl;
+        }
+
         public Builder<C> withValuesFrom(C content) {
             return withTitle(content.getTitle())
                     .withTitles(content.getTitles())
@@ -453,7 +471,8 @@ public abstract class WordPressContent {
                     .withLastModified(content.getLastModified())
                     .withFirstPublishedDate(content.getFirstPublishedDate())
                     .withAccessLevel(content.getAccessLevel())
-                    .withCanBeDistributed(content.getCanBeDistributed());
+                    .withCanBeDistributed(content.getCanBeDistributed())
+                    .withWebUrl(content.getWebUrl());
         }
 
         public abstract C build();

@@ -112,6 +112,7 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -153,6 +154,7 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     private void checkBodyXml(String fieldName, String expected, String actual)
@@ -190,6 +192,7 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -219,6 +222,7 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test

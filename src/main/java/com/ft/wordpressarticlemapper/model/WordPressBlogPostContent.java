@@ -37,11 +37,12 @@ public class WordPressBlogPostContent
                                      Date lastModified,
                                      Date firstPublishedDate,
                                      AccessLevel accessLevel,
-                                     String canBeDistributed) {
+                                     String canBeDistributed,
+                                     String webUrl) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
-                firstPublishedDate, accessLevel, canBeDistributed);
+                firstPublishedDate, accessLevel, canBeDistributed, webUrl);
 
         this.body = body;
         this.opening = opening;
@@ -103,7 +104,7 @@ public class WordPressBlogPostContent
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
                     getMainImage(), getComments(), getPublishReference(), getLastModified(), getFirstPublishedDate(),
-                    getAccessLevel(), getCanBeDistributed());
+                    getAccessLevel(), getCanBeDistributed(), getWebUrl());
         }
     }
 }

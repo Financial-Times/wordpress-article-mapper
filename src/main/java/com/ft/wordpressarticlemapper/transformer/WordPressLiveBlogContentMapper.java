@@ -27,7 +27,7 @@ public class WordPressLiveBlogContentMapper
     protected WordPressLiveBlogContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                                 AccessLevel accessLevel, String canBeDistributed) {
+                                                 AccessLevel accessLevel, String canBeDistributed, String webUrl) {
 
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder) WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
@@ -42,7 +42,8 @@ public class WordPressLiveBlogContentMapper
                 .withLastModified(lastModified)
                 .withFirstPublishedDate(firstPublishedDate)
                 .withAccessLevel(accessLevel)
-                .withCanBeDistributed(canBeDistributed);
+                .withCanBeDistributed(canBeDistributed)
+                .withWebUrl(webUrl);
 
         return builder.build();
     }
