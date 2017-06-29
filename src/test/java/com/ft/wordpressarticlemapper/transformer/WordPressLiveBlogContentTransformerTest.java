@@ -99,6 +99,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -135,6 +136,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -154,6 +156,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertNull("firstPublishedDate", actual.getFirstPublishedDate());
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
