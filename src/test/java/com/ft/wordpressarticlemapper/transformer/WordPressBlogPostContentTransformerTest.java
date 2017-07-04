@@ -52,6 +52,7 @@ public class WordPressBlogPostContentTransformerTest {
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
     private static final SortedSet<Identifier> IDENTIFIERS = ImmutableSortedSet.of(new Identifier(SYSTEM_ID, POST_URL));
     private static final String TITLE = "Test LiveBlog";
+    private static final String TYPE_ARTICLE = "Article";
     private static final Author AUTHOR = new Author();
     private static final String AUTHOR_NAME = "John Smith";
     private static final String BODY_TEXT = "Some simple text";
@@ -95,6 +96,7 @@ public class WordPressBlogPostContentTransformerTest {
 
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
@@ -137,6 +139,7 @@ public class WordPressBlogPostContentTransformerTest {
 
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
 
@@ -178,6 +181,7 @@ public class WordPressBlogPostContentTransformerTest {
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), (org.hamcrest.Matcher) hasItems(BRANDS.toArray()));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
@@ -208,6 +212,7 @@ public class WordPressBlogPostContentTransformerTest {
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(nullValue()));
         assertThat("brands", actual.getBrands(), (org.hamcrest.Matcher) hasItems(BRANDS.toArray()));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));

@@ -51,6 +51,7 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final Set<Brand> BRANDS = Collections.singleton(new Brand("JUNIT-BLOG-BRAND"));
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
     private static final String TITLE = "Test LiveBlog";
+    private static final String TYPE_ARTICLE = "Article";
     private static final Author AUTHOR = new Author();
     private static final String AUTHOR_NAME = "John Smith";
     private static final String COMMENTS_OPEN = "open";
@@ -85,6 +86,7 @@ public class WordPressLiveBlogContentTransformerTest {
         WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), (Matcher) hasItems(BRANDS.toArray()));
         assertThat("identifier authority", actual.getIdentifiers().first().getAuthority(), is(equalTo(SYSTEM_ID)));
@@ -122,6 +124,7 @@ public class WordPressLiveBlogContentTransformerTest {
 
         WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
 

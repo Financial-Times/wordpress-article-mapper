@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Objects;
 
@@ -77,6 +78,7 @@ public class WordPressBlogPostContent
         return new Builder();
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder
             extends WordPressContent.Builder<WordPressBlogPostContent> {
 

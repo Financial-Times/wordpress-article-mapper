@@ -26,12 +26,11 @@ public class NativeWordPressContentValidator {
     private static final String ERROR_NOT_FOUND = "Not found."; // DOES include a dot
 
     public void validate(NativeWordPressContent nativeWordPressContent) {
-
         if (nativeWordPressContent.getPost() == null) {
             throw new IllegalArgumentException("No content supplied");
         }
 
-        String status = nativeWordPressContent.getStatus();
+        final String status = nativeWordPressContent.getStatus();
         if (status == null) {
             throw new InvalidStatusException("Native WordPress content is not valid. Status is null");
         }
