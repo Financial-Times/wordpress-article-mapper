@@ -257,6 +257,33 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
     }
 
+    @Test
+    public void thatDefaultScoopFlagIsUsedWhenNoScoopFlagIsPresent(){
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setContent(BODY_TEXT);
+        post.setUuid(POST_UUID.toString());
+
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+        assertThat("accessLevel", actual.getStandout().isScoop(), is(false));
+    }
+
+    @Test
+    public void thatScoopFlagIsPopulatedUsedWhenScoopFlagIsPresent(){
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setContent(BODY_TEXT);
+        post.setUuid(POST_UUID.toString());
+        post.setScoop(true);
+
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+        assertThat("accessLevel", actual.getStandout().isScoop(), is(true));
+    }
+
     @Test(expected = UnpublishablePostException.class)
     public void thatBlogPostRequiresBodyText() {
         Post post = new Post();
