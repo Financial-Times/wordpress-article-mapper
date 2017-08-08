@@ -34,7 +34,7 @@ public class WordPressLiveBlogContent
                                      AccessLevel accessLevel,
                                      String canBeDistributed,
                                      String webUrl,
-                                     Boolean scoop) {
+                                     boolean scoop) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,

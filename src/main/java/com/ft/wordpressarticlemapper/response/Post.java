@@ -101,7 +101,7 @@ public class Post {
     @JsonProperty("default_access_level")
     private AccessLevel defaultAccessLevel;
     @JsonProperty("is_scoop")
-    private Boolean scoop;
+    private boolean scoop;
 
     /**
      * 
@@ -576,12 +576,12 @@ public class Post {
         this.defaultAccessLevel = defaultAccessLevel;
     }
 
-    public Boolean getScoop() {
+    public boolean getScoop() {
         return scoop;
     }
 
     @JsonProperty("is_scoop")
-    public void setScoop(Boolean scoop) {
+    public void setScoop(boolean scoop) {
         this.scoop=scoop;
     }
 

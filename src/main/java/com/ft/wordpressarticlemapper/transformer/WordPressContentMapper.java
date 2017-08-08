@@ -71,7 +71,8 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         String canBeDistributed = getCanBeDistributed();
 
-        Boolean scoop = post.getScoop();
+        //todo: do the fallback here
+        boolean scoop = post.getScoop();
 
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
@@ -101,7 +102,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
     protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                    SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                    UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                   AccessLevel accessLevel, String canBeDistributed, String webUrl, Boolean scoop);
+                                   AccessLevel accessLevel, String canBeDistributed, String webUrl, boolean scoop);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);

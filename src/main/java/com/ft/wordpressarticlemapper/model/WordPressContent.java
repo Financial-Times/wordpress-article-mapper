@@ -36,7 +36,7 @@ public abstract class WordPressContent {
     private final AccessLevel accessLevel;
     private final String canBeDistributed;
     private final String webUrl;
-    private final Boolean scoop;
+    private final boolean scoop;
 
     protected WordPressContent(UUID uuid,
                                String title,
@@ -59,7 +59,7 @@ public abstract class WordPressContent {
                                AccessLevel accessLevel,
                                String canBeDistributed,
                                String webUrl,
-                               Boolean scoop) {
+                               boolean scoop) {
         this.identifiers = identifiers;
         this.comments = comments;
         this.uuid = uuid == null ? null : uuid.toString();
@@ -179,7 +179,7 @@ public abstract class WordPressContent {
         return webUrl;
     }
 
-    public Boolean isScoop() { return scoop; }
+    public boolean isScoop() { return scoop; }
 
 
 
@@ -271,7 +271,7 @@ public abstract class WordPressContent {
         private AccessLevel accessLevel;
         private String canBeDistributed;
         private String webUrl;
-        private Boolean scoop;
+        private boolean scoop;
 
         public Builder<C> withUuid(UUID uuid) {
             this.uuid = uuid;
@@ -470,12 +470,12 @@ public abstract class WordPressContent {
             return webUrl;
         }
 
-        public Builder<C> withScoop(Boolean scoop) {
+        public Builder<C> withScoop(boolean scoop) {
             this.scoop = scoop;
             return this;
         }
 
-        public Boolean isScoop() {
+        public boolean isScoop() {
             return scoop;
         }
 
