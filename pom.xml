@@ -159,7 +159,7 @@
         <dependency>
             <groupId>com.github.Financial-Times</groupId>
             <artifactId>content-model</artifactId>
-            <version>${content-model.version}}</version>
+            <version>${content-model.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.hibernate</groupId>
