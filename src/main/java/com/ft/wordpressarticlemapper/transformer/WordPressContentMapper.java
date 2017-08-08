@@ -73,7 +73,8 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         //todo: do the fallback here
         boolean scoop = post.getScoop();
-
+        //todo: delete this.
+        LOG.info("scoop value is: {}",scoop);
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
                 featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, postUrl, scoop);

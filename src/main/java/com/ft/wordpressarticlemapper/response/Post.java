@@ -576,6 +576,7 @@ public class Post {
         this.defaultAccessLevel = defaultAccessLevel;
     }
 
+    @JsonProperty("is_scoop")
     public boolean getScoop() {
         return scoop;
     }
