@@ -2,6 +2,7 @@ package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.ft.content.model.Standout;
 
 import java.util.Date;
 import java.util.List;
@@ -34,11 +35,11 @@ public class WordPressLiveBlogContent
                                      AccessLevel accessLevel,
                                      String canBeDistributed,
                                      String webUrl,
-                                     boolean scoop) {
+                                     Standout standout) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
-                firstPublishedDate, accessLevel, canBeDistributed, webUrl,scoop);
+                firstPublishedDate, accessLevel, canBeDistributed, webUrl, standout);
     }
 
     public boolean isRealtime() {
@@ -68,7 +69,7 @@ public class WordPressLiveBlogContent
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
                     getMainImage(), getComments(), getPublishReference(),
-                    getLastModified(), getFirstPublishedDate(), getAccessLevel(), getCanBeDistributed(), getWebUrl(), isScoop());
+                    getLastModified(), getFirstPublishedDate(), getAccessLevel(), getCanBeDistributed(), getWebUrl(), getStandout());
         }
     }
 }

@@ -7,6 +7,7 @@ import com.ft.wordpressarticlemapper.model.WordPressLiveBlogContent;
 import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Post;
+import com.ft.content.model.Standout;
 
 import java.util.Date;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class WordPressLiveBlogContentMapper
     protected WordPressLiveBlogContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                                 AccessLevel accessLevel, String canBeDistributed, String webUrl, boolean scoop) {
+                                                 AccessLevel accessLevel, String canBeDistributed, String webUrl, Standout standout) {
 
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder) WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
@@ -44,7 +45,7 @@ public class WordPressLiveBlogContentMapper
                 .withAccessLevel(accessLevel)
                 .withCanBeDistributed(canBeDistributed)
                 .withWebUrl(webUrl)
-                .withScoop(scoop);
+                .withStandout(standout);
 
         return builder.build();
     }

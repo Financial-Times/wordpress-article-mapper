@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
+import com.ft.content.model.Standout;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -44,7 +45,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "custom_fields",
     "accessLevel",
     "defaultAccessLevel",
-    "is_scoop",
+    "standout",
 })
 public class Post {
 
@@ -100,11 +101,11 @@ public class Post {
     private AccessLevel accessLevel;
     @JsonProperty("default_access_level")
     private AccessLevel defaultAccessLevel;
-    @JsonProperty("is_scoop")
-    private boolean scoop;
+    @JsonProperty("standout")
+    private Standout standout;
 
     /**
-     * 
+     *
      * @return
      *     The id
      */
@@ -114,7 +115,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param id
      *     The id
      */
@@ -124,7 +125,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The type
      */
@@ -134,7 +135,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param type
      *     The type
      */
@@ -144,7 +145,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The slug
      */
@@ -154,7 +155,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param slug
      *     The slug
      */
@@ -164,7 +165,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The url
      */
@@ -174,7 +175,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param url
      *     The url
      */
@@ -184,7 +185,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The status
      */
@@ -194,7 +195,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param status
      *     The status
      */
@@ -204,7 +205,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The title
      */
@@ -214,7 +215,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param title
      *     The title
      */
@@ -224,7 +225,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The titlePlain
      */
@@ -234,7 +235,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param titlePlain
      *     The title_plain
      */
@@ -244,7 +245,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The content
      */
@@ -254,7 +255,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param content
      *     The content
      */
@@ -264,7 +265,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The excerpt
      */
@@ -274,7 +275,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param excerpt
      *     The excerpt
      */
@@ -284,7 +285,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The date
      */
@@ -294,7 +295,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param date
      *     The date
      */
@@ -304,7 +305,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The modified
      */
@@ -314,7 +315,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param modified
      *     The modified
      */
@@ -344,7 +345,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The categories
      */
@@ -354,7 +355,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param categories
      *     The categories
      */
@@ -364,7 +365,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The tags
      */
@@ -374,7 +375,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param tags
      *     The tags
      */
@@ -384,7 +385,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The author
      */
@@ -395,7 +396,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param author
      *     The author
      */
@@ -406,7 +407,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The authors
      */
@@ -416,7 +417,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param authors
      *     The authors
      */
@@ -426,7 +427,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The comments
      */
@@ -436,7 +437,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param comments
      *     The comments
      */
@@ -446,7 +447,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The attachments
      */
@@ -456,7 +457,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param attachments
      *     The attachments
      */
@@ -466,7 +467,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The commentCount
      */
@@ -476,7 +477,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param commentCount
      *     The comment_count
      */
@@ -486,7 +487,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The commentStatus
      */
@@ -496,7 +497,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param commentStatus
      *     The comment_status
      */
@@ -506,7 +507,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The customFields
      */
@@ -516,7 +517,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param customFields
      *     The custom_fields
      */
@@ -524,21 +525,21 @@ public class Post {
     public void setCustomFields(CustomFields customFields) {
         this.customFields = customFields;
     }
-    
+
     @JsonProperty("uuid")
     public void setUuid(String uuid) {
       this.uuid = uuid;
     }
-    
+
     public String getUuid() {
       return uuid;
     }
-    
+
     @JsonProperty("main_image")
     public void setMainImage(MainImage image) {
       this.mainImage = image;
     }
-    
+
     public MainImage getMainImage() {
       return mainImage;
     }
@@ -576,14 +577,14 @@ public class Post {
         this.defaultAccessLevel = defaultAccessLevel;
     }
 
-    @JsonProperty("is_scoop")
-    public boolean getScoop() {
-        return scoop;
+    @JsonProperty("standout")
+    public Standout getStandout() {
+        return standout;
     }
 
-    @JsonProperty("is_scoop")
-    public void setScoop(boolean scoop) {
-        this.scoop=scoop;
+    @JsonProperty("standout")
+    public void getStandout(Standout standout) {
+        this.standout = standout;
     }
 
     @Override
@@ -611,7 +612,7 @@ public class Post {
                 .append(additionalProperties)
                 .append(accessLevel)
                 .append(defaultAccessLevel)
-                .append(scoop)
+                .append(standout)
                 .toHashCode();
     }
 
@@ -647,7 +648,7 @@ public class Post {
                 .append(additionalProperties, rhs.additionalProperties)
                 .append(accessLevel, rhs.accessLevel)
                 .append(defaultAccessLevel, rhs.defaultAccessLevel)
-                .append(scoop, rhs.scoop)
+                .append(standout, rhs.standout)
                 .isEquals();
     }
 

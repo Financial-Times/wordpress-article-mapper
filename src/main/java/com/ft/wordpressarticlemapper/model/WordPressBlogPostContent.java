@@ -3,7 +3,7 @@ package com.ft.wordpressarticlemapper.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Objects;
-
+import com.ft.content.model.Standout;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
@@ -40,11 +40,11 @@ public class WordPressBlogPostContent
                                      AccessLevel accessLevel,
                                      String canBeDistributed,
                                      String webUrl,
-                                     boolean scoop) {
+                                     Standout standout) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
-                firstPublishedDate, accessLevel, canBeDistributed, webUrl,scoop);
+                firstPublishedDate, accessLevel, canBeDistributed, webUrl, standout);
 
         this.body = body;
         this.opening = opening;
@@ -107,7 +107,7 @@ public class WordPressBlogPostContent
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
                     getMainImage(), getComments(), getPublishReference(), getLastModified(), getFirstPublishedDate(),
-                    getAccessLevel(), getCanBeDistributed(), getWebUrl(),isScoop());
+                    getAccessLevel(), getCanBeDistributed(), getWebUrl(), getStandout());
         }
     }
 }
