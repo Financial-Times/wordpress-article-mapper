@@ -2,8 +2,13 @@ package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ft.content.model.Standout;
-
-import java.util.*;
+import com.google.common.base.Objects;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.UUID;
 
 public abstract class WordPressContent {
 
