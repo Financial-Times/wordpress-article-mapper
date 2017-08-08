@@ -71,9 +71,11 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         String canBeDistributed = getCanBeDistributed();
 
+        Boolean scoop = post.getScoop();
+
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
-                featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, postUrl);
+                featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, postUrl, scoop);
     }
 
     private AccessLevel getAccessLevel(Post post) {
@@ -99,7 +101,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
     protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                    SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                    UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                   AccessLevel accessLevel, String canBeDistributed, String webUrl);
+                                   AccessLevel accessLevel, String canBeDistributed, String webUrl, Boolean scoop);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);

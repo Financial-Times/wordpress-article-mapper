@@ -36,6 +36,7 @@ public abstract class WordPressContent {
     private final AccessLevel accessLevel;
     private final String canBeDistributed;
     private final String webUrl;
+    private final Boolean scoop;
 
     protected WordPressContent(UUID uuid,
                                String title,
@@ -57,7 +58,8 @@ public abstract class WordPressContent {
                                Date firstPublishedDate,
                                AccessLevel accessLevel,
                                String canBeDistributed,
-                               String webUrl) {
+                               String webUrl,
+                               Boolean scoop) {
         this.identifiers = identifiers;
         this.comments = comments;
         this.uuid = uuid == null ? null : uuid.toString();
@@ -79,6 +81,7 @@ public abstract class WordPressContent {
         this.accessLevel = accessLevel;
         this.canBeDistributed = canBeDistributed;
         this.webUrl = webUrl;
+        this.scoop=scoop;
     }
 
     public String getUuid() {
@@ -176,6 +179,10 @@ public abstract class WordPressContent {
         return webUrl;
     }
 
+    public Boolean isScoop() { return scoop; }
+
+
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this.getClass())
@@ -200,6 +207,7 @@ public abstract class WordPressContent {
                 .add("accessLevel", accessLevel)
                 .add("canBeDistributed", canBeDistributed)
                 .add("webUrl", webUrl)
+                .add("scoop",scoop)
                 .toString();
     }
 
@@ -229,14 +237,15 @@ public abstract class WordPressContent {
                 && Objects.equal(this.firstPublishedDate, that.firstPublishedDate)
                 && Objects.equal(this.accessLevel, that.accessLevel)
                 && Objects.equal(this.canBeDistributed, that.canBeDistributed)
-                && Objects.equal(this.webUrl, that.webUrl);
+                && Objects.equal(this.webUrl, that.webUrl)
+                && Objects.equal(this.scoop, that.scoop);
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate,
                 description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl,
-                mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed, webUrl);
+                mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed, webUrl, scoop);
     }
 
     public abstract static class Builder<C extends WordPressContent> {
@@ -262,6 +271,7 @@ public abstract class WordPressContent {
         private AccessLevel accessLevel;
         private String canBeDistributed;
         private String webUrl;
+        private Boolean scoop;
 
         public Builder<C> withUuid(UUID uuid) {
             this.uuid = uuid;
@@ -460,6 +470,15 @@ public abstract class WordPressContent {
             return webUrl;
         }
 
+        public Builder<C> withScoop(Boolean scoop) {
+            this.scoop = scoop;
+            return this;
+        }
+
+        public Boolean isScoop() {
+            return scoop;
+        }
+
         public Builder<C> withValuesFrom(C content) {
             return withTitle(content.getTitle())
                     .withTitles(content.getTitles())
@@ -481,7 +500,8 @@ public abstract class WordPressContent {
                     .withFirstPublishedDate(content.getFirstPublishedDate())
                     .withAccessLevel(content.getAccessLevel())
                     .withCanBeDistributed(content.getCanBeDistributed())
-                    .withWebUrl(content.getWebUrl());
+                    .withWebUrl(content.getWebUrl())
+                    .withScoop(content.isScoop());
         }
 
         public abstract C build();

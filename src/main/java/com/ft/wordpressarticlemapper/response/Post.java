@@ -43,7 +43,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "comment_status",
     "custom_fields",
     "accessLevel",
-    "defaultAccessLevel"
+    "defaultAccessLevel",
+    "is_scoop",
 })
 public class Post {
 
@@ -99,6 +100,8 @@ public class Post {
     private AccessLevel accessLevel;
     @JsonProperty("default_access_level")
     private AccessLevel defaultAccessLevel;
+    @JsonProperty("is_scoop")
+    private Boolean scoop;
 
     /**
      * 
@@ -573,6 +576,15 @@ public class Post {
         this.defaultAccessLevel = defaultAccessLevel;
     }
 
+    public Boolean getScoop() {
+        return scoop;
+    }
+
+    @JsonProperty("is_scoop")
+    public void setScoop(Boolean scoop) {
+        this.scoop=scoop;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
@@ -598,6 +610,7 @@ public class Post {
                 .append(additionalProperties)
                 .append(accessLevel)
                 .append(defaultAccessLevel)
+                .append(scoop)
                 .toHashCode();
     }
 
@@ -633,6 +646,7 @@ public class Post {
                 .append(additionalProperties, rhs.additionalProperties)
                 .append(accessLevel, rhs.accessLevel)
                 .append(defaultAccessLevel, rhs.defaultAccessLevel)
+                .append(scoop, rhs.scoop)
                 .isEquals();
     }
 

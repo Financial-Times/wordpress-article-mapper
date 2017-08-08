@@ -33,11 +33,12 @@ public class WordPressLiveBlogContent
                                      Date firstPublishedDate,
                                      AccessLevel accessLevel,
                                      String canBeDistributed,
-                                     String webUrl) {
+                                     String webUrl,
+                                     Boolean scoop) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
-                firstPublishedDate, accessLevel, canBeDistributed, webUrl);
+                firstPublishedDate, accessLevel, canBeDistributed, webUrl,scoop);
     }
 
     public boolean isRealtime() {
@@ -67,7 +68,7 @@ public class WordPressLiveBlogContent
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
                     getMainImage(), getComments(), getPublishReference(),
-                    getLastModified(), getFirstPublishedDate(), getAccessLevel(), getCanBeDistributed(), getWebUrl());
+                    getLastModified(), getFirstPublishedDate(), getAccessLevel(), getCanBeDistributed(), getWebUrl(), isScoop());
         }
     }
 }
