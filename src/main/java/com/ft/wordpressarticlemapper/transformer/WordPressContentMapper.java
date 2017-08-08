@@ -63,7 +63,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         String canBeDistributed = getCanBeDistributed();
 
-        Standout standout = getStndout();
+        Standout standout = getStandout(post);
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
                 featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, postUrl, standout);
@@ -77,6 +77,11 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         accessLevel = post.getDefaultAccessLevel();
         return accessLevel != null ? accessLevel : AccessLevel.SUBSCRIBED;
+    }
+
+    private Standout getStandout(Post post) {
+        boolean scoop = post.getScoop();
+        return new Standout(false, false, scoop);
     }
 
     private SortedSet<Identifier> generateIdentifiers(URI requestUri, Post post) {

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import com.ft.content.model.Standout;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,31 +20,31 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
-    "id",
-    "type",
-    "slug",
-    "url",
-    "status",
-    "title",
-    "title_plain",
-    "content",
-    "excerpt",
-    "date",
-    "modified",
-    "date_gmt",
-    "modified_gmt",
-    "categories",
-    "tags",
-    "author",
-    "authors",
-    "comments",
-    "attachments",
-    "comment_count",
-    "comment_status",
-    "custom_fields",
-    "accessLevel",
-    "defaultAccessLevel",
-    "standout",
+        "id",
+        "type",
+        "slug",
+        "url",
+        "status",
+        "title",
+        "title_plain",
+        "content",
+        "excerpt",
+        "date",
+        "modified",
+        "date_gmt",
+        "modified_gmt",
+        "categories",
+        "tags",
+        "author",
+        "authors",
+        "comments",
+        "attachments",
+        "comment_count",
+        "comment_status",
+        "custom_fields",
+        "accessLevel",
+        "defaultAccessLevel",
+        "is_scoop",
 })
 public class Post {
 
@@ -101,8 +100,8 @@ public class Post {
     private AccessLevel accessLevel;
     @JsonProperty("default_access_level")
     private AccessLevel defaultAccessLevel;
-    @JsonProperty("standout")
-    private Standout standout;
+    @JsonProperty("is_scoop")
+    private boolean scoop;
 
     /**
      *
@@ -528,20 +527,20 @@ public class Post {
 
     @JsonProperty("uuid")
     public void setUuid(String uuid) {
-      this.uuid = uuid;
+        this.uuid = uuid;
     }
 
     public String getUuid() {
-      return uuid;
+        return uuid;
     }
 
     @JsonProperty("main_image")
     public void setMainImage(MainImage image) {
-      this.mainImage = image;
+        this.mainImage = image;
     }
 
     public MainImage getMainImage() {
-      return mainImage;
+        return mainImage;
     }
 
     @Override
@@ -577,14 +576,14 @@ public class Post {
         this.defaultAccessLevel = defaultAccessLevel;
     }
 
-    @JsonProperty("standout")
-    public Standout getStandout() {
-        return standout;
+    @JsonProperty("is_scoop")
+    public boolean getScoop() {
+        return scoop;
     }
 
-    @JsonProperty("standout")
-    public void getStandout(Standout standout) {
-        this.standout = standout;
+    @JsonProperty("is_scoop")
+    public void setScoop(boolean scoop) {
+        this.scoop=scoop;
     }
 
     @Override
@@ -612,7 +611,7 @@ public class Post {
                 .append(additionalProperties)
                 .append(accessLevel)
                 .append(defaultAccessLevel)
-                .append(standout)
+                .append(scoop)
                 .toHashCode();
     }
 
@@ -648,7 +647,7 @@ public class Post {
                 .append(additionalProperties, rhs.additionalProperties)
                 .append(accessLevel, rhs.accessLevel)
                 .append(defaultAccessLevel, rhs.defaultAccessLevel)
-                .append(standout, rhs.standout)
+                .append(scoop, rhs.scoop)
                 .isEquals();
     }
 
