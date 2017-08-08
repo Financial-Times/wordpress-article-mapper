@@ -39,5 +39,6 @@ To run locally, run:
 
     java -jar target/wordpress-article-mapper.jar server wordpres-article-mapper.yaml
 
-## Healthcheck
-[http://localhost:14081/healthcheck](http://localhost:14081/healthcheck)
+## Admin endpoints
+- [http://localhost:8080/__health](http://localhost:8080/__health)
+- [http://localhost:8080/__gtg](http://localhost:8080/__gtg)
