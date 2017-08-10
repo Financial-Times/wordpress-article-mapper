@@ -26,7 +26,7 @@ This service listens to the NativeCmsPublicationEvents Kafka topic and ingests t
 | `opening` | `$.post.excerpt` | Post Opening | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
 | `accessLevel` | `$.post.accessLevel` or `$.post.defaultAccessLevel`  | Post Access Level | `"subscribed"` or `"registered"` or `"premium"` or `"free"` |
 | `webUrl` | `$.post.url` | Post Url | `"http://ftalphaville.ft.com/marketslive/2017-01-02/"` |
-| `scoop` | `$.post.scoop` | Scoop flag | `true` |
+| `scoop` | `$.post.is_scoop` | Scoop flag | `true` |
 
 ## Running
 Please make sure you are running it in the correct working directory (wordpress-article-mapper).
