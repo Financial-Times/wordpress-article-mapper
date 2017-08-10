@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.content.model.Standout;
 import com.ft.wordpressarticlemapper.exception.UnpublishablePostException;
 import com.ft.wordpressarticlemapper.exception.UntransformablePostException;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
@@ -38,7 +39,7 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
     protected WordPressBlogPostContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                                 AccessLevel accessLevel, String canBeDistributed, String webUrl) {
+                                                 AccessLevel accessLevel, String canBeDistributed, String webUrl, Standout standout) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
             throw new UnpublishablePostException(uuid.toString(), "Not a valid WordPress article for publication - body of post is empty");
@@ -58,7 +59,9 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
                 .withFirstPublishedDate(firstPublishedDate)
                 .withAccessLevel(accessLevel)
                 .withCanBeDistributed(canBeDistributed)
-                .withWebUrl(webUrl);
+                .withWebUrl(webUrl)
+                .withStandout(standout);
+
 
         String transformedBody = transformHtml(body, transactionId);
         if (Strings.isNullOrEmpty(unwrapBody(transformedBody))) {

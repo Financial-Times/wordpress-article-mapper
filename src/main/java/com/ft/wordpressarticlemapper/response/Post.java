@@ -20,30 +20,31 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
-    "id",
-    "type",
-    "slug",
-    "url",
-    "status",
-    "title",
-    "title_plain",
-    "content",
-    "excerpt",
-    "date",
-    "modified",
-    "date_gmt",
-    "modified_gmt",
-    "categories",
-    "tags",
-    "author",
-    "authors",
-    "comments",
-    "attachments",
-    "comment_count",
-    "comment_status",
-    "custom_fields",
-    "accessLevel",
-    "defaultAccessLevel"
+        "id",
+        "type",
+        "slug",
+        "url",
+        "status",
+        "title",
+        "title_plain",
+        "content",
+        "excerpt",
+        "date",
+        "modified",
+        "date_gmt",
+        "modified_gmt",
+        "categories",
+        "tags",
+        "author",
+        "authors",
+        "comments",
+        "attachments",
+        "comment_count",
+        "comment_status",
+        "custom_fields",
+        "accessLevel",
+        "defaultAccessLevel",
+        "is_scoop",
 })
 public class Post {
 
@@ -99,9 +100,11 @@ public class Post {
     private AccessLevel accessLevel;
     @JsonProperty("default_access_level")
     private AccessLevel defaultAccessLevel;
+    @JsonProperty("is_scoop")
+    private boolean scoop;
 
     /**
-     * 
+     *
      * @return
      *     The id
      */
@@ -111,7 +114,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param id
      *     The id
      */
@@ -121,7 +124,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The type
      */
@@ -131,7 +134,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param type
      *     The type
      */
@@ -141,7 +144,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The slug
      */
@@ -151,7 +154,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param slug
      *     The slug
      */
@@ -161,7 +164,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The url
      */
@@ -171,7 +174,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param url
      *     The url
      */
@@ -181,7 +184,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The status
      */
@@ -191,7 +194,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param status
      *     The status
      */
@@ -201,7 +204,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The title
      */
@@ -211,7 +214,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param title
      *     The title
      */
@@ -221,7 +224,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The titlePlain
      */
@@ -231,7 +234,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param titlePlain
      *     The title_plain
      */
@@ -241,7 +244,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The content
      */
@@ -251,7 +254,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param content
      *     The content
      */
@@ -261,7 +264,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The excerpt
      */
@@ -271,7 +274,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param excerpt
      *     The excerpt
      */
@@ -281,7 +284,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The date
      */
@@ -291,7 +294,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param date
      *     The date
      */
@@ -301,7 +304,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The modified
      */
@@ -311,7 +314,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param modified
      *     The modified
      */
@@ -341,7 +344,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The categories
      */
@@ -351,7 +354,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param categories
      *     The categories
      */
@@ -361,7 +364,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The tags
      */
@@ -371,7 +374,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param tags
      *     The tags
      */
@@ -381,7 +384,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The author
      */
@@ -392,7 +395,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param author
      *     The author
      */
@@ -403,7 +406,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The authors
      */
@@ -413,7 +416,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param authors
      *     The authors
      */
@@ -423,7 +426,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The comments
      */
@@ -433,7 +436,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param comments
      *     The comments
      */
@@ -443,7 +446,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The attachments
      */
@@ -453,7 +456,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param attachments
      *     The attachments
      */
@@ -463,7 +466,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The commentCount
      */
@@ -473,7 +476,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param commentCount
      *     The comment_count
      */
@@ -483,7 +486,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The commentStatus
      */
@@ -493,7 +496,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param commentStatus
      *     The comment_status
      */
@@ -503,7 +506,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @return
      *     The customFields
      */
@@ -513,7 +516,7 @@ public class Post {
     }
 
     /**
-     * 
+     *
      * @param customFields
      *     The custom_fields
      */
@@ -521,23 +524,23 @@ public class Post {
     public void setCustomFields(CustomFields customFields) {
         this.customFields = customFields;
     }
-    
+
     @JsonProperty("uuid")
     public void setUuid(String uuid) {
-      this.uuid = uuid;
+        this.uuid = uuid;
     }
-    
+
     public String getUuid() {
-      return uuid;
+        return uuid;
     }
-    
+
     @JsonProperty("main_image")
     public void setMainImage(MainImage image) {
-      this.mainImage = image;
+        this.mainImage = image;
     }
-    
+
     public MainImage getMainImage() {
-      return mainImage;
+        return mainImage;
     }
 
     @Override
@@ -573,6 +576,16 @@ public class Post {
         this.defaultAccessLevel = defaultAccessLevel;
     }
 
+    @JsonProperty("is_scoop")
+    public boolean getScoop() {
+        return scoop;
+    }
+
+    @JsonProperty("is_scoop")
+    public void setScoop(boolean scoop) {
+        this.scoop=scoop;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
@@ -598,6 +611,7 @@ public class Post {
                 .append(additionalProperties)
                 .append(accessLevel)
                 .append(defaultAccessLevel)
+                .append(scoop)
                 .toHashCode();
     }
 
@@ -633,6 +647,7 @@ public class Post {
                 .append(additionalProperties, rhs.additionalProperties)
                 .append(accessLevel, rhs.accessLevel)
                 .append(defaultAccessLevel, rhs.defaultAccessLevel)
+                .append(scoop, rhs.scoop)
                 .isEquals();
     }
 
