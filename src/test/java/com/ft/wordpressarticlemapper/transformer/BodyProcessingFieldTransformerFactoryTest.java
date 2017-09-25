@@ -8,11 +8,9 @@ import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.ft.wordpressarticlemapper.util.ClientMockBuilder;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
-
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,9 +30,9 @@ import java.util.regex.Pattern;
 import static com.ft.wordpressarticlemapper.transformer.LinkResolverBodyProcessorTest.ARTICLE_TYPE;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -300,7 +298,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "   </div>\n" +
                 "   \n" +
                 "</div></body>";
-        String expectedVideo = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.ft.com/video/7c95e1db-b56f-3e1a-a6d4-606cd24f68b6\"></a></body>";
+        String expectedVideo = "<body><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a></body>";
         checkTransformation(wordpressVideoText, expectedVideo);
     }
 
@@ -338,7 +336,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
     }
 
     @Test
-    public void shouldProcessBrightcoveVideoCombinedVideoTagsCorrectly() {
+    public void shouldProcessVideoCombinedVideoTagsCorrectly() {
         String videoText = "<body><p>Some video (brightcove):</p>" +
                 "<div class=\"video-container video-container-ftvideo\" data-aspect-ratio=\"16:9\">" +
                 "<div data-asset-type=\"video\" data-asset-source=\"Brightcove\" data-asset-ref=\"3791005080001\">" +
@@ -351,7 +349,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
                 "<div class='video-container video-container-youtube' data-aspect-ratio='16:9'>" +
                 "<div data-asset-type='video' data-asset-source='YouTube' data-asset-ref='fRqCVcSWbDc'>" +
                 "<iframe width='590' height='331' src='http://www.youtube.com/embed/fRqCVcSWbDc?wmode=transparent' frameborder='0'></iframe></div></div></body>";
-        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.ft.com/video/7c95e1db-b56f-3e1a-a6d4-606cd24f68b6\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
+        String expectedYouTube = "<body><p>Some video (brightcove):</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"http://video.ft.com/3791005080001\"></a> <p>Some YouTube video:</p><a data-asset-type=\"video\" data-embedded=\"true\" href=\"https://www.youtube.com/watch?v=fRqCVcSWbDc\"></a></body>";
         when(videoMatcher.filterVideo(any(RichContentItem.class))).thenReturn(exampleYouTubeVideo);
         checkTransformation(videoText, expectedYouTube);
     }

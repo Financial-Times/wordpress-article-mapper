@@ -43,7 +43,7 @@ public class RemoteServiceDependencyHealthCheck extends AdvancedHealthCheck {
                 .host(endpointConfiguration.getHost())
                 .port(endpointConfiguration.getPort())
                 .build();
-        LOGGER.info("Document store api {}", remoteHost);
+        LOGGER.info("Remote service {}", remoteHost);
         ClientResponse response = null;
         try {
             response = client.resource(pingUri)

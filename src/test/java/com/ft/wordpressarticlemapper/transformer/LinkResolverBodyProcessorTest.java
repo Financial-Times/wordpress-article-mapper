@@ -1,14 +1,13 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import ch.qos.logback.classic.Logger;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.ft.wordpressarticlemapper.util.ClientMockBuilder;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
-
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,17 +20,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import ch.qos.logback.classic.Logger;
-
 import static com.ft.wordpressarticlemapper.transformer.LoggingTestHelper.assertLogEvent;
 import static com.ft.wordpressarticlemapper.transformer.LoggingTestHelper.configureMockAppenderFor;
 import static com.ft.wordpressarticlemapper.transformer.LoggingTestHelper.resetLoggingFor;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.apache.http.HttpStatus.SC_MOVED_PERMANENTLY;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
