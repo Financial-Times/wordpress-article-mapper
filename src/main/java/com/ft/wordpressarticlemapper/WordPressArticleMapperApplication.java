@@ -120,7 +120,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
         HealthCheckRegistry healthChecks = environment.healthChecks();
 
         healthChecks.register("Document Store ping",
-                new RemoteServiceDependencyHealthCheck("Document Store",
+                new RemoteServiceDependencyHealthCheck("Document Store", "document-store-api",
                         "Links to other FT content will not be resolved during publication, reducing data quality.",
                         "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
                         Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreConfiguration().getEndpointConfiguration()));
@@ -149,6 +149,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
 
         Client documentStoreClient = Client.create();
         setClientTimeouts(documentStoreClient, documentStoreEndpoint.getJerseyClientConfiguration());
+        String documentStoreHostHeader = configuration.getDocumentStoreConfiguration().getHostHeader();
 
         EndpointConfiguration contentReadEndpoint = configuration.getContentReadConfiguration().getEndpointConfiguration();
         URI contentReadBaseURI = UriBuilder.fromPath(contentReadEndpoint.getPath())
@@ -159,6 +160,7 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
 
         Client contentReadClient = Client.create();
         setClientTimeouts(contentReadClient, contentReadEndpoint.getJerseyClientConfiguration());
+        String contentReadHostHeader = configuration.getContentReadConfiguration().getHostHeader();
 
         int threadPoolSize = configuration.getThreadPoolSize();
         int maxLinks = threadPoolSize * configuration.getLinksPerThread();
@@ -171,8 +173,10 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
                 maxLinks,
                 documentStoreClient,
                 documentStoreBaseURI,
+                            documentStoreHostHeader,
                 contentReadClient,
-                contentReadBaseURI
+                                contentReadBaseURI,
+                               contentReadHostHeader
         )).newInstance();
     }
 

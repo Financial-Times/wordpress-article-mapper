@@ -113,6 +113,7 @@ urlResolverConfiguration:
         primaryNodes: ["localhost:8080"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
   contentReadConfiguration:
     endpointConfiguration:
         shortName: "content-read"
@@ -122,6 +123,7 @@ urlResolverConfiguration:
         primaryNodes: ["localhost:8080"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
 
 contentUriPrefix: http://wordpress-article-mapper.svc.ft.com/content
 

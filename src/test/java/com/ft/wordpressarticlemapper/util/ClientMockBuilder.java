@@ -65,12 +65,15 @@ public class ClientMockBuilder {
 
     public void mockDocumentStoreQuery(Client documentStoreQueryClient, URI queryURI, URI to, int status) {
         WebResource queryResource = mock(WebResource.class);
+        WebResource.Builder queryBuilder = mock(WebResource.Builder.class);
+
         when(documentStoreQueryClient.resource(queryURI)).thenReturn(queryResource);
+        when(queryResource.header("Host", "document-store-api")).thenReturn(queryBuilder);
 
         ClientResponse queryResponse = mock(ClientResponse.class);
         when(queryResponse.getStatus()).thenReturn(status);
         when(queryResponse.getLocation()).thenReturn(to);
-        when(queryResource.head()).thenReturn(queryResponse);
+        when(queryBuilder.head()).thenReturn(queryResponse);
     }
 
     public void mockDocumentStoreQuery(Client documentStoreQueryClient, URI documentStoreQueryBaseUri, URI authority, URI identifierValue, URI to, int status) {
@@ -91,13 +94,14 @@ public class ClientMockBuilder {
         return queryURI;
     }
 
-    public void mockContentRead(Client contentReadClient, URI contentReadUri, String contentUuid, int status) {
+    public void mockContentRead(Client contentReadClient, URI contentReadUri, String contentUuid, String hostHeader, int status) {
         WebResource contentReadResource = mock(WebResource.class);
         WebResource.Builder contentReadBuilder = mock(WebResource.Builder.class);
         URI contentReadURI = UriBuilder.fromUri(contentReadUri).path("{uuid}").build(contentUuid);
 
         when(contentReadClient.resource(contentReadURI)).thenReturn(contentReadResource);
-        when(contentReadResource.accept(MediaType.APPLICATION_JSON_TYPE)).thenReturn(contentReadBuilder);
+        when(contentReadResource.header("Host", hostHeader)).thenReturn(contentReadBuilder);
+        when(contentReadBuilder.accept(MediaType.APPLICATION_JSON_TYPE)).thenReturn(contentReadBuilder);
 
         ClientResponse contentReadResponse = mock(ClientResponse.class);
         when(contentReadBuilder.get(ClientResponse.class)).thenReturn(contentReadResponse);

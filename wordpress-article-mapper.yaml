@@ -113,6 +113,7 @@ urlResolverConfiguration:
         primaryNodes: ["localhost:8080"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
   contentReadConfiguration:
     endpointConfiguration:
         shortName: "content-read"
@@ -122,6 +123,7 @@ urlResolverConfiguration:
         primaryNodes: ["localhost:8080"]
         secondaryNodes: null
         resilienceStrategy: LOAD_BALANCED_IP_STRATEGY
+    hostHeader: "document-store-api"
 
 contentUriPrefix: http://wordpress-article-mapper.svc.ft.com/content
 
@@ -171,7 +173,7 @@ consumer:
     severity: 2
     businessImpact: "Newly published Wordpress articles will not be available from the Content API"
     technicalSummary: "Tests that kafka-proxy is reachable and message can be consumed"
-    panicGuideUrl: "https://dewey.ft.com/up-wam.html"
+    panicGuideUrl: "https://panic.example.org/"
   systemCode: wordpress
 
 producer:
@@ -188,4 +190,4 @@ producer:
       severity: 2
       businessImpact: "Newly published Wordpress articles will not be available from the Content API"
       technicalSummary: "Tests that kafka-proxy is reachable and the CmsPublicationEvents topic exists"
-      panicGuideUrl: "https://dewey.ft.com/up-wam.html"
+      panicGuideUrl: "https://panic.example.org/"

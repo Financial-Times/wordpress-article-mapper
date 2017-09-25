@@ -18,17 +18,17 @@ public class RemoteServiceDependencyHealthCheck extends AdvancedHealthCheck {
     private final EndpointConfiguration endpointConfiguration;
     private final Client client;
     private final String remoteServiceName;
+    private final String remoteHost;
     private final String businessImpact;
     private final String panicGuideUrl;
     
-    public RemoteServiceDependencyHealthCheck(String remoteServiceName,
-                                              String businessImpact,
-                                              String panicGuideUrl,
-                                              Client client,
-                                              EndpointConfiguration endpointConfiguration) {
+    public RemoteServiceDependencyHealthCheck(String remoteServiceName, String remoteServiceHost,
+                                              String businessImpact, String panicGuideUrl,
+                                              Client client, EndpointConfiguration endpointConfiguration) {
       
         super(String.format("%s is up and running", remoteServiceName));
         this.remoteServiceName = remoteServiceName;
+        this.remoteHost = remoteServiceHost;
         this.businessImpact = businessImpact;
         this.panicGuideUrl = panicGuideUrl;
         this.endpointConfiguration = endpointConfiguration;
@@ -43,10 +43,12 @@ public class RemoteServiceDependencyHealthCheck extends AdvancedHealthCheck {
                 .host(endpointConfiguration.getHost())
                 .port(endpointConfiguration.getPort())
                 .build();
-        LOGGER.info("Remote service {}", remoteServiceName);
+        LOGGER.info("Document store api {}", remoteHost);
         ClientResponse response = null;
         try {
-            response = client.resource(pingUri).get(ClientResponse.class);
+            response = client.resource(pingUri)
+                    .header("Host", remoteHost)
+                    .get(ClientResponse.class);
 
             if (response.getStatus() != 200) {
                 String message = String.format("Unexpected status : %s", response.getStatus());

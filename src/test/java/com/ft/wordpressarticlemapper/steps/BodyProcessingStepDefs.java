@@ -12,19 +12,15 @@ import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformerFactory;
 import com.ft.wordpressarticlemapper.transformer.StructuredWordPressSourcedBodyXMLEventHandlerRegistry;
 import com.ft.wordpressarticlemapper.util.ClientMockBuilder;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.codehaus.stax2.ri.evt.EntityReferenceEventImpl;
 import org.codehaus.stax2.ri.evt.StartElementEventImpl;
 
-import javax.xml.namespace.QName;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,12 +30,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.xml.namespace.QName;
+
+import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.mockito.Mockito.mock;
 
@@ -107,8 +111,10 @@ public class BodyProcessingStepDefs {
                 1, 2,
                 documentStoreQueryClient,
                 DOCUMENT_STORE_URI,
+                DOC_STORE_HOST_HEADER,
                 contentReadClient,
-                CONTENT_READ_URI)
+                CONTENT_READ_URI,
+                CONTENT_READ_HOST_HEADER)
                 .newInstance();
 
         ClientMockBuilder clientMockBuilder = new ClientMockBuilder();
@@ -123,10 +129,10 @@ public class BodyProcessingStepDefs {
                 URI.create("http://www.ft.com/content/" + CONTENT_UUID),
                 SC_MOVED_PERMANENTLY
         );
-        clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, CONTENT_UUID, SC_OK);
+        clientMockBuilder.mockContentRead(contentReadClient, CONTENT_READ_URI, CONTENT_UUID, CONTENT_READ_HOST_HEADER, SC_OK);
 
         registry = new StructuredWordPressSourcedBodyXMLEventHandlerRegistry(videoMatcher);
-        rulesAndHandlers = new HashMap<>();
+        rulesAndHandlers = new HashMap<String, String>();
         rulesAndHandlers.put("STRIP ELEMENT AND CONTENTS", "StripElementAndContentsXMLEventHandler");
         rulesAndHandlers.put("STRIP ELEMENT AND LEAVE CONTENT", "StripXMLEventHandler");
         rulesAndHandlers.put("RETAIN ELEMENT AND REMOVE ATTRIBUTES", "RetainWithoutAttributesXMLEventHandler");
