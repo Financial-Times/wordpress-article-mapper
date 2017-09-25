@@ -1,20 +1,18 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.content.model.Standout;
+import com.ft.uuidutils.DeriveUUID;
+import com.ft.uuidutils.DeriveUUID.Salts;
+import com.ft.uuidutils.GenerateV5UUID;
 import com.ft.wordpressarticlemapper.exception.BrandResolutionException;
 import com.ft.wordpressarticlemapper.exception.IdentifiersBuildException;
 import com.ft.wordpressarticlemapper.exception.WordPressContentException;
-import com.ft.wordpressarticlemapper.model.AccessLevel;
-import com.ft.wordpressarticlemapper.model.Brand;
-import com.ft.wordpressarticlemapper.model.Comments;
-import com.ft.wordpressarticlemapper.model.Identifier;
-import com.ft.wordpressarticlemapper.model.WordPressContent;
+import com.ft.wordpressarticlemapper.model.*;
 import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
 import com.ft.wordpressarticlemapper.response.Post;
-import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
-import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +22,7 @@ import java.net.URI;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -70,9 +63,10 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         String canBeDistributed = getCanBeDistributed();
 
+        Standout standout = getStandout(post);
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
-                featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed);
+                featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, postUrl, standout);
     }
 
     private AccessLevel getAccessLevel(Post post) {
@@ -83,6 +77,11 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         accessLevel = post.getDefaultAccessLevel();
         return accessLevel != null ? accessLevel : AccessLevel.SUBSCRIBED;
+    }
+
+    private Standout getStandout(Post post) {
+        boolean scoop = post.getScoop();
+        return new Standout(false, false, scoop);
     }
 
     private SortedSet<Identifier> generateIdentifiers(URI requestUri, Post post) {
@@ -98,7 +97,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
     protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                    SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                    UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                   AccessLevel accessLevel, String canBeDistributed);
+                                   AccessLevel accessLevel, String canBeDistributed, String webUrl, Standout standout);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
@@ -163,8 +162,8 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
         String imageUrl = img.getUrl();
         try {
             URL u = new URL(imageUrl);
-            UUID imageModelUuid = ImageModelUuidGenerator.fromURL(u);
-            return ImageSetUuidGenerator.fromImageUuid(imageModelUuid);
+            UUID imageModelUuid = GenerateV5UUID.fromURL(u);
+            return DeriveUUID.with(Salts.IMAGE_SET).from(imageModelUuid);
         } catch (MalformedURLException e) {
             LOG.error("unable to construct UUID for featured image", e);
             throw new WordPressContentException("unable to construct UUID for featured image", e);

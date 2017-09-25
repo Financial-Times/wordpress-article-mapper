@@ -1,5 +1,8 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.uuidutils.DeriveUUID;
+import com.ft.uuidutils.DeriveUUID.Salts;
+import com.ft.uuidutils.GenerateV5UUID;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
@@ -9,8 +12,6 @@ import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
 import com.ft.wordpressarticlemapper.response.Post;
-import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
-import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
 import com.google.common.collect.ImmutableSortedSet;
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -50,6 +51,7 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final Set<Brand> BRANDS = Collections.singleton(new Brand("JUNIT-BLOG-BRAND"));
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
     private static final String TITLE = "Test LiveBlog";
+    private static final String TYPE_ARTICLE = "Article";
     private static final Author AUTHOR = new Author();
     private static final String AUTHOR_NAME = "John Smith";
     private static final String COMMENTS_OPEN = "open";
@@ -84,6 +86,7 @@ public class WordPressLiveBlogContentTransformerTest {
         WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), (Matcher) hasItems(BRANDS.toArray()));
         assertThat("identifier authority", actual.getIdentifiers().first().getAuthority(), is(equalTo(SYSTEM_ID)));
@@ -98,6 +101,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -115,11 +119,12 @@ public class WordPressLiveBlogContentTransformerTest {
         mainImage.setUrl(IMAGE_URL);
         post.setMainImage(mainImage);
 
-        UUID imageModelUuid = ImageModelUuidGenerator.fromURL(new URL(IMAGE_URL));
-        String imageSetUuid = ImageSetUuidGenerator.fromImageUuid(imageModelUuid).toString();
+        UUID imageModelUuid = GenerateV5UUID.fromURL(new URL(IMAGE_URL));
+        String imageSetUuid = DeriveUUID.with(Salts.IMAGE_SET).from(imageModelUuid).toString();
 
         WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
 
@@ -134,6 +139,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -153,6 +159,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertNull("firstPublishedDate", actual.getFirstPublishedDate());
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test

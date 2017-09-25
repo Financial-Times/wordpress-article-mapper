@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.validation;
 
+import com.ft.uuidutils.UUIDValidation;
 import com.ft.wordpressarticlemapper.exception.InvalidStatusException;
 import com.ft.wordpressarticlemapper.exception.PostNotFoundException;
 import com.ft.wordpressarticlemapper.exception.UnexpectedErrorCodeException;
@@ -25,16 +26,17 @@ public class NativeWordPressContentValidator {
     private static final String ERROR_NOT_FOUND = "Not found."; // DOES include a dot
 
     public void validate(NativeWordPressContent nativeWordPressContent) {
-
         if (nativeWordPressContent.getPost() == null) {
             throw new IllegalArgumentException("No content supplied");
         }
 
-        String status = nativeWordPressContent.getStatus();
+        final String status = nativeWordPressContent.getStatus();
         if (status == null) {
             throw new InvalidStatusException("Native WordPress content is not valid. Status is null");
         }
         String uuid =  nativeWordPressContent.getPost().getUuid();
+        UUIDValidation.of(uuid);
+
         WordPressStatus wordPressStatus;
         try {
             wordPressStatus = WordPressStatus.valueOf(status);

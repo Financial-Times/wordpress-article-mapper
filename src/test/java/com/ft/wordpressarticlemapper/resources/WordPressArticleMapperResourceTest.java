@@ -45,6 +45,7 @@ public class WordPressArticleMapperResourceTest {
     private static final String CONFIG_FILE = "wordpress-article-mapper-test.yaml";
     private static final String TRANSACTION_ID = "tid_ptvw9xpnhv";
     private static final String TRANSACTION_ID_HEADER = "X-Request-ID";
+    private static final String TYPE_ARTICLE = "Article";
     private static final Brand ALPHA_VILLE_BRAND = new Brand("http://api.ft.com/things/89d15f70-640d-11e4-9803-0800200c9a66");
 
     private static MessageProducer messageProducer = mock(MessageProducer.class);
@@ -114,6 +115,7 @@ public class WordPressArticleMapperResourceTest {
 
         WordPressBlogPostContent receivedContent = clientResponse.getEntity(WordPressBlogPostContent.class);
         assertThat("title", receivedContent.getTitle(), is(equalTo("The 6am London Cut")));
+        assertThat("type", receivedContent.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("body", receivedContent.getBody(),
                 containsString("<p><strong>Markets: </strong>Bourses around Asia were mixed "));
         assertThat("body", receivedContent.getBody(),

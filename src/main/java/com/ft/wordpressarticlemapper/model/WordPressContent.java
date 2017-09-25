@@ -1,8 +1,8 @@
 package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ft.content.model.Standout;
 import com.google.common.base.Objects;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -11,6 +11,9 @@ import java.util.SortedSet;
 import java.util.UUID;
 
 public abstract class WordPressContent {
+
+    private static final String TYPE_ARTICLE = "Article";
+
     private final String uuid;
     private final String title;
     private final List<String> titles;
@@ -31,7 +34,8 @@ public abstract class WordPressContent {
     private final Date firstPublishedDate;
     private final AccessLevel accessLevel;
     private final String canBeDistributed;
-
+    private final String webUrl;
+    private final Standout standout;
 
     protected WordPressContent(UUID uuid,
                                String title,
@@ -52,7 +56,9 @@ public abstract class WordPressContent {
                                Date lastModified,
                                Date firstPublishedDate,
                                AccessLevel accessLevel,
-                               String canBeDistributed) {
+                               String canBeDistributed,
+                               String webUrl,
+                               Standout standout) {
         this.identifiers = identifiers;
         this.comments = comments;
         this.uuid = uuid == null ? null : uuid.toString();
@@ -73,6 +79,8 @@ public abstract class WordPressContent {
         this.firstPublishedDate = firstPublishedDate;
         this.accessLevel = accessLevel;
         this.canBeDistributed = canBeDistributed;
+        this.webUrl = webUrl;
+        this.standout = standout;
     }
 
     public String getUuid() {
@@ -85,6 +93,10 @@ public abstract class WordPressContent {
 
     public List<String> getTitles() {
         return titles;
+    }
+
+    public String getType() {
+        return TYPE_ARTICLE;
     }
 
     public String getByline() {
@@ -162,11 +174,21 @@ public abstract class WordPressContent {
         return canBeDistributed;
     }
 
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public Standout getStandout() {
+        return standout;
+    }
+
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this.getClass())
                 .add("uuid", uuid)
                 .add("title", title)
+                .add("type", getType())
                 .add("byline", byline)
                 .add("brands", brands)
                 .add("identifiers", identifiers)
@@ -184,6 +206,8 @@ public abstract class WordPressContent {
                 .add("firstPublishedDate", firstPublishedDate)
                 .add("accessLevel", accessLevel)
                 .add("canBeDistributed", canBeDistributed)
+                .add("webUrl", webUrl)
+                .add("standout", standout)
                 .toString();
     }
 
@@ -212,14 +236,16 @@ public abstract class WordPressContent {
                 && Objects.equal(this.lastModified, that.lastModified)
                 && Objects.equal(this.firstPublishedDate, that.firstPublishedDate)
                 && Objects.equal(this.accessLevel, that.accessLevel)
-                && Objects.equal(this.canBeDistributed, that.canBeDistributed);
+                && Objects.equal(this.canBeDistributed, that.canBeDistributed)
+                && Objects.equal(this.webUrl, that.webUrl)
+                && Objects.equal(this.standout, that.standout);
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate,
                 description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl,
-                mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed);
+                mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed, webUrl, standout);
     }
 
     public abstract static class Builder<C extends WordPressContent> {
@@ -244,6 +270,8 @@ public abstract class WordPressContent {
         private Date firstPublishedDate;
         private AccessLevel accessLevel;
         private String canBeDistributed;
+        private String webUrl;
+        private Standout standout;
 
         public Builder<C> withUuid(UUID uuid) {
             this.uuid = uuid;
@@ -433,6 +461,24 @@ public abstract class WordPressContent {
             return canBeDistributed;
         }
 
+        public Builder<C> withWebUrl(String webUrl) {
+            this.webUrl = webUrl;
+            return this;
+        }
+
+        public String getWebUrl() {
+            return webUrl;
+        }
+
+        public Builder<C> withStandout(Standout standout) {
+            this.standout = standout;
+            return this;
+        }
+
+        public Standout getStandout() {
+            return standout;
+        }
+
         public Builder<C> withValuesFrom(C content) {
             return withTitle(content.getTitle())
                     .withTitles(content.getTitles())
@@ -453,7 +499,9 @@ public abstract class WordPressContent {
                     .withLastModified(content.getLastModified())
                     .withFirstPublishedDate(content.getFirstPublishedDate())
                     .withAccessLevel(content.getAccessLevel())
-                    .withCanBeDistributed(content.getCanBeDistributed());
+                    .withCanBeDistributed(content.getCanBeDistributed())
+                    .withWebUrl(content.getWebUrl())
+                    .withStandout(content.getStandout());
         }
 
         public abstract C build();

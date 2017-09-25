@@ -1,5 +1,8 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.uuidutils.DeriveUUID;
+import com.ft.uuidutils.DeriveUUID.Salts;
+import com.ft.uuidutils.GenerateV5UUID;
 import com.ft.wordpressarticlemapper.exception.UnpublishablePostException;
 import com.ft.wordpressarticlemapper.exception.UntransformablePostException;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
@@ -11,8 +14,6 @@ import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
 import com.ft.wordpressarticlemapper.response.Post;
-import com.ft.wordpressarticlemapper.util.ImageModelUuidGenerator;
-import com.ft.wordpressarticlemapper.util.ImageSetUuidGenerator;
 import com.google.common.collect.ImmutableSortedSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +52,7 @@ public class WordPressBlogPostContentTransformerTest {
     private static final String SYSTEM_ID = "http://api.ft.com/system/JUNIT";
     private static final SortedSet<Identifier> IDENTIFIERS = ImmutableSortedSet.of(new Identifier(SYSTEM_ID, POST_URL));
     private static final String TITLE = "Test LiveBlog";
+    private static final String TYPE_ARTICLE = "Article";
     private static final Author AUTHOR = new Author();
     private static final String AUTHOR_NAME = "John Smith";
     private static final String BODY_TEXT = "Some simple text";
@@ -94,6 +96,7 @@ public class WordPressBlogPostContentTransformerTest {
 
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
@@ -111,6 +114,7 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -130,11 +134,12 @@ public class WordPressBlogPostContentTransformerTest {
         mainImage.setUrl(IMAGE_URL);
         post.setMainImage(mainImage);
 
-        UUID imageModelUuid = ImageModelUuidGenerator.fromURL(new URL(IMAGE_URL));
-        String imageSetUuid = ImageSetUuidGenerator.fromImageUuid(imageModelUuid).toString();
+        UUID imageModelUuid = GenerateV5UUID.fromURL(new URL(IMAGE_URL));
+        String imageSetUuid = DeriveUUID.with(Salts.IMAGE_SET).from(imageModelUuid).toString();
 
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
 
@@ -152,6 +157,7 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     private void checkBodyXml(String fieldName, String expected, String actual)
@@ -175,6 +181,7 @@ public class WordPressBlogPostContentTransformerTest {
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
         assertThat("brands", actual.getBrands(), (org.hamcrest.Matcher) hasItems(BRANDS.toArray()));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
@@ -189,6 +196,7 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -204,6 +212,7 @@ public class WordPressBlogPostContentTransformerTest {
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+        assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(nullValue()));
         assertThat("brands", actual.getBrands(), (org.hamcrest.Matcher) hasItems(BRANDS.toArray()));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
@@ -218,6 +227,7 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
     @Test
@@ -245,6 +255,33 @@ public class WordPressBlogPostContentTransformerTest {
 
         WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
         assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
+    }
+
+    @Test
+    public void thatDefaultScoopFlagIsUsedWhenNoScoopFlagIsPresent(){
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setContent(BODY_TEXT);
+        post.setUuid(POST_UUID.toString());
+
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+        assertThat("accessLevel", actual.getStandout().isScoop(), is(false));
+    }
+
+    @Test
+    public void thatScoopFlagIsPopulatedUsedWhenScoopFlagIsPresent(){
+        Post post = new Post();
+        post.setTitle(TITLE);
+        post.setDateGmt(PUBLISHED_DATE_STR);
+        post.setUrl(POST_URL);
+        post.setContent(BODY_TEXT);
+        post.setUuid(POST_UUID.toString());
+        post.setScoop(true);
+
+        WordPressBlogPostContent actual = mapper.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+        assertThat("accessLevel", actual.getStandout().isScoop(), is(true));
     }
 
     @Test(expected = UnpublishablePostException.class)
