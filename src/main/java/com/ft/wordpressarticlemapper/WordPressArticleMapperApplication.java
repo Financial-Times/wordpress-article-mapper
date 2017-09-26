@@ -14,6 +14,8 @@ import com.ft.message.consumer.MessageQueueConsumerInitializer;
 import com.ft.messagequeueproducer.MessageProducer;
 import com.ft.messagequeueproducer.QueueProxyProducer;
 import com.ft.platform.dropwizard.AdvancedHealthCheckBundle;
+import com.ft.platform.dropwizard.DefaultGoodToGoChecker;
+import com.ft.platform.dropwizard.GoodToGoBundle;
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticlemapper.configuration.ConsumerConfiguration;
 import com.ft.wordpressarticlemapper.configuration.ProducerConfiguration;
@@ -45,8 +47,6 @@ import javax.servlet.DispatcherType;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.EnumSet;
-import com.ft.platform.dropwizard.DefaultGoodToGoChecker;
-import com.ft.platform.dropwizard.GoodToGoBundle;
 
 public class WordPressArticleMapperApplication extends Application<WordPressArticleTransformerConfiguration> {
 

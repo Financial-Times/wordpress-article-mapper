@@ -96,7 +96,6 @@ public class LinkResolverBodyProcessor
     private final ObjectMapper mapper = new ObjectMapper();
     private final String documentStoreHostHeader;
 
-
     public LinkResolverBodyProcessor(Set<Pattern> urlShortenerPatterns,
                                      Client resolverClient,
                                      BlogApiEndpointMetadataManager blogApiEndpointMetadataManager,
