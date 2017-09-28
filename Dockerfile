@@ -5,7 +5,7 @@ COPY . /wordpress-article-mapper
 RUN apk --update add git \
  && cd wordpress-article-mapper \
  && HASH=$(git log -1 --pretty=format:%H) \
- && TAG=$(git tag -l --contains $HASH) \
+ && TAG=$(git tag -l --points-at $HASH) \
  && VERSION=${TAG:-untagged} \
  && mvn versions:set -DnewVersion=$VERSION \
  && mvn install -Dbuild.git.revision=$HASH -Djava.net.preferIPv4Stack=true \
