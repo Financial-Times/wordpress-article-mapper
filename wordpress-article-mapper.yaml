@@ -98,6 +98,58 @@ blogApiEndpointMetadata:
     - host: www.ft.com/fastft
       brands: ["http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-335
+# archived blogs, may or may not have additional brands
+    - host: blogs.ft.com/crookblog
+      brands: ["http://api.ft.com/things/113bdcbc-ca1b-3887-9339-ca38100de5ac","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-5
+    - host: blogs.ft.com/dearlucy
+      brands: ["http://api.ft.com/things/f761ad7d-038d-33e7-aa61-1ef6456ba72a","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-6
+    - host: blogs.ft.com/economistsforum
+      brands: ["http://api.ft.com/things/bc05f168-518e-3b11-9cb0-13f5e2fd7468","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-7
+    - host: blogs.ft.com/editors
+      brands: ["http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-21
+    - host: blogs.ft.com/energy-source
+      brands: ["http://api.ft.com/things/79321edb-4a69-3314-8f95-774e785f14dc","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-22
+    - host: blogs.ft.com/capitalismblog
+      brands: ["http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-31
+    - host: blogs.ft.com/ftfmblog
+      brands: ["http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-37
+    - host: blogs.ft.com/ft-long-short
+      brands: ["http://api.ft.com/things/8aa3bfbc-f45c-3618-8c8a-cacbac5c3c3a","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-191
+    - host: blogs.ft.com/lex-wolf-blog
+      brands: ["http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-29
+    - host: blogs.ft.com/management
+      brands: ["http://api.ft.com/things/da924af2-9ac4-3943-a7a0-65a91d899228","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-14
+    - host: blogs.ft.com/martin-wolf-exchange
+      brands: ["http://api.ft.com/things/65ab4a79-0dec-3475-bc60-bd19eac4ee53","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-86
+    - host: blogs.ft.com/money-matters
+      brands: ["http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-46
+    - host: blogs.ft.com/money-supply
+      brands: ["http://api.ft.com/things/e6bfdc7d-6967-3b7b-affe-935f4618174d","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-56
+    - host: blogs.ft.com/the-a-list
+      brands: ["http://api.ft.com/things/9312b568-41a3-48ac-b719-c5f500a9c06d","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-141
+    - host: blogs.ft.com/undercover
+      brands: ["http://api.ft.com/things/900ba873-c98e-34c8-8544-319ab4ec7b4a","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-11
+    - host: blogs.ft.com/maverecon
+      brands: ["http://api.ft.com/things/38e4351d-23b0-3622-861e-e1b26368cb68","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-4
+    - host: blogs.ft.com/women-at-the-top
+      brands: ["http://api.ft.com/things/e194d611-abaa-3076-b863-6f0fccf43c42","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
+      id: FT-LABS-WP-1-111
 
 urlResolverConfiguration:
   patterns: ["https?:\\/\\/on\\.ft\\.com/.*","https?:\\/\\/bit\\.ly/.*"]
