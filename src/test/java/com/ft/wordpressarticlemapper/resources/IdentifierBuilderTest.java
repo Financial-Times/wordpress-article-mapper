@@ -85,12 +85,12 @@ public class IdentifierBuilderTest {
     public void setUp() {
 
         List<BlogApiEndpointMetadata> blogApiEndpointMetadata = new ArrayList<>();
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(ALPHA_VILLE_HOST, new HashSet<>(Collections.singletonList(ALPHA_VILLE_BRAND)), ALPHA_VILLE_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(OTHER_HOST, new HashSet<>(Collections.singletonList(OTHER_BRAND)), OTHER_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(THIRD_HOST, new HashSet<>(Collections.singletonList(THIRD_BRAND)), THIRD_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(FINAL_HOST, new HashSet<>(Collections.singletonList(FINAL_BRAND)), FINAL_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(BEYONDBRICS_HOST, new HashSet<>(Collections.singletonList(BEYONDBRICS_BRAND)), BEYONDBRICS_CODE));
-        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(COMPOUND_HOST, new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND, OTHER_BRAND)), ALPHA_VILLE_CODE));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(ALPHA_VILLE_HOST, new HashSet<>(Collections.singletonList(ALPHA_VILLE_BRAND)), ALPHA_VILLE_CODE,null));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(OTHER_HOST, new HashSet<>(Collections.singletonList(OTHER_BRAND)), OTHER_CODE, null));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(THIRD_HOST, new HashSet<>(Collections.singletonList(THIRD_BRAND)), THIRD_CODE, null));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(FINAL_HOST, new HashSet<>(Collections.singletonList(FINAL_BRAND)), FINAL_CODE, null));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(BEYONDBRICS_HOST, new HashSet<>(Collections.singletonList(BEYONDBRICS_BRAND)), BEYONDBRICS_CODE, null));
+        blogApiEndpointMetadata.add(new BlogApiEndpointMetadata(COMPOUND_HOST, new HashSet<>(Arrays.asList(ALPHA_VILLE_BRAND, OTHER_BRAND)), ALPHA_VILLE_CODE, null));
 
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(blogApiEndpointMetadata);
 

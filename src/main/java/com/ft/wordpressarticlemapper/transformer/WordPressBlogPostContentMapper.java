@@ -1,6 +1,7 @@
 package com.ft.wordpressarticlemapper.transformer;
 
 import com.ft.content.model.Standout;
+import com.ft.content.model.Syndication;
 import com.ft.wordpressarticlemapper.exception.UnpublishablePostException;
 import com.ft.wordpressarticlemapper.exception.UntransformablePostException;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
@@ -29,9 +30,10 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
 
     public WordPressBlogPostContentMapper(BrandSystemResolver brandSystemResolver,
                                           BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
-                                          IdentifierBuilder identifierBuilder) {
+                                          IdentifierBuilder identifierBuilder,
+                                          SyndicationManager syndicationManager) {
 
-        super(brandSystemResolver, identifierBuilder);
+        super(brandSystemResolver, identifierBuilder, syndicationManager);
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
     }
 
@@ -39,7 +41,8 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
     protected WordPressBlogPostContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                                 AccessLevel accessLevel, String canBeDistributed, String webUrl, Standout standout) {
+                                                 AccessLevel accessLevel, String canBeDistributed,
+                                                 Syndication canBeSyndicated, String webUrl, Standout standout) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
             throw new UnpublishablePostException(uuid.toString(), "Not a valid WordPress article for publication - body of post is empty");
@@ -59,6 +62,7 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
                 .withFirstPublishedDate(firstPublishedDate)
                 .withAccessLevel(accessLevel)
                 .withCanBeDistributed(canBeDistributed)
+                .withCanBeSyndicated(canBeSyndicated)
                 .withWebUrl(webUrl)
                 .withStandout(standout);
 

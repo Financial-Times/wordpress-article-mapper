@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.content.model.Syndication;
 import com.ft.uuidutils.DeriveUUID;
 import com.ft.uuidutils.DeriveUUID.Salts;
 import com.ft.uuidutils.GenerateV5UUID;
@@ -34,10 +35,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 public class WordPressLiveBlogContentTransformerTest {
     private static final String TX_ID = "junitTransaction";
@@ -61,14 +62,16 @@ public class WordPressLiveBlogContentTransformerTest {
     private WordPressLiveBlogContentMapper transformer;
     private BrandSystemResolver brandResolver = mock(BrandSystemResolver.class);
     private IdentifierBuilder identifierBuilder = mock(IdentifierBuilder.class);
+    private SyndicationManager syndicationManager = mock(SyndicationManager.class);
 
     @Before
     public void setUp() {
-        transformer = new WordPressLiveBlogContentMapper(brandResolver, identifierBuilder);
+        transformer = new WordPressLiveBlogContentMapper(brandResolver, identifierBuilder, syndicationManager);
 
         URI requestUri = UriBuilder.fromUri(POST_URL).build();
         when(brandResolver.getBrand(requestUri)).thenReturn(BRANDS);
         when(identifierBuilder.buildIdentifiers(eq(requestUri), any(Post.class))).thenReturn(IDENTIFIERS);
+        when(syndicationManager.getSyndicationByAuthority(anyString())).thenReturn(Syndication.VERIFY);
         AUTHOR.setName(AUTHOR_NAME);
     }
 
@@ -101,6 +104,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
@@ -139,6 +143,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertThat("firstPublishedDate", actual.getFirstPublishedDate().toInstant(), is(equalTo(PUBLISHED_DATE.toInstant())));
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 
@@ -159,6 +164,7 @@ public class WordPressLiveBlogContentTransformerTest {
         assertNull("firstPublishedDate", actual.getFirstPublishedDate());
         assertThat("canBeDistributed", actual.getCanBeDistributed(),
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+        assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
     }
 

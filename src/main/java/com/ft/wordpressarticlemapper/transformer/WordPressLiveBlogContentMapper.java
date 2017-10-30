@@ -1,5 +1,6 @@
 package com.ft.wordpressarticlemapper.transformer;
 
+import com.ft.content.model.Syndication;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
@@ -20,15 +21,18 @@ import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 public class WordPressLiveBlogContentMapper
         extends WordPressContentMapper<WordPressLiveBlogContent> {
 
-    public WordPressLiveBlogContentMapper(BrandSystemResolver brandSystemResolver, IdentifierBuilder identifierBuilder) {
-        super(brandSystemResolver, identifierBuilder);
+    public WordPressLiveBlogContentMapper(BrandSystemResolver brandSystemResolver,
+                                          IdentifierBuilder identifierBuilder,
+                                          SyndicationManager syndicationManager) {
+        super(brandSystemResolver, identifierBuilder, syndicationManager);
     }
 
     @Override
     protected WordPressLiveBlogContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                                 AccessLevel accessLevel, String canBeDistributed, String webUrl, Standout standout) {
+                                                 AccessLevel accessLevel, String canBeDistributed,
+                                                 Syndication canBeSyndicated, String webUrl, Standout standout) {
 
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder) WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
@@ -44,6 +48,7 @@ public class WordPressLiveBlogContentMapper
                 .withFirstPublishedDate(firstPublishedDate)
                 .withAccessLevel(accessLevel)
                 .withCanBeDistributed(canBeDistributed)
+                .withCanBeSyndicated(canBeSyndicated)
                 .withWebUrl(webUrl)
                 .withStandout(standout);
 

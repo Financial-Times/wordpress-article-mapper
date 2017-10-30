@@ -61,8 +61,8 @@ public class LinkResolverBodyProcessorTest {
 
         Set<String> brands = ImmutableSet.of(BRAND_ID);
         List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(
-                new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_ID),
-                new BlogApiEndpointMetadata("somethingelse.ft.com/ablog", brands, BLOG_ID));
+                new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_ID, null),
+                new BlogApiEndpointMetadata("somethingelse.ft.com/ablog", brands, BLOG_ID, null));
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(metadataList);
 
         processor = new LinkResolverBodyProcessor(

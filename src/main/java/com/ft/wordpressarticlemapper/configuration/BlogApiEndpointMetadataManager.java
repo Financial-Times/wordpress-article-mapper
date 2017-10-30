@@ -25,4 +25,8 @@ public class BlogApiEndpointMetadataManager {
         }
         return null;
     }
+
+    public List<BlogApiEndpointMetadata> getBlogApiEndpointMetadata() {
+        return blogApiEndpointMetadata;
+    }
 }

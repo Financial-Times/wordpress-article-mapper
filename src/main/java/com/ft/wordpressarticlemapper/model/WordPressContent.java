@@ -2,6 +2,7 @@ package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ft.content.model.Standout;
+import com.ft.content.model.Syndication;
 import com.google.common.base.Objects;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,6 +35,7 @@ public abstract class WordPressContent {
     private final Date firstPublishedDate;
     private final AccessLevel accessLevel;
     private final String canBeDistributed;
+    private final Syndication canBeSyndicated;
     private final String webUrl;
     private final Standout standout;
 
@@ -57,6 +59,7 @@ public abstract class WordPressContent {
                                Date firstPublishedDate,
                                AccessLevel accessLevel,
                                String canBeDistributed,
+                               Syndication canBeSyndicated,
                                String webUrl,
                                Standout standout) {
         this.identifiers = identifiers;
@@ -79,6 +82,7 @@ public abstract class WordPressContent {
         this.firstPublishedDate = firstPublishedDate;
         this.accessLevel = accessLevel;
         this.canBeDistributed = canBeDistributed;
+        this.canBeSyndicated = canBeSyndicated;
         this.webUrl = webUrl;
         this.standout = standout;
     }
@@ -174,6 +178,10 @@ public abstract class WordPressContent {
         return canBeDistributed;
     }
 
+    public Syndication getCanBeSyndicated() {
+        return canBeSyndicated;
+    }
+
     public String getWebUrl() {
         return webUrl;
     }
@@ -206,6 +214,7 @@ public abstract class WordPressContent {
                 .add("firstPublishedDate", firstPublishedDate)
                 .add("accessLevel", accessLevel)
                 .add("canBeDistributed", canBeDistributed)
+                .add("canBeSyndicated", canBeSyndicated)
                 .add("webUrl", webUrl)
                 .add("standout", standout)
                 .toString();
@@ -237,6 +246,7 @@ public abstract class WordPressContent {
                 && Objects.equal(this.firstPublishedDate, that.firstPublishedDate)
                 && Objects.equal(this.accessLevel, that.accessLevel)
                 && Objects.equal(this.canBeDistributed, that.canBeDistributed)
+                && Objects.equal(this.canBeSyndicated, that.canBeSyndicated)
                 && Objects.equal(this.webUrl, that.webUrl)
                 && Objects.equal(this.standout, that.standout);
     }
@@ -245,7 +255,8 @@ public abstract class WordPressContent {
     public int hashCode() {
         return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate,
                 description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl,
-                mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed, webUrl, standout);
+                mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed,
+                canBeSyndicated, webUrl, standout);
     }
 
     public abstract static class Builder<C extends WordPressContent> {
@@ -270,6 +281,7 @@ public abstract class WordPressContent {
         private Date firstPublishedDate;
         private AccessLevel accessLevel;
         private String canBeDistributed;
+        private Syndication canBeSyndicated;
         private String webUrl;
         private Standout standout;
 
@@ -466,6 +478,15 @@ public abstract class WordPressContent {
             return this;
         }
 
+        public Builder<C> withCanBeSyndicated(Syndication canBeSyndicated) {
+            this.canBeSyndicated = canBeSyndicated;
+            return this;
+        }
+
+        public Syndication getCanBeSyndicated() {
+            return canBeSyndicated;
+        }
+
         public String getWebUrl() {
             return webUrl;
         }
@@ -500,6 +521,7 @@ public abstract class WordPressContent {
                     .withFirstPublishedDate(content.getFirstPublishedDate())
                     .withAccessLevel(content.getAccessLevel())
                     .withCanBeDistributed(content.getCanBeDistributed())
+                    .withCanBeSyndicated(content.getCanBeSyndicated())
                     .withWebUrl(content.getWebUrl())
                     .withStandout(content.getStandout());
         }

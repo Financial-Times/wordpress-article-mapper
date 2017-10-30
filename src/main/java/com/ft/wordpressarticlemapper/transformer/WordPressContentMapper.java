@@ -1,6 +1,7 @@
 package com.ft.wordpressarticlemapper.transformer;
 
 import com.ft.content.model.Standout;
+import com.ft.content.model.Syndication;
 import com.ft.uuidutils.DeriveUUID;
 import com.ft.uuidutils.DeriveUUID.Salts;
 import com.ft.uuidutils.GenerateV5UUID;
@@ -22,7 +23,12 @@ import java.net.URI;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -36,10 +42,14 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
     private final BrandSystemResolver brandSystemResolver;
     private final IdentifierBuilder identifierBuilder;
+    private final SyndicationManager syndicationManager;
 
-    public WordPressContentMapper(BrandSystemResolver brandSystemResolver, IdentifierBuilder identifierBuilder) {
+    public WordPressContentMapper(BrandSystemResolver brandSystemResolver,
+                                  IdentifierBuilder identifierBuilder,
+                                  SyndicationManager syndicationManager) {
         this.brandSystemResolver = brandSystemResolver;
         this.identifierBuilder = identifierBuilder;
+        this.syndicationManager = syndicationManager;
     }
 
     public C mapWordPressArticle(String transactionId, Post post, Date lastModified) {
@@ -63,10 +73,13 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         String canBeDistributed = getCanBeDistributed();
 
+        Syndication canBeSyndicated = syndicationManager.getSyndicationByAuthority(identifiers.first().getAuthority());
+
         Standout standout = getStandout(post);
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
-                featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, postUrl, standout);
+                featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated,
+                postUrl, standout);
     }
 
     private AccessLevel getAccessLevel(Post post) {
@@ -97,7 +110,8 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
     protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
                                    SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                    UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
-                                   AccessLevel accessLevel, String canBeDistributed, String webUrl, Standout standout);
+                                   AccessLevel accessLevel, String canBeDistributed, Syndication canBeSyndicated,
+                                   String webUrl, Standout standout);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
