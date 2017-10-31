@@ -31,7 +31,6 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
 public abstract class WordPressContentMapper<C extends WordPressContent> {
     public static final String CAN_BE_DISTRIBUTED_DEFAULT_VALUE = "yes";
 
@@ -73,7 +72,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
         String canBeDistributed = getCanBeDistributed();
 
-        Syndication canBeSyndicated = syndicationManager.getSyndicationByAuthority(identifiers.first().getAuthority());
+        Syndication canBeSyndicated = syndicationManager.getSyndicationByUri(requestUri);
 
         Standout standout = getStandout(post);
         LOG.info("Returning content for uuid [{}].", uuid);

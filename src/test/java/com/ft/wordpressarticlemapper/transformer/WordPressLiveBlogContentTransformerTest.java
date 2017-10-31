@@ -35,7 +35,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -71,7 +70,7 @@ public class WordPressLiveBlogContentTransformerTest {
         URI requestUri = UriBuilder.fromUri(POST_URL).build();
         when(brandResolver.getBrand(requestUri)).thenReturn(BRANDS);
         when(identifierBuilder.buildIdentifiers(eq(requestUri), any(Post.class))).thenReturn(IDENTIFIERS);
-        when(syndicationManager.getSyndicationByAuthority(anyString())).thenReturn(Syndication.VERIFY);
+        when(syndicationManager.getSyndicationByUri(any(URI.class))).thenReturn(Syndication.VERIFY);
         AUTHOR.setName(AUTHOR_NAME);
     }
 
