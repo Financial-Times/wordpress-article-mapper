@@ -4,6 +4,7 @@ import com.ft.content.model.Syndication;
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 
+import java.util.Collections;
 import java.util.List;
 
 public class SyndicationManager {
@@ -19,7 +20,15 @@ public class SyndicationManager {
             return Syndication.VERIFY;
         }
 
+        if (blogApiEndpointMetadataManager == null) {
+            return Syndication.VERIFY;
+        }
+
         List<BlogApiEndpointMetadata> blogApiEndpointMetadata = blogApiEndpointMetadataManager.getBlogApiEndpointMetadata();
+
+        if(blogApiEndpointMetadata == null) {
+            return Syndication.VERIFY;
+        }
 
         for(BlogApiEndpointMetadata metadata : blogApiEndpointMetadata) {
             if (authority.contains(metadata.getId())) {

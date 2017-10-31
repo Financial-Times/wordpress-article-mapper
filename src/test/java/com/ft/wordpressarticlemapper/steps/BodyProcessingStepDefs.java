@@ -97,7 +97,7 @@ public class BodyProcessingStepDefs {
         Set<String> fastFtBrands = ImmutableSet.of("http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54",
                 "http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54");
 
-        List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(new BlogApiEndpointMetadata(fastFtHost, fastFtBrands, fastFtId, Syndication.YES));
+        List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(new BlogApiEndpointMetadata(fastFtHost, fastFtBrands, fastFtId, Syndication.YES.getCanBeSyndicated()));
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(metadataList);
 
         videoMatcher = new VideoMatcher(DEFAULTS);

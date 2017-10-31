@@ -16,7 +16,7 @@ public class BlogApiEndpointMetadata {
     public BlogApiEndpointMetadata(@JsonProperty("host") String host,
                                    @JsonProperty("brands") Set<String> brands,
                                    @JsonProperty("id") String id,
-                                   @JsonProperty("syndication") Syndication syndication) {
+                                   @JsonProperty("syndication") String syndication) {
         super();
         this.host = host;
         this.brands = new HashSet<>();
@@ -26,7 +26,11 @@ public class BlogApiEndpointMetadata {
             this.brands.add(brand);
         }
         this.id = id;
-        this.syndication = syndication;
+        if (syndication == null) {
+            this.syndication = Syndication.VERIFY;
+        } else {
+            this.syndication = Syndication.fromString(syndication);
+        }
     }
 
     @NotNull

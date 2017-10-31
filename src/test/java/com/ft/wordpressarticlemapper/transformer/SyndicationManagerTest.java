@@ -45,7 +45,7 @@ public class SyndicationManagerTest {
     public void testGetSyndicationByAuthorityReturnsTheConfiguredSyndication() throws Exception {
         when(blogApiEndpointMetadataManager.getBlogApiEndpointMetadata())
                 .thenReturn(Collections.singletonList(
-                        new BlogApiEndpointMetadata("host", Collections.emptySet(), "id", Syndication.NO)));
+                        new BlogApiEndpointMetadata("host", Collections.emptySet(), "id", Syndication.NO.getCanBeSyndicated())));
         Syndication syndication = syndicationManager.getSyndicationByAuthority("http://api.ft.com/system/id");
         assertThat(syndication, is(equalTo(Syndication.NO)));
     }
@@ -54,7 +54,7 @@ public class SyndicationManagerTest {
     public void testGetSyndicationByAuthorityReturnsVerifyIfAuthorityIdIsMissingFromConfiguration() throws Exception {
         when(blogApiEndpointMetadataManager.getBlogApiEndpointMetadata())
                 .thenReturn(Collections.singletonList(
-                        new BlogApiEndpointMetadata("host", Collections.emptySet(), "FT-LABS-WP-1-335", Syndication.YES)));
+                        new BlogApiEndpointMetadata("host", Collections.emptySet(), "FT-LABS-WP-1-335", Syndication.YES.getCanBeSyndicated())));
         Syndication syndication = syndicationManager.getSyndicationByAuthority("http://api.ft.com/system/missing-id");
         assertThat(syndication, is(equalTo(Syndication.VERIFY)));
     }
@@ -64,6 +64,29 @@ public class SyndicationManagerTest {
         when(blogApiEndpointMetadataManager.getBlogApiEndpointMetadata())
                 .thenReturn(Collections.singletonList(
                         new BlogApiEndpointMetadata("host", Collections.emptySet(), "FT-LABS-WP-1-335", null)));
+        Syndication syndication = syndicationManager.getSyndicationByAuthority("http://api.ft.com/system/FT-LABS-WP-1-335");
+        assertThat(syndication, is(equalTo(Syndication.VERIFY)));
+    }
+
+    @Test
+    public void testGetSyndicationByAuthorityReturnsVerifyIfSyndicationFieldHasInvalidValue() throws Exception {
+        when(blogApiEndpointMetadataManager.getBlogApiEndpointMetadata())
+                .thenReturn(Collections.singletonList(
+                        new BlogApiEndpointMetadata("host", Collections.emptySet(), "FT-LABS-WP-1-335", "invalid")));
+        Syndication syndication = syndicationManager.getSyndicationByAuthority("http://api.ft.com/system/FT-LABS-WP-1-335");
+        assertThat(syndication, is(equalTo(Syndication.VERIFY)));
+    }
+
+    @Test
+    public void testGetSyndicationByAuthorityReturnsVerifyIfBlogApiEndpointMetadataManagerIsNull() throws Exception {
+        syndicationManager = new SyndicationManager(null);
+        Syndication syndication = syndicationManager.getSyndicationByAuthority("http://api.ft.com/system/FT-LABS-WP-1-335");
+        assertThat(syndication, is(equalTo(Syndication.VERIFY)));
+    }
+
+    @Test
+    public void testGetSyndicationByAuthorityReturnsVerifyIfBlogApiEndpointMetadataListIsNull() throws Exception {
+        when(blogApiEndpointMetadataManager.getBlogApiEndpointMetadata()).thenReturn(null);
         Syndication syndication = syndicationManager.getSyndicationByAuthority("http://api.ft.com/system/FT-LABS-WP-1-335");
         assertThat(syndication, is(equalTo(Syndication.VERIFY)));
     }
