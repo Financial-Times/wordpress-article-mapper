@@ -67,7 +67,7 @@ public class BodyProcessingFieldTransformerFactoryTest {
     @Before
     public void setup() {
         Set<String> brands = ImmutableSet.of(BRAND_ID);
-        List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_CODE));
+        List<BlogApiEndpointMetadata> metadataList = ImmutableList.of(new BlogApiEndpointMetadata("www.ft.com/resolved", brands, BLOG_CODE, null));
         BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(metadataList);
 
         exampleVimeoVideo = new Video();

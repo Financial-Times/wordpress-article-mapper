@@ -38,5 +38,6 @@
   "opening": "<body><p>Telecom Italia has returned to growth in the third quarter after posting a 1.4 per cent rise in revenue to €4.8bn and an 8.5 per cent increase in earnings before interest, taxation, depreciation and amortisation.</p>\n</body>",
   "members": null,
   "firstPublishedDate": "2016-11-04T13:19:20.000Z",
-  "canBeDistributed": "yes"
+  "canBeDistributed": "yes",
+  "canBeSyndicated": "yes"
 }

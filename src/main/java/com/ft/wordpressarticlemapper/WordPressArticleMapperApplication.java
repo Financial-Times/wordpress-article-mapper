@@ -31,6 +31,7 @@ import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.resources.WordPressArticleMapperResource;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformer;
 import com.ft.wordpressarticlemapper.transformer.BodyProcessingFieldTransformerFactory;
+import com.ft.wordpressarticlemapper.transformer.SyndicationManager;
 import com.ft.wordpressarticlemapper.transformer.WordPressBlogPostContentMapper;
 import com.ft.wordpressarticlemapper.transformer.WordPressLiveBlogContentMapper;
 import com.ft.wordpressarticlemapper.validation.NativeWordPressContentValidator;
@@ -89,13 +90,13 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
                 blogApiEndpointMetadataManager);
 
         BrandSystemResolver brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadataManager);
-
         IdentifierBuilder identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
+        SyndicationManager syndicationManager = new SyndicationManager(blogApiEndpointMetadataManager);
 
         WordPressBlogPostContentMapper blogPostContentMapper = new WordPressBlogPostContentMapper(brandSystemResolver,
-                bodyProcessingFieldTransformer, identifierBuilder);
+                bodyProcessingFieldTransformer, identifierBuilder, syndicationManager);
         WordPressLiveBlogContentMapper liveBlogContentMapper = new WordPressLiveBlogContentMapper(brandSystemResolver,
-                identifierBuilder);
+                identifierBuilder, syndicationManager);
 
         MessageProducingContentMapper contentMapper = new MessageProducingContentMapper(
                 blogPostContentMapper,

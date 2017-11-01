@@ -1,6 +1,7 @@
 package com.ft.wordpressarticlemapper.component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ft.content.model.Syndication;
 import com.ft.message.consumer.MessageListener;
 import com.ft.messagequeueproducer.MessageProducer;
 import com.ft.messaging.standards.message.v1.Message;
@@ -125,6 +126,7 @@ public class WordPressArticleMapperApplicationComponentTest {
         assertThat(jsonPayload.get("publishReference"), equalTo(txId));
         assertThat(jsonPayload.get("firstPublishedDate"), equalTo("2014-10-21T04:45:30.000Z"));
         assertThat(jsonPayload.get("canBeDistributed"), equalTo("yes"));
+        assertThat(jsonPayload.get("canBeSyndicated"), equalTo(Syndication.VERIFY.getCanBeSyndicated()));
     }
 
     @Test

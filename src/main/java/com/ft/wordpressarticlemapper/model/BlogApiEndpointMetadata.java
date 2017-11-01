@@ -1,6 +1,7 @@
 package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ft.content.model.Syndication;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
@@ -10,10 +11,12 @@ public class BlogApiEndpointMetadata {
     private final String host;
     private final Set<Brand> brands;
     private final String id;
+    private final Syndication syndication;
 
     public BlogApiEndpointMetadata(@JsonProperty("host") String host,
                                    @JsonProperty("brands") Set<String> brands,
-                                   @JsonProperty("id") String id) {
+                                   @JsonProperty("id") String id,
+                                   @JsonProperty("syndication") String syndication) {
         super();
         this.host = host;
         this.brands = new HashSet<>();
@@ -23,7 +26,11 @@ public class BlogApiEndpointMetadata {
             this.brands.add(brand);
         }
         this.id = id;
-
+        if (syndication == null) {
+            this.syndication = Syndication.VERIFY;
+        } else {
+            this.syndication = Syndication.fromString(syndication);
+        }
     }
 
     @NotNull
@@ -41,4 +48,7 @@ public class BlogApiEndpointMetadata {
         return id;
     }
 
+    public Syndication getSyndication() {
+        return syndication;
+    }
 }

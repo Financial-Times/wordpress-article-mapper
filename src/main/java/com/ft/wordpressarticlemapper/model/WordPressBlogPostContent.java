@@ -2,6 +2,7 @@ package com.ft.wordpressarticlemapper.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.ft.content.model.Syndication;
 import com.google.common.base.Objects;
 import com.ft.content.model.Standout;
 import java.util.Date;
@@ -39,12 +40,13 @@ public class WordPressBlogPostContent
                                      Date firstPublishedDate,
                                      AccessLevel accessLevel,
                                      String canBeDistributed,
+                                     Syndication canBeSyndicated,
                                      String webUrl,
                                      Standout standout) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
-                firstPublishedDate, accessLevel, canBeDistributed, webUrl, standout);
+                firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated, webUrl, standout);
 
         this.body = body;
         this.opening = opening;
@@ -107,7 +109,7 @@ public class WordPressBlogPostContent
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
                     getMainImage(), getComments(), getPublishReference(), getLastModified(), getFirstPublishedDate(),
-                    getAccessLevel(), getCanBeDistributed(), getWebUrl(), getStandout());
+                    getAccessLevel(), getCanBeDistributed(), getCanBeSyndicated(), getWebUrl(), getStandout());
         }
     }
 }
