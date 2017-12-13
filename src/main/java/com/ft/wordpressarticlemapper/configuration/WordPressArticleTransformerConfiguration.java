@@ -2,6 +2,8 @@ package com.ft.wordpressarticlemapper.configuration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft.bodyprocessing.richcontent.VideoSiteConfiguration;
+import com.ft.platform.dropwizard.AppInfo;
+import com.ft.platform.dropwizard.ConfigWithAppInfo;
 import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.google.common.base.Objects;
 import io.dropwizard.Configuration;
@@ -11,8 +13,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
-public class WordPressArticleTransformerConfiguration extends Configuration {
-
+public class WordPressArticleTransformerConfiguration extends Configuration implements ConfigWithAppInfo {
+    @JsonProperty
+    private AppInfo appInfo = new AppInfo();
     private final List<BlogApiEndpointMetadata> hostToBrands;
 
     private final List<VideoSiteConfiguration> videoSiteConfig;
@@ -76,5 +79,10 @@ public class WordPressArticleTransformerConfiguration extends Configuration {
 
     public String getContentUriPrefix() {
         return contentUriPrefix;
+    }
+
+    @Override
+    public AppInfo getAppInfo() {
+        return appInfo;
     }
 }
