@@ -244,3 +244,7 @@ producer:
       businessImpact: "Newly published Wordpress articles will not be available from the Content API"
       technicalSummary: "Tests that kafka-proxy is reachable and the CmsPublicationEvents topic exists"
       panicGuideUrl: "https://dewey.ft.com/up-wam.html"
+
+appInfo:
+    systemCode: "up-wam"
+    description: "WordPressArticleMapperApplication"

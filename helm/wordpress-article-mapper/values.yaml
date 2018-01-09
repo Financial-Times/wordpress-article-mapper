@@ -11,3 +11,8 @@ image:
 env:
   JAVA_OPTS: ""
   READ_ENDPOINT: ""
+resources:
+  requests:
+    memory: 512Mi
+  limits:
+    memory: 1Gi
