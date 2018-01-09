@@ -246,5 +246,5 @@ producer:
       panicGuideUrl: "https://dewey.ft.com/up-wam.html"
 
 appInfo:
-    systemCode: "WordPressArticleMapperApplication"
+    systemCode: "up-wam"
     description: "WordPressArticleMapperApplication"
