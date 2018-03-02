@@ -85,7 +85,7 @@ public class RemoteServiceDependencyHealthCheck extends AdvancedHealthCheck {
 
     @Override
     protected int severity() {
-        return 1;
+        return 2;
     }
 
     @Override
