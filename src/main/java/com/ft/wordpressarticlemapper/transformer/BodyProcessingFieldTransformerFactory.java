@@ -83,6 +83,7 @@ public class BodyProcessingFieldTransformerFactory implements FieldTransformerFa
                 new RegexRemoverBodyProcessor("(<p>)\\s*(</p>)|(<p/>)"),
 				new TagSoupHtmlBodyProcessor(),
 				new TagSoupCleanupHtmlBodyProcessor(),
+                new ImageExtractorBodyProcessor(),
                 stAXTransformingBodyProcessor(),
                 new RemoveEmptyElementsBodyProcessor(asList("p"),asList("img")),
                 new Html5SelfClosingTagBodyProcessor(),
