@@ -19,13 +19,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ImageExtractorBodyProcessor implements BodyProcessor {
 
@@ -86,6 +85,7 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
 
     private void paragraphImageExtractWithATagDeletion(XPath xPath, Document document) throws XPathExpressionException {
         NodeList nodeList = (NodeList) xPath.compile(IMG_INSIDE_A_TAG).evaluate(document, XPathConstants.NODESET);
+        Set<Node> aTags = new HashSet<>();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node imgNode = nodeList.item(i);
             Node aTagNode = imgNode.getParentNode();
@@ -93,7 +93,27 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
             Node paragraphParentNode = paragraphNode.getParentNode();
             Node imageNodeCopy = imgNode.cloneNode(true);
             paragraphParentNode.insertBefore(imageNodeCopy, paragraphNode);
-            paragraphNode.removeChild(aTagNode);
+            aTagNode.removeChild(imgNode);
+            aTags.add(aTagNode);
+        }
+
+        removeWhitespaceFromATags(document);
+
+        for(Node aTag: aTags) {
+            if (!aTag.hasChildNodes()) {
+                aTag.getParentNode().removeChild(aTag);
+            }
+        }
+    }
+
+    private void removeWhitespaceFromATags(Document document) throws XPathExpressionException {
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPathExpression xpathExp = xpathFactory.newXPath().compile("//a/text()[normalize-space(.) = '']");
+        NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(document, XPathConstants.NODESET);
+
+        for (int i = 0; i < emptyTextNodes.getLength(); i++) {
+            Node emptyTextNode = emptyTextNodes.item(i);
+            emptyTextNode.getParentNode().removeChild(emptyTextNode);
         }
     }
 
