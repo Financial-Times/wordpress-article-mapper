@@ -101,18 +101,17 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
             aTags.add(aTagNode);
         }
 
-        removeWhitespaceFromATags(document);
+        removeWhitespaceFromATags(xPath, document);
 
-        for(Node aTag: aTags) {
+        for (Node aTag : aTags) {
             if (!aTag.hasChildNodes()) {
                 aTag.getParentNode().removeChild(aTag);
             }
         }
     }
 
-    private void removeWhitespaceFromATags(Document document) throws XPathExpressionException {
-        XPathFactory xpathFactory = XPathFactory.newInstance();
-        XPathExpression xpathExp = xpathFactory.newXPath().compile("//a/text()[normalize-space(.) = '']");
+    private void removeWhitespaceFromATags(XPath xPath, Document document) throws XPathExpressionException {
+        XPathExpression xpathExp = xPath.compile("//a/text()[normalize-space(.) = '']");
         NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(document, XPathConstants.NODESET);
 
         for (int i = 0; i < emptyTextNodes.getLength(); i++) {
