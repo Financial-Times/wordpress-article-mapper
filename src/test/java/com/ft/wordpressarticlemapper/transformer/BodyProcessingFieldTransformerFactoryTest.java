@@ -411,6 +411,29 @@ public class BodyProcessingFieldTransformerFactoryTest {
     }
 
     @Test
+    public void thatImagesAreExtractedFromParagraphs() {
+        String bodyWithImages = "<body>" +
+                "<p><img src=\"img1\"/></p>" +
+                "<p><img src=\"img2\"/>Lorem ipsum</p>" +
+                "<p><a href=\"\"><img src=\"img3\"/>" +
+                "<img src=\"img4\"/></a></p>" +
+                "<p><a href=\"\">Lorem ipsum<img src=\"img5\"/></a>" +
+                "</body>";
+
+        String expectedTransformed = "<body>" +
+                "<img src=\"img1\"/>" +
+                "<img src=\"img2\"/>" +
+                "<p>Lorem ipsum</p>" +
+                "<img src=\"img3\"/>" +
+                "<img src=\"img4\"/>" +
+                "<img src=\"img5\"/>" +
+                "<p><a href=\"\">Lorem ipsum</a></p>" +
+                "</body>";
+
+        checkTransformation(bodyWithImages, expectedTransformed);
+    }
+
+    @Test
     public void thatShortenedLinksAreResolvedToContent() {
         String shortUrl = "http://short.example.com/foobar";
         String resolvedIdentifier = "http://www.ft.com/resolved/foo/bar";
