@@ -131,7 +131,7 @@ public class ImageExtractorBodyProcessorTest {
     }
 
     @Test
-    public void testProcess_RemoveMultipleImgTagsInsideATagWithoutRemovingATag() {
+    public void testProcess_ExtractMultipleImgTagsInsideATagWithoutRemovingATag() {
         String body = "<body>" +
                 "<p><a href=\"\"><img src=\"source\"/><img src=\"source\"/>Lorem ipsum</a></p>" +
                 "</body>";
@@ -146,7 +146,7 @@ public class ImageExtractorBodyProcessorTest {
     }
 
     @Test
-    public void testProcess_RemoveMultipleImgTagsInsideATagWithATagRemoval() {
+    public void testProcess_ExtractMultipleImgTagsInsideATagWithATagRemoval() {
         String body = "<body>" +
                 "<p><a href=\"\"><img src=\"source\"/><img src=\"source\"/></a></p>" +
                 "</body>";
