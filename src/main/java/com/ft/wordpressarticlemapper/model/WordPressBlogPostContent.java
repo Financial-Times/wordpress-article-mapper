@@ -42,11 +42,12 @@ public class WordPressBlogPostContent
                                      String canBeDistributed,
                                      Syndication canBeSyndicated,
                                      String webUrl,
+                                     String canonicalWebUrl,
                                      Standout standout) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
-                firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated, webUrl, standout);
+                firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated, webUrl, canonicalWebUrl, standout);
 
         this.body = body;
         this.opening = opening;
@@ -109,7 +110,8 @@ public class WordPressBlogPostContent
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
                     getMainImage(), getComments(), getPublishReference(), getLastModified(), getFirstPublishedDate(),
-                    getAccessLevel(), getCanBeDistributed(), getCanBeSyndicated(), getWebUrl(), getStandout());
+                    getAccessLevel(), getCanBeDistributed(), getCanBeSyndicated(), getWebUrl(), getCanonicalWebUrl(),
+                    getStandout());
         }
     }
 }

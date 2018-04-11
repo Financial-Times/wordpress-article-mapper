@@ -57,6 +57,7 @@ public class WordPressLiveBlogContentTransformerTest {
     private static final String COMMENTS_OPEN = "open";
     private static final SortedSet<Identifier> IDENTIFIERS = ImmutableSortedSet.of(new Identifier(SYSTEM_ID, POST_URL));
     private static final String IMAGE_URL = "http://www.example.com/images/junit.jpg";
+    private static final String CANONICAL_WEB_URL_TEMPLATE = "https://www.ft.com/content/%s";
 
     private WordPressLiveBlogContentMapper transformer;
     private BrandSystemResolver brandResolver = mock(BrandSystemResolver.class);
@@ -65,7 +66,8 @@ public class WordPressLiveBlogContentTransformerTest {
 
     @Before
     public void setUp() {
-        transformer = new WordPressLiveBlogContentMapper(brandResolver, identifierBuilder, syndicationManager);
+        transformer = new WordPressLiveBlogContentMapper(brandResolver, identifierBuilder, syndicationManager,
+                CANONICAL_WEB_URL_TEMPLATE);
 
         URI requestUri = UriBuilder.fromUri(POST_URL).build();
         when(brandResolver.getBrand(requestUri)).thenReturn(BRANDS);
@@ -105,6 +107,8 @@ public class WordPressLiveBlogContentTransformerTest {
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
         assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+        assertThat("canonicalWebUrl", actual.getCanonicalWebUrl(),
+                is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
     }
 
     @Test
@@ -144,6 +148,8 @@ public class WordPressLiveBlogContentTransformerTest {
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
         assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+        assertThat("canonicalWebUrl", actual.getCanonicalWebUrl(),
+                is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
     }
 
     @Test
@@ -165,6 +171,8 @@ public class WordPressLiveBlogContentTransformerTest {
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
         assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+        assertThat("canonicalWebUrl", actual.getCanonicalWebUrl(),
+                is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
     }
 
     @Test

@@ -56,6 +56,7 @@ public class MessageProducingContentMapperTest {
     private static final UriBuilder URI_BUILDER = UriBuilder.fromUri("http://www.example.org/content").path("{uuid}");
     private static final String PUBLISH_REF = "tid_yoyfkwcs2s";
     private static final MessageType CMS_CONTENT_PUBLISHED = MessageType.messageType("cms-content-published");
+    private static final String CANONICAL_WEB_URL_TEMPLATE = "https://www.ft.com/content/%s";
 
     @Mock
     private WordPressBlogPostContentMapper wordPressBlogPostContentMapper;

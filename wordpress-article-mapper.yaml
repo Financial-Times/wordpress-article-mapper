@@ -248,3 +248,5 @@ producer:
 appInfo:
     systemCode: "up-wam"
     description: "WordPressArticleMapperApplication"
+
+canonicalWebUrlTemplate: "https://www.ft.com/content/%s"

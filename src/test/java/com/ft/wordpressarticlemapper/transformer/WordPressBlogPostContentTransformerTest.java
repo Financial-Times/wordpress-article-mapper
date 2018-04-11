@@ -63,6 +63,7 @@ public class WordPressBlogPostContentTransformerTest {
     private static final String COMMENTS_OPEN = "open";
     private static final String IMAGE_URL = "http://www.example.com/images/junit.jpg";
     private static final Date LAST_MODIFIED = new Date();
+    private static final String CANONICAL_WEB_URL_TEMPLATE = "https://www.ft.com/content/%s";
 
     private WordPressBlogPostContentMapper mapper;
     private BrandSystemResolver brandResolver = mock(BrandSystemResolver.class);
@@ -72,7 +73,8 @@ public class WordPressBlogPostContentTransformerTest {
 
     @Before
     public void setUp() {
-        mapper = new WordPressBlogPostContentMapper(brandResolver, bodyTransformer, identifierBuilder, syndicationManager);
+        mapper = new WordPressBlogPostContentMapper(brandResolver, bodyTransformer, identifierBuilder,
+                syndicationManager, CANONICAL_WEB_URL_TEMPLATE);
 
         URI requestUri = UriBuilder.fromUri(POST_URL).build();
         when(brandResolver.getBrand(requestUri)).thenReturn(BRANDS);
@@ -119,6 +121,8 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
         assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+        assertThat("canonicalWebUrl", actual.getCanonicalWebUrl(),
+                is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
     }
 
     @Test
@@ -163,11 +167,11 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
         assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+        assertThat("canonicalWebUrl", actual.getCanonicalWebUrl(),
+                is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
     }
 
-    private void checkBodyXml(String fieldName, String expected, String actual)
-            throws Exception {
-
+    private void checkBodyXml(String fieldName, String expected, String actual) {
         assertThat(fieldName, actual, is(equalTo(expected)));
     }
 
@@ -203,6 +207,8 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
         assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+        assertThat("canonicalWebUrl", actual.getCanonicalWebUrl(),
+                is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
     }
 
     @Test
@@ -235,6 +241,8 @@ public class WordPressBlogPostContentTransformerTest {
                 is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
         assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
         assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+        assertThat("canonicalWebUrl", actual.getCanonicalWebUrl(),
+                is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
     }
 
     @Test

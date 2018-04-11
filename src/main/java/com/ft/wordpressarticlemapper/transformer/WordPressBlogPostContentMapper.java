@@ -31,9 +31,10 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
     public WordPressBlogPostContentMapper(BrandSystemResolver brandSystemResolver,
                                           BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
                                           IdentifierBuilder identifierBuilder,
-                                          SyndicationManager syndicationManager) {
+                                          SyndicationManager syndicationManager,
+                                          String canonicalWebUrlTemplate) {
 
-        super(brandSystemResolver, identifierBuilder, syndicationManager);
+        super(brandSystemResolver, identifierBuilder, syndicationManager, canonicalWebUrlTemplate);
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
     }
 
@@ -42,7 +43,8 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
                                                  AccessLevel accessLevel, String canBeDistributed,
-                                                 Syndication canBeSyndicated, String webUrl, Standout standout) {
+                                                 Syndication canBeSyndicated, String webUrl, String canonicalWebUrl,
+                                                 Standout standout) {
         String body = post.getContent();
         if (Strings.isNullOrEmpty(body)) {
             throw new UnpublishablePostException(uuid.toString(), "Not a valid WordPress article for publication - body of post is empty");
@@ -64,6 +66,7 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
                 .withCanBeDistributed(canBeDistributed)
                 .withCanBeSyndicated(canBeSyndicated)
                 .withWebUrl(webUrl)
+                .withCanonicalWebUrl(canonicalWebUrl)
                 .withStandout(standout);
 
 

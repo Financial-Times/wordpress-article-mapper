@@ -42,13 +42,16 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
     private final BrandSystemResolver brandSystemResolver;
     private final IdentifierBuilder identifierBuilder;
     private final SyndicationManager syndicationManager;
+    private final String canonicalWebUrlTemplate;
 
     public WordPressContentMapper(BrandSystemResolver brandSystemResolver,
                                   IdentifierBuilder identifierBuilder,
-                                  SyndicationManager syndicationManager) {
+                                  SyndicationManager syndicationManager,
+                                  String canonicalWebUrlTemplate) {
         this.brandSystemResolver = brandSystemResolver;
         this.identifierBuilder = identifierBuilder;
         this.syndicationManager = syndicationManager;
+        this.canonicalWebUrlTemplate = canonicalWebUrlTemplate;
     }
 
     public C mapWordPressArticle(String transactionId, Post post, Date lastModified) {
@@ -69,16 +72,15 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
         UUID uuid = UUID.fromString(post.getUuid());
 
         Date firstPublishedDate = extractFirstPublishedDate(requestUri, post);
-
         String canBeDistributed = getCanBeDistributed();
-
         Syndication canBeSyndicated = syndicationManager.getSyndicationByUri(requestUri);
+        String canonicalWebUrl = String.format(canonicalWebUrlTemplate, uuid);
 
         Standout standout = getStandout(post);
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate, brands, identifiers,
                 featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated,
-                postUrl, standout);
+                postUrl, canonicalWebUrl, standout);
     }
 
     private AccessLevel getAccessLevel(Post post) {
@@ -110,7 +112,7 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
                                    SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                    UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
                                    AccessLevel accessLevel, String canBeDistributed, Syndication canBeSyndicated,
-                                   String webUrl, Standout standout);
+                                   String webUrl, String canonicalWebUrl, Standout standout);
 
     private Set<Brand> extractBrand(URI requestUri) {
         Set<Brand> brand = brandSystemResolver.getBrand(requestUri);

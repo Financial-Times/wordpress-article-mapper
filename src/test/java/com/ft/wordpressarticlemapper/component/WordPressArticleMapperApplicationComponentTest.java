@@ -50,6 +50,7 @@ public class WordPressArticleMapperApplicationComponentTest {
     private static final String AUTHORITY = "http%3A%2F%2Fapi.ft.com%2Fsystem%2FFT-LABS-WP-1-24";
     private static final String IDENTIFIER_VALUE = "http%3A%2F%2Fuat.ftalphaville.ft.com%2F2014%2F10%2F20%2F2013232%2" +
             "Fregressing-to-the-mean-in-china-or-why-if-something-cannot-go-on-forever-it-will-stop%2F";
+    private static final String CANONICAL_WEB_URL_TEMPLATE = "https://www.ft.com/content/%s";
 
     private static final MessageProducer producer = mock(MessageProducer.class);
     private static MessageListener listener;
@@ -127,6 +128,8 @@ public class WordPressArticleMapperApplicationComponentTest {
         assertThat(jsonPayload.get("firstPublishedDate"), equalTo("2014-10-21T04:45:30.000Z"));
         assertThat(jsonPayload.get("canBeDistributed"), equalTo("yes"));
         assertThat(jsonPayload.get("canBeSyndicated"), equalTo(Syndication.VERIFY.getCanBeSyndicated()));
+        assertThat(jsonPayload.get("canonicalWebUrl"), equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, uuid)));
+        assertThat(jsonPayload.get("webUrl"), equalTo("http://uat.ftalphaville.ft.com/2014/10/21/2014692/the-6am-london-cut-277/"));
     }
 
     @Test

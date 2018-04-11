@@ -23,6 +23,7 @@ public class WordPressArticleTransformerConfiguration extends Configuration impl
     private final ConsumerConfiguration consumerConfiguration;
     private final ProducerConfiguration producerConfiguration;
     private final String contentUriPrefix;
+    private final String canonicalWebUrlTemplate;
 
     public WordPressArticleTransformerConfiguration(
             @JsonProperty("blogApiEndpointMetadata") List<BlogApiEndpointMetadata> blogApiEndpointMetadataList,
@@ -30,7 +31,8 @@ public class WordPressArticleTransformerConfiguration extends Configuration impl
             @JsonProperty("urlResolverConfiguration") final UrlResolverConfiguration urlResolverConfiguration,
             @JsonProperty("consumer") ConsumerConfiguration consumerConfiguration,
             @JsonProperty("producer") ProducerConfiguration producerConfiguration,
-            @JsonProperty("contentUriPrefix") String contentUriPrefix) {
+            @JsonProperty("contentUriPrefix") String contentUriPrefix,
+            @JsonProperty("canonicalWebUrlTemplate") String canonicalWebUrlTemplate) {
 
         super();
         this.hostToBrands = blogApiEndpointMetadataList;
@@ -39,6 +41,7 @@ public class WordPressArticleTransformerConfiguration extends Configuration impl
         this.consumerConfiguration = consumerConfiguration;
         this.producerConfiguration = producerConfiguration;
         this.contentUriPrefix = contentUriPrefix;
+        this.canonicalWebUrlTemplate = canonicalWebUrlTemplate;
     }
 
     @Valid
@@ -84,5 +87,10 @@ public class WordPressArticleTransformerConfiguration extends Configuration impl
     @Override
     public AppInfo getAppInfo() {
         return appInfo;
+    }
+
+    @NotNull
+    public String getCanonicalWebUrlTemplate() {
+        return canonicalWebUrlTemplate;
     }
 }
