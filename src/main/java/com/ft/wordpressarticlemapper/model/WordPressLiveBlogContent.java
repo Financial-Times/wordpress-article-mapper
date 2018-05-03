@@ -37,11 +37,12 @@ public class WordPressLiveBlogContent
                                      String canBeDistributed,
                                      Syndication canBeSyndicated,
                                      String webUrl,
+                                     String canonicalWebUrl,
                                      Standout standout) {
 
         super(uuid, title, titles, byline, brands, identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
-                firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated, webUrl, standout);
+                firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated, webUrl, canonicalWebUrl, standout);
     }
 
     public boolean isRealtime() {
@@ -72,7 +73,7 @@ public class WordPressLiveBlogContent
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
                     getMainImage(), getComments(), getPublishReference(),
                     getLastModified(), getFirstPublishedDate(), getAccessLevel(), getCanBeDistributed(),
-                    getCanBeSyndicated(), getWebUrl(), getStandout());
+                    getCanBeSyndicated(), getWebUrl(), getCanonicalWebUrl(), getStandout());
         }
     }
 }

@@ -23,8 +23,9 @@ public class WordPressLiveBlogContentMapper
 
     public WordPressLiveBlogContentMapper(BrandSystemResolver brandSystemResolver,
                                           IdentifierBuilder identifierBuilder,
-                                          SyndicationManager syndicationManager) {
-        super(brandSystemResolver, identifierBuilder, syndicationManager);
+                                          SyndicationManager syndicationManager,
+                                          String canonicalWebUrlTemplate) {
+        super(brandSystemResolver, identifierBuilder, syndicationManager, canonicalWebUrlTemplate);
     }
 
     @Override
@@ -32,7 +33,8 @@ public class WordPressLiveBlogContentMapper
                                                  SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
                                                  AccessLevel accessLevel, String canBeDistributed,
-                                                 Syndication canBeSyndicated, String webUrl, Standout standout) {
+                                                 Syndication canBeSyndicated, String webUrl, String canonicalWebUrl,
+                                                 Standout standout) {
 
         WordPressLiveBlogContent.Builder builder = (WordPressLiveBlogContent.Builder) WordPressLiveBlogContent.builder()
                 .withUuid(uuid)
@@ -50,6 +52,7 @@ public class WordPressLiveBlogContentMapper
                 .withCanBeDistributed(canBeDistributed)
                 .withCanBeSyndicated(canBeSyndicated)
                 .withWebUrl(webUrl)
+                .withCanonicalWebUrl(canonicalWebUrl)
                 .withStandout(standout);
 
         return builder.build();

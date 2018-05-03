@@ -37,6 +37,7 @@ public abstract class WordPressContent {
     private final String canBeDistributed;
     private final Syndication canBeSyndicated;
     private final String webUrl;
+    private final String canonicalWebUrl;
     private final Standout standout;
 
     protected WordPressContent(UUID uuid,
@@ -61,6 +62,7 @@ public abstract class WordPressContent {
                                String canBeDistributed,
                                Syndication canBeSyndicated,
                                String webUrl,
+                               String canonicalWebUrl,
                                Standout standout) {
         this.identifiers = identifiers;
         this.comments = comments;
@@ -84,6 +86,7 @@ public abstract class WordPressContent {
         this.canBeDistributed = canBeDistributed;
         this.canBeSyndicated = canBeSyndicated;
         this.webUrl = webUrl;
+        this.canonicalWebUrl = canonicalWebUrl;
         this.standout = standout;
     }
 
@@ -186,6 +189,10 @@ public abstract class WordPressContent {
         return webUrl;
     }
 
+    public String getCanonicalWebUrl() {
+        return canonicalWebUrl;
+    }
+
     public Standout getStandout() {
         return standout;
     }
@@ -216,6 +223,7 @@ public abstract class WordPressContent {
                 .add("canBeDistributed", canBeDistributed)
                 .add("canBeSyndicated", canBeSyndicated)
                 .add("webUrl", webUrl)
+                .add("canonicalWebUrl", canonicalWebUrl)
                 .add("standout", standout)
                 .toString();
     }
@@ -248,6 +256,7 @@ public abstract class WordPressContent {
                 && Objects.equal(this.canBeDistributed, that.canBeDistributed)
                 && Objects.equal(this.canBeSyndicated, that.canBeSyndicated)
                 && Objects.equal(this.webUrl, that.webUrl)
+                && Objects.equal(this.canonicalWebUrl, that.canonicalWebUrl)
                 && Objects.equal(this.standout, that.standout);
     }
 
@@ -256,7 +265,7 @@ public abstract class WordPressContent {
         return Objects.hashCode(title, byline, brands, identifiers, uuid, publishedDate,
                 description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl,
                 mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed,
-                canBeSyndicated, webUrl, standout);
+                canBeSyndicated, webUrl, canonicalWebUrl, standout);
     }
 
     public abstract static class Builder<C extends WordPressContent> {
@@ -283,6 +292,7 @@ public abstract class WordPressContent {
         private String canBeDistributed;
         private Syndication canBeSyndicated;
         private String webUrl;
+        private String canonicalWebUrl;
         private Standout standout;
 
         public Builder<C> withUuid(UUID uuid) {
@@ -500,6 +510,15 @@ public abstract class WordPressContent {
             return standout;
         }
 
+        public String getCanonicalWebUrl() {
+            return canonicalWebUrl;
+        }
+
+        public Builder<C> withCanonicalWebUrl(String canonicalWebUrl) {
+            this.canonicalWebUrl = canonicalWebUrl;
+            return this;
+        }
+
         public Builder<C> withValuesFrom(C content) {
             return withTitle(content.getTitle())
                     .withTitles(content.getTitles())
@@ -523,6 +542,7 @@ public abstract class WordPressContent {
                     .withCanBeDistributed(content.getCanBeDistributed())
                     .withCanBeSyndicated(content.getCanBeSyndicated())
                     .withWebUrl(content.getWebUrl())
+                    .withCanonicalWebUrl(content.getCanonicalWebUrl())
                     .withStandout(content.getStandout());
         }
 

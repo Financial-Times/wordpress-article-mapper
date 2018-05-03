@@ -94,9 +94,10 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
         SyndicationManager syndicationManager = new SyndicationManager(blogApiEndpointMetadataManager);
 
         WordPressBlogPostContentMapper blogPostContentMapper = new WordPressBlogPostContentMapper(brandSystemResolver,
-                bodyProcessingFieldTransformer, identifierBuilder, syndicationManager);
+                bodyProcessingFieldTransformer, identifierBuilder, syndicationManager,
+                configuration.getCanonicalWebUrlTemplate());
         WordPressLiveBlogContentMapper liveBlogContentMapper = new WordPressLiveBlogContentMapper(brandSystemResolver,
-                identifierBuilder, syndicationManager);
+                identifierBuilder, syndicationManager, configuration.getCanonicalWebUrlTemplate());
 
         MessageProducingContentMapper contentMapper = new MessageProducingContentMapper(
                 blogPostContentMapper,

@@ -26,6 +26,7 @@ This service listens to the NativeCmsPublicationEvents Kafka topic and ingests t
 | `opening` | `$.post.excerpt` | Post Opening | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
 | `accessLevel` | `$.post.accessLevel` or `$.post.defaultAccessLevel`  | Post Access Level | `"subscribed"` or `"registered"` or `"premium"` or `"free"` |
 | `webUrl` | `$.post.url` | Post Url | `"http://ftalphaville.ft.com/marketslive/2017-01-02/"` |
+| `canonicalWebUrl` | `canonicalWebUrlTemplate` config | Permanent url to the content | `"https://www.ft.com/content/0000d746-003c-5021-a1fe-705e2de57d77"` |
 | `scoop` | `$.post.is_scoop` | Scoop flag | `true` |
 
 ## Running
