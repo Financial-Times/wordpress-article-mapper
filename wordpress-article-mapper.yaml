@@ -121,6 +121,7 @@ blogApiEndpointMetadata:
     - host: blogs.ft.com/ftfmblog
       brands: ["http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-37
+      syndication: "yes"
     - host: blogs.ft.com/ft-long-short
       brands: ["http://api.ft.com/things/8aa3bfbc-f45c-3618-8c8a-cacbac5c3c3a","http://api.ft.com/things/dbb0bdae-1f0c-11e4-b0cb-b2227cce2b54"]
       id: FT-LABS-WP-1-191
