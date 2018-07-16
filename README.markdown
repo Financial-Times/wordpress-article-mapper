@@ -22,7 +22,7 @@ This service listens to the NativeCmsPublicationEvents Kafka topic and ingests t
 | `publishReference` | From Kafka message header | Transaction ID | `"tid_rb1xduvpzr"` |
 | `lastModified` | From message timestamp | Last modified date | `"2016-02-10T11:41:24.000Z"` |
 | `firstPublishedDate` | `$.post.date_gmt` | First publication date | `"2016-12-10T10:01:22.000Z"` |
-| `body` | `$.post.content` | Post Body | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
+| `body` | `$.post.content` | Post Body (empty for Live Blogs) | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
 | `opening` | `$.post.excerpt` | Post Opening | `"<body><p>Telecom Italia has returned to growth in the third quarter... </p></body>"` |
 | `accessLevel` | `$.post.accessLevel` or `$.post.defaultAccessLevel`  | Post Access Level | `"subscribed"` or `"registered"` or `"premium"` or `"free"` |
 | `webUrl` | `$.post.url` | Post Url | `"http://ftalphaville.ft.com/marketslive/2017-01-02/"` |
