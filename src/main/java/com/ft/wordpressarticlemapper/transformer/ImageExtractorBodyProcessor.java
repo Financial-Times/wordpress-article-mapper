@@ -3,12 +3,19 @@ package com.ft.wordpressarticlemapper.transformer;
 import com.ft.bodyprocessing.BodyProcessingContext;
 import com.ft.bodyprocessing.BodyProcessingException;
 import com.ft.bodyprocessing.BodyProcessor;
+
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,22 +28,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ImageExtractorBodyProcessor implements BodyProcessor {
 
-    private static final String A_TAG = "a";
-    private static final String IMG_EMPTY_SRC = "//img[@src[not(string())]]";
-    private static final String IMG_MISSING_SRC = "//img[not(@src)]";
-    private static final String IMG_INSIDE_A_TAG = "//p/a/img";
-    private static final String IMG = "//p/img";
+    private static final String P_TAG = "p";
+    private static final String IMG_EMPTY_SRC = "//p//img[@src[not(string())]]";
+    private static final String IMG_MISSING_SRC = "//p//img[not(@src)]";
+    private static final String IMG_INSIDE_A_TAG = "//p//a/img";
+    private static final String IMG_INSIDE_PARAGRAPH_TAG = "//p/img";
 
     @Override
     public String process(String body, BodyProcessingContext bodyProcessingContext) throws BodyProcessingException {
@@ -49,10 +50,10 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
             Document document = documentBuilder.parse(new InputSource(new StringReader(body)));
             XPath xPath = XPathFactory.newInstance().newXPath();
 
-            deleteNodeIncludingParentATag(IMG_EMPTY_SRC, xPath, document);
-            deleteNodeIncludingParentATag(IMG_MISSING_SRC, xPath, document);
-            simpleParagraphImageExtract(IMG, xPath, document);
-            paragraphImageExtractWithATagDeletion(xPath, document);
+            deleteNodeIncludingAncestors(IMG_EMPTY_SRC, xPath, document);
+            deleteNodeIncludingAncestors(IMG_MISSING_SRC, xPath, document);
+            paragraphImageExtractWithAncestorsDeletion(IMG_INSIDE_PARAGRAPH_TAG, xPath, document);
+            paragraphImageExtractWithAncestorsDeletion(IMG_INSIDE_A_TAG, xPath, document);
 
             body = serializeBody(document);
         } catch (ParserConfigurationException | SAXException | IOException | TransformerException | XPathExpressionException e) {
@@ -61,63 +62,44 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
         return body;
     }
 
-    private void simpleParagraphImageExtract(String expression, XPath xPath, Document document) throws XPathExpressionException {
+    private void deleteNodeIncludingAncestors(String expression, XPath xPath, Document document) throws XPathExpressionException {
         NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(document, XPathConstants.NODESET);
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node imgNode = nodeList.item(i);
-            Node paragraphNode = imgNode.getParentNode();
-            Node paragraphParentNode = paragraphNode.getParentNode();
-            Node imageNodeCopy = imgNode.cloneNode(true);
-            paragraphParentNode.insertBefore(imageNodeCopy, paragraphNode);
-            paragraphNode.removeChild(imgNode);
+            Node imgNodeAncestor = imgNode;
+            while (isNotParagraph(imgNodeAncestor.getParentNode())) {
+                imgNodeAncestor = imgNodeAncestor.getParentNode();
+            }
+            Node paragraphNode = imgNodeAncestor.getParentNode();
+            paragraphNode.removeChild(imgNodeAncestor);
         }
     }
 
-    private void deleteNodeIncludingParentATag(String expression, XPath xPath, Document document) throws XPathExpressionException {
+    private void paragraphImageExtractWithAncestorsDeletion(String expression, XPath xPath, Document document) throws XPathExpressionException {
         NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(document, XPathConstants.NODESET);
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node imgNode = nodeList.item(i);
-            Node parentNode = imgNode.getParentNode();
-            if (A_TAG.equals(parentNode.getNodeName())) {
-                Node aTagParent = parentNode.getParentNode();
-                aTagParent.removeChild(parentNode);
-            } else {
-                parentNode.removeChild(imgNode);
-            }
-        }
-    }
+        Set<Node> nodesToDelete = new HashSet<>();
 
-    private void paragraphImageExtractWithATagDeletion(XPath xPath, Document document) throws XPathExpressionException {
-        NodeList nodeList = (NodeList) xPath.compile(IMG_INSIDE_A_TAG).evaluate(document, XPathConstants.NODESET);
-        Set<Node> aTags = new HashSet<>();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node imgNode = nodeList.item(i);
-            Node aTagNode = imgNode.getParentNode();
-            Node paragraphNode = aTagNode.getParentNode();
+            Node imgNodeAncestor = imgNode;
+            while (isNotParagraph(imgNodeAncestor.getParentNode())) {
+                imgNodeAncestor = imgNodeAncestor.getParentNode();
+            }
+            nodesToDelete.add(imgNodeAncestor);
+            Node paragraphNode = imgNodeAncestor.getParentNode();
             Node paragraphParentNode = paragraphNode.getParentNode();
             Node imageNodeCopy = imgNode.cloneNode(true);
             paragraphParentNode.insertBefore(imageNodeCopy, paragraphNode);
-            aTagNode.removeChild(imgNode);
-            aTags.add(aTagNode);
         }
 
-        removeWhitespaceFromATags(xPath, document);
-
-        for (Node aTag : aTags) {
-            if (!aTag.hasChildNodes()) {
-                aTag.getParentNode().removeChild(aTag);
-            }
+        for (Node nodeToDelete : nodesToDelete) {
+            Node parentNode = nodeToDelete.getParentNode();
+            parentNode.removeChild(nodeToDelete);
         }
     }
 
-    private void removeWhitespaceFromATags(XPath xPath, Document document) throws XPathExpressionException {
-        XPathExpression xpathExp = xPath.compile("//a/text()[normalize-space(.) = '']");
-        NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(document, XPathConstants.NODESET);
-
-        for (int i = 0; i < emptyTextNodes.getLength(); i++) {
-            Node emptyTextNode = emptyTextNodes.item(i);
-            emptyTextNode.getParentNode().removeChild(emptyTextNode);
-        }
+    private boolean isNotParagraph(Node node) {
+        return !P_TAG.equals(node.getNodeName());
     }
 
     private DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {

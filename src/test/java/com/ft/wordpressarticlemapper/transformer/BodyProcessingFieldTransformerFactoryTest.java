@@ -8,9 +8,11 @@ import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.ft.wordpressarticlemapper.util.ClientMockBuilder;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
+
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
 import org.junit.Rule;
@@ -412,23 +414,20 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
     @Test
     public void thatImagesAreExtractedFromParagraphs() {
-        String bodyWithImages = "<body>" +
-                "<p><img src=\"img1\"/></p>" +
-                "<p><img src=\"img2\"/>Lorem ipsum</p>" +
-                "<p><a href=\"\"><img src=\"img3\"/>" +
-                "<img src=\"img4\"/></a></p>" +
-                "<p><a href=\"\">Lorem ipsum<img src=\"img5\"/></a>" +
-                "</body>";
+        String bodyWithImages = "<body><p>Lorem ipsum</p>" +
+                "<p>" +
+                "Text before img <img src=\"img source\"/> Text after img " +
+                "Text before a tag <a href=\"\"><img src=\"img source\"/></a> Text after a tag " +
+                "Text before span tag <span><a href=\"\"><img src=\"img source\"/></a></span> Text after span tag" +
+                "</p>" +
+                "<p>Lorem ipsum</p></body>";
 
-        String expectedTransformed = "<body>" +
-                "<img src=\"img1\"/>" +
-                "<img src=\"img2\"/>" +
-                "<p>Lorem ipsum</p>" +
-                "<img src=\"img3\"/>" +
-                "<img src=\"img4\"/>" +
-                "<img src=\"img5\"/>" +
-                "<p><a href=\"\">Lorem ipsum</a></p>" +
-                "</body>";
+        String expectedTransformed = "<body><p>Lorem ipsum</p>" +
+                "<img src=\"img source\"/>" +
+                "<img src=\"img source\"/>" +
+                "<img src=\"img source\"/>" +
+                "<p>Text before img   Text after img Text before a tag  Text after a tag Text before span tag  Text after span tag</p>" +
+                "<p>Lorem ipsum</p></body>";
 
         checkTransformation(bodyWithImages, expectedTransformed);
     }
