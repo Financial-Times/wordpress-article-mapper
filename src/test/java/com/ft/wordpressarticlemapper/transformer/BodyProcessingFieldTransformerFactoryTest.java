@@ -415,18 +415,61 @@ public class BodyProcessingFieldTransformerFactoryTest {
     @Test
     public void thatImagesAreExtractedFromParagraphs() {
         String bodyWithImages = "<body><p>Lorem ipsum</p>" +
-                "<p>" +
-                "Text before img <img src=\"img source\"/> Text after img " +
-                "Text before a tag <a href=\"\"><img src=\"img source\"/></a> Text after a tag " +
-                "Text before span tag <span><a href=\"\"><img src=\"img source\"/></a></span> Text after span tag" +
-                "</p>" +
+                "<p><img src=\"source\"/></p>" +
+                "<p><img src=\"source\"/><img src=\"source\"/></p>" +
+                "<p>Before img<img src=\"source\"/></p>" +
+                "<p><img src=\"source\"/>After img</p>" +
+                "<p><img src=\"source\"/><em/></p>" +
+                "<p><em/><img src=\"source\"/></p>" +
+                "<p><em><img src=\"source\"/></em></p>" +
+                "<p><em>Inside em tag<img src=\"source\"/></em></p>" +
+
+                "<p><a href=\"\"><img src=\"source\"/></a></p>" +
+                "<p><a href=\"\"><img src=\"source\"/><img src=\"source\"/></a></p>" +
+                "<p>Before a tag<a href=\"\"><img src=\"source\"/></a></p>" +
+                "<p><a href=\"\"><img src=\"source\"/></a>After a tag</p>" +
+                "<p><a href=\"\"><img src=\"source\"/></a><em/></p>" +
+                "<p><em/><a href=\"\"><img src=\"source\"/></a></p>" +
+                "<p><em><a href=\"\"><img src=\"source\"/></a></em></p>" +
+                "<p><a href=\"\">Inside a tag<img src=\"source\"/></a></p>" +
+
+                "<p><span><a href=\"\"><img src=\"source\"/></a></span></p>" +
+                "<p><span><a href=\"\"><img src=\"source\"/><img src=\"source\"/></a></span></p>" +
+                "<p>Before span<span><a href=\"\"><img src=\"source\"/></a></span></p>" +
+                "<p><span><a href=\"\"><img src=\"source\"/></a></span>After span</p>" +
+                "<p><span><a href=\"\"><img src=\"source\"/></a></span><em/></p>" +
+                "<p><em/><span><a href=\"\"><img src=\"source\"/></a></span></p>" +
+                "<p><em><span><a href=\"\"><img src=\"source\"/></a></span></em></p>" +
+                "<p><em>Inside em<span><a href=\"\"><img src=\"source\"/></a></span></em></p>" +
                 "<p>Lorem ipsum</p></body>";
 
         String expectedTransformed = "<body><p>Lorem ipsum</p>" +
-                "<img src=\"img source\"/>" +
-                "<img src=\"img source\"/>" +
-                "<img src=\"img source\"/>" +
-                "<p>Text before img   Text after img Text before a tag  Text after a tag Text before span tag  Text after span tag</p>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><img src=\"source\"/>" +
+                "<img src=\"source\"/><p>Before img</p>" +
+                "<img src=\"source\"/><p>After img</p>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><p><em>Inside em tag</em></p>" +
+
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><img src=\"source\"/>" +
+                "<img src=\"source\"/><p>Before a tag</p>" +
+                "<img src=\"source\"/><p>After a tag</p>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><p><a href=\"\">Inside a tag</a></p>" +
+
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><img src=\"source\"/>" +
+                "<img src=\"source\"/><p>Before span</p>" +
+                "<img src=\"source\"/><p>After span</p>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><p><em>Inside em</em></p>" +
                 "<p>Lorem ipsum</p></body>";
 
         checkTransformation(bodyWithImages, expectedTransformed);

@@ -14,7 +14,9 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -36,8 +38,15 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
     private static final String P_TAG = "p";
     private static final String IMG_EMPTY_SRC = "//p//img[@src[not(string())]]";
     private static final String IMG_MISSING_SRC = "//p//img[not(@src)]";
-    private static final String IMG_INSIDE_A_TAG = "//p//a/img";
-    private static final String IMG_INSIDE_PARAGRAPH_TAG = "//p/img";
+    private static final String IMG_INSIDE_PARAGRAPH_TAG = "//p//img";
+
+    private static final List<String> TAGS_TO_DELETE = new ArrayList<String>() {
+        {
+            add("a");
+            add("span");
+            add("img");
+        }
+    };
 
     @Override
     public String process(String body, BodyProcessingContext bodyProcessingContext) throws BodyProcessingException {
@@ -52,8 +61,7 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
 
             deleteNodeIncludingAncestors(IMG_EMPTY_SRC, xPath, document);
             deleteNodeIncludingAncestors(IMG_MISSING_SRC, xPath, document);
-            paragraphImageExtractWithAncestorsDeletion(IMG_INSIDE_PARAGRAPH_TAG, xPath, document);
-            paragraphImageExtractWithAncestorsDeletion(IMG_INSIDE_A_TAG, xPath, document);
+            paragraphImageExtractWithAncestorsDeletion(xPath, document);
 
             body = serializeBody(document);
         } catch (ParserConfigurationException | SAXException | IOException | TransformerException | XPathExpressionException e) {
@@ -64,32 +72,15 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
 
     private void deleteNodeIncludingAncestors(String expression, XPath xPath, Document document) throws XPathExpressionException {
         NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(document, XPathConstants.NODESET);
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node imgNode = nodeList.item(i);
-            Node imgNodeAncestor = imgNode;
-            while (isNotParagraph(imgNodeAncestor.getParentNode())) {
-                imgNodeAncestor = imgNodeAncestor.getParentNode();
-            }
-            Node paragraphNode = imgNodeAncestor.getParentNode();
-            paragraphNode.removeChild(imgNodeAncestor);
-        }
-    }
-
-    private void paragraphImageExtractWithAncestorsDeletion(String expression, XPath xPath, Document document) throws XPathExpressionException {
-        NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(document, XPathConstants.NODESET);
         Set<Node> nodesToDelete = new HashSet<>();
 
         for (int i = 0; i < nodeList.getLength(); i++) {
-            Node imgNode = nodeList.item(i);
-            Node imgNodeAncestor = imgNode;
-            while (isNotParagraph(imgNodeAncestor.getParentNode())) {
-                imgNodeAncestor = imgNodeAncestor.getParentNode();
+            Node deletableNode = nodeList.item(i);
+
+            while (nodeCanBeDeleted(deletableNode.getParentNode())) {
+                deletableNode = deletableNode.getParentNode();
             }
-            nodesToDelete.add(imgNodeAncestor);
-            Node paragraphNode = imgNodeAncestor.getParentNode();
-            Node paragraphParentNode = paragraphNode.getParentNode();
-            Node imageNodeCopy = imgNode.cloneNode(true);
-            paragraphParentNode.insertBefore(imageNodeCopy, paragraphNode);
+            nodesToDelete.add(deletableNode);
         }
 
         for (Node nodeToDelete : nodesToDelete) {
@@ -98,9 +89,57 @@ public class ImageExtractorBodyProcessor implements BodyProcessor {
         }
     }
 
-    private boolean isNotParagraph(Node node) {
-        return !P_TAG.equals(node.getNodeName());
+    private void paragraphImageExtractWithAncestorsDeletion(XPath xPath, Document document) throws XPathExpressionException {
+        NodeList nodeList = (NodeList) xPath.compile(IMG_INSIDE_PARAGRAPH_TAG).evaluate(document, XPathConstants.NODESET);
+        Set<Node> nodesToDelete = new HashSet<>();
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node imgNode = nodeList.item(i);
+            Node deletableNode = imgNode;
+
+            while (nodeCanBeDeleted(deletableNode.getParentNode())) {
+                deletableNode = deletableNode.getParentNode();
+            }
+            nodesToDelete.add(deletableNode);
+
+            Node paragraphNode = getParagraphNode(deletableNode);
+            Node paragraphParentNode = paragraphNode.getParentNode();
+            Node imageNodeCopy = imgNode.cloneNode(true);
+            paragraphParentNode.insertBefore(imageNodeCopy, paragraphNode);
+        }
+
+        for (Node nodeToDelete : nodesToDelete) {
+            Node parentNode = nodeToDelete.getParentNode();
+            parentNode.removeChild(nodeToDelete);
+            parentNode.getChildNodes();
+        }
     }
+
+    private Node getParagraphNode(Node node) {
+        while (!P_TAG.equals(node.getNodeName())) {
+            node = node.getParentNode();
+        }
+        return node;
+    }
+
+    private boolean nodeCanBeDeleted(Node node) {
+        if (!TAGS_TO_DELETE.contains(node.getNodeName())) {
+            return false;
+        }
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            if (!TAGS_TO_DELETE.contains(childNodes.item(i).getNodeName())) {
+                return false;
+            }
+        }
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            if (!nodeCanBeDeleted(childNodes.item(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     private DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
