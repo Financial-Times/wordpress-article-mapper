@@ -8,9 +8,11 @@ import com.ft.bodyprocessing.transformer.FieldTransformer;
 import com.ft.wordpressarticlemapper.configuration.BlogApiEndpointMetadataManager;
 import com.ft.wordpressarticlemapper.model.BlogApiEndpointMetadata;
 import com.ft.wordpressarticlemapper.util.ClientMockBuilder;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.jersey.api.client.Client;
+
 import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
 import org.junit.Before;
 import org.junit.Rule;
@@ -412,23 +414,63 @@ public class BodyProcessingFieldTransformerFactoryTest {
 
     @Test
     public void thatImagesAreExtractedFromParagraphs() {
-        String bodyWithImages = "<body>" +
-                "<p><img src=\"img1\"/></p>" +
-                "<p><img src=\"img2\"/>Lorem ipsum</p>" +
-                "<p><a href=\"\"><img src=\"img3\"/>" +
-                "<img src=\"img4\"/></a></p>" +
-                "<p><a href=\"\">Lorem ipsum<img src=\"img5\"/></a>" +
-                "</body>";
+        String bodyWithImages = "<body><p>Lorem ipsum</p>" +
+                "<p><img src=\"source\"/></p>" +
+                "<p><img src=\"source\"/><img src=\"source\"/></p>" +
+                "<p>Before img<img src=\"source\"/></p>" +
+                "<p><img src=\"source\"/>After img</p>" +
+                "<p><img src=\"source\"/><em/></p>" +
+                "<p><em/><img src=\"source\"/></p>" +
+                "<p><em><img src=\"source\"/></em></p>" +
+                "<p><em>Inside em tag<img src=\"source\"/></em></p>" +
 
-        String expectedTransformed = "<body>" +
-                "<img src=\"img1\"/>" +
-                "<img src=\"img2\"/>" +
-                "<p>Lorem ipsum</p>" +
-                "<img src=\"img3\"/>" +
-                "<img src=\"img4\"/>" +
-                "<img src=\"img5\"/>" +
-                "<p><a href=\"\">Lorem ipsum</a></p>" +
-                "</body>";
+                "<p><a href=\"\"><img src=\"source\"/></a></p>" +
+                "<p><a href=\"\"><img src=\"source\"/><img src=\"source\"/></a></p>" +
+                "<p>Before a tag<a href=\"\"><img src=\"source\"/></a></p>" +
+                "<p><a href=\"\"><img src=\"source\"/></a>After a tag</p>" +
+                "<p><a href=\"\"><img src=\"source\"/></a><em/></p>" +
+                "<p><em/><a href=\"\"><img src=\"source\"/></a></p>" +
+                "<p><em><a href=\"\"><img src=\"source\"/></a></em></p>" +
+                "<p><a href=\"\">Inside a tag<img src=\"source\"/></a></p>" +
+
+                "<p><span><a href=\"\"><img src=\"source\"/></a></span></p>" +
+                "<p><span><a href=\"\"><img src=\"source\"/><img src=\"source\"/></a></span></p>" +
+                "<p>Before span<span><a href=\"\"><img src=\"source\"/></a></span></p>" +
+                "<p><span><a href=\"\"><img src=\"source\"/></a></span>After span</p>" +
+                "<p><span><a href=\"\"><img src=\"source\"/></a></span><em/></p>" +
+                "<p><em/><span><a href=\"\"><img src=\"source\"/></a></span></p>" +
+                "<p><em><span><a href=\"\"><img src=\"source\"/></a></span></em></p>" +
+                "<p><em>Inside em<span><a href=\"\"><img src=\"source\"/></a></span></em></p>" +
+                "<p>Lorem ipsum</p></body>";
+
+        String expectedTransformed = "<body><p>Lorem ipsum</p>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><img src=\"source\"/>" +
+                "<img src=\"source\"/><p>Before img</p>" +
+                "<img src=\"source\"/><p>After img</p>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><p><em>Inside em tag</em></p>" +
+
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><img src=\"source\"/>" +
+                "<img src=\"source\"/><p>Before a tag</p>" +
+                "<img src=\"source\"/><p>After a tag</p>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><p><a href=\"\">Inside a tag</a></p>" +
+
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><img src=\"source\"/>" +
+                "<img src=\"source\"/><p>Before span</p>" +
+                "<img src=\"source\"/><p>After span</p>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/>" +
+                "<img src=\"source\"/><p><em>Inside em</em></p>" +
+                "<p>Lorem ipsum</p></body>";
 
         checkTransformation(bodyWithImages, expectedTransformed);
     }
