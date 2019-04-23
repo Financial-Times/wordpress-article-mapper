@@ -8,7 +8,7 @@ import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
 import com.ft.wordpressarticlemapper.model.WordPressBlogPostContent;
-import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
+//import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Post;
 import com.google.common.base.Strings;
@@ -28,19 +28,21 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
 
     private final BodyProcessingFieldTransformer bodyProcessingFieldTransformer;
 
-    public WordPressBlogPostContentMapper(BrandSystemResolver brandSystemResolver,
+    public WordPressBlogPostContentMapper(//BrandSystemResolver brandSystemResolver,
                                           BodyProcessingFieldTransformer bodyProcessingFieldTransformer,
                                           IdentifierBuilder identifierBuilder,
                                           SyndicationManager syndicationManager,
                                           String canonicalWebUrlTemplate) {
 
-        super(brandSystemResolver, identifierBuilder, syndicationManager, canonicalWebUrlTemplate);
+        super(//brandSystemResolver,
+                identifierBuilder, syndicationManager, canonicalWebUrlTemplate);
         this.bodyProcessingFieldTransformer = bodyProcessingFieldTransformer;
     }
 
     @Override
     protected WordPressBlogPostContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
-                                                 SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
+//                                                 SortedSet<Brand> brands,
+                                                 SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
                                                  AccessLevel accessLevel, String canBeDistributed,
                                                  Syndication canBeSyndicated, String webUrl, String canonicalWebUrl,
@@ -55,7 +57,7 @@ public class WordPressBlogPostContentMapper extends WordPressContentMapper<WordP
                 .withUuid(uuid).withTitle(unescapeHtml4(post.getTitle()))
                 .withPublishedDate(publishedDate)
                 .withByline(unescapeHtml4(createBylineFromAuthors(post)))
-                .withBrands(brands)
+//                .withBrands(brands)
                 .withIdentifiers(identifiers)
                 .withComments(createComments(post.getCommentStatus()))
                 .withMainImage(Objects.toString(featuredImageUuid, null))

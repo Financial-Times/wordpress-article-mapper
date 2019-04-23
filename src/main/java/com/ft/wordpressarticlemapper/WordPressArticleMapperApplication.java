@@ -25,7 +25,7 @@ import com.ft.wordpressarticlemapper.health.CanConnectToMessageQueueProducerProx
 import com.ft.wordpressarticlemapper.health.RemoteServiceDependencyHealthCheck;
 import com.ft.wordpressarticlemapper.messaging.MessageProducingContentMapper;
 import com.ft.wordpressarticlemapper.messaging.NativeCmsPublicationEventsListener;
-import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
+//import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.HtmlTransformerResource;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.resources.WordPressArticleMapperResource;
@@ -89,14 +89,14 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
                 configuration.getUrlResolverConfiguration(),
                 blogApiEndpointMetadataManager);
 
-        BrandSystemResolver brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadataManager);
+//        BrandSystemResolver brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadataManager);
         IdentifierBuilder identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
         SyndicationManager syndicationManager = new SyndicationManager(blogApiEndpointMetadataManager);
 
-        WordPressBlogPostContentMapper blogPostContentMapper = new WordPressBlogPostContentMapper(brandSystemResolver,
+        WordPressBlogPostContentMapper blogPostContentMapper = new WordPressBlogPostContentMapper(//brandSystemResolver,
                 bodyProcessingFieldTransformer, identifierBuilder, syndicationManager,
                 configuration.getCanonicalWebUrlTemplate());
-        WordPressLiveBlogContentMapper liveBlogContentMapper = new WordPressLiveBlogContentMapper(brandSystemResolver,
+        WordPressLiveBlogContentMapper liveBlogContentMapper = new WordPressLiveBlogContentMapper(//brandSystemResolver,
                 identifierBuilder, syndicationManager, configuration.getCanonicalWebUrlTemplate());
 
         MessageProducingContentMapper contentMapper = new MessageProducingContentMapper(
