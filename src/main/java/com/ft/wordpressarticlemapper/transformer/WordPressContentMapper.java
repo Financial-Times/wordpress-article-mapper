@@ -5,7 +5,6 @@ import com.ft.content.model.Syndication;
 import com.ft.uuidutils.DeriveUUID;
 import com.ft.uuidutils.DeriveUUID.Salts;
 import com.ft.uuidutils.GenerateV5UUID;
-import com.ft.wordpressarticlemapper.exception.BrandResolutionException;
 import com.ft.wordpressarticlemapper.exception.IdentifiersBuildException;
 import com.ft.wordpressarticlemapper.exception.WordPressContentException;
 import com.ft.wordpressarticlemapper.model.*;

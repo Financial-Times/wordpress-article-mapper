@@ -2,7 +2,6 @@ package com.ft.wordpressarticlemapper.transformer;
 
 import com.ft.content.model.Syndication;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
-import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
 import com.ft.wordpressarticlemapper.model.WordPressLiveBlogContent;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;

@@ -91,11 +91,11 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
         IdentifierBuilder identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
         SyndicationManager syndicationManager = new SyndicationManager(blogApiEndpointMetadataManager);
 
-        WordPressBlogPostContentMapper blogPostContentMapper = new WordPressBlogPostContentMapper(//brandSystemResolver,
-                bodyProcessingFieldTransformer, identifierBuilder, syndicationManager,
+        WordPressBlogPostContentMapper blogPostContentMapper = new WordPressBlogPostContentMapper(bodyProcessingFieldTransformer,
+                identifierBuilder, syndicationManager,
                 configuration.getCanonicalWebUrlTemplate());
-        WordPressLiveBlogContentMapper liveBlogContentMapper = new WordPressLiveBlogContentMapper(//brandSystemResolver,
-                identifierBuilder, syndicationManager, configuration.getCanonicalWebUrlTemplate());
+        WordPressLiveBlogContentMapper liveBlogContentMapper = new WordPressLiveBlogContentMapper(identifierBuilder,
+                syndicationManager, configuration.getCanonicalWebUrlTemplate());
 
         MessageProducingContentMapper contentMapper = new MessageProducingContentMapper(
                 blogPostContentMapper,
