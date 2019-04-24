@@ -19,7 +19,6 @@ public abstract class WordPressContent {
     private final String title;
     private final List<String> titles;
     private final String byline;
-//    private final SortedSet<Brand> brands;
     private final Date publishedDate;
     private final SortedSet<Identifier> identifiers;
     private final String description;
@@ -44,7 +43,6 @@ public abstract class WordPressContent {
                                String title,
                                List<String> titles,
                                String byline,
-//                               SortedSet<Brand> brands,
                                SortedSet<Identifier> identifiers,
                                Date publishedDate,
                                String description,
@@ -70,7 +68,6 @@ public abstract class WordPressContent {
         this.title = title;
         this.titles = titles;
         this.byline = byline;
-//        this.brands = brands;
         this.publishedDate = publishedDate;
         this.description = description;
         this.mediaType = mediaType;
@@ -109,10 +106,6 @@ public abstract class WordPressContent {
     public String getByline() {
         return byline;
     }
-
-//    public SortedSet<Brand> getBrands() {
-//        return brands;
-//    }
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     public Date getPublishedDate() {
@@ -205,7 +198,6 @@ public abstract class WordPressContent {
                 .add("title", title)
                 .add("type", getType())
                 .add("byline", byline)
-//                .add("brands", brands)
                 .add("identifiers", identifiers)
                 .add("publishedDate", publishedDate)
                 .add("description", description)
@@ -238,7 +230,6 @@ public abstract class WordPressContent {
         return Objects.equal(this.uuid, that.uuid)
                 && Objects.equal(this.title, that.title)
                 && Objects.equal(this.byline, that.byline)
-//                && Objects.equal(this.brands, that.brands)
                 && Objects.equal(this.identifiers, that.identifiers)
                 && Objects.equal(this.publishedDate, that.publishedDate)
                 && Objects.equal(this.description, that.description)
@@ -263,7 +254,6 @@ public abstract class WordPressContent {
     @Override
     public int hashCode() {
         return Objects.hashCode(title, byline,
-//                brands,
                 identifiers, uuid, publishedDate,
                 description, mediaType, pixelWidth, pixelHeight, internalBinaryUrl, externalBinaryUrl,
                 mainImage, comments, publishReference, lastModified, firstPublishedDate, accessLevel, canBeDistributed,
@@ -276,7 +266,6 @@ public abstract class WordPressContent {
         private String title;
         private List<String> titles;
         private String byline;
-//        private SortedSet<Brand> brands;
         private Date publishedDate;
         private SortedSet<Identifier> identifiers;
         private String description;
@@ -335,15 +324,6 @@ public abstract class WordPressContent {
         public String getByline() {
             return byline;
         }
-
-//        public Builder<C> withBrands(SortedSet<Brand> brands) {
-//            this.brands = brands;
-//            return this;
-//        }
-
-//        public SortedSet<Brand> getBrands() {
-//            return brands;
-//        }
 
         public Builder<C> withPublishedDate(Date publishedDate) {
             this.publishedDate = publishedDate;
@@ -525,7 +505,6 @@ public abstract class WordPressContent {
             return withTitle(content.getTitle())
                     .withTitles(content.getTitles())
                     .withByline(content.getByline())
-//                    .withBrands(content.getBrands())
                     .withIdentifiers(content.getIdentifiers())
                     .withUuid(UUID.fromString(content.getUuid()))
                     .withPublishedDate(content.getPublishedDate())

@@ -10,7 +10,6 @@ import com.ft.wordpressarticlemapper.model.AccessLevel;
 import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
 import com.ft.wordpressarticlemapper.model.WordPressBlogPostContent;
-import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
@@ -66,7 +65,6 @@ public class WordPressBlogPostContentTransformerTest {
     private static final String CANONICAL_WEB_URL_TEMPLATE = "https://www.ft.com/content/%s";
 
     private WordPressBlogPostContentMapper mapper;
-//    private BrandSystemResolver brandResolver = mock(BrandSystemResolver.class);
     private BodyProcessingFieldTransformer bodyTransformer = mock(BodyProcessingFieldTransformer.class);
     private IdentifierBuilder identifierBuilder = mock(IdentifierBuilder.class);
     private SyndicationManager syndicationManager = mock(SyndicationManager.class);
@@ -74,12 +72,10 @@ public class WordPressBlogPostContentTransformerTest {
     @Before
     public void setUp() {
         mapper = new WordPressBlogPostContentMapper(
-//                brandResolver,
                 bodyTransformer, identifierBuilder,
                 syndicationManager, CANONICAL_WEB_URL_TEMPLATE);
 
         URI requestUri = UriBuilder.fromUri(POST_URL).build();
-//        when(brandResolver.getBrand(requestUri)).thenReturn(BRANDS);
         when(identifierBuilder.buildIdentifiers(eq(requestUri), any(Post.class))).thenReturn(IDENTIFIERS);
         when(syndicationManager.getSyndicationByUri(any(URI.class))).thenReturn(Syndication.VERIFY);
         AUTHOR.setName(AUTHOR_NAME);
@@ -105,7 +101,6 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
-//        assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
         assertThat("opening", actual.getOpening(), is(equalTo(WRAPPED_BODY_OPENING)));
         assertThat("identifier authority", actual.getIdentifiers().first().getAuthority(), is(equalTo(SYSTEM_ID)));
@@ -151,7 +146,6 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
-//        assertThat("brands", actual.getBrands(), hasItems(BRANDS.toArray(new Brand[BRANDS.size()])));
 
         checkBodyXml("body", WRAPPED_BODY, actual.getBody());
         checkBodyXml("opening", WRAPPED_BODY_OPENING, actual.getOpening());
@@ -194,7 +188,6 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
-//        assertThat("brands", actual.getBrands(), (org.hamcrest.Matcher) hasItems(BRANDS.toArray()));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
         assertThat("identifier authority", actual.getIdentifiers().first().getAuthority(), is(equalTo(SYSTEM_ID)));
         assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));
@@ -228,7 +221,6 @@ public class WordPressBlogPostContentTransformerTest {
         assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
         assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
         assertThat("byline", actual.getByline(), is(nullValue()));
-//        assertThat("brands", actual.getBrands(), (org.hamcrest.Matcher) hasItems(BRANDS.toArray()));
         assertThat("body", actual.getBody(), is(equalTo(WRAPPED_BODY)));
         assertThat("identifier authority", actual.getIdentifiers().first().getAuthority(), is(equalTo(SYSTEM_ID)));
         assertThat("identifier value", actual.getIdentifiers().first().getIdentifierValue(), is(equalTo(POST_URL)));

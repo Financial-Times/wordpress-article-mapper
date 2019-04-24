@@ -9,7 +9,6 @@ import com.ft.wordpressarticlemapper.exception.BrandResolutionException;
 import com.ft.wordpressarticlemapper.exception.IdentifiersBuildException;
 import com.ft.wordpressarticlemapper.exception.WordPressContentException;
 import com.ft.wordpressarticlemapper.model.*;
-import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Author;
 import com.ft.wordpressarticlemapper.response.MainImage;
@@ -39,16 +38,13 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
     private static final DateTimeFormatter PUBLISH_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssX");
     private static final String COMMENT_OPEN_STATUS = "open";
 
-//    private final BrandSystemResolver brandSystemResolver;
     private final IdentifierBuilder identifierBuilder;
     private final SyndicationManager syndicationManager;
     private final String canonicalWebUrlTemplate;
 
-    public WordPressContentMapper(//BrandSystemResolver brandSystemResolver,
-                                  IdentifierBuilder identifierBuilder,
+    public WordPressContentMapper(IdentifierBuilder identifierBuilder,
                                   SyndicationManager syndicationManager,
                                   String canonicalWebUrlTemplate) {
-//        this.brandSystemResolver = brandSystemResolver;
         this.identifierBuilder = identifierBuilder;
         this.syndicationManager = syndicationManager;
         this.canonicalWebUrlTemplate = canonicalWebUrlTemplate;
@@ -62,8 +58,6 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
         URI requestUri = UriBuilder.fromUri(postUrl).build();
 
         Date publishedDate = extractPublishedDate(requestUri, post);
-
-//        SortedSet<Brand> brands = new TreeSet<>(extractBrand(requestUri));
 
         SortedSet<Identifier> identifiers = generateIdentifiers(requestUri, post);
         UUID featuredImageUuid = createMainImageUuid(post);
@@ -79,7 +73,6 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
         Standout standout = getStandout(post);
         LOG.info("Returning content for uuid [{}].", uuid);
         return doMapping(transactionId, post, uuid, publishedDate,
-//                brands,
                 identifiers,
                 featuredImageUuid, lastModified, firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated,
                 postUrl, canonicalWebUrl, standout);
@@ -111,23 +104,10 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
     }
 
     protected abstract C doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
-//                                   SortedSet<Brand> brands,
                                    SortedSet<Identifier> identifiers,
                                    UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
                                    AccessLevel accessLevel, String canBeDistributed, Syndication canBeSyndicated,
                                    String webUrl, String canonicalWebUrl, Standout standout);
-
-//    private Set<Brand> extractBrand(URI requestUri) {
-//        Set<Brand> brand = brandSystemResolver.getBrand(requestUri);
-//
-//        if (brand == null) {
-//            String msg = String.format("Failed to resolve brand for uri [%s].", requestUri);
-//            LOG.error(msg);
-//            throw new BrandResolutionException(msg);
-//        }
-//
-//        return brand;
-//    }
 
     private Date extractPublishedDate(URI requestUri, Post post) {
         String publishedDateStr;

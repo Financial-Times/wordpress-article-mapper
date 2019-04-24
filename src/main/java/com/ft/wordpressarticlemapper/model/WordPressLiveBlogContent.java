@@ -19,7 +19,6 @@ public class WordPressLiveBlogContent
                                      String title,
                                      List<String> titles,
                                      String byline,
-//                                     SortedSet<Brand> brands,
                                      SortedSet<Identifier> identifiers,
                                      Date publishedDate,
                                      String description,
@@ -41,7 +40,6 @@ public class WordPressLiveBlogContent
                                      Standout standout) {
 
         super(uuid, title, titles, byline,
-//                brands,
                 identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
                 firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated, webUrl, canonicalWebUrl, standout);
@@ -70,7 +68,6 @@ public class WordPressLiveBlogContent
 
         public WordPressLiveBlogContent build() {
             return new WordPressLiveBlogContent(getUuid(), getTitle(), getTitles(), getByline(),
-//                    getBrands(),
                     getIdentifiers(), getPublishedDate(), getDescription(),
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),

@@ -22,7 +22,6 @@ public class WordPressBlogPostContent
                                      String title,
                                      List<String> titles,
                                      String byline,
-//                                     SortedSet<Brand> brands,
                                      SortedSet<Identifier> identifiers,
                                      Date publishedDate,
                                      String body,
@@ -46,7 +45,6 @@ public class WordPressBlogPostContent
                                      Standout standout) {
 
         super(uuid, title, titles, byline,
-//                brands,
                 identifiers, publishedDate, description, mediaType, pixelWidth,
                 pixelHeight, internalBinaryUrl, externalBinaryUrl, mainImage, comments, publishReference, lastModified,
                 firstPublishedDate, accessLevel, canBeDistributed, canBeSyndicated, webUrl, canonicalWebUrl, standout);
@@ -108,7 +106,6 @@ public class WordPressBlogPostContent
 
         public WordPressBlogPostContent build() {
             return new WordPressBlogPostContent(getUuid(), getTitle(), getTitles(), getByline(),
-//                    getBrands(),
                     getIdentifiers(), getPublishedDate(), body, opening, getDescription(),
                     getMediaType(), getPixelWidth(), getPixelHeight(),
                     getInternalBinaryUrl(), getExternalBinaryUrl(),
