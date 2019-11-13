@@ -15,7 +15,6 @@ This service listens to the NativeCmsPublicationEvents Kafka topic and ingests t
 | `title` | `$.post.title` | Post title | `"Italy's Prime minister Matteo Renzi"`|
 | `publishedDate` | `$.post.date_gmt`, `$.post.modified_gmt` or `$.post.modified` | Publication date | `"2016-02-05T08:18:51.000Z"` |
 | `byline` | `$.post.authors` | Byline | `"Financial Times"` |
-| `brands` | `$.post.url` | Brands | `[ { "id": "http://api.ft.com/things/5c7592a8-1f0c-11e4-b0cb-b2227cce2b54" }]` |
 | `identifiers` | `$.post.url` | Identifiers | `[ { "authority": "http://api.ft.com/system/FT-LABS-WP-1-335", "identifierValue": "http://www.ft.com/fastft/2016/11/04/telecom-italia-returns-to-growth-claims-turnround-proceeding-quickly/" } ]` |
 | `comments` | `$.post.commentStatus` | Comments status | `{ "enabled": false }` |
 | `mainImage` | `$.post.main_image` | Main image UUID | `"bb918201-2058-38a5-bd70-be8126200f2d"` |

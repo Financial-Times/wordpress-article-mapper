@@ -2,10 +2,8 @@ package com.ft.wordpressarticlemapper.transformer;
 
 import com.ft.content.model.Syndication;
 import com.ft.wordpressarticlemapper.model.AccessLevel;
-import com.ft.wordpressarticlemapper.model.Brand;
 import com.ft.wordpressarticlemapper.model.Identifier;
 import com.ft.wordpressarticlemapper.model.WordPressLiveBlogContent;
-import com.ft.wordpressarticlemapper.resources.BrandSystemResolver;
 import com.ft.wordpressarticlemapper.resources.IdentifierBuilder;
 import com.ft.wordpressarticlemapper.response.Post;
 import com.ft.content.model.Standout;
@@ -21,16 +19,15 @@ import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 public class WordPressLiveBlogContentMapper
         extends WordPressContentMapper<WordPressLiveBlogContent> {
 
-    public WordPressLiveBlogContentMapper(BrandSystemResolver brandSystemResolver,
-                                          IdentifierBuilder identifierBuilder,
+    public WordPressLiveBlogContentMapper(IdentifierBuilder identifierBuilder,
                                           SyndicationManager syndicationManager,
                                           String canonicalWebUrlTemplate) {
-        super(brandSystemResolver, identifierBuilder, syndicationManager, canonicalWebUrlTemplate);
+        super(identifierBuilder, syndicationManager, canonicalWebUrlTemplate);
     }
 
     @Override
     protected WordPressLiveBlogContent doMapping(String transactionId, Post post, UUID uuid, Date publishedDate,
-                                                 SortedSet<Brand> brands, SortedSet<Identifier> identifiers,
+                                                 SortedSet<Identifier> identifiers,
                                                  UUID featuredImageUuid, Date lastModified, Date firstPublishedDate,
                                                  AccessLevel accessLevel, String canBeDistributed,
                                                  Syndication canBeSyndicated, String webUrl, String canonicalWebUrl,
@@ -42,7 +39,6 @@ public class WordPressLiveBlogContentMapper
                 .withTitle(unescapeHtml4(post.getTitle()))
                 .withByline(unescapeHtml4(createBylineFromAuthors(post)))
                 .withPublishedDate(publishedDate)
-                .withBrands(brands)
                 .withComments(createComments(post.getCommentStatus()))
                 .withMainImage(Objects.toString(featuredImageUuid, null))
                 .withPublishReference(transactionId)

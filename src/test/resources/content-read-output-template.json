@@ -11,9 +11,6 @@
     }
   ],
   "requestUrl": "http://dynpub-uk-up-read.ft.com/content/d7db73ec-cf53-11e5-92a1-c5e23ef99c77",
-  "brands": [
-    "http://api.ft.com/things/%s"
-  ],
   "mainImage": {
     "id": "http://dynpub-uk-up-read.ft.com/content/db125bec-9a75-11e5-0c4e-107cd9a0d095"
   },
