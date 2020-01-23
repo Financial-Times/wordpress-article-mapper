@@ -227,7 +227,7 @@ consumer:
     severity: 2
     businessImpact: "Newly published Wordpress articles will not be available from the Content API"
     technicalSummary: "Tests that kafka-proxy is reachable and message can be consumed"
-    panicGuideUrl: "https://dewey.ft.com/up-wam.html"
+    panicGuideUrl: "https://runbooks.in.ft.com/up-wam"
   systemCode: wordpress
 
 producer:
@@ -244,7 +244,7 @@ producer:
       severity: 2
       businessImpact: "Newly published Wordpress articles will not be available from the Content API"
       technicalSummary: "Tests that kafka-proxy is reachable and the CmsPublicationEvents topic exists"
-      panicGuideUrl: "https://dewey.ft.com/up-wam.html"
+      panicGuideUrl: "https://runbooks.in.ft.com/up-wam"
 
 appInfo:
     systemCode: "up-wam"
