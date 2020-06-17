@@ -1,0 +1,8 @@
+# Values used for the deployed application.
+replicaCount: 2
+service:
+  name: wordpress-article-mapper
+eksCluster: true
+env:
+  JAVA_OPTS: "-Xms384m -Xmx384m -XX:+UseG1GC -server"
+  READ_ENDPOINT: "document-store-api:8080"
