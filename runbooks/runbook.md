@@ -1,4 +1,4 @@
-# UPP - Wordpress article mapper
+# UPP - Wordpress Article Mapper
 
 This service listens for Wordpress messages on a Kafka topic, converts them into another format and publishes the result to another queue.
 
@@ -61,8 +61,8 @@ No
 
 ## Dependencies
 
-- upp-prod-delivery-eu
-- upp-prod-delivery-us
+- kafka-proxy
+- document-store-api
 
 ## Failover Architecture Type
 
