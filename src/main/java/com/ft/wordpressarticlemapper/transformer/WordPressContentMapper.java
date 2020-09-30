@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -68,7 +69,25 @@ public abstract class WordPressContentMapper<C extends WordPressContent> {
 
     SortedSet<Identifier> identifiers = generateIdentifiers(requestUri, post);
     UUID featuredImageUuid = createMainImageUuid(post);
-    AccessLevel accessLevel = getAccessLevel(post);
+
+    Boolean isTaggedAsFree = false;
+    List<Object> tags = post.getTags();
+
+    for (Object x : tags) {
+      if (x instanceof Map) {
+        Map val = (Map) x;
+        if (val.containsKey("title") && val.get("title").equals("Free")) {
+          isTaggedAsFree = true;
+        }
+      }
+    }
+
+    AccessLevel accessLevel;
+    if (isTaggedAsFree) {
+      accessLevel = AccessLevel.FREE;
+    } else {
+      accessLevel = getAccessLevel(post);
+    }
 
     UUID uuid = UUID.fromString(post.getUuid());
 
