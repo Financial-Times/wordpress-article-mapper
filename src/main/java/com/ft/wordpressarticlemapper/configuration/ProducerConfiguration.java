@@ -6,28 +6,29 @@ import io.dropwizard.client.JerseyClientConfiguration;
 
 public class ProducerConfiguration {
 
-    private final JerseyClientConfiguration jerseyConfig;
-    private final QueueProxyConfiguration producerConfig;
-    private final HealthcheckConfiguration healthcheckConfig;
+  private final JerseyClientConfiguration jerseyConfig;
+  private final QueueProxyConfiguration producerConfig;
+  private final HealthcheckConfiguration healthcheckConfig;
 
-    public ProducerConfiguration(@JsonProperty("jerseyClient") JerseyClientConfiguration jerseyConfig,
-                                 @JsonProperty("messageProducer") QueueProxyConfiguration producerConfig,
-                                 @JsonProperty("healthCheck") HealthcheckConfiguration healthcheckConfig) {
+  public ProducerConfiguration(
+      @JsonProperty("jerseyClient") JerseyClientConfiguration jerseyConfig,
+      @JsonProperty("messageProducer") QueueProxyConfiguration producerConfig,
+      @JsonProperty("healthCheck") HealthcheckConfiguration healthcheckConfig) {
 
-        this.jerseyConfig = jerseyConfig;
-        this.producerConfig = producerConfig;
-        this.healthcheckConfig = healthcheckConfig;
-    }
+    this.jerseyConfig = jerseyConfig;
+    this.producerConfig = producerConfig;
+    this.healthcheckConfig = healthcheckConfig;
+  }
 
-    public JerseyClientConfiguration getJerseyClientConfiguration() {
-        return jerseyConfig;
-    }
+  public JerseyClientConfiguration getJerseyClientConfiguration() {
+    return jerseyConfig;
+  }
 
-    public QueueProxyConfiguration getMessageQueueProducerConfiguration() {
-        return producerConfig;
-    }
+  public QueueProxyConfiguration getMessageQueueProducerConfiguration() {
+    return producerConfig;
+  }
 
-    public HealthcheckConfiguration getHealthcheckConfiguration() {
-        return healthcheckConfig;
-    }
+  public HealthcheckConfiguration getHealthcheckConfiguration() {
+    return healthcheckConfig;
+  }
 }

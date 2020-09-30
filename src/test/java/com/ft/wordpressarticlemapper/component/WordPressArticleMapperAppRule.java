@@ -1,5 +1,15 @@
 package com.ft.wordpressarticlemapper.component;
 
+import static com.ft.wordpressarticlemapper.util.TestFileUtil.resourceFilePath;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.head;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
+import static org.junit.Assert.fail;
+
 import com.ft.message.consumer.MessageListener;
 import com.ft.messagequeueproducer.MessageProducer;
 import com.ft.wordpressarticlemapper.WordPressArticleMapperApplication;
@@ -15,112 +25,110 @@ import com.google.common.io.Files;
 import com.sun.jersey.api.client.Client;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import java.io.File;
+import java.io.IOException;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import java.io.File;
-import java.io.IOException;
-
-import static com.ft.wordpressarticlemapper.util.TestFileUtil.resourceFilePath;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.head;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static javax.servlet.http.HttpServletResponse.SC_MOVED_TEMPORARILY;
-import static org.junit.Assert.fail;
-
 public class WordPressArticleMapperAppRule implements TestRule {
 
-    private final RuleChain ruleChain;
-    private WireMockRule documentStoreWireMockRule;
-    private String contentReadOutputTemplate;
-    private static MessageProducer producer;
-    private static MessageListener listener;
-    private DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule;
+  private final RuleChain ruleChain;
+  private WireMockRule documentStoreWireMockRule;
+  private String contentReadOutputTemplate;
+  private static MessageProducer producer;
+  private static MessageListener listener;
+  private DropwizardAppRule<WordPressArticleTransformerConfiguration> appRule;
 
-    public static class StubWordPressArticleMapperApplication extends WordPressArticleMapperApplication {
+  public static class StubWordPressArticleMapperApplication
+      extends WordPressArticleMapperApplication {
 
-        @Override
-        protected void startListener(Environment environment, MessageListener listener, ConsumerConfiguration config, Client consumerClient) {
-            WordPressArticleMapperAppRule.listener = listener;
-        }
-
-        @Override
-        protected MessageProducer configureMessageProducer(Environment environment, ProducerConfiguration config) {
-            return producer;
-        }
-    }
-
-    public WordPressArticleMapperAppRule(String configurationPath, int documentStorePort, MessageProducer producer) {
-        WordPressArticleMapperAppRule.producer = producer;
-        appRule = new DropwizardAppRule<>(StubWordPressArticleMapperApplication.class, configurationPath);
-
-        documentStoreWireMockRule = new WireMockRule(WireMockConfiguration.wireMockConfig()
-                .port(documentStorePort)
-        );
-
-        ruleChain = RuleChain
-                .outerRule(documentStoreWireMockRule)
-                .around(appRule);
-
-        try {
-            contentReadOutputTemplate = Files.toString(new File(resourceFilePath("content-read-output-template.json")), Charsets.UTF_8);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
+    @Override
+    protected void startListener(
+        Environment environment,
+        MessageListener listener,
+        ConsumerConfiguration config,
+        Client consumerClient) {
+      WordPressArticleMapperAppRule.listener = listener;
     }
 
     @Override
-    public Statement apply(Statement base, Description description) {
-        final Statement stmt = ruleChain.apply(base, description);
-
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                try {
-                    stmt.evaluate();
-                } finally {
-                    documentStoreWireMockRule.shutdown();
-                }
-            }
-        };
+    protected MessageProducer configureMessageProducer(
+        Environment environment, ProducerConfiguration config) {
+      return producer;
     }
+  }
 
-    public void mockContentReadResponse(String uuid, int status) {
-        MappingBuilder request = get(urlPathEqualTo("/content/" + uuid));
-        String contentReadOutput = String.format(contentReadOutputTemplate, uuid, uuid, uuid);
-        ResponseDefinitionBuilder response = aResponse().withStatus(status).withBody(contentReadOutput);
+  public WordPressArticleMapperAppRule(
+      String configurationPath, int documentStorePort, MessageProducer producer) {
+    WordPressArticleMapperAppRule.producer = producer;
+    appRule =
+        new DropwizardAppRule<>(StubWordPressArticleMapperApplication.class, configurationPath);
 
-        documentStoreWireMockRule.stubFor(request.willReturn(response));
+    documentStoreWireMockRule =
+        new WireMockRule(WireMockConfiguration.wireMockConfig().port(documentStorePort));
+
+    ruleChain = RuleChain.outerRule(documentStoreWireMockRule).around(appRule);
+
+    try {
+      contentReadOutputTemplate =
+          Files.toString(
+              new File(resourceFilePath("content-read-output-template.json")), Charsets.UTF_8);
+    } catch (IOException e) {
+      fail(e.getMessage());
     }
+  }
 
-    public void mockDocumentStoreQueryResponse(String authority, String identifierValue, int status, String location) {
-        MappingBuilder request = head(urlPathEqualTo("/content-query"))
-                .withQueryParam("identifierAuthority", equalTo(authority))
-                .withQueryParam("identifierValue", equalTo(identifierValue));
+  @Override
+  public Statement apply(Statement base, Description description) {
+    final Statement stmt = ruleChain.apply(base, description);
 
-        ResponseDefinitionBuilder response = aResponse().withStatus(status);
-        if ((status == SC_MOVED_PERMANENTLY) || (status == SC_MOVED_TEMPORARILY)) {
-            response = response.withHeader("Location", location);
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        try {
+          stmt.evaluate();
+        } finally {
+          documentStoreWireMockRule.shutdown();
         }
+      }
+    };
+  }
 
-        documentStoreWireMockRule.stubFor(request.willReturn(response));
+  public void mockContentReadResponse(String uuid, int status) {
+    MappingBuilder request = get(urlPathEqualTo("/content/" + uuid));
+    String contentReadOutput = String.format(contentReadOutputTemplate, uuid, uuid, uuid);
+    ResponseDefinitionBuilder response = aResponse().withStatus(status).withBody(contentReadOutput);
+
+    documentStoreWireMockRule.stubFor(request.willReturn(response));
+  }
+
+  public void mockDocumentStoreQueryResponse(
+      String authority, String identifierValue, int status, String location) {
+    MappingBuilder request =
+        head(urlPathEqualTo("/content-query"))
+            .withQueryParam("identifierAuthority", equalTo(authority))
+            .withQueryParam("identifierValue", equalTo(identifierValue));
+
+    ResponseDefinitionBuilder response = aResponse().withStatus(status);
+    if ((status == SC_MOVED_PERMANENTLY) || (status == SC_MOVED_TEMPORARILY)) {
+      response = response.withHeader("Location", location);
     }
 
-    public static MessageListener getListener() {
-        return listener;
-    }
+    documentStoreWireMockRule.stubFor(request.willReturn(response));
+  }
 
-    public void reset() {
-        documentStoreWireMockRule.resetToDefaultMappings();
-        org.mockito.Mockito.reset(producer);
-    }
+  public static MessageListener getListener() {
+    return listener;
+  }
 
-    public int getWordPressArticleMapperLocalPort() {
-        return appRule.getLocalPort();
-    }
+  public void reset() {
+    documentStoreWireMockRule.resetToDefaultMappings();
+    org.mockito.Mockito.reset(producer);
+  }
+
+  public int getWordPressArticleMapperLocalPort() {
+    return appRule.getLocalPort();
+  }
 }

@@ -3,20 +3,19 @@ package com.ft.wordpressarticlemapper.model;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum AccessLevel {
+  SUBSCRIBED("subscribed"),
+  REGISTERED("registered"),
+  PREMIUM("premium"),
+  FREE("free");
 
-    SUBSCRIBED("subscribed"),
-    REGISTERED("registered"),
-    PREMIUM("premium"),
-    FREE("free");
+  private String accessLevel;
 
-    private String accessLevel;
+  AccessLevel(String accessLevel) {
+    this.accessLevel = accessLevel;
+  }
 
-    AccessLevel(String accessLevel) {
-        this.accessLevel = accessLevel;
-    }
-
-    @JsonValue
-    public String getAccessLevel() {
-        return accessLevel;
-    }
+  @JsonValue
+  public String getAccessLevel() {
+    return accessLevel;
+  }
 }
