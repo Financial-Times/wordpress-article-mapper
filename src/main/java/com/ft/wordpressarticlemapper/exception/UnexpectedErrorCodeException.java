@@ -1,9 +1,8 @@
 package com.ft.wordpressarticlemapper.exception;
 
-
 public class UnexpectedErrorCodeException extends WordPressContentException {
 
-    public UnexpectedErrorCodeException(String error, String uuid) {
-        super(String.format("Unexpected error from WordPress: [%s] for uuid [%s].", error, uuid));
-    }
+  public UnexpectedErrorCodeException(String error, String uuid) {
+    super(String.format("Unexpected error from WordPress: [%s] for uuid [%s].", error, uuid));
+  }
 }

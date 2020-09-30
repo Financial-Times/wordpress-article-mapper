@@ -41,131 +41,172 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import java.net.URI;
+import java.util.EnumSet;
+import javax.servlet.DispatcherType;
+import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.DispatcherType;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.util.EnumSet;
+public class WordPressArticleMapperApplication
+    extends Application<WordPressArticleTransformerConfiguration> {
 
-public class WordPressArticleMapperApplication extends Application<WordPressArticleTransformerConfiguration> {
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(WordPressArticleMapperApplication.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WordPressArticleMapperApplication.class);
+  public static void main(final String[] args) throws Exception {
+    new WordPressArticleMapperApplication().run(args);
+  }
 
-    public static void main(final String[] args) throws Exception {
-        new WordPressArticleMapperApplication().run(args);
-    }
+  @Override
+  public void initialize(Bootstrap<WordPressArticleTransformerConfiguration> bootstrap) {
+    bootstrap.addBundle(new AdvancedHealthCheckBundle());
+    bootstrap.addBundle(new GoodToGoBundle(new DefaultGoodToGoChecker()));
+  }
 
-    @Override
-    public void initialize(Bootstrap<WordPressArticleTransformerConfiguration> bootstrap) {
-        bootstrap.addBundle(new AdvancedHealthCheckBundle());
-        bootstrap.addBundle(new GoodToGoBundle(new DefaultGoodToGoChecker()));
-    }
+  @Override
+  public void run(
+      final WordPressArticleTransformerConfiguration configuration, final Environment environment)
+      throws Exception {
+    LOGGER.info("running with configuration: {}", configuration);
 
-    @Override
-    public void run(final WordPressArticleTransformerConfiguration configuration, final Environment environment) throws Exception {
-        LOGGER.info("running with configuration: {}", configuration);
+    environment.jersey().register(new BuildInfoResource());
+    environment.jersey().register(new VersionResource());
 
-        environment.jersey().register(new BuildInfoResource());
-        environment.jersey().register(new VersionResource());
+    VideoMatcher videoMatcher = new VideoMatcher(configuration.getVideoSiteConfiguration());
+    final ObjectMapper objectMapper = environment.getObjectMapper();
 
-        VideoMatcher videoMatcher = new VideoMatcher(configuration.getVideoSiteConfiguration());
-        final ObjectMapper objectMapper = environment.getObjectMapper();
+    BlogApiEndpointMetadataManager blogApiEndpointMetadataManager =
+        new BlogApiEndpointMetadataManager(configuration.getHostToBrands());
 
-        BlogApiEndpointMetadataManager blogApiEndpointMetadataManager = new BlogApiEndpointMetadataManager(configuration.getHostToBrands());
-
-        HtmlTransformerResource htmlTransformerResource = new HtmlTransformerResource(
-                getBodyProcessingFieldTransformer(videoMatcher, configuration.getUrlResolverConfiguration(), blogApiEndpointMetadataManager)
-        );
-        environment.jersey().register(htmlTransformerResource);
-
-        Client consumerClient = getConsumerClient(environment, configuration.getConsumerConfiguration());
-        final MessageProducer producer = configureMessageProducer(environment, configuration.getProducerConfiguration());
-        final UriBuilder contentUriBuilder = UriBuilder.fromUri(configuration.getContentUriPrefix()).path("{uuid}");
-
-        BodyProcessingFieldTransformer bodyProcessingFieldTransformer = getBodyProcessingFieldTransformer(
+    HtmlTransformerResource htmlTransformerResource =
+        new HtmlTransformerResource(
+            getBodyProcessingFieldTransformer(
                 videoMatcher,
                 configuration.getUrlResolverConfiguration(),
-                blogApiEndpointMetadataManager);
+                blogApiEndpointMetadataManager));
+    environment.jersey().register(htmlTransformerResource);
 
-        BrandSystemResolver brandSystemResolver = new BrandSystemResolver(blogApiEndpointMetadataManager);
-        IdentifierBuilder identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
-        SyndicationManager syndicationManager = new SyndicationManager(blogApiEndpointMetadataManager);
+    Client consumerClient =
+        getConsumerClient(environment, configuration.getConsumerConfiguration());
+    final MessageProducer producer =
+        configureMessageProducer(environment, configuration.getProducerConfiguration());
+    final UriBuilder contentUriBuilder =
+        UriBuilder.fromUri(configuration.getContentUriPrefix()).path("{uuid}");
 
-        WordPressBlogPostContentMapper blogPostContentMapper = new WordPressBlogPostContentMapper(brandSystemResolver,
-                bodyProcessingFieldTransformer, identifierBuilder, syndicationManager,
-                configuration.getCanonicalWebUrlTemplate());
-        WordPressLiveBlogContentMapper liveBlogContentMapper = new WordPressLiveBlogContentMapper(brandSystemResolver,
-                identifierBuilder, syndicationManager, configuration.getCanonicalWebUrlTemplate());
+    BodyProcessingFieldTransformer bodyProcessingFieldTransformer =
+        getBodyProcessingFieldTransformer(
+            videoMatcher,
+            configuration.getUrlResolverConfiguration(),
+            blogApiEndpointMetadataManager);
 
-        MessageProducingContentMapper contentMapper = new MessageProducingContentMapper(
-                blogPostContentMapper,
-                liveBlogContentMapper,
-                objectMapper,
-                configuration.getConsumerConfiguration().getSystemCode(),
-                producer,
-                contentUriBuilder);
+    BrandSystemResolver brandSystemResolver =
+        new BrandSystemResolver(blogApiEndpointMetadataManager);
+    IdentifierBuilder identifierBuilder = new IdentifierBuilder(blogApiEndpointMetadataManager);
+    SyndicationManager syndicationManager = new SyndicationManager(blogApiEndpointMetadataManager);
 
-        NativeWordPressContentValidator contentValidator = new NativeWordPressContentValidator();
+    WordPressBlogPostContentMapper blogPostContentMapper =
+        new WordPressBlogPostContentMapper(
+            brandSystemResolver,
+            bodyProcessingFieldTransformer,
+            identifierBuilder,
+            syndicationManager,
+            configuration.getCanonicalWebUrlTemplate());
+    WordPressLiveBlogContentMapper liveBlogContentMapper =
+        new WordPressLiveBlogContentMapper(
+            brandSystemResolver,
+            identifierBuilder,
+            syndicationManager,
+            configuration.getCanonicalWebUrlTemplate());
 
-        WordPressArticleMapperResource wordPressArticleTransformerResource =
-                new WordPressArticleMapperResource(blogPostContentMapper, liveBlogContentMapper, contentMapper, contentValidator);
-        environment.jersey().register(wordPressArticleTransformerResource);
+    MessageProducingContentMapper contentMapper =
+        new MessageProducingContentMapper(
+            blogPostContentMapper,
+            liveBlogContentMapper,
+            objectMapper,
+            configuration.getConsumerConfiguration().getSystemCode(),
+            producer,
+            contentUriBuilder);
 
-        String systemCode = configuration.getConsumerConfiguration().getSystemCode();
-        MessageListener listener = new NativeCmsPublicationEventsListener(contentMapper, objectMapper, systemCode, contentValidator);
+    NativeWordPressContentValidator contentValidator = new NativeWordPressContentValidator();
 
-        startListener(environment, listener, configuration.getConsumerConfiguration(), consumerClient);
+    WordPressArticleMapperResource wordPressArticleTransformerResource =
+        new WordPressArticleMapperResource(
+            blogPostContentMapper, liveBlogContentMapper, contentMapper, contentValidator);
+    environment.jersey().register(wordPressArticleTransformerResource);
 
-        HealthCheckRegistry healthChecks = environment.healthChecks();
+    String systemCode = configuration.getConsumerConfiguration().getSystemCode();
+    MessageListener listener =
+        new NativeCmsPublicationEventsListener(
+            contentMapper, objectMapper, systemCode, contentValidator);
 
-        healthChecks.register("Document Store ping",
-                new RemoteServiceDependencyHealthCheck("Document Store", "document-store-api",
-                        "Links to other FT content will not be resolved during publication, reducing data quality.",
-                        "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
-                        Client.create(), configuration.getUrlResolverConfiguration().getDocumentStoreConfiguration().getEndpointConfiguration()));
+    startListener(environment, listener, configuration.getConsumerConfiguration(), consumerClient);
 
-        Errors.customise(new WordPressArticleMapperErrorEntityFactory());
-        environment.servlets().addFilter("Transaction ID Filter",
-                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/map", "/ingest");
-        environment.servlets().addFilter("Transaction ID Filter",
-                new TransactionIdFilter()).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/transform-html-fragment");
+    HealthCheckRegistry healthChecks = environment.healthChecks();
 
-    }
+    healthChecks.register(
+        "Document Store ping",
+        new RemoteServiceDependencyHealthCheck(
+            "Document Store",
+            "document-store-api",
+            "Links to other FT content will not be resolved during publication, reducing data quality.",
+            "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/documentstoreapi",
+            Client.create(),
+            configuration
+                .getUrlResolverConfiguration()
+                .getDocumentStoreConfiguration()
+                .getEndpointConfiguration()));
 
-    private BodyProcessingFieldTransformer getBodyProcessingFieldTransformer(VideoMatcher videoMatcher,
-                                                                             UrlResolverConfiguration configuration,
-                                                                             BlogApiEndpointMetadataManager blogApiEndpointMetadataManager) {
+    Errors.customise(new WordPressArticleMapperErrorEntityFactory());
+    environment
+        .servlets()
+        .addFilter("Transaction ID Filter", new TransactionIdFilter())
+        .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/map", "/ingest");
+    environment
+        .servlets()
+        .addFilter("Transaction ID Filter", new TransactionIdFilter())
+        .addMappingForUrlPatterns(
+            EnumSet.allOf(DispatcherType.class), false, "/transform-html-fragment");
+  }
 
-        Client resolverClient = Client.create();
-        setClientTimeouts(resolverClient, configuration.getResolverConfiguration());
+  private BodyProcessingFieldTransformer getBodyProcessingFieldTransformer(
+      VideoMatcher videoMatcher,
+      UrlResolverConfiguration configuration,
+      BlogApiEndpointMetadataManager blogApiEndpointMetadataManager) {
 
-        EndpointConfiguration documentStoreEndpoint = configuration.getDocumentStoreConfiguration().getEndpointConfiguration();
-        URI documentStoreBaseURI = UriBuilder.fromPath("/")
-                .scheme("http")
-                .host(documentStoreEndpoint.getHost())
-                .port(documentStoreEndpoint.getPort())
-                .build();
+    Client resolverClient = Client.create();
+    setClientTimeouts(resolverClient, configuration.getResolverConfiguration());
 
-        Client documentStoreClient = Client.create();
-        setClientTimeouts(documentStoreClient, documentStoreEndpoint.getJerseyClientConfiguration());
-        String documentStoreHostHeader = configuration.getDocumentStoreConfiguration().getHostHeader();
+    EndpointConfiguration documentStoreEndpoint =
+        configuration.getDocumentStoreConfiguration().getEndpointConfiguration();
+    URI documentStoreBaseURI =
+        UriBuilder.fromPath("/")
+            .scheme("http")
+            .host(documentStoreEndpoint.getHost())
+            .port(documentStoreEndpoint.getPort())
+            .build();
 
-        EndpointConfiguration contentReadEndpoint = configuration.getContentReadConfiguration().getEndpointConfiguration();
-        URI contentReadBaseURI = UriBuilder.fromPath(contentReadEndpoint.getPath())
-                .scheme("http")
-                .host(contentReadEndpoint.getHost())
-                .port(contentReadEndpoint.getPort())
-                .build();
+    Client documentStoreClient = Client.create();
+    setClientTimeouts(documentStoreClient, documentStoreEndpoint.getJerseyClientConfiguration());
+    String documentStoreHostHeader = configuration.getDocumentStoreConfiguration().getHostHeader();
 
-        Client contentReadClient = Client.create();
-        setClientTimeouts(contentReadClient, contentReadEndpoint.getJerseyClientConfiguration());
-        String contentReadHostHeader = configuration.getContentReadConfiguration().getHostHeader();
+    EndpointConfiguration contentReadEndpoint =
+        configuration.getContentReadConfiguration().getEndpointConfiguration();
+    URI contentReadBaseURI =
+        UriBuilder.fromPath(contentReadEndpoint.getPath())
+            .scheme("http")
+            .host(contentReadEndpoint.getHost())
+            .port(contentReadEndpoint.getPort())
+            .build();
 
-        int threadPoolSize = configuration.getThreadPoolSize();
-        int maxLinks = threadPoolSize * configuration.getLinksPerThread();
-        return (BodyProcessingFieldTransformer) (new BodyProcessingFieldTransformerFactory(
+    Client contentReadClient = Client.create();
+    setClientTimeouts(contentReadClient, contentReadEndpoint.getJerseyClientConfiguration());
+    String contentReadHostHeader = configuration.getContentReadConfiguration().getHostHeader();
+
+    int threadPoolSize = configuration.getThreadPoolSize();
+    int maxLinks = threadPoolSize * configuration.getLinksPerThread();
+    return (BodyProcessingFieldTransformer)
+        (new BodyProcessingFieldTransformerFactory(
                 videoMatcher,
                 configuration.getPatterns(),
                 blogApiEndpointMetadataManager,
@@ -177,68 +218,80 @@ public class WordPressArticleMapperApplication extends Application<WordPressArti
                 documentStoreHostHeader,
                 contentReadClient,
                 contentReadBaseURI,
-                contentReadHostHeader
-        )).newInstance();
+                contentReadHostHeader))
+            .newInstance();
+  }
+
+  private void setClientTimeouts(Client client, JerseyClientConfiguration config) {
+    Duration duration = config.getConnectionTimeout();
+    if (duration != null) {
+      client.setConnectTimeout((int) duration.toMilliseconds());
     }
 
-    private void setClientTimeouts(Client client, JerseyClientConfiguration config) {
-        Duration duration = config.getConnectionTimeout();
-        if (duration != null) {
-            client.setConnectTimeout((int) duration.toMilliseconds());
-        }
-
-        duration = config.getTimeout();
-        if (duration != null) {
-            client.setReadTimeout((int) duration.toMilliseconds());
-        }
+    duration = config.getTimeout();
+    if (duration != null) {
+      client.setReadTimeout((int) duration.toMilliseconds());
     }
+  }
 
-    private Client getConsumerClient(Environment environment, ConsumerConfiguration config) {
-        JerseyClientConfiguration jerseyConfig = config.getJerseyClientConfiguration();
-        jerseyConfig.setGzipEnabled(false);
-        jerseyConfig.setGzipEnabledForRequests(false);
+  private Client getConsumerClient(Environment environment, ConsumerConfiguration config) {
+    JerseyClientConfiguration jerseyConfig = config.getJerseyClientConfiguration();
+    jerseyConfig.setGzipEnabled(false);
+    jerseyConfig.setGzipEnabledForRequests(false);
 
-        return ResilientClientBuilder.in(environment)
-                .using(jerseyConfig)
-                .usingDNS()
-                .named("consumer-client")
-                .build();
-    }
+    return ResilientClientBuilder.in(environment)
+        .using(jerseyConfig)
+        .usingDNS()
+        .named("consumer-client")
+        .build();
+  }
 
-    protected void startListener(Environment environment, MessageListener listener, ConsumerConfiguration config, Client consumerClient) {
-        final MessageQueueConsumerInitializer messageQueueConsumerInitializer =
-                new MessageQueueConsumerInitializer(config.getMessageQueueConsumerConfiguration(),
-                        listener, consumerClient);
+  protected void startListener(
+      Environment environment,
+      MessageListener listener,
+      ConsumerConfiguration config,
+      Client consumerClient) {
+    final MessageQueueConsumerInitializer messageQueueConsumerInitializer =
+        new MessageQueueConsumerInitializer(
+            config.getMessageQueueConsumerConfiguration(), listener, consumerClient);
 
-        HealthCheckRegistry healthchecks = environment.healthChecks();
-        healthchecks.register("KafkaProxyConsumer",
-                messageQueueConsumerInitializer.buildPassiveConsumerHealthcheck(
-                        config.getHealthcheckConfiguration(), environment.metrics()
-                ));
-        environment.lifecycle().manage(messageQueueConsumerInitializer);
-    }
+    HealthCheckRegistry healthchecks = environment.healthChecks();
+    healthchecks.register(
+        "KafkaProxyConsumer",
+        messageQueueConsumerInitializer.buildPassiveConsumerHealthcheck(
+            config.getHealthcheckConfiguration(), environment.metrics()));
+    environment.lifecycle().manage(messageQueueConsumerInitializer);
+  }
 
-    protected MessageProducer configureMessageProducer(Environment environment, ProducerConfiguration config) {
-        JerseyClientConfiguration jerseyConfig = config.getJerseyClientConfiguration();
-        jerseyConfig.setGzipEnabled(false);
-        jerseyConfig.setGzipEnabledForRequests(false);
+  protected MessageProducer configureMessageProducer(
+      Environment environment, ProducerConfiguration config) {
+    JerseyClientConfiguration jerseyConfig = config.getJerseyClientConfiguration();
+    jerseyConfig.setGzipEnabled(false);
+    jerseyConfig.setGzipEnabledForRequests(false);
 
-        Client producerClient = ResilientClientBuilder.in(environment)
-                .using(jerseyConfig)
-                .usingDNS()
-                .named("producer-client")
-                .build();
+    Client producerClient =
+        ResilientClientBuilder.in(environment)
+            .using(jerseyConfig)
+            .usingDNS()
+            .named("producer-client")
+            .build();
 
-        final QueueProxyProducer.BuildNeeded queueProxyBuilder = QueueProxyProducer.builder()
-                .withJerseyClient(producerClient)
-                .withQueueProxyConfiguration(config.getMessageQueueProducerConfiguration());
+    final QueueProxyProducer.BuildNeeded queueProxyBuilder =
+        QueueProxyProducer.builder()
+            .withJerseyClient(producerClient)
+            .withQueueProxyConfiguration(config.getMessageQueueProducerConfiguration());
 
-        final QueueProxyProducer producer = queueProxyBuilder.build();
+    final QueueProxyProducer producer = queueProxyBuilder.build();
 
-        environment.healthChecks().register("KafkaProxyProducer",
-                new CanConnectToMessageQueueProducerProxyHealthcheck(queueProxyBuilder.buildHealthcheck(),
-                        config.getHealthcheckConfiguration(), environment.metrics()));
+    environment
+        .healthChecks()
+        .register(
+            "KafkaProxyProducer",
+            new CanConnectToMessageQueueProducerProxyHealthcheck(
+                queueProxyBuilder.buildHealthcheck(),
+                config.getHealthcheckConfiguration(),
+                environment.metrics()));
 
-        return producer;
-    }
+    return producer;
+  }
 }
