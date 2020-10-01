@@ -28,8 +28,12 @@ import java.net.URI;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.UUID;
@@ -92,6 +96,117 @@ public class WordPressLiveBlogContentTransformerTest {
     post.setCommentStatus(COMMENTS_OPEN);
     post.setUuid(POST_UUID.toString());
     post.setAccessLevel(AccessLevel.SUBSCRIBED);
+
+    WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+
+    assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+    assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
+    assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
+    assertThat("brands", actual.getBrands(), (Matcher) hasItems(BRANDS.toArray()));
+    assertThat(
+        "identifier authority",
+        actual.getIdentifiers().first().getAuthority(),
+        is(equalTo(SYSTEM_ID)));
+    assertThat(
+        "identifier value",
+        actual.getIdentifiers().first().getIdentifierValue(),
+        is(equalTo(POST_URL)));
+    assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
+    assertThat("realtime", actual.isRealtime(), is(true));
+    assertThat("comments", actual.getComments().isEnabled(), is(true));
+    assertThat(
+        "publishedDate",
+        actual.getPublishedDate().toInstant(),
+        is(equalTo(PUBLISHED_DATE.toInstant())));
+    assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
+    assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+    assertThat(
+        "firstPublishedDate",
+        actual.getFirstPublishedDate().toInstant(),
+        is(equalTo(PUBLISHED_DATE.toInstant())));
+    assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.SUBSCRIBED)));
+    assertThat(
+        "canBeDistributed",
+        actual.getCanBeDistributed(),
+        is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+    assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
+    assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+    assertThat(
+        "canonicalWebUrl",
+        actual.getCanonicalWebUrl(),
+        is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
+  }
+
+  @Test
+  public void thatLiveBlogPostIsTransformedAccessLevelFree() {
+    Post post = new Post();
+    post.setTitle(TITLE);
+    post.setDateGmt(PUBLISHED_DATE_STR);
+    post.setAuthors(Collections.singletonList(AUTHOR));
+    post.setUrl(POST_URL);
+    post.setCommentStatus(COMMENTS_OPEN);
+    post.setUuid(POST_UUID.toString());
+    post.setAccessLevel(AccessLevel.SUBSCRIBED);
+    Map<String, String> tag = new HashMap<>();
+    tag.put("title", "Free");
+    List<Object> tags = new ArrayList<Object>();
+    tags.add(tag);
+    post.setTags(tags);
+
+    WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
+
+    assertThat("title", actual.getTitle(), is(equalTo(TITLE)));
+    assertThat("type", actual.getType(), is(equalTo(TYPE_ARTICLE)));
+    assertThat("byline", actual.getByline(), is(equalTo(AUTHOR_NAME)));
+    assertThat("brands", actual.getBrands(), (Matcher) hasItems(BRANDS.toArray()));
+    assertThat(
+        "identifier authority",
+        actual.getIdentifiers().first().getAuthority(),
+        is(equalTo(SYSTEM_ID)));
+    assertThat(
+        "identifier value",
+        actual.getIdentifiers().first().getIdentifierValue(),
+        is(equalTo(POST_URL)));
+    assertThat("uuid", actual.getUuid(), is(equalTo(POST_UUID.toString())));
+    assertThat("realtime", actual.isRealtime(), is(true));
+    assertThat("comments", actual.getComments().isEnabled(), is(true));
+    assertThat(
+        "publishedDate",
+        actual.getPublishedDate().toInstant(),
+        is(equalTo(PUBLISHED_DATE.toInstant())));
+    assertThat("lastModified", actual.getLastModified(), is(equalTo(LAST_MODIFIED)));
+    assertThat("publishReference", actual.getPublishReference(), is(equalTo(TX_ID)));
+    assertThat(
+        "firstPublishedDate",
+        actual.getFirstPublishedDate().toInstant(),
+        is(equalTo(PUBLISHED_DATE.toInstant())));
+    assertThat("accessLevel", actual.getAccessLevel(), is(equalTo(AccessLevel.FREE)));
+    assertThat(
+        "canBeDistributed",
+        actual.getCanBeDistributed(),
+        is(equalTo(WordPressContentMapper.CAN_BE_DISTRIBUTED_DEFAULT_VALUE)));
+    assertThat("canBeSyndicated", actual.getCanBeSyndicated(), is(equalTo(Syndication.VERIFY)));
+    assertThat("webUrl", actual.getWebUrl(), is(equalTo(POST_URL)));
+    assertThat(
+        "canonicalWebUrl",
+        actual.getCanonicalWebUrl(),
+        is(equalTo(String.format(CANONICAL_WEB_URL_TEMPLATE, POST_UUID))));
+  }
+
+  @Test
+  public void thatLiveBlogPostIsTransformedNoTitle() {
+    Post post = new Post();
+    post.setTitle(TITLE);
+    post.setDateGmt(PUBLISHED_DATE_STR);
+    post.setAuthors(Collections.singletonList(AUTHOR));
+    post.setUrl(POST_URL);
+    post.setCommentStatus(COMMENTS_OPEN);
+    post.setUuid(POST_UUID.toString());
+    post.setAccessLevel(AccessLevel.SUBSCRIBED);
+    Map<String, String> tag = new HashMap<>();
+    List<Object> tags = new ArrayList<Object>();
+    tags.add(tag);
+    post.setTags(tags);
 
     WordPressLiveBlogContent actual = transformer.mapWordPressArticle(TX_ID, post, LAST_MODIFIED);
 
