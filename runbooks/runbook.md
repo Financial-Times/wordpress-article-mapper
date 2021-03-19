@@ -1,3 +1,7 @@
+<!--
+    Written in the format prescribed by https://github.com/Financial-Times/runbook.md.
+    Any future edits should abide by this format.
+-->
 # UPP - Wordpress Article Mapper
 
 This service listens for Wordpress messages on a Kafka topic, converts them into another format and publishes the result to another queue.
@@ -8,7 +12,7 @@ up-wam
 
 ## Primary URL
 
-<https://upp-prod-delivery-glb.upp.ft.com/__wordpress-article-mapper/>
+https://upp-prod-delivery-glb.upp.ft.com/__wordpress-article-mapper/
 
 ## Service Tier
 
@@ -18,28 +22,6 @@ Platinum
 
 Production
 
-## Delivered By
-
-content
-
-## Supported By
-
-content
-
-## Known About By
-
-- dimitar.terziev
-- hristo.georgiev
-- elitsa.pavlova
-- elina.kaneva
-- kalin.arsov
-- ivan.nikolov
-- miroslav.gatsanoga
-- mihail.mihaylov
-- tsvetan.dimitrov
-- georgi.ivanov
-- robert.marinov
-
 ## Host Platform
 
 AWS
@@ -48,7 +30,7 @@ AWS
 
 Wordpress Article Mapper is a Dropwizard application which listens for Wordpress messages on the NativeCmsPublicationEvents 
 queue, converts them into the canonical universal publishing json format and sends the conversion result on the 
-CmsPublicationEvents queue. Each message coming from Wordpress has the header Origin-System-Id: http://cmdb.ft.com/systems/wordpress. 
+CmsPublicationEvents queue. Each message coming from Wordpress has the header Origin-System-Id: <http://cmdb.ft.com/systems/wordpress>. 
 Other messages are discarded.
 
 ## Contains Personal Data
@@ -59,10 +41,19 @@ No
 
 No
 
-## Dependencies
+<!-- Placeholder - remove HTML comment markers to activate
+## Can Download Personal Data
+Choose Yes or No
 
-- kafka-proxy
-- document-store-api
+...or delete this placeholder if not applicable to this system
+-->
+
+<!-- Placeholder - remove HTML comment markers to activate
+## Can Contact Individuals
+Choose Yes or No
+
+...or delete this placeholder if not applicable to this system
+-->
 
 ## Failover Architecture Type
 
@@ -105,6 +96,14 @@ the service is deployed to production.
 Otherwise, an automated failover is going to take place when releasing.
 For more details about the failover process please see: <https://github.com/Financial-Times/upp-docs/tree/master/failover-guides/delivery-cluster>
 
+<!-- Placeholder - remove HTML comment markers to activate
+## Heroku Pipeline Name
+Enter descriptive text satisfying the following:
+This is the name of the Heroku pipeline for this system. If you don't have a pipeline, this is the name of the app in Heroku. A pipeline is a group of Heroku apps that share the same codebase where each app in a pipeline represents the different stages in a continuous delivery workflow, i.e. staging, production.
+
+...or delete this placeholder if not applicable to this system
+-->
+
 ## Key Management Process Type
 
 Manual
@@ -118,8 +117,8 @@ To rotate credentials you need to login to a particular cluster and update varni
 
 Service in UPP K8S delivery clusters:
 
-- Delivery-Prod-EU health: <https://upp-prod-delivery-eu.ft.com/__health/__pods-health?service-name=wordpress-article-mapper>
-- Delivery-Prod-US health: <https://upp-prod-delivery-us.ft.com/__health/__pods-health?service-name=wordpress-article-mapper>
+*   Delivery-Prod-EU health: <https://upp-prod-delivery-eu.ft.com/__health/__pods-health?service-name=wordpress-article-mapper>
+*   Delivery-Prod-US health: <https://upp-prod-delivery-us.ft.com/__health/__pods-health?service-name=wordpress-article-mapper>
 
 ## First Line Troubleshooting
 
