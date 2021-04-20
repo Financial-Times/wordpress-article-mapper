@@ -11,7 +11,7 @@
     <jax-rs-build-info-resource.version>1.1.1</jax-rs-build-info-resource.version>
     <junit.version>4.11</junit.version>
     <mockito-core.version>1.9.5</mockito-core.version>
-    <jersey-version>1.18.1</jersey-version>
+    <jersey-version>1.19.4</jersey-version>
     <guava.version>19.0</guava.version>
     <jax-rs-transaction-id-handling.version>2.6.1</jax-rs-transaction-id-handling.version>
     <uuid-utils.version>1.0.2</uuid-utils.version>
