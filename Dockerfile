@@ -25,6 +25,10 @@ RUN apk --update add git maven curl \
  && rm -rf /var/cache/apk/* \
  && rm -rf $MAVEN_HOME/*
 
+FROM openjdk:8u212-jdk-alpine3.9
+COPY --from=0 /wordpress-article-mapper.jar /wordpress-article-mapper.jar
+COPY --from=0 /config.yaml /config.yaml
+
 EXPOSE 8080 8081
 
 CMD exec java $JAVA_OPTS \
